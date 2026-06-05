@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { MessageMediaGallery } from "@/components/tg-search-test-media";
+import type { ChannelMessageItem } from "@/lib/jisou-search-types";
 
 type JisouChannel = {
   title: string;
@@ -8,34 +10,6 @@ type JisouChannel = {
   username: string | null;
   members: string | null;
 };
-
-type MediaItem = {
-  id: number;
-  contentType: string;
-};
-
-type ChannelMessage = {
-  kind: "single" | "album";
-  id: number;
-  ids: number[];
-  date: string | null;
-  caption?: string;
-  textPreview: string;
-  contentType: string;
-  hasMedia: boolean;
-  mediaItems: MediaItem[];
-  albumSize: number;
-  permalink: string;
-};
-
-function mediaUrl(username: string, messageId: number, thumb: boolean) {
-  const params = new URLSearchParams({
-    username,
-    messageId: String(messageId),
-    thumb: thumb ? "1" : "0"
-  });
-  return `/api/test/tg-search/media?${params.toString()}`;
-}
 
 export default function TgSearchTestPage() {
   const [query, setQuery] = useState("美腿丝袜");
@@ -51,7 +25,7 @@ export default function TgSearchTestPage() {
     note?: string;
     rawCount?: number;
   } | null>(null);
-  const [messages, setMessages] = useState<ChannelMessage[]>([]);
+  const [messages, setMessages] = useState<ChannelMessageItem[]>([]);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
   const pushLog = useCallback((message: string, extra?: Record<string, unknown>) => {
@@ -154,7 +128,7 @@ export default function TgSearchTestPage() {
         broadcast?: boolean | null;
         note?: string;
         rawCount?: number;
-        messages?: ChannelMessage[];
+        messages?: ChannelMessageItem[];
       };
       try {
         data = await res.json();
@@ -189,7 +163,7 @@ export default function TgSearchTestPage() {
       <h1 style={{ margin: "0 0 8px", fontSize: 22 }}>TG 搜索联调测试页</h1>
       <p style={{ margin: "0 0 20px", color: "#555", lineHeight: 1.6, fontSize: 14 }}>
         流程：极搜关键词 → 解析频道链接 → 点击频道 → GramJS 拉消息（默认<strong>不 join</strong>）。
-        相册消息会合并展示；图片通过 GramJS 下载缩略图预览（与 TG 一致，相册仅一条带配文）。
+        相册合并展示；<strong>封面缩略图</strong>在拉消息时预缓存至 R2/本地，相册其余图与视频原文件<strong>按需加载</strong>（首次慢、之后走 CDN）。
       </p>
 
       <form
@@ -301,7 +275,9 @@ export default function TgSearchTestPage() {
             <p style={{ color: "#888", fontSize: 14 }}>点击左侧频道，测试是否无需 join 即可读消息</p>
           )}
 
-          {channelLoading ? <p style={{ fontSize: 14 }}>正在通过 GramJS 拉取消息…</p> : null}
+          {channelLoading ? (
+            <p style={{ fontSize: 14 }}>正在拉取消息并预缓存封面缩略图（相册仅首张）…</p>
+          ) : null}
 
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             {messages.map((msg) => (
@@ -317,62 +293,7 @@ export default function TgSearchTestPage() {
                 </div>
 
                 {activeChannel?.username && msg.mediaItems.length > 0 ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 8,
-                      marginTop: 10
-                    }}
-                  >
-                    {msg.mediaItems.map((item) =>
-                      item.contentType === "PHOTO" || item.contentType === "VIDEO" ? (
-                        <div
-                          key={item.id}
-                          style={{
-                            width: item.contentType === "VIDEO" ? "100%" : 120,
-                            maxWidth: item.contentType === "VIDEO" ? 320 : 120,
-                            flexShrink: 0
-                          }}
-                        >
-                          {item.contentType === "PHOTO" ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={mediaUrl(activeChannel.username!, item.id, true)}
-                              alt=""
-                              loading="lazy"
-                              style={{
-                                width: 120,
-                                height: 120,
-                                objectFit: "cover",
-                                borderRadius: 6,
-                                background: "#f3f4f6"
-                              }}
-                            />
-                          ) : (
-                            <video
-                              controls
-                              playsInline
-                              preload="none"
-                              poster={mediaUrl(activeChannel.username!, item.id, true)}
-                              src={mediaUrl(activeChannel.username!, item.id, false)}
-                              style={{
-                                width: "100%",
-                                maxHeight: 220,
-                                borderRadius: 6,
-                                background: "#111",
-                                display: "block"
-                              }}
-                            />
-                          )}
-                          <div style={{ fontSize: 10, color: "#999", marginTop: 2 }}>
-                            #{item.id}
-                            {item.contentType === "VIDEO" ? " · 点击播放（首次加载可能较慢）" : ""}
-                          </div>
-                        </div>
-                      ) : null
-                    )}
-                  </div>
+                  <MessageMediaGallery username={activeChannel.username} msg={msg} />
                 ) : null}
 
                 <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>

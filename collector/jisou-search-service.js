@@ -7,6 +7,7 @@ const { parseJisouSearchMessage, parseJisouReplyMarkup } = require("./jisou-pars
 const { pickContentType } = require("./parse");
 const { mapRawMessage, groupMessagesForDisplay } = require("./message-display");
 const { isJisouCaptcha, handleJisouCaptcha } = require("./jisou-captcha");
+const { cacheMessageMediaWithClient, mapPool } = require("./tg-search-media-cache");
 
 const BOT_USERNAME = (process.env.JISOU_BOT_USERNAME || "jisou").replace(/^@/, "");
 
@@ -46,6 +47,72 @@ function mapGramError(err) {
     return { code: code || "JISOU_CAPTCHA_REQUIRED", message: msg || "极搜人机验证未通过" };
   }
   return { code: "GRAM_ERROR", message: msg };
+}
+
+/**
+ * 列表返回前：在同一 GramJS 连接内预取封面缩略图并写入 R2/本地
+ * 相册仅同步第一张 thumb，其余 lazy
+ * @param {import('telegram').TelegramClient} client
+ * @param {string} username
+ * @param {object[]} displayList
+ * @param {Map<number, import('telegram').Api.Message>} msgById
+ */
+async function enrichDisplayListWithThumbs(client, username, displayList, msgById) {
+  const thumbJobs = [];
+
+  for (const item of displayList) {
+    item.coverUrl = null;
+    item.mediaStatus = item.hasMedia ? "pending" : null;
+
+    for (let i = 0; i < item.mediaItems.length; i++) {
+      const mi = item.mediaItems[i];
+      mi.thumbUrl = null;
+      mi.fullUrl = null;
+      mi.status = "pending";
+
+      if (mi.contentType !== "PHOTO" && mi.contentType !== "VIDEO") continue;
+
+      // 相册只同步预取封面，其余进 viewport 再拉
+      if (item.kind === "album" && i > 0) continue;
+
+      const msg = msgById.get(mi.id);
+      if (!msg?.media) continue;
+      thumbJobs.push({ item, mi, msg });
+    }
+  }
+
+  const concurrency = Math.min(
+    4,
+    Math.max(1, Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 3)
+  );
+
+  await mapPool(thumbJobs, concurrency, async ({ item, mi, msg }) => {
+    try {
+      const result = await cacheMessageMediaWithClient(client, username, msg, { thumb: true });
+      mi.thumbUrl = result.url;
+      mi.status = "thumb_ready";
+      if (!item.coverUrl) item.coverUrl = result.url;
+    } catch (err) {
+      console.warn(
+        `[tg-search:collector] thumb prefetch fail ${username}/${mi.id}: ${err?.message || err}`
+      );
+    }
+  });
+
+  for (const item of displayList) {
+    if (!item.hasMedia) continue;
+    const mediaOnly = item.mediaItems.filter(
+      (m) => m.contentType === "PHOTO" || m.contentType === "VIDEO"
+    );
+    if (!mediaOnly.length) continue;
+
+    const ready = mediaOnly.filter((m) => m.status === "thumb_ready" || m.status === "ready").length;
+    if (ready === 0) item.mediaStatus = "pending";
+    else if (ready >= mediaOnly.length) item.mediaStatus = "thumb_ready";
+    else item.mediaStatus = "partial";
+  }
+
+  return displayList;
 }
 
 async function waitForJisouReply(client, botEntity, afterMessageId, timeoutMs) {
@@ -187,6 +254,13 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
     });
     const displayList = groupMessagesForDisplay(rawList, username);
 
+    const msgById = new Map();
+    for (const msg of messages || []) {
+      if (msg?.id) msgById.set(msg.id, msg);
+    }
+
+    await enrichDisplayListWithThumbs(client, username, displayList, msgById);
+
     console.log(
       `[tg-search:collector] fetchChannelMessages ok username=${username} raw=${rawList.length} display=${displayList.length}`
     );
@@ -198,7 +272,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       joinedRequired: false,
       note:
         broadcast === true
-          ? "公开广播频道：GramJS 通常无需 join 即可读历史（与 TG 客户端预览一致）"
+          ? "公开广播频道：GramJS 通常无需 join 即可读历史。封面缩略图已预缓存至 R2/本地，相册其余图与视频原文件按需加载。"
           : "超级群/私有频道：往往需要 join 后才能 getMessages",
       search: search || null,
       count: displayList.length,
@@ -210,12 +284,12 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
 }
 
 /**
- * 下载单条消息的媒体（测试页预览用，优先缩略图）
+ * 按需解析媒体：先读 R2/本地缓存，未命中则 GramJS 下载并写穿缓存
  * @param {string} usernameOrUrl
  * @param {number} messageId
  * @param {{ thumb?: boolean }} opts
  */
-async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
+async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
   const username = normalizeUsername(usernameOrUrl);
   const mid = Math.floor(Number(messageId));
   if (!username || mid <= 0) {
@@ -224,45 +298,64 @@ async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
     throw err;
   }
 
-  return withGramClient(async (client) => {
-    const entity = await client.getEntity(username);
-    const batch = await client.getMessages(entity, { ids: [mid] });
-    const msg = batch?.[0];
-    if (!msg?.media) {
-      const err = new Error("该消息无媒体");
-      err.code = "NO_MEDIA";
-      throw err;
-    }
+  const wantThumb = opts.thumb !== false;
+  const variant = wantThumb ? "thumb" : "full";
+  const { getCachedMediaUrl, buildMediaSubPath, singleflight } = require("./tg-search-media-cache");
 
-    const contentType = pickContentType(msg);
-    /** thumb=true 缩略图/封面；thumb=false 原图或完整视频；未指定时图片默认缩略图 */
-    const wantThumb =
-      opts.thumb === true ? true : opts.thumb === false ? false : contentType === "PHOTO";
-    const downloadOpts = wantThumb ? { thumb: 1 } : {};
-    const buffer = await client.downloadMedia(msg, downloadOpts);
-    if (!buffer || !Buffer.isBuffer(buffer) || buffer.length === 0) {
-      const err = new Error("媒体下载失败");
-      err.code = "DOWNLOAD_FAILED";
-      throw err;
+  for (const contentType of ["PHOTO", "VIDEO"]) {
+    const subPath = buildMediaSubPath(username, mid, variant, contentType);
+    const cachedUrl = await getCachedMediaUrl(subPath);
+    if (cachedUrl) {
+      return {
+        url: cachedUrl,
+        cached: true,
+        mime: wantThumb ? "image/jpeg" : contentType === "VIDEO" ? "video/mp4" : "image/jpeg",
+        contentType,
+        messageId: mid,
+        username,
+        thumb: wantThumb,
+        buffer: null
+      };
     }
+  }
 
-    let mime = "application/octet-stream";
-    if (wantThumb && contentType === "VIDEO") {
-      mime = "image/jpeg";
-    } else if (contentType === "PHOTO") {
-      mime = "image/jpeg";
-    } else if (contentType === "VIDEO") {
-      const docMime = msg.media?.document?.mimeType || "";
-      mime = docMime.startsWith("video/") ? docMime : "video/mp4";
-    }
+  const flightKey = `resolve:${username}:${mid}:${variant}`;
 
-    return { buffer, mime, contentType, messageId: mid, username, thumb: wantThumb };
-  });
+  return singleflight(flightKey, () =>
+    withGramClient(async (client) => {
+      const entity = await client.getEntity(username);
+      const batch = await client.getMessages(entity, { ids: [mid] });
+      const msg = batch?.[0];
+      if (!msg?.media) {
+        const err = new Error("该消息无媒体");
+        err.code = "NO_MEDIA";
+        throw err;
+      }
+
+      const result = await cacheMessageMediaWithClient(client, username, msg, opts);
+      return {
+        url: result.url,
+        cached: result.cached,
+        mime: result.mime || (wantThumb ? "image/jpeg" : "application/octet-stream"),
+        contentType: result.contentType,
+        messageId: mid,
+        username,
+        thumb: wantThumb,
+        buffer: result.buffer || null
+      };
+    })
+  );
+}
+
+/** @deprecated 请用 resolveMessageMedia；仅保留类型兼容 */
+async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
+  return resolveMessageMedia(usernameOrUrl, messageId, opts);
 }
 
 module.exports = {
   searchJisouChannels,
   fetchChannelMessages,
+  resolveMessageMedia,
   downloadMessageMedia,
   normalizeUsername,
   mapGramError

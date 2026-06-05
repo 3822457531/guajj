@@ -17,6 +17,16 @@ export type JisouSearchResult = {
   fetchedAt: string;
 };
 
+export type MediaItemStatus = "pending" | "thumb_ready" | "ready";
+
+export type ChannelMediaItem = {
+  id: number;
+  contentType: string;
+  thumbUrl?: string | null;
+  fullUrl?: string | null;
+  status?: MediaItemStatus;
+};
+
 export type ChannelMessageItem = {
   kind: "single" | "album";
   id: number;
@@ -26,7 +36,9 @@ export type ChannelMessageItem = {
   textPreview: string;
   contentType: string;
   hasMedia: boolean;
-  mediaItems: Array<{ id: number; contentType: string }>;
+  coverUrl?: string | null;
+  mediaStatus?: "pending" | "partial" | "thumb_ready" | null;
+  mediaItems: ChannelMediaItem[];
   albumSize: number;
   permalink: string;
 };
@@ -44,16 +56,32 @@ export type ChannelMessagesResult = {
   fetchedAt: string;
 };
 
+export type ResolvedMedia = {
+  url: string;
+  cached: boolean;
+  mime: string;
+  contentType: string;
+  messageId: number;
+  username: string;
+  thumb: boolean;
+  buffer?: Buffer | null;
+};
+
 export type JisouSearchService = {
   searchJisouChannels: (query: string) => Promise<JisouSearchResult>;
   fetchChannelMessages: (
     username: string,
     opts: { limit?: number; search?: string; messageId?: number }
   ) => Promise<ChannelMessagesResult>;
+  resolveMessageMedia: (
+    username: string,
+    messageId: number,
+    opts: { thumb?: boolean }
+  ) => Promise<ResolvedMedia>;
   downloadMessageMedia: (
     username: string,
     messageId: number,
     opts: { thumb?: boolean }
-  ) => Promise<{ buffer: Buffer; mime: string; contentType: string }>;
+  ) => Promise<ResolvedMedia>;
   mapGramError: (err: unknown) => { code: string; message: string };
 };
