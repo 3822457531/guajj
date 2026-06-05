@@ -95,22 +95,29 @@ async function searchJisouChannels(query) {
   const q = String(query || "").trim();
   if (!q) return { query: "", channels: [], hotKeywords: [], ads: [], buttons: { filters: [], actions: [] } };
 
+  console.log(`[tg-search:collector] ${new Date().toISOString()} searchJisouChannels start q=${JSON.stringify(q)}`);
+
   return withGramClient(async (client) => {
     const botEntity = await client.getEntity(BOT_USERNAME);
+    console.log(`[tg-search:collector] bot @${BOT_USERNAME} entity ok`);
     const maxAttempts = 3;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(`[tg-search:collector] attempt ${attempt}/${maxAttempts} sendMessage`);
       const sent = await client.sendMessage(botEntity, { message: q });
+      console.log(`[tg-search:collector] sent id=${sent.id}, wait reply timeout=${jisouReplyTimeoutMs()}ms`);
       const reply = await waitForJisouReply(client, botEntity, sent.id, jisouReplyTimeoutMs());
 
       if (isJisouCaptcha(reply)) {
-        console.log(`[极搜] 第 ${attempt} 次触发人机验证，开始处理…`);
+        console.log(`[tg-search:collector] 第 ${attempt} 次触发人机验证，开始处理…`);
         await handleJisouCaptcha(client, botEntity, reply);
         await sleep(1000);
         continue;
       }
 
-      return buildJisouSearchResult(q, reply);
+      const result = buildJisouSearchResult(q, reply);
+      console.log(`[tg-search:collector] search ok channels=${result.channels?.length ?? 0} replyId=${reply.id}`);
+      return result;
     }
 
     const err = new Error("极搜搜索在验证后仍未返回结果，请稍后重试");
@@ -135,6 +142,10 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   const limit = Math.min(50, Math.max(1, Number(opts.limit) || 20));
   const search = String(opts.search || "").trim();
   const messageId = Number(opts.messageId) || 0;
+
+  console.log(
+    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(search || null)}`
+  );
 
   return withGramClient(async (client) => {
     let entity;
@@ -175,6 +186,10 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       return mapRawMessage(msg, username);
     });
     const displayList = groupMessagesForDisplay(rawList, username);
+
+    console.log(
+      `[tg-search:collector] fetchChannelMessages ok username=${username} raw=${rawList.length} display=${displayList.length}`
+    );
 
     return {
       username,

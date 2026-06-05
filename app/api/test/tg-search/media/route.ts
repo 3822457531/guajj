@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server";
 import { loadJisouSearchService } from "@/lib/load-jisou-search-service";
+import type { JisouSearchService } from "@/lib/jisou-search-types";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
-
-type JisouSearchService = {
-  downloadMessageMedia: (
-    username: string,
-    messageId: number,
-    opts: { thumb?: boolean | undefined }
-  ) => Promise<{ buffer: Buffer; mime: string }>;
-  mapGramError: (err: unknown) => { code: string; message: string };
-};
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

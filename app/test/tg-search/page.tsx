@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type JisouChannel = {
   title: string;
@@ -52,12 +52,29 @@ export default function TgSearchTestPage() {
     rawCount?: number;
   } | null>(null);
   const [messages, setMessages] = useState<ChannelMessage[]>([]);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
-  async function onSearch(e: React.FormEvent) {
-    e.preventDefault();
+  const pushLog = useCallback((message: string, extra?: Record<string, unknown>) => {
+    const line = `[${new Date().toLocaleTimeString("zh-CN", { hour12: false })}] ${message}${
+      extra ? ` ${JSON.stringify(extra)}` : ""
+    }`;
+    console.log("[tg-search:page]", message, extra ?? "");
+    setDebugLogs((prev) => [line, ...prev].slice(0, 40));
+  }, []);
+
+  useEffect(() => {
+    pushLog("页面已 hydrate，客户端 JS 正常");
+  }, [pushLog]);
+
+  async function onSearch(e?: React.FormEvent) {
+    e?.preventDefault();
     const q = query.trim();
-    if (!q) return;
+    if (!q) {
+      pushLog("关键词为空，跳过搜索");
+      return;
+    }
 
+    pushLog("开始极搜", { q });
     setLoading(true);
     setError(null);
     setChannels([]);
@@ -66,21 +83,40 @@ export default function TgSearchTestPage() {
     setChannelMeta(null);
 
     try {
-      const res = await fetch("/api/test/tg-search/search", {
+      const url = "/api/test/tg-search/search";
+      pushLog("fetch POST", { url, q });
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ q })
       });
-      const data = await res.json();
-      if (!data.ok) {
-        throw new Error(data.message || data.error || "搜索失败");
+      pushLog("收到响应", { status: res.status, ok: res.ok });
+      let data: { ok?: boolean; message?: string; error?: string; channels?: JisouChannel[] };
+      try {
+        data = await res.json();
+      } catch {
+        pushLog("JSON 解析失败", { status: res.status });
+        throw new Error(res.ok ? "搜索响应解析失败" : `搜索请求失败 (HTTP ${res.status})`);
+      }
+      pushLog("响应体", {
+        ok: data.ok,
+        error: data.error,
+        channels: data.channels?.length ?? 0
+      });
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || data.error || `搜索失败 (HTTP ${res.status})`);
       }
       setChannels(data.channels || []);
       if (!data.channels?.length) {
         setError("极搜未返回频道链接（可能无匹配或超时）");
+        pushLog("极搜返回 0 个频道");
+      } else {
+        pushLog("极搜完成", { count: data.channels.length });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "搜索失败");
+      const msg = err instanceof Error ? err.message : "搜索失败";
+      pushLog("搜索异常", { message: msg });
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -106,10 +142,27 @@ export default function TgSearchTestPage() {
       const kw = (inChannelSearch ?? channelSearch).trim();
       if (kw) params.set("search", kw);
 
-      const res = await fetch(`/api/test/tg-search/channel?${params.toString()}`);
-      const data = await res.json();
-      if (!data.ok) {
-        throw new Error(data.message || data.error || "读取频道失败");
+      const url = `/api/test/tg-search/channel?${params.toString()}`;
+      pushLog("fetch GET 频道", { url });
+      const res = await fetch(url);
+      pushLog("频道响应", { status: res.status, ok: res.ok });
+      let data: {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+        entityType?: string;
+        broadcast?: boolean | null;
+        note?: string;
+        rawCount?: number;
+        messages?: ChannelMessage[];
+      };
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(res.ok ? "频道响应解析失败" : `读取频道失败 (HTTP ${res.status})`);
+      }
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || data.error || `读取频道失败 (HTTP ${res.status})`);
       }
       setChannelMeta({
         entityType: data.entityType,
@@ -121,8 +174,11 @@ export default function TgSearchTestPage() {
       if (!data.messages?.length) {
         setError("频道可读，但当前条件下没有消息（试试清空频道内搜索或换频道）");
       }
+      pushLog("频道消息", { count: data.messages?.length ?? 0 });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "读取频道失败");
+      const msg = err instanceof Error ? err.message : "读取频道失败";
+      pushLog("频道异常", { message: msg });
+      setError(msg);
     } finally {
       setChannelLoading(false);
     }
@@ -136,15 +192,28 @@ export default function TgSearchTestPage() {
         相册消息会合并展示；图片通过 GramJS 下载缩略图预览（与 TG 一致，相册仅一条带配文）。
       </p>
 
-      <form onSubmit={onSearch} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void onSearch();
+        }}
+        style={{ display: "flex", gap: 8, marginBottom: 16 }}
+      >
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="搜索关键词，如 美腿丝袜"
           style={{ flex: 1, padding: "10px 12px", fontSize: 15, border: "1px solid #ccc", borderRadius: 8 }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void onSearch();
+            }
+          }}
         />
         <button
-          type="submit"
+          type="button"
+          onClick={() => void onSearch()}
           disabled={loading}
           style={{ padding: "10px 18px", borderRadius: 8, border: "none", background: "#111", color: "#fff", fontWeight: 700 }}
         >
@@ -319,6 +388,36 @@ export default function TgSearchTestPage() {
           </ul>
         </section>
       </div>
+
+      <section style={{ marginTop: 20, border: "1px solid #e5e7eb", borderRadius: 10, padding: 12 }}>
+        <h2 style={{ margin: "0 0 8px", fontSize: 14, color: "#374151" }}>
+          调试日志（页面 + 服务端请 grep <code style={{ fontSize: 12 }}>[tg-search:</code>）
+        </h2>
+        <p style={{ margin: "0 0 8px", fontSize: 12, color: "#6b7280" }}>
+          若点击搜索后 URL 变成 <code>/test/tg-search?</code> 且此处无日志，说明客户端 JS 未加载；若页面有日志但服务端无，说明请求未到达 API。
+        </p>
+        {debugLogs.length === 0 ? (
+          <p style={{ margin: 0, fontSize: 12, color: "#9ca3af" }}>暂无日志，点击搜索后会显示</p>
+        ) : (
+          <pre
+            style={{
+              margin: 0,
+              maxHeight: 220,
+              overflow: "auto",
+              fontSize: 11,
+              lineHeight: 1.5,
+              background: "#111827",
+              color: "#e5e7eb",
+              padding: 10,
+              borderRadius: 6,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-all"
+            }}
+          >
+            {debugLogs.join("\n")}
+          </pre>
+        )}
+      </section>
     </main>
   );
 }

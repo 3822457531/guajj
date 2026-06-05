@@ -14,19 +14,23 @@ async function withGramClient(fn) {
   const { apiId, apiHash, sessionFile } = requireEnv();
   const session = readSession(sessionFile);
   if (!session) {
+    console.error(`[tg-search:collector] NO_SESSION sessionFile=${sessionFile}`);
     const err = new Error("未找到 Telegram session，请先运行 npm run collector:login");
     err.code = "NO_SESSION";
     throw err;
   }
 
+  console.log(`[tg-search:collector] GramJS connect sessionFile=${sessionFile}`);
   const client = new TelegramClient(new StringSession(session), apiId, apiHash, {
     connectionRetries: 5
   });
   await client.connect();
+  console.log(`[tg-search:collector] GramJS connected`);
   try {
     return await fn(client);
   } finally {
     await client.disconnect();
+    console.log(`[tg-search:collector] GramJS disconnected`);
   }
 }
 
