@@ -73,8 +73,18 @@ export type ResolvedMedia = {
   buffer?: Buffer | null;
 };
 
+export type JisouCaptchaChallenge = {
+  challengeId: string;
+  prompt: string;
+  options: string[];
+  expiresInSec: number;
+  imageUrl: string;
+};
+
 export type JisouSearchService = {
   searchJisouChannels: (query: string) => Promise<JisouSearchResult>;
+  solveJisouCaptchaAndSearch: (challengeId: string, answer: string) => Promise<JisouSearchResult>;
+  getJisouCaptchaImage: (challengeId: string) => { buffer: Buffer; mime: string } | null;
   fetchChannelMessages: (
     username: string,
     opts: { limit?: number; search?: string; messageId?: number }

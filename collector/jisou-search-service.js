@@ -6,7 +6,8 @@ const { withGramClient, sleep } = require("./gram-client");
 const { parseJisouSearchMessage, parseJisouReplyMarkup } = require("./jisou-parse");
 const { pickContentType } = require("./parse");
 const { mapRawMessage, groupMessagesForDisplay } = require("./message-display");
-const { isJisouCaptcha, handleJisouCaptcha } = require("./jisou-captcha");
+const { isJisouCaptcha, handleJisouCaptcha, packCaptchaForWeb, captchaMode } = require("./jisou-captcha");
+const { consumeChallenge, getChallenge } = require("./jisou-captcha-store");
 const { cacheMessageMediaWithClient, mapPool } = require("./tg-search-media-cache");
 
 const BOT_USERNAME = (process.env.JISOU_BOT_USERNAME || "jisou").replace(/^@/, "");
@@ -176,6 +177,14 @@ async function searchJisouChannels(query) {
       const reply = await waitForJisouReply(client, botEntity, sent.id, jisouReplyTimeoutMs());
 
       if (isJisouCaptcha(reply)) {
+        if (captchaMode() === "web") {
+          const captcha = await packCaptchaForWeb(client, botEntity, reply, q);
+          const err = new Error("极搜需要人机验证，请由网页用户选择正确答案");
+          err.code = "JISOU_CAPTCHA_REQUIRED";
+          err.captcha = captcha;
+          err.query = q;
+          throw err;
+        }
         console.log(`[tg-search:collector] 第 ${attempt} 次触发人机验证，开始处理…`);
         await handleJisouCaptcha(client, botEntity, reply);
         await sleep(1000);
@@ -191,6 +200,62 @@ async function searchJisouChannels(query) {
     err.code = "JISOU_SEARCH_FAILED";
     throw err;
   });
+}
+
+/**
+ * 用户提交验证码答案后继续极搜
+ * @param {string} challengeId
+ * @param {string} answer
+ */
+async function solveJisouCaptchaAndSearch(challengeId, answer) {
+  const challenge = consumeChallenge(challengeId);
+  if (!challenge) {
+    const err = new Error("验证码已过期或不存在，请重新搜索");
+    err.code = "JISOU_CAPTCHA_EXPIRED";
+    throw err;
+  }
+
+  const q = String(challenge.query || "").trim();
+  if (!q) {
+    const err = new Error("验证码缺少关联搜索词");
+    err.code = "JISOU_CAPTCHA_INVALID";
+    throw err;
+  }
+
+  const { submitWebCaptchaAnswer } = require("./jisou-captcha");
+
+  return withGramClient(async (client) => {
+    const botEntity = await client.getEntity(BOT_USERNAME);
+    await submitWebCaptchaAnswer(client, botEntity, challenge, answer);
+    await sleep(1200);
+
+    const sent = await client.sendMessage(botEntity, { message: q });
+    const reply = await waitForJisouReply(client, botEntity, sent.id, jisouReplyTimeoutMs());
+
+    if (isJisouCaptcha(reply)) {
+      const captcha = await packCaptchaForWeb(client, botEntity, reply, q);
+      const err = new Error("验证未通过或需要再次验证，请重试");
+      err.code = "JISOU_CAPTCHA_REQUIRED";
+      err.captcha = captcha;
+      err.query = q;
+      throw err;
+    }
+
+    const result = buildJisouSearchResult(q, reply);
+    console.log(
+      `[tg-search:collector] captcha solved, search ok channels=${result.channels?.length ?? 0}`
+    );
+    return result;
+  });
+}
+
+/**
+ * @param {string} challengeId
+ */
+function getJisouCaptchaImage(challengeId) {
+  const row = getChallenge(challengeId);
+  if (!row?.imageBuffer) return null;
+  return { buffer: row.imageBuffer, mime: "image/jpeg" };
 }
 
 /**
@@ -410,6 +475,8 @@ async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
 
 module.exports = {
   searchJisouChannels,
+  solveJisouCaptchaAndSearch,
+  getJisouCaptchaImage,
   fetchChannelMessages,
   resolveMessageMedia,
   downloadMessageMedia,

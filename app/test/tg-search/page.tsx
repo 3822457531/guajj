@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-test-media";
-import type { ChannelMessageItem, JisouChannelItem } from "@/lib/jisou-search-types";
+import type { ChannelMessageItem, JisouCaptchaChallenge, JisouChannelItem } from "@/lib/jisou-search-types";
 
 type JisouChannel = JisouChannelItem;
 
@@ -22,6 +22,8 @@ export default function TgSearchTestPage() {
     anchorMessageId?: number | null;
   } | null>(null);
   const [messages, setMessages] = useState<ChannelMessageItem[]>([]);
+  const [captcha, setCaptcha] = useState<JisouCaptchaChallenge | null>(null);
+  const [captchaSubmitting, setCaptchaSubmitting] = useState(false);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const anchorRef = useRef<HTMLLIElement>(null);
 
@@ -45,6 +47,64 @@ export default function TgSearchTestPage() {
     return () => window.clearTimeout(t);
   }, [messages, channelLoading]);
 
+  function applySearchSuccess(data: { channels?: JisouChannel[] }, label: string) {
+    setCaptcha(null);
+    setChannels(data.channels || []);
+    if (!data.channels?.length) {
+      setError("极搜未返回频道链接（可能无匹配或超时）");
+      pushLog(`${label}：0 个频道`);
+    } else {
+      setError(null);
+      pushLog(`${label}完成`, { count: data.channels.length });
+    }
+  }
+
+  async function submitCaptchaAnswer(answer: string) {
+    if (!captcha) return;
+    setCaptchaSubmitting(true);
+    setError(null);
+    pushLog("提交验证码答案", { challengeId: captcha.challengeId, answer });
+
+    try {
+      const res = await fetch("/api/test/tg-search/captcha/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ challengeId: captcha.challengeId, answer })
+      });
+      let data: {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+        channels?: JisouChannel[];
+        captcha?: JisouCaptchaChallenge;
+      };
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(res.ok ? "验证响应解析失败" : `验证失败 (HTTP ${res.status})`);
+      }
+
+      if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
+        setCaptcha(data.captcha);
+        setError(data.message || "答案错误或需再次验证，请重试");
+        pushLog("验证码未通过，已刷新题目");
+        return;
+      }
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || data.error || `验证失败 (HTTP ${res.status})`);
+      }
+
+      applySearchSuccess(data, "验证通过后极搜");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "验证失败";
+      pushLog("验证码异常", { message: msg });
+      setError(msg);
+    } finally {
+      setCaptchaSubmitting(false);
+    }
+  }
+
   async function onSearch(e?: React.FormEvent) {
     e?.preventDefault();
     const q = query.trim();
@@ -60,6 +120,7 @@ export default function TgSearchTestPage() {
     setActiveChannel(null);
     setMessages([]);
     setChannelMeta(null);
+    setCaptcha(null);
 
     try {
       const url = "/api/test/tg-search/search";
@@ -70,7 +131,13 @@ export default function TgSearchTestPage() {
         body: JSON.stringify({ q })
       });
       pushLog("收到响应", { status: res.status, ok: res.ok });
-      let data: { ok?: boolean; message?: string; error?: string; channels?: JisouChannel[] };
+      let data: {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+        channels?: JisouChannel[];
+        captcha?: JisouCaptchaChallenge;
+      };
       try {
         data = await res.json();
       } catch {
@@ -80,18 +147,21 @@ export default function TgSearchTestPage() {
       pushLog("响应体", {
         ok: data.ok,
         error: data.error,
-        channels: data.channels?.length ?? 0
+        channels: data.channels?.length ?? 0,
+        captcha: Boolean(data.captcha)
       });
+
+      if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
+        setCaptcha(data.captcha);
+        setError(null);
+        pushLog("极搜要求人机验证，已展示给用户");
+        return;
+      }
+
       if (!res.ok || !data.ok) {
         throw new Error(data.message || data.error || `搜索失败 (HTTP ${res.status})`);
       }
-      setChannels(data.channels || []);
-      if (!data.channels?.length) {
-        setError("极搜未返回频道链接（可能无匹配或超时）");
-        pushLog("极搜返回 0 个频道");
-      } else {
-        pushLog("极搜完成", { count: data.channels.length });
-      }
+      applySearchSuccess(data, "极搜");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "搜索失败";
       pushLog("搜索异常", { message: msg });
@@ -177,9 +247,69 @@ export default function TgSearchTestPage() {
     <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px 48px", fontFamily: "system-ui, sans-serif" }}>
       <h1 style={{ margin: "0 0 8px", fontSize: 22 }}>TG 搜索联调测试页</h1>
       <p style={{ margin: "0 0 20px", color: "#555", lineHeight: 1.6, fontSize: 14 }}>
-        流程：极搜关键词 → 解析频道链接 → 点击频道 → <strong>自动定位极搜返回的那条消息</strong>（与 TG 一致，非最新列表）。
+        流程：极搜关键词 → 若出现验证码则<strong>由网页用户选答案</strong>（平台不 OCR）→ 解析频道并定位消息。
         相册合并展示；封面缩略图预缓存 R2，其余按需加载。
       </p>
+
+      {captcha ? (
+        <section
+          style={{
+            marginBottom: 16,
+            padding: 16,
+            border: "2px solid #f59e0b",
+            borderRadius: 10,
+            background: "#fffbeb"
+          }}
+        >
+          <h2 style={{ margin: "0 0 8px", fontSize: 16, color: "#92400e" }}>极搜人机验证（请协助完成）</h2>
+          <p style={{ margin: "0 0 12px", fontSize: 13, color: "#78350f", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+            {captcha.prompt}
+          </p>
+          <p style={{ margin: "0 0 10px", fontSize: 12, color: "#a16207" }}>
+            说明：验证码属于站点采集号与 @jisou 的对话，您在网页选择的答案将由 GramJS 代为点击，无需安装 Telegram。
+            {captcha.expiresInSec ? ` （约 ${captcha.expiresInSec}s 内有效）` : ""}
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={captcha.imageUrl}
+            alt="极搜验证码"
+            style={{
+              display: "block",
+              maxWidth: 320,
+              width: "100%",
+              borderRadius: 8,
+              border: "1px solid #fcd34d",
+              marginBottom: 12,
+              background: "#fff"
+            }}
+          />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {captcha.options.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                disabled={captchaSubmitting}
+                onClick={() => void submitCaptchaAnswer(opt)}
+                style={{
+                  minWidth: 56,
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  border: "1px solid #d97706",
+                  background: "#fff",
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: captchaSubmitting ? "wait" : "pointer"
+                }}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+          {captchaSubmitting ? (
+            <p style={{ margin: "10px 0 0", fontSize: 13, color: "#92400e" }}>正在代点验证并继续搜索…</p>
+          ) : null}
+        </section>
+      ) : null}
 
       <form
         onSubmit={(e) => {

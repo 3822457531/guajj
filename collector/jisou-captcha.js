@@ -8,10 +8,11 @@
  */
 const { Api } = require("telegram/tl");
 const { sleep } = require("./gram-client");
+const { createChallenge, DEFAULT_TTL_MS } = require("./jisou-captcha-store");
 
 function captchaMode() {
-  const m = (process.env.JISOU_CAPTCHA_MODE || "auto").trim().toLowerCase();
-  if (m === "wait" || m === "manual") return m;
+  const m = (process.env.JISOU_CAPTCHA_MODE || "web").trim().toLowerCase();
+  if (m === "wait" || m === "manual" || m === "web") return m;
   return "auto";
 }
 
@@ -166,6 +167,93 @@ async function clickCallbackButton(client, botEntity, msg, button) {
 }
 
 /**
+ * 打包验证码给前端用户（不 OCR、不代解）
+ * @param {import('telegram').TelegramClient} client
+ * @param {import('telegram').Api.TypeEntityLike} botEntity
+ * @param {import('telegram').Api.Message} captchaMsg
+ * @param {string} query
+ */
+async function packCaptchaForWeb(client, botEntity, captchaMsg, query) {
+  const imageBuffer = await downloadCaptchaImage(client, captchaMsg);
+  const buttons = flattenCallbackButtons(captchaMsg);
+  const buttonByAnswer = {};
+
+  for (const b of buttons) {
+    const label = String(b.text ?? "").trim();
+    if (!label || !b.data) continue;
+    const dataHex = Buffer.isBuffer(b.data)
+      ? b.data.toString("hex")
+      : typeof b.data === "string" && /^[0-9a-f]+$/i.test(b.data)
+        ? b.data
+        : Buffer.from(String(b.data)).toString("hex");
+    buttonByAnswer[label] = dataHex;
+  }
+
+  let options = buttons.map((b) => String(b.text ?? "").trim()).filter((t) => /^\d+$/.test(t));
+  if (!options.length) {
+    options = Object.keys(buttonByAnswer);
+  }
+
+  const prompt =
+    String(captchaMsg.message || "").trim() ||
+    "极搜人机验证：请查看图片中的算式，点击下方正确答案（由网页用户代采集号提交）";
+
+  const challengeId = createChallenge({
+    query: String(query || "").trim(),
+    botUsername: (process.env.JISOU_BOT_USERNAME || "jisou").replace(/^@/, ""),
+    captchaMsgId: captchaMsg.id,
+    prompt,
+    options,
+    imageBuffer,
+    buttonByAnswer
+  });
+
+  console.log(`[极搜验证] web 模式：已打包 challenge=${challengeId} options=${options.join(",")}`);
+
+  return {
+    challengeId,
+    prompt,
+    options,
+    expiresInSec: Math.round(DEFAULT_TTL_MS / 1000)
+  };
+}
+
+/**
+ * 用户选定答案后，GramJS 代点 callback（采集号会话）
+ * @param {object} challenge from captcha store
+ * @param {string} answer
+ */
+async function submitWebCaptchaAnswer(client, botEntity, challenge, answer) {
+  const label = String(answer ?? "").trim();
+  const dataHex = challenge.buttonByAnswer?.[label];
+  if (!dataHex) {
+    const err = new Error(`无效答案选项: ${label || "(空)"}`);
+    err.code = "JISOU_CAPTCHA_INVALID_ANSWER";
+    throw err;
+  }
+
+  const batch = await client.getMessages(botEntity, { ids: [challenge.captchaMsgId] });
+  const captchaMsg = batch?.[0];
+  if (!captchaMsg) {
+    const err = new Error("验证码消息已过期，请重新搜索");
+    err.code = "JISOU_CAPTCHA_EXPIRED";
+    throw err;
+  }
+
+  if (!isJisouCaptcha(captchaMsg)) {
+    console.log("[极搜验证] 验证码消息已被处理，跳过点击");
+    return { clicked: false, alreadySolved: true };
+  }
+
+  await clickCallbackButton(client, botEntity, captchaMsg, {
+    text: label,
+    data: Buffer.from(dataHex, "hex")
+  });
+  console.log(`[极搜验证] web 模式：用户选择 ${label}，已代点 callback`);
+  return { clicked: true, answer: label };
+}
+
+/**
  * OCR 算式并点击正确答案
  */
 async function solveCaptchaAuto(client, botEntity, captchaMsg) {
@@ -257,7 +345,10 @@ async function handleJisouCaptcha(client, botEntity, captchaMsg) {
 module.exports = {
   isJisouCaptcha,
   handleJisouCaptcha,
+  packCaptchaForWeb,
+  submitWebCaptchaAnswer,
   parseMathFromOcr,
   flattenCallbackButtons,
-  captchaMode
+  captchaMode,
+  downloadCaptchaImage
 };

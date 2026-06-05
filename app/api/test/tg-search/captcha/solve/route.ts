@@ -14,32 +14,27 @@ type CaptchaErr = Error & {
 
 export async function POST(request: Request) {
   const started = Date.now();
-  tgSearchLog("search-api", "POST /api/test/tg-search/search 收到请求");
-
-  let body: { q?: string };
+  let body: { challengeId?: string; answer?: string | number };
   try {
     body = await request.json();
-  } catch (err) {
-    tgSearchLog("search-api", "请求体 JSON 解析失败", {
-      error: err instanceof Error ? err.message : String(err)
-    });
+  } catch {
     return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
 
-  const q = String(body.q ?? "").trim();
-  if (!q) {
-    tgSearchLog("search-api", "缺少关键词 q");
-    return NextResponse.json({ ok: false, error: "missing_query" }, { status: 400 });
+  const challengeId = String(body.challengeId ?? "").trim();
+  const answer = String(body.answer ?? "").trim();
+  if (!challengeId || !answer) {
+    return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
   }
 
-  tgSearchLog("search-api", "开始极搜", { q });
+  tgSearchLog("search-api", "POST captcha/solve", { challengeId, answer });
 
   const svc = loadJisouSearchService<JisouSearchService>();
 
   try {
-    const result = await svc.searchJisouChannels(q);
-    tgSearchLog("search-api", "极搜成功", {
-      q,
+    const result = await svc.solveJisouCaptchaAndSearch(challengeId, answer);
+    tgSearchLog("search-api", "验证码通过并完成极搜", {
+      challengeId,
       channels: result.channels?.length ?? 0,
       ms: Date.now() - started
     });
@@ -51,17 +46,12 @@ export async function POST(request: Request) {
     const message = e?.message || mapped.message;
 
     if (code === "JISOU_CAPTCHA_REQUIRED" && e.captcha) {
-      tgSearchLog("search-api", "极搜需网页验证码", {
-        q,
-        challengeId: e.captcha.challengeId,
-        ms: Date.now() - started
-      });
       return NextResponse.json(
         {
           ok: false,
           error: code,
           message,
-          query: e.query || q,
+          query: e.query,
           captcha: {
             ...e.captcha,
             imageUrl: `/api/test/tg-search/captcha/${e.captcha.challengeId}/image`
@@ -71,12 +61,11 @@ export async function POST(request: Request) {
       );
     }
 
-    tgSearchLog("search-api", "极搜失败", { q, code, message, ms: Date.now() - started });
     const status =
-      code === "NO_SESSION" || code === "SESSION_REVOKED"
-        ? 503
-        : code === "JISOU_REPLY_TIMEOUT" || code === "FLOOD_WAIT"
-          ? 504
+      code === "JISOU_CAPTCHA_EXPIRED" || code === "JISOU_CAPTCHA_INVALID_ANSWER"
+        ? 400
+        : code === "NO_SESSION" || code === "SESSION_REVOKED"
+          ? 503
           : 500;
     return NextResponse.json({ ok: false, error: code, message }, { status });
   }
