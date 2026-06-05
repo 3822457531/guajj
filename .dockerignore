@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+docker-data
+docker-uploads
+.env
+.env.*
+*.md
+.DS_Store

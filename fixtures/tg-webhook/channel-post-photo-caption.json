@@ -1,0 +1,36 @@
+{
+  "update_id": 900101,
+  "channel_post": {
+    "message_id": 991101,
+    "sender_chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "date": 1777800100,
+    "caption": "本地模拟：单图 + caption（file_id 请换成你环境里 getUpdates 里真实拿到的，否则下载会失败）",
+    "photo": [
+      {
+        "file_id": "REPLACE_WITH_REAL_FILE_ID_SMALLEST_VARIANT",
+        "file_unique_id": "mock-photo-sm",
+        "file_size": 1200,
+        "width": 90,
+        "height": 90
+      },
+      {
+        "file_id": "REPLACE_WITH_REAL_FILE_ID_LARGEST_VARIANT",
+        "file_unique_id": "mock-photo-lg",
+        "file_size": 150000,
+        "width": 1280,
+        "height": 960
+      }
+    ]
+  }
+}

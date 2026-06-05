@@ -1,0 +1,29 @@
+{
+  "update_id": 900201,
+  "channel_post": {
+    "message_id": 991201,
+    "sender_chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "date": 1777800200,
+    "media_group_id": "90000009990001",
+    "photo": [
+      {
+        "file_id": "REPLACE_ALBUM_IMAGE_1_LARGEST",
+        "file_unique_id": "album1",
+        "file_size": 100000,
+        "width": 800,
+        "height": 600
+      }
+    ]
+  }
+}

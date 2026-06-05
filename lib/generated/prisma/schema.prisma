@@ -1,0 +1,409 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum PostType {
+  ARTICLE
+  VIDEO
+  GALLERY
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  OTHER
+}
+
+model AdminUser {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  username     String   @unique @db.VarChar(64)
+  passwordHash String   @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+/**
+ * 全站单行配置（id 固定为 main）
+ */
+model SiteSettings {
+  id                     String   @id @default("main") @db.VarChar(16)
+  allowAnonymousComments Boolean  @default(true)
+  /**
+   * local = public/uploads；r2 = Cloudflare R2（S3 兼容 API）
+   */
+  mediaStorage           String   @default("local") @db.VarChar(32)
+  /**
+   * R2 仪表盘中的 Account ID
+   */
+  r2AccountId            String?  @db.VarChar(64)
+  r2BucketName           String?  @db.VarChar(128)
+  /**
+   * 公网访问前缀，如 https://pub-xxx.r2.dev 或自定义域名，勿尾斜杠
+   */
+  r2PublicBaseUrl        String?  @db.VarChar(512)
+  /**
+   * 可选；留空则从环境变量 R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY 读取
+   */
+  r2AccessKeyId          String?  @db.VarChar(128)
+  r2SecretAccessKey      String?  @db.VarChar(255)
+  /**
+   * manual = 首页展示 Post；auto = 首页展示 TgIndexedMessage
+   */
+  homeFeedMode           String   @default("manual") @db.VarChar(16)
+  /**
+   * 前台屏蔽关键词，每行一个；标题/摘要/正文命中则不在首页与搜索中展示
+   */
+  blockedKeywords        String?  @db.LongText
+  /**
+   * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）
+   */
+  dailySearchLimit       Int      @default(3)
+  /**
+   * 每成功邀请一位新用户，邀请人额外获得的搜索次数
+   */
+  referralSearchBonus    Int      @default(1)
+  updatedAt              DateTime @updatedAt
+}
+
+/**
+ * 前台匿名加密身份（GUA-xxx），用于搜索配额与裂变推广
+ */
+model GuestUser {
+  id            String      @id @default(cuid()) @db.VarChar(30)
+  publicId      String      @unique @db.VarChar(32)
+  secretKeyHash String      @db.VarChar(255)
+  referrerId    String?     @db.VarChar(30)
+  referrer      GuestUser?  @relation("GuestReferral", fields: [referrerId], references: [id], onDelete: SetNull)
+  referrals     GuestUser[] @relation("GuestReferral")
+  /**
+   * 邀请奖励累计获得的额外搜索次数
+   */
+  searchBonus   Int         @default(0)
+  /**
+   * 注册时的客户端 IP
+   */
+  registerIp    String?     @db.VarChar(45)
+  /**
+   * 最近一次登录/恢复会话时的 IP
+   */
+  lastLoginIp   String?     @db.VarChar(45)
+  /**
+   * 最近一次登录/恢复会话时间
+   */
+  lastLoginAt   DateTime?
+  searchLogs    SearchLog[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([referrerId])
+  @@index([createdAt])
+  @@index([lastLoginAt])
+}
+
+model Category {
+  id        String   @id @default(cuid()) @db.VarChar(30)
+  name      String   @unique @db.VarChar(64)
+  slug      String   @unique @db.VarChar(64)
+  posts     Post[]
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id        String    @id @default(cuid()) @db.VarChar(30)
+  name      String    @unique @db.VarChar(64)
+  slug      String    @unique @db.VarChar(64)
+  posts     PostTag[]
+  createdAt DateTime  @default(now())
+}
+
+model PostTag {
+  postId String @db.VarChar(30)
+  tagId  String @db.VarChar(30)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+}
+
+model Post {
+  id               String           @id @default(cuid()) @db.VarChar(30)
+  title            String           @db.VarChar(500)
+  summary          String           @db.Text
+  body             String           @db.LongText
+  type             PostType         @default(ARTICLE)
+  status           PostStatus       @default(DRAFT)
+  coverUrl         String           @db.VarChar(512)
+  videoUrl         String?          @db.VarChar(512)
+  /**
+   * JSON array of extra video URLs（站内路径），与主视频 `videoUrl` 顺序：主 + 本数组依次
+   */
+  galleryVideoUrls String?          @db.LongText
+  /**
+   * JSON array of extra image URLs (same-origin paths) after coverUrl, for TG multi-photo albums
+   */
+  galleryImageUrls String?          @db.LongText
+  /**
+   * 可选：JSON 混排 [{type:"text"|"video"|"images", ...}]，与后台「混排内容块」对应；为空则按正文+视频+图集自动生成
+   */
+  contentBlocks    String?          @db.LongText
+  isPinned         Boolean          @default(false)
+  heat             Int              @default(100)
+  views            Int              @default(0)
+  publishedAt      DateTime?
+  categoryId       String           @db.VarChar(30)
+  category         Category         @relation(fields: [categoryId], references: [id])
+  tags             PostTag[]
+  telegramImports  TelegramImport[]
+  comments         Comment[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([status, isPinned, createdAt])
+  @@index([status, publishedAt])
+}
+
+/**
+ * 聚合登录（QQ/微信等）用户，用于前台评论身份
+ */
+model SocialUser {
+  id          String      @id @default(cuid()) @db.VarChar(30)
+  socialUid   String      @db.VarChar(128)
+  loginType   String      @db.VarChar(32)
+  nickname    String      @db.VarChar(128)
+  faceimg     String      @db.VarChar(512)
+  gender      String?     @db.VarChar(16)
+  location    String?     @db.VarChar(128)
+  /**
+   * OAuth 回调成功建立会话的时间（用于后台「上次登录」）
+   */
+  lastLoginAt DateTime?
+  comments    Comment[]
+  pageVisits  PageVisit[]
+  searchLogs  SearchLog[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([loginType, socialUid])
+}
+
+/**
+ * 聚合登录跳转前暂存 returnPath，避免仅依赖 Cookie 在第三方回调时被丢弃（如微信 WebView）
+ */
+model OAuthLoginState {
+  id         String   @id @db.VarChar(64)
+  returnPath String   @db.VarChar(512)
+  oauthType  String   @db.VarChar(32)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model Comment {
+  id        String     @id @default(cuid()) @db.VarChar(30)
+  postId    String     @db.VarChar(30)
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String     @db.VarChar(30)
+  author    SocialUser @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?    @db.VarChar(30)
+  parent    Comment?   @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]  @relation("CommentThread")
+  body      String     @db.Text
+  createdAt DateTime   @default(now())
+
+  @@index([postId, parentId])
+  @@index([postId, createdAt])
+}
+
+model MediaAsset {
+  id        String    @id @default(cuid()) @db.VarChar(30)
+  filename  String    @db.VarChar(255)
+  url       String    @db.VarChar(512)
+  type      MediaType
+  size      Int
+  createdAt DateTime  @default(now())
+}
+
+model TelegramConfig {
+  id                String     @id @default(cuid()) @db.VarChar(30)
+  botToken          String     @db.VarChar(255)
+  channelId         String     @db.VarChar(64)
+  channelName       String?    @db.VarChar(128)
+  webhookSecret     String     @unique @db.VarChar(64)
+  defaultCategoryId String     @db.VarChar(30)
+  defaultStatus     PostStatus @default(DRAFT)
+  autoPublish       Boolean    @default(false)
+  downloadMedia     Boolean    @default(true)
+  isEnabled         Boolean    @default(false)
+  lastUpdateId      Int?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+}
+
+model TelegramImport {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  updateId     Int?
+  messageId    Int
+  chatId       String   @db.VarChar(32)
+  chatTitle    String?  @db.VarChar(255)
+  rawText      String   @db.LongText
+  mediaType    String?  @db.VarChar(32)
+  mediaUrl     String?  @db.VarChar(512)
+  /**
+   * Same id on all messages in one Telegram media album (multi-photo)
+   */
+  mediaGroupId String?  @db.VarChar(64)
+  postId       String?  @db.VarChar(30)
+  post         Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  @@unique([chatId, messageId])
+  @@index([chatId, mediaGroupId])
+}
+
+/**
+ * 采集监控的源频道（Userbot 需已加入）
+ */
+model TgSourceChannel {
+  id            String   @id @default(cuid()) @db.VarChar(30)
+  /**
+   * 解析后的频道 chat id，如 -1003932359637
+   */
+  chatId        String?  @unique @db.VarChar(32)
+  /**
+   * 不带 @ 的用户名
+   */
+  username      String?  @db.VarChar(64)
+  title         String?  @db.VarChar(255)
+  inviteLink    String?  @db.VarChar(512)
+  isEnabled     Boolean  @default(true)
+  lastMessageId Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isEnabled])
+}
+
+/**
+ * VIP 全局搜索索引（与 Post 展示池分离；由采集服务写入）
+ */
+enum TgIndexContentType {
+  VIDEO
+  PHOTO
+  DOCUMENT
+  TEXT
+}
+
+model TgIndexedMessage {
+  id               String             @id @default(cuid()) @db.VarChar(30)
+  chatId           String             @db.VarChar(32)
+  messageId        Int
+  messageDate      DateTime
+  contentType      TgIndexContentType @default(TEXT)
+  title            String             @db.VarChar(500)
+  snippet          String             @db.Text
+  rawText          String             @db.LongText
+  sourceTitle      String?            @db.VarChar(255)
+  sourceUsername   String?            @db.VarChar(64)
+  durationSec      Int?
+  /**
+   * 封面图或主视频 URL（与 Post.coverUrl / videoUrl 对应）
+   */
+  mediaUrl         String?            @db.VarChar(512)
+  /**
+   * JSON 数组：除 mediaUrl 外的额外图片 URL
+   */
+  galleryImageUrls String?            @db.LongText
+  /**
+   * JSON 数组：除主视频外的额外视频 URL
+   */
+  galleryVideoUrls String?            @db.LongText
+  /**
+   * JSON 混排块 [{type:"text"|"video"|"images",...}]，前台与 Post 同款渲染
+   */
+  contentBlocks    String?            @db.LongText
+  mediaGroupId     String?            @db.VarChar(64)
+  isPinned         Boolean            @default(false)
+  heat             Int                @default(100)
+  views            Int                @default(0)
+  createdAt        DateTime           @default(now())
+
+  @@unique([chatId, messageId])
+  @@index([messageDate])
+  @@index([isPinned, messageDate])
+}
+
+/**
+ * 前台页面访问明细（运营统计）
+ */
+model PageVisit {
+  id           String      @id @default(cuid()) @db.VarChar(30)
+  path         String      @db.VarChar(191)
+  postId       String?     @db.VarChar(30)
+  visitorId    String      @db.VarChar(64)
+  ip           String      @db.VarChar(45)
+  socialUserId String?     @db.VarChar(30)
+  socialUser   SocialUser? @relation(fields: [socialUserId], references: [id], onDelete: SetNull)
+  userAgent    String?     @db.VarChar(512)
+  referrer     String?     @db.VarChar(512)
+  createdAt    DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([socialUserId, createdAt])
+  @@index([visitorId, createdAt])
+}
+
+enum SearchSource {
+  HOME
+  VIP
+}
+
+/**
+ * 前台关键词搜索明细（首页 / VIP）
+ */
+model SearchLog {
+  id           String       @id @default(cuid()) @db.VarChar(30)
+  source       SearchSource @default(HOME)
+  keyword      String       @db.VarChar(191)
+  visitorId    String       @db.VarChar(64)
+  ip           String       @db.VarChar(45)
+  socialUserId String?      @db.VarChar(30)
+  socialUser   SocialUser?  @relation(fields: [socialUserId], references: [id], onDelete: SetNull)
+  guestUserId  String?      @db.VarChar(30)
+  guestUser    GuestUser?   @relation(fields: [guestUserId], references: [id], onDelete: SetNull)
+  resultCount  Int          @default(0)
+  userAgent    String?      @db.VarChar(512)
+  createdAt    DateTime     @default(now())
+
+  @@index([source, createdAt])
+  @@index([source, keyword, createdAt])
+  @@index([createdAt])
+  @@index([visitorId, createdAt])
+  @@index([socialUserId, createdAt])
+  @@index([guestUserId, createdAt])
+}
+
+/**
+ * 按日汇总的全站访问统计
+ */
+model DailySiteStat {
+  id                String   @id @default(cuid()) @db.VarChar(30)
+  date              DateTime @unique @db.Date
+  pageViews         Int      @default(0)
+  uniqueVisitors    Int      @default(0)
+  loggedInPageViews Int      @default(0)
+  updatedAt         DateTime @updatedAt
+}

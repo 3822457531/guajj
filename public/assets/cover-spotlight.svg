@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#f66f54"/>
+      <stop offset=".55" stop-color="#f7c948"/>
+      <stop offset="1" stop-color="#2a9d8f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="680" fill="url(#g)"/>
+  <circle cx="970" cy="120" r="180" fill="#fff" opacity=".22"/>
+  <circle cx="160" cy="560" r="230" fill="#171717" opacity=".18"/>
+  <path d="M106 468c188-218 364-248 528-89 105 102 238 93 399-27v230H106z" fill="#111" opacity=".22"/>
+  <text x="80" y="154" fill="#fff" font-family="Arial, sans-serif" font-size="66" font-weight="700">今日热瓜</text>
+  <text x="82" y="232" fill="#fff" font-family="Arial, sans-serif" font-size="34">图文视频混排专题</text>
+</svg>

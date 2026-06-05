@@ -1,0 +1,66 @@
+# 复制 .env.example 为 .env；容器内 web 使用下方 DATABASE_URL 连接 mysql 服务。
+# 启动：docker compose up -d --build
+# 首次会执行 prisma migrate deploy + seed。
+
+services:
+  mysql:
+    image: mysql:8.0
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --ngram_token_size=2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: chigua
+      MYSQL_USER: chigua
+      MYSQL_PASSWORD: chigua
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
+    restart: unless-stopped
+
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql://chigua:chigua@mysql:3306/chigua?charset=utf8mb4
+    volumes:
+      - ./docker-uploads:/app/public/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy && node prisma/seed.js && exec npx next start --hostname 0.0.0.0 -p 3000"
+    restart: unless-stopped
+
+  # 需先在宿主机执行 collector:login 生成 collector/session.txt，再:
+  # docker compose --profile collector up -d collector
+  collector:
+    build: .
+    profiles: ["collector"]
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql://chigua:chigua@mysql:3306/chigua?charset=utf8mb4
+    volumes:
+      - ./collector/session.txt:/app/collector/session.txt:ro
+      - ./collector/channels.json:/app/collector/channels.json:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: sh -c "node collector/sync-channels.js && node collector/run.js"
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

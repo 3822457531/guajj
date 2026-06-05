@@ -1,0 +1,30 @@
+{
+  "update_id": 900202,
+  "channel_post": {
+    "message_id": 991202,
+    "sender_chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "date": 1777800201,
+    "media_group_id": "90000009990001",
+    "caption": "相册第二张：配文通常在相册里的一张上（与你的 getUpdates 行为一致）。file_id 用第二张图的真实值。",
+    "photo": [
+      {
+        "file_id": "REPLACE_ALBUM_IMAGE_2_LARGEST",
+        "file_unique_id": "album2",
+        "file_size": 120000,
+        "width": 800,
+        "height": 600
+      }
+    ]
+  }
+}

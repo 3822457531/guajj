@@ -1,0 +1,53 @@
+{
+  "name": "chigua-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:poll": "cross-env NEXT_DEV_POLL=1 next dev",
+    "dev:lan": "next dev --hostname 0.0.0.0",
+    "dev:lan:poll": "cross-env NEXT_DEV_POLL=1 next dev --hostname 0.0.0.0",
+    "dev:direct": "node scripts/dev-server.js",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:mysql-reset": "prisma db execute --schema prisma/schema.prisma --file scripts/mysql-reset.sql",
+    "db:seed": "node prisma/seed.js",
+    "setup": "node scripts/setup-db.js",
+    "db:import-sqlite": "node scripts/import-sqlite-to-mysql.js",
+    "db:build-main-mysql": "node scripts/build-main-mysql.js",
+    "db:import-main": "npm run db:mysql-reset && prisma db execute --schema prisma/schema.prisma --file prisma/main.mysql.sql && prisma migrate resolve --applied 20260520120000_init_mysql",
+    "db:check": "node scripts/db-check-tables.js",
+    "collector:login": "node collector/login.js",
+    "collector:sync-channels": "node collector/sync-channels.js",
+    "collector:seed-channels": "node scripts/seed-tg-channels.js",
+    "collector:backfill": "node collector/backfill.js",
+    "collector:backfill-media": "node collector/backfill-media.js",
+    "collector": "node collector/run.js",
+    "collector:jisou-probe": "node collector/jisou-probe.js",
+    "collector:jisou-captcha-probe": "node collector/jisou-captcha-probe.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1045.0",
+    "@prisma/client": "^6.18.0",
+    "input": "^1.0.1",
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "telegram": "^2.26.22",
+    "tesseract.js": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "cross-env": "7.0.3",
+    "prisma": "^6.18.0",
+    "sql.js": "^1.14.1",
+    "typescript": "^5.7.2"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}

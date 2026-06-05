@@ -1,0 +1,324 @@
+"use client";
+
+import { useState } from "react";
+
+type JisouChannel = {
+  title: string;
+  url: string;
+  username: string | null;
+  members: string | null;
+};
+
+type MediaItem = {
+  id: number;
+  contentType: string;
+};
+
+type ChannelMessage = {
+  kind: "single" | "album";
+  id: number;
+  ids: number[];
+  date: string | null;
+  caption?: string;
+  textPreview: string;
+  contentType: string;
+  hasMedia: boolean;
+  mediaItems: MediaItem[];
+  albumSize: number;
+  permalink: string;
+};
+
+function mediaUrl(username: string, messageId: number, thumb: boolean) {
+  const params = new URLSearchParams({
+    username,
+    messageId: String(messageId),
+    thumb: thumb ? "1" : "0"
+  });
+  return `/api/test/tg-search/media?${params.toString()}`;
+}
+
+export default function TgSearchTestPage() {
+  const [query, setQuery] = useState("美腿丝袜");
+  const [channelSearch, setChannelSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [channelLoading, setChannelLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [channels, setChannels] = useState<JisouChannel[]>([]);
+  const [activeChannel, setActiveChannel] = useState<JisouChannel | null>(null);
+  const [channelMeta, setChannelMeta] = useState<{
+    entityType?: string;
+    broadcast?: boolean | null;
+    note?: string;
+    rawCount?: number;
+  } | null>(null);
+  const [messages, setMessages] = useState<ChannelMessage[]>([]);
+
+  async function onSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+
+    setLoading(true);
+    setError(null);
+    setChannels([]);
+    setActiveChannel(null);
+    setMessages([]);
+    setChannelMeta(null);
+
+    try {
+      const res = await fetch("/api/test/tg-search/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q })
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        throw new Error(data.message || data.error || "搜索失败");
+      }
+      setChannels(data.channels || []);
+      if (!data.channels?.length) {
+        setError("极搜未返回频道链接（可能无匹配或超时）");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "搜索失败");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
+    if (!channel.username) {
+      setError("该结果为邀请链接频道，本测试页暂只支持 @username 公开频道");
+      return;
+    }
+
+    setActiveChannel(channel);
+    setChannelLoading(true);
+    setError(null);
+    setMessages([]);
+    setChannelMeta(null);
+
+    try {
+      const params = new URLSearchParams({
+        username: channel.username,
+        limit: "20"
+      });
+      const kw = (inChannelSearch ?? channelSearch).trim();
+      if (kw) params.set("search", kw);
+
+      const res = await fetch(`/api/test/tg-search/channel?${params.toString()}`);
+      const data = await res.json();
+      if (!data.ok) {
+        throw new Error(data.message || data.error || "读取频道失败");
+      }
+      setChannelMeta({
+        entityType: data.entityType,
+        broadcast: data.broadcast,
+        note: data.note,
+        rawCount: data.rawCount
+      });
+      setMessages(data.messages || []);
+      if (!data.messages?.length) {
+        setError("频道可读，但当前条件下没有消息（试试清空频道内搜索或换频道）");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "读取频道失败");
+    } finally {
+      setChannelLoading(false);
+    }
+  }
+
+  return (
+    <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px 48px", fontFamily: "system-ui, sans-serif" }}>
+      <h1 style={{ margin: "0 0 8px", fontSize: 22 }}>TG 搜索联调测试页</h1>
+      <p style={{ margin: "0 0 20px", color: "#555", lineHeight: 1.6, fontSize: 14 }}>
+        流程：极搜关键词 → 解析频道链接 → 点击频道 → GramJS 拉消息（默认<strong>不 join</strong>）。
+        相册消息会合并展示；图片通过 GramJS 下载缩略图预览（与 TG 一致，相册仅一条带配文）。
+      </p>
+
+      <form onSubmit={onSearch} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="搜索关键词，如 美腿丝袜"
+          style={{ flex: 1, padding: "10px 12px", fontSize: 15, border: "1px solid #ccc", borderRadius: 8 }}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ padding: "10px 18px", borderRadius: 8, border: "none", background: "#111", color: "#fff", fontWeight: 700 }}
+        >
+          {loading ? "极搜中…" : "① 极搜搜索"}
+        </button>
+      </form>
+
+      {error ? (
+        <p style={{ color: "#b91c1c", background: "#fef2f2", padding: 12, borderRadius: 8, fontSize: 14 }}>{error}</p>
+      ) : null}
+
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(280px, 360px) 1fr", gap: 16, alignItems: "start" }}>
+        <section style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: 12 }}>
+          <h2 style={{ margin: "0 0 10px", fontSize: 16 }}>② 频道列表 ({channels.length})</h2>
+          {channels.length === 0 ? (
+            <p style={{ color: "#888", fontSize: 14 }}>搜索后显示极搜返回的频道链接</p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {channels.map((ch) => {
+                const active = activeChannel?.url === ch.url;
+                return (
+                  <li key={ch.url}>
+                    <button
+                      type="button"
+                      onClick={() => loadChannel(ch)}
+                      disabled={channelLoading}
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "10px 12px",
+                        borderRadius: 8,
+                        border: active ? "2px solid #2563eb" : "1px solid #e5e7eb",
+                        background: active ? "#eff6ff" : "#fff",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{ch.title}</div>
+                      <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                        @{ch.username || "—"} {ch.members ? `· ${ch.members}` : ""}
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        <section style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: 12, minHeight: 320 }}>
+          <h2 style={{ margin: "0 0 10px", fontSize: 16 }}>③ 频道消息</h2>
+
+          {activeChannel ? (
+            <>
+              <p style={{ margin: "0 0 10px", fontSize: 13, color: "#444" }}>
+                当前：<strong>@{activeChannel.username}</strong>
+                {channelMeta?.entityType ? ` · ${channelMeta.entityType}` : ""}
+                {channelMeta?.broadcast === true ? " · 公开广播频道" : ""}
+                {channelMeta?.rawCount != null ? ` · 原始 ${channelMeta.rawCount} 条 / 展示 ${messages.length} 组` : ""}
+              </p>
+              {channelMeta?.note ? (
+                <p style={{ margin: "0 0 12px", fontSize: 12, color: "#666", background: "#f9fafb", padding: 8, borderRadius: 6 }}>
+                  {channelMeta.note}
+                </p>
+              ) : null}
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (activeChannel) loadChannel(activeChannel, channelSearch);
+                }}
+                style={{ display: "flex", gap: 8, marginBottom: 12 }}
+              >
+                <input
+                  value={channelSearch}
+                  onChange={(e) => setChannelSearch(e.target.value)}
+                  placeholder="频道内搜索（可选，对应 TG 频道内搜索）"
+                  style={{ flex: "1", padding: "8px 10px", fontSize: 14, border: "1px solid #ddd", borderRadius: 6 }}
+                />
+                <button type="submit" disabled={channelLoading} style={{ padding: "8px 12px", borderRadius: 6 }}>
+                  {channelLoading ? "加载中…" : "刷新"}
+                </button>
+              </form>
+            </>
+          ) : (
+            <p style={{ color: "#888", fontSize: 14 }}>点击左侧频道，测试是否无需 join 即可读消息</p>
+          )}
+
+          {channelLoading ? <p style={{ fontSize: 14 }}>正在通过 GramJS 拉取消息…</p> : null}
+
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 14 }}>
+            {messages.map((msg) => (
+              <li key={`${msg.kind}-${msg.id}`} style={{ border: "1px solid #eee", borderRadius: 8, padding: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 12, color: "#666" }}>
+                  <span>
+                    {msg.kind === "album" ? `相册 #${msg.ids.join(",")}` : `#${msg.id}`} · {msg.contentType}
+                    {msg.albumSize > 1 ? ` · ${msg.albumSize} 项` : ""}
+                  </span>
+                  <a href={msg.permalink} target="_blank" rel="noreferrer" style={{ color: "#2563eb" }}>
+                    在 TG 打开
+                  </a>
+                </div>
+
+                {activeChannel?.username && msg.mediaItems.length > 0 ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 8,
+                      marginTop: 10
+                    }}
+                  >
+                    {msg.mediaItems.map((item) =>
+                      item.contentType === "PHOTO" || item.contentType === "VIDEO" ? (
+                        <div
+                          key={item.id}
+                          style={{
+                            width: item.contentType === "VIDEO" ? "100%" : 120,
+                            maxWidth: item.contentType === "VIDEO" ? 320 : 120,
+                            flexShrink: 0
+                          }}
+                        >
+                          {item.contentType === "PHOTO" ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={mediaUrl(activeChannel.username!, item.id, true)}
+                              alt=""
+                              loading="lazy"
+                              style={{
+                                width: 120,
+                                height: 120,
+                                objectFit: "cover",
+                                borderRadius: 6,
+                                background: "#f3f4f6"
+                              }}
+                            />
+                          ) : (
+                            <video
+                              controls
+                              playsInline
+                              preload="none"
+                              poster={mediaUrl(activeChannel.username!, item.id, true)}
+                              src={mediaUrl(activeChannel.username!, item.id, false)}
+                              style={{
+                                width: "100%",
+                                maxHeight: 220,
+                                borderRadius: 6,
+                                background: "#111",
+                                display: "block"
+                              }}
+                            />
+                          )}
+                          <div style={{ fontSize: 10, color: "#999", marginTop: 2 }}>
+                            #{item.id}
+                            {item.contentType === "VIDEO" ? " · 点击播放（首次加载可能较慢）" : ""}
+                          </div>
+                        </div>
+                      ) : null
+                    )}
+                  </div>
+                ) : null}
+
+                <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+                  {msg.textPreview}
+                </p>
+                {msg.date ? (
+                  <time style={{ fontSize: 11, color: "#999" }} dateTime={msg.date}>
+                    {new Date(msg.date).toLocaleString("zh-CN")}
+                  </time>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </main>
+  );
+}

@@ -1,0 +1,25 @@
+node_modules
+.npm-cache
+.next
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.env.local
+dev.db
+prisma/dev.db
+collector/session.txt
+public/uploads/*
+!public/uploads/.gitkeep
+
+# 勿提交压缩包 / 备份 / 误生成文件
+*.zip
+*.tar.gz
+h5-pc.zip
+node
+chigua-web@0.1.0
+
+# Prisma 引擎下载临时文件（体积巨大）
+lib/generated/prisma/*.tmp*
+lib/generated/prisma/query_engine-*.tmp*

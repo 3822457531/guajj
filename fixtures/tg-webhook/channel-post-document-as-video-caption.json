@@ -1,0 +1,27 @@
+{
+  "update_id": 900103,
+  "channel_post": {
+    "message_id": 991103,
+    "sender_chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "chat": {
+      "id": -1003932359637,
+      "title": "52吃瓜",
+      "username": "chigua52_free",
+      "type": "channel"
+    },
+    "date": 1777800102,
+    "caption": "本地模拟：以 document 发来的 MP4（mime_type video/mp4），系统会当作视频入库",
+    "document": {
+      "file_name": "sent-as-file.mp4",
+      "mime_type": "video/mp4",
+      "file_id": "REPLACE_WITH_REAL_DOCUMENT_VIDEO_FILE_ID",
+      "file_unique_id": "mock-doc-video",
+      "file_size": 3500000
+    }
+  }
+}
