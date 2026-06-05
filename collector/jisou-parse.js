@@ -93,6 +93,8 @@ function parseJisouSearchMessage(text, entities = []) {
       label: label.trim(),
       url,
       username: parsed?.username || null,
+      /** 极搜若指向具体帖子，如 t.me/channel/12345 */
+      postId: parsed?.postId && parsed.postId > 0 ? parsed.postId : null,
       members
     });
   }

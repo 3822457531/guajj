@@ -5,6 +5,9 @@ export type JisouChannelItem = {
   url: string;
   username: string | null;
   members: string | null;
+  /** 极搜链接若指向具体帖子 t.me/channel/12345 */
+  postId?: number | null;
+  label?: string;
 };
 
 export type JisouSearchResult = {
@@ -41,6 +44,8 @@ export type ChannelMessageItem = {
   mediaItems: ChannelMediaItem[];
   albumSize: number;
   permalink: string;
+  /** 极搜定位的目标消息 */
+  isAnchor?: boolean;
 };
 
 export type ChannelMessagesResult = {
@@ -50,6 +55,7 @@ export type ChannelMessagesResult = {
   joinedRequired: boolean;
   note: string;
   search: string | null;
+  anchorMessageId?: number | null;
   count: number;
   rawCount: number;
   messages: ChannelMessageItem[];

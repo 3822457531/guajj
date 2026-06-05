@@ -194,6 +194,49 @@ async function searchJisouChannels(query) {
 }
 
 /**
+ * 极搜定位：拉取目标消息 + 相册 siblings + 少量上下文（对齐 TG 点击跳转）
+ * @param {import('telegram').TelegramClient} client
+ * @param {import('telegram').Api.TypeEntityLike} entity
+ * @param {number} anchorId
+ * @param {number} limit
+ */
+async function fetchMessagesAroundAnchor(client, entity, anchorId, limit = 20) {
+  const anchorBatch = await client.getMessages(entity, { ids: [anchorId] });
+  const anchor = anchorBatch?.[0];
+  if (!anchor) {
+    const err = new Error(`消息 #${anchorId} 不存在或无法读取`);
+    err.code = "MESSAGE_NOT_FOUND";
+    throw err;
+  }
+
+  const collected = new Map();
+  collected.set(anchor.id, anchor);
+
+  if (anchor.groupedId != null) {
+    const around = await client.getMessages(entity, {
+      minId: Math.max(1, anchorId - 40),
+      maxId: anchorId + 40
+    });
+    for (const m of around || []) {
+      if (m?.groupedId != null && String(m.groupedId) === String(anchor.groupedId)) {
+        collected.set(m.id, m);
+      }
+    }
+  }
+
+  const remaining = Math.max(0, limit - collected.size);
+  if (remaining > 0) {
+    const older = await client.getMessages(entity, { offsetId: anchorId, limit: remaining });
+    for (const m of older || []) {
+      if (m?.id && !collected.has(m.id)) collected.set(m.id, m);
+    }
+  }
+
+  const messages = Array.from(collected.values()).sort((a, b) => b.id - a.id);
+  return { messages, anchorId };
+}
+
+/**
  * 读取频道消息（默认不 join；公开广播频道通常可直接读）
  * @param {string} usernameOrUrl
  * @param {{ limit?: number, search?: string, messageId?: number }} opts
@@ -209,9 +252,10 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   const limit = Math.min(50, Math.max(1, Number(opts.limit) || 20));
   const search = String(opts.search || "").trim();
   const messageId = Number(opts.messageId) || 0;
+  const anchorMessageId = !search && messageId > 0 ? messageId : null;
 
   console.log(
-    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(search || null)}`
+    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(search || null)} anchor=${anchorMessageId || "none"}`
   );
 
   return withGramClient(async (client) => {
@@ -234,12 +278,13 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
 
     let messages;
     try {
-      if (messageId > 0) {
-        messages = await client.getMessages(entity, { ids: [messageId] });
+      if (search) {
+        messages = await client.getMessages(entity, { limit, search });
+      } else if (anchorMessageId) {
+        const anchored = await fetchMessagesAroundAnchor(client, entity, anchorMessageId, limit);
+        messages = anchored.messages;
       } else {
-        const getOpts = { limit };
-        if (search) getOpts.search = search;
-        messages = await client.getMessages(entity, getOpts);
+        messages = await client.getMessages(entity, { limit });
       }
     } catch (err) {
       const mapped = mapGramError(err);
@@ -253,6 +298,14 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       return mapRawMessage(msg, username);
     });
     const displayList = groupMessagesForDisplay(rawList, username);
+
+    if (anchorMessageId) {
+      for (const item of displayList) {
+        item.isAnchor =
+          item.id === anchorMessageId ||
+          (Array.isArray(item.ids) && item.ids.includes(anchorMessageId));
+      }
+    }
 
     const msgById = new Map();
     for (const msg of messages || []) {
@@ -272,9 +325,12 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       joinedRequired: false,
       note:
         broadcast === true
-          ? "公开广播频道：GramJS 通常无需 join 即可读历史。封面缩略图已预缓存至 R2/本地，相册其余图与视频原文件按需加载。"
+          ? anchorMessageId
+            ? `已定位极搜结果 #${anchorMessageId}（含相册/上下文）。封面缩略图预缓存至 R2/本地。`
+            : "公开广播频道：GramJS 通常无需 join 即可读历史。封面缩略图已预缓存至 R2/本地，相册其余图与视频原文件按需加载。"
           : "超级群/私有频道：往往需要 join 后才能 getMessages",
       search: search || null,
+      anchorMessageId,
       count: displayList.length,
       rawCount: rawList.length,
       messages: displayList,

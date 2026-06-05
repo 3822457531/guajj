@@ -38,6 +38,7 @@ export async function GET(request: Request) {
       username,
       count: result.count,
       rawCount: result.rawCount,
+      anchorMessageId: result.anchorMessageId,
       ms: Date.now() - started
     });
     return NextResponse.json({ ok: true, ...result });

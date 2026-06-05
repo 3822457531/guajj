@@ -1,15 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-test-media";
-import type { ChannelMessageItem } from "@/lib/jisou-search-types";
+import type { ChannelMessageItem, JisouChannelItem } from "@/lib/jisou-search-types";
 
-type JisouChannel = {
-  title: string;
-  url: string;
-  username: string | null;
-  members: string | null;
-};
+type JisouChannel = JisouChannelItem;
 
 export default function TgSearchTestPage() {
   const [query, setQuery] = useState("美腿丝袜");
@@ -24,9 +19,11 @@ export default function TgSearchTestPage() {
     broadcast?: boolean | null;
     note?: string;
     rawCount?: number;
+    anchorMessageId?: number | null;
   } | null>(null);
   const [messages, setMessages] = useState<ChannelMessageItem[]>([]);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const anchorRef = useRef<HTMLLIElement>(null);
 
   const pushLog = useCallback((message: string, extra?: Record<string, unknown>) => {
     const line = `[${new Date().toLocaleTimeString("zh-CN", { hour12: false })}] ${message}${
@@ -39,6 +36,14 @@ export default function TgSearchTestPage() {
   useEffect(() => {
     pushLog("页面已 hydrate，客户端 JS 正常");
   }, [pushLog]);
+
+  useEffect(() => {
+    if (channelLoading || !messages.some((m) => m.isAnchor)) return;
+    const t = window.setTimeout(() => {
+      anchorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+    return () => window.clearTimeout(t);
+  }, [messages, channelLoading]);
 
   async function onSearch(e?: React.FormEvent) {
     e?.preventDefault();
@@ -114,7 +119,12 @@ export default function TgSearchTestPage() {
         limit: "20"
       });
       const kw = (inChannelSearch ?? channelSearch).trim();
-      if (kw) params.set("search", kw);
+      if (kw) {
+        params.set("search", kw);
+      } else if (channel.postId) {
+        params.set("messageId", String(channel.postId));
+        pushLog("极搜定位消息", { postId: channel.postId });
+      }
 
       const url = `/api/test/tg-search/channel?${params.toString()}`;
       pushLog("fetch GET 频道", { url });
@@ -128,6 +138,7 @@ export default function TgSearchTestPage() {
         broadcast?: boolean | null;
         note?: string;
         rawCount?: number;
+        anchorMessageId?: number | null;
         messages?: ChannelMessageItem[];
       };
       try {
@@ -142,13 +153,17 @@ export default function TgSearchTestPage() {
         entityType: data.entityType,
         broadcast: data.broadcast,
         note: data.note,
-        rawCount: data.rawCount
+        rawCount: data.rawCount,
+        anchorMessageId: data.anchorMessageId
       });
       setMessages(data.messages || []);
       if (!data.messages?.length) {
         setError("频道可读，但当前条件下没有消息（试试清空频道内搜索或换频道）");
       }
-      pushLog("频道消息", { count: data.messages?.length ?? 0 });
+      pushLog("频道消息", {
+        count: data.messages?.length ?? 0,
+        anchor: data.anchorMessageId ?? null
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "读取频道失败";
       pushLog("频道异常", { message: msg });
@@ -162,8 +177,8 @@ export default function TgSearchTestPage() {
     <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px 48px", fontFamily: "system-ui, sans-serif" }}>
       <h1 style={{ margin: "0 0 8px", fontSize: 22 }}>TG 搜索联调测试页</h1>
       <p style={{ margin: "0 0 20px", color: "#555", lineHeight: 1.6, fontSize: 14 }}>
-        流程：极搜关键词 → 解析频道链接 → 点击频道 → GramJS 拉消息（默认<strong>不 join</strong>）。
-        相册合并展示；<strong>封面缩略图</strong>在拉消息时预缓存至 R2/本地，相册其余图与视频原文件<strong>按需加载</strong>（首次慢、之后走 CDN）。
+        流程：极搜关键词 → 解析频道链接 → 点击频道 → <strong>自动定位极搜返回的那条消息</strong>（与 TG 一致，非最新列表）。
+        相册合并展示；封面缩略图预缓存 R2，其余按需加载。
       </p>
 
       <form
@@ -226,7 +241,11 @@ export default function TgSearchTestPage() {
                     >
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{ch.title}</div>
                       <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-                        @{ch.username || "—"} {ch.members ? `· ${ch.members}` : ""}
+                        @{ch.username || "—"}
+                        {ch.postId ? (
+                          <span style={{ color: "#2563eb", fontWeight: 600 }}> · 📍 #{ch.postId}</span>
+                        ) : null}
+                        {ch.members ? ` · ${ch.members}` : ""}
                       </div>
                     </button>
                   </li>
@@ -245,6 +264,9 @@ export default function TgSearchTestPage() {
                 当前：<strong>@{activeChannel.username}</strong>
                 {channelMeta?.entityType ? ` · ${channelMeta.entityType}` : ""}
                 {channelMeta?.broadcast === true ? " · 公开广播频道" : ""}
+                {channelMeta?.anchorMessageId ? (
+                  <span style={{ color: "#2563eb", fontWeight: 600 }}> · 极搜定位 #{channelMeta.anchorMessageId}</span>
+                ) : null}
                 {channelMeta?.rawCount != null ? ` · 原始 ${channelMeta.rawCount} 条 / 展示 ${messages.length} 组` : ""}
               </p>
               {channelMeta?.note ? (
@@ -281,9 +303,22 @@ export default function TgSearchTestPage() {
 
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             {messages.map((msg) => (
-              <li key={`${msg.kind}-${msg.id}`} style={{ border: "1px solid #eee", borderRadius: 8, padding: 10 }}>
+              <li
+                key={`${msg.kind}-${msg.id}`}
+                ref={msg.isAnchor ? anchorRef : undefined}
+                style={{
+                  border: msg.isAnchor ? "2px solid #2563eb" : "1px solid #eee",
+                  borderRadius: 8,
+                  padding: 10,
+                  background: msg.isAnchor ? "#eff6ff" : "#fff",
+                  boxShadow: msg.isAnchor ? "0 0 0 1px #93c5fd" : undefined
+                }}
+              >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 12, color: "#666" }}>
                   <span>
+                    {msg.isAnchor ? (
+                      <strong style={{ color: "#2563eb", marginRight: 6 }}>极搜定位</strong>
+                    ) : null}
                     {msg.kind === "album" ? `相册 #${msg.ids.join(",")}` : `#${msg.id}`} · {msg.contentType}
                     {msg.albumSize > 1 ? ` · ${msg.albumSize} 项` : ""}
                   </span>
