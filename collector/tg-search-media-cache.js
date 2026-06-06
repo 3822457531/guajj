@@ -3,51 +3,10 @@
  */
 const fs = require("fs");
 const path = require("path");
-const { HeadObjectCommand, S3Client } = require("@aws-sdk/client-s3");
-const { saveMediaBytes } = require("./save-media");
-const { createPrisma } = require("../lib/tg-index-ingest");
+const { HeadObjectCommand } = require("@aws-sdk/client-s3");
+const { saveMediaBytes, getSiteSettingsCached, isR2Ready, buildObjectKey, trimBaseUrl, getR2Client } = require("./save-media");
 
-const R2_REGION = "auto";
-const SITE_SETTINGS_ID = "main";
 const inflight = new Map();
-
-function trimBaseUrl(base) {
-  return base.replace(/\/+$/, "");
-}
-
-function buildObjectKey(subPath) {
-  return `uploads/${subPath.replace(/^\/+/, "").replace(/\\/g, "/")}`;
-}
-
-function resolveR2Credentials(settings) {
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID?.trim() || settings.r2AccessKeyId?.trim() || "";
-  const secretAccessKey =
-    process.env.R2_SECRET_ACCESS_KEY?.trim() || settings.r2SecretAccessKey?.trim() || "";
-  if (!accessKeyId || !secretAccessKey) return null;
-  return { accessKeyId, secretAccessKey };
-}
-
-function isR2Ready(settings) {
-  if (settings.mediaStorage !== "r2") return false;
-  const accountId = process.env.R2_ACCOUNT_ID?.trim() || settings.r2AccountId?.trim();
-  const bucket = settings.r2BucketName?.trim();
-  const pub = settings.r2PublicBaseUrl?.trim();
-  if (!accountId || !bucket || !pub) return false;
-  return Boolean(resolveR2Credentials(settings));
-}
-
-async function loadStorageSettings() {
-  const prisma = createPrisma();
-  try {
-    return await prisma.siteSettings.upsert({
-      where: { id: SITE_SETTINGS_ID },
-      create: { id: SITE_SETTINGS_ID },
-      update: {}
-    });
-  } finally {
-    await prisma.$disconnect();
-  }
-}
 
 /**
  * @param {string} username
@@ -88,18 +47,10 @@ async function getCachedMediaUrl(subPath) {
     return `/${key}`;
   }
 
-  const settings = await loadStorageSettings();
+  const settings = await getSiteSettingsCached();
   if (!isR2Ready(settings)) return null;
 
-  const accountId = process.env.R2_ACCOUNT_ID?.trim() || settings.r2AccountId.trim();
-  const creds = resolveR2Credentials(settings);
-  const bucket = settings.r2BucketName.trim();
-  const client = new S3Client({
-    region: R2_REGION,
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: creds,
-    forcePathStyle: false
-  });
+  const { client, bucket } = getR2Client(settings);
 
   try {
     await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));

@@ -297,9 +297,9 @@ export function GlobalSearchClient() {
         <div
           className={`gs-panels${mobileDetail && activeChannel ? " gs-panels--detail" : ""}`}
         >
-          <section className="gs-panel gs-panel--channels" aria-label="频道列表">
+          <section className="gs-panel gs-panel--channels" aria-label="暗网结果列表">
             <div className="gs-panel-head">
-              <h2 className="gs-panel-title">频道结果</h2>
+              <h2 className="gs-panel-title">暗网结果</h2>
               <span className="gs-panel-count">{channels.length}</span>
             </div>
 
@@ -344,7 +344,7 @@ export function GlobalSearchClient() {
                 className="gs-mobile-back"
                 onClick={() => setMobileDetail(false)}
               >
-                ← 返回频道列表
+                ← 返回暗网列表
               </button>
             ) : null}
 
@@ -386,7 +386,7 @@ export function GlobalSearchClient() {
                 </form>
 
                 {channelLoading ? (
-                  <p className="gs-panel-loading">正在加载消息与封面…</p>
+                  <p className="gs-panel-loading">正在加载消息并并发预缓存封面…</p>
                 ) : (
                   <ul className="gs-message-list">
                     {messages.map((msg) => (

@@ -63,9 +63,15 @@ function mapGramError(err) {
   return { code: "GRAM_ERROR", message: msg };
 }
 
+function thumbPrefetchConcurrency() {
+  const maxCap = Math.min(16, Math.max(4, Number(process.env.TG_SEARCH_THUMB_MAX) || 12));
+  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 8;
+  return Math.min(maxCap, Math.max(1, Math.round(n)));
+}
+
 /**
  * 列表返回前：在同一 GramJS 连接内预取封面缩略图并写入 R2/本地
- * 相册仅同步第一张 thumb，其余 lazy
+ * 相册内全部缩略图并发预取，展开相册无需再等
  * @param {import('telegram').TelegramClient} client
  * @param {string} username
  * @param {object[]} displayList
@@ -86,18 +92,15 @@ async function enrichDisplayListWithThumbs(client, username, displayList, msgByI
 
       if (mi.contentType !== "PHOTO" && mi.contentType !== "VIDEO") continue;
 
-      // 相册只同步预取封面，其余进 viewport 再拉
-      if (item.kind === "album" && i > 0) continue;
-
       const msg = msgById.get(mi.id);
       if (!msg?.media) continue;
       thumbJobs.push({ item, mi, msg });
     }
   }
 
-  const concurrency = Math.min(
-    4,
-    Math.max(1, Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 3)
+  const concurrency = thumbPrefetchConcurrency();
+  console.log(
+    `[tg-search:collector] thumb prefetch jobs=${thumbJobs.length} concurrency=${concurrency}`
   );
 
   await mapPool(thumbJobs, concurrency, async ({ item, mi, msg }) => {
@@ -555,9 +558,9 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       note:
         broadcast === true
           ? anchorMessageId
-            ? `已定位极搜结果 #${anchorMessageId}（含相册/上下文）。封面缩略图预缓存至 R2/本地。`
-            : "公开广播频道：GramJS 通常无需 join 即可读历史。封面缩略图已预缓存至 R2/本地，相册其余图与视频原文件按需加载。"
-          : "超级群/私有频道：往往需要 join 后才能 getMessages",
+            ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。封面已预缓存。`
+            : "公开频道：可直接预览历史。封面已并发预缓存，视频按需加载。"
+          : "超级群/私有频道：往往需要加入后才能读取",
       search: search || null,
       anchorMessageId,
       count: displayList.length,
