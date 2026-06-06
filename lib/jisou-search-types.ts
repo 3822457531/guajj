@@ -82,7 +82,7 @@ export type JisouCaptchaChallenge = {
 };
 
 export type JisouSearchService = {
-  searchJisouChannels: (query: string) => Promise<JisouSearchResult>;
+  searchJisouChannels: (query: string, opts?: { webCaptcha?: boolean }) => Promise<JisouSearchResult>;
   solveJisouCaptchaAndSearch: (challengeId: string, answer: string) => Promise<JisouSearchResult>;
   getJisouCaptchaImage: (challengeId: string) => { buffer: Buffer; mime: string } | null;
   fetchChannelMessages: (

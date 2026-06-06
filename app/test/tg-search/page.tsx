@@ -69,8 +69,10 @@ export default function TgSearchTestPage() {
       const res = await fetch("/api/test/tg-search/captcha/solve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ challengeId: captcha.challengeId, answer })
+        body: JSON.stringify({ challengeId: captcha.challengeId, answer }),
+        signal: AbortSignal.timeout(115000)
       });
+      pushLog("验证码响应", { status: res.status, ok: res.ok });
       let data: {
         ok?: boolean;
         message?: string;
@@ -87,7 +89,7 @@ export default function TgSearchTestPage() {
       if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
         setCaptcha(data.captcha);
         setError(data.message || "答案错误或需再次验证，请重试");
-        pushLog("验证码未通过，已刷新题目");
+        pushLog("验证码未通过，已刷新题目", { challengeId: data.captcha.challengeId });
         return;
       }
 
@@ -96,8 +98,14 @@ export default function TgSearchTestPage() {
       }
 
       applySearchSuccess(data, "验证通过后极搜");
+      pushLog("验证通过，已展示频道列表", { count: data.channels?.length ?? 0 });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "验证失败";
+      const msg =
+        err instanceof Error && err.name === "TimeoutError"
+          ? "验证超时（服务端仍在等待极搜回复，请稍后重试或查看日志）"
+          : err instanceof Error
+            ? err.message
+            : "验证失败";
       pushLog("验证码异常", { message: msg });
       setError(msg);
     } finally {
@@ -128,7 +136,8 @@ export default function TgSearchTestPage() {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ q })
+        body: JSON.stringify({ q }),
+        signal: AbortSignal.timeout(55000)
       });
       pushLog("收到响应", { status: res.status, ok: res.ok });
       let data: {
@@ -163,7 +172,12 @@ export default function TgSearchTestPage() {
       }
       applySearchSuccess(data, "极搜");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "搜索失败";
+      const msg =
+        err instanceof Error && err.name === "TimeoutError"
+          ? "搜索超时（可能卡在 wait 模式等 TG 手动验证，请设 JISOU_CAPTCHA_MODE=web 并重启服务）"
+          : err instanceof Error
+            ? err.message
+            : "搜索失败";
       pushLog("搜索异常", { message: msg });
       setError(msg);
     } finally {
@@ -253,6 +267,7 @@ export default function TgSearchTestPage() {
 
       {captcha ? (
         <section
+          key={captcha.challengeId}
           style={{
             marginBottom: 16,
             padding: 16,
@@ -262,6 +277,20 @@ export default function TgSearchTestPage() {
           }}
         >
           <h2 style={{ margin: "0 0 8px", fontSize: 16, color: "#92400e" }}>极搜人机验证（请协助完成）</h2>
+          {error ? (
+            <p
+              style={{
+                margin: "0 0 10px",
+                padding: "8px 10px",
+                borderRadius: 6,
+                background: "#fef2f2",
+                color: "#b91c1c",
+                fontSize: 13
+              }}
+            >
+              {error}
+            </p>
+          ) : null}
           <p style={{ margin: "0 0 12px", fontSize: 13, color: "#78350f", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
             {captcha.prompt}
           </p>
@@ -271,7 +300,8 @@ export default function TgSearchTestPage() {
           </p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={captcha.imageUrl}
+            key={captcha.challengeId}
+            src={`${captcha.imageUrl}?v=${encodeURIComponent(captcha.challengeId)}`}
             alt="极搜验证码"
             style={{
               display: "block",
@@ -286,7 +316,7 @@ export default function TgSearchTestPage() {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {captcha.options.map((opt) => (
               <button
-                key={opt}
+                key={`${captcha.challengeId}-${opt}`}
                 type="button"
                 disabled={captchaSubmitting}
                 onClick={() => void submitCaptchaAnswer(opt)}
@@ -340,7 +370,7 @@ export default function TgSearchTestPage() {
         </button>
       </form>
 
-      {error ? (
+      {error && !captcha ? (
         <p style={{ color: "#b91c1c", background: "#fef2f2", padding: 12, borderRadius: 8, fontSize: 14 }}>{error}</p>
       ) : null}
 

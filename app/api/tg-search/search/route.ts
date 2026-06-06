@@ -4,5 +4,5 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  return handleTgSearchPost(request, TG_SEARCH_API.test);
+  return handleTgSearchPost(request, TG_SEARCH_API.prod);
 }

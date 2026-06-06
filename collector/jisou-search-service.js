@@ -6,7 +6,14 @@ const { withGramClient, sleep } = require("./gram-client");
 const { parseJisouSearchMessage, parseJisouReplyMarkup } = require("./jisou-parse");
 const { pickContentType } = require("./parse");
 const { mapRawMessage, groupMessagesForDisplay } = require("./message-display");
-const { isJisouCaptcha, handleJisouCaptcha, packCaptchaForWeb, captchaMode } = require("./jisou-captcha");
+const {
+  isJisouCaptcha,
+  handleJisouCaptcha,
+  packCaptchaForWeb,
+  captchaMode,
+  flattenCallbackButtons,
+  captchaMediaSignature
+} = require("./jisou-captcha");
 const { consumeChallenge, getChallenge } = require("./jisou-captcha-store");
 const { cacheMessageMediaWithClient, mapPool } = require("./tg-search-media-cache");
 
@@ -29,7 +36,13 @@ function mapGramError(err) {
   const msg = err?.errorMessage || err?.message || String(err);
   const code = err?.code || "";
   if (/SESSION_REVOKED/i.test(msg)) {
-    return { code: "SESSION_REVOKED", message: "Telegram session 已失效，请重新 collector:login" };
+    return { code: "SESSION_REVOKED", message: "采集通道已失效，请重新登录采集号" };
+  }
+  if (/AUTH_KEY_DUPLICATED/i.test(msg)) {
+    return {
+      code: "SESSION_BUSY",
+      message: "采集通道正忙（请勿同时多窗口搜索，或停止后台采集进程后重试）"
+    };
   }
   if (/CHANNEL_PRIVATE|CHAT_ADMIN_REQUIRED|INVITE_HASH_EMPTY|CHANNEL_INVALID/i.test(msg)) {
     return {
@@ -121,17 +134,18 @@ async function waitForJisouReply(client, botEntity, afterMessageId, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    const batch = await client.getMessages(botEntity, { minId: afterMessageId, limit: 10 });
+    const batch = await client.getMessages(botEntity, { minId: afterMessageId, limit: 15 });
     const replies = (batch || [])
       .filter((m) => m?.id > afterMessageId)
       .sort((a, b) => a.id - b.id);
 
     for (const msg of replies) {
+      // 首条 bot 回复可能是验证码，也必须返回（不可 skip）
       try {
         const sender = await msg.getSender();
         if (sender && String(sender.id) === botId) return msg;
       } catch {
-        /* ignore */
+        if (!msg.out) return msg;
       }
     }
     await sleep(600);
@@ -140,6 +154,120 @@ async function waitForJisouReply(client, botEntity, afterMessageId, timeoutMs) {
   const err = new Error("等待极搜回复超时");
   err.code = "JISOU_REPLY_TIMEOUT";
   throw err;
+}
+
+/** 极搜搜索结果消息（含频道列表或热搜，非验证码） */
+function isLikelyJisouSearchReply(msg) {
+  if (!msg || isJisouCaptcha(msg)) return false;
+  const text = String(msg.message || "");
+  if (/📢|热搜[：:]/u.test(text)) return true;
+  const parsed = parseJisouSearchMessage(text, msg.entities || []);
+  return parsed.channelCount > 0 || parsed.hotKeywords.length > 0;
+}
+
+function captchaOptionsSignature(msg) {
+  return flattenCallbackButtons(msg)
+    .map((b) => String(b.text ?? "").trim())
+    .filter((t) => /^\d+$/.test(t))
+    .sort()
+    .join(",");
+}
+
+async function throwWebCaptchaRetry(client, botEntity, captchaMsg, q, sentMessageId, message) {
+  const captcha = await packCaptchaForWeb(client, botEntity, captchaMsg, q, sentMessageId);
+  const err = new Error(message || "答案错误，请根据新题目重新选择");
+  err.code = "JISOU_CAPTCHA_REQUIRED";
+  err.captcha = captcha;
+  err.query = q;
+  throw err;
+}
+
+/**
+ * 用户代点验证码后：优先等搜索结果；若极搜刷出新验证码（答错/重试）则立即返回
+ */
+async function waitAfterCaptchaAnswer(client, botEntity, challenge) {
+  const captchaMsgId = Number(challenge.captchaMsgId) || 0;
+  const sentMessageId = Number(challenge.sentMessageId) || 0;
+  const afterId = Math.max(captchaMsgId, sentMessageId);
+  const knownSig = (challenge.options || []).slice().sort().join(",");
+  const knownMediaSig = String(challenge.captchaMediaSig || "");
+  const timeoutMs = jisouReplyTimeoutMs();
+  const deadline = Date.now() + timeoutMs;
+  const minRetryCheckAt = Date.now() + 600;
+
+  while (Date.now() < deadline) {
+    const [fresh] = await client.getMessages(botEntity, { ids: [captchaMsgId] });
+
+    if (fresh && isJisouCaptcha(fresh)) {
+      const text = String(fresh.message || "");
+      const sig = captchaOptionsSignature(fresh);
+      const mediaSig = captchaMediaSignature(fresh);
+      const failedHint = /验证失败|重新尝试|retry/i.test(text);
+      const optionsChanged = Boolean(sig && knownSig && sig !== knownSig);
+      const mediaChanged = Boolean(knownMediaSig && mediaSig && mediaSig !== knownMediaSig);
+      if (Date.now() >= minRetryCheckAt && (failedHint || optionsChanged || mediaChanged)) {
+        console.log(
+          `[tg-search:collector] captcha 未通过，极搜已刷题 msgId=${fresh.id} failedHint=${failedHint} optionsChanged=${optionsChanged} mediaChanged=${mediaChanged}`
+        );
+        return { kind: "captcha", msg: fresh };
+      }
+    }
+
+    const batch = await client.getMessages(botEntity, { minId: afterId, limit: 15 });
+    const candidates = (batch || [])
+      .filter((m) => m?.id > afterId && !m.out)
+      .sort((a, b) => b.id - a.id);
+
+    for (const msg of candidates) {
+      if (isLikelyJisouSearchReply(msg)) {
+        return { kind: "search", msg };
+      }
+      if (msg.id > captchaMsgId && isJisouCaptcha(msg)) {
+        console.log(`[tg-search:collector] captcha 后出现新验证消息 msgId=${msg.id}`);
+        return { kind: "captcha", msg };
+      }
+    }
+
+    await sleep(500);
+  }
+
+  return { kind: "timeout" };
+}
+
+/**
+ * 验证码通过后拉取搜索结果：先扫近期消息，必要时重发关键词
+ */
+async function fetchJisouSearchAfterCaptcha(client, botEntity, q, afterMessageId) {
+  const timeoutMs = jisouReplyTimeoutMs();
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const batch = await client.getMessages(botEntity, { minId: afterMessageId, limit: 15 });
+    const candidates = (batch || [])
+      .filter((m) => m?.id > afterMessageId && !m.out)
+      .sort((a, b) => b.id - a.id);
+
+    for (const msg of candidates) {
+      if (isLikelyJisouSearchReply(msg)) {
+        console.log(`[tg-search:collector] captcha 后命中搜索结果 msgId=${msg.id}`);
+        return msg;
+      }
+    }
+    await sleep(700);
+  }
+
+  console.log(`[tg-search:collector] captcha 后未扫到结果，重发关键词 q=${JSON.stringify(q)}`);
+  const sent = await client.sendMessage(botEntity, { message: q });
+  const reply = await waitForJisouReply(client, botEntity, sent.id, timeoutMs);
+  if (isJisouCaptcha(reply)) {
+    const captcha = await packCaptchaForWeb(client, botEntity, reply, q, sent.id);
+    const err = new Error("验证未通过或需要再次验证，请重试");
+    err.code = "JISOU_CAPTCHA_REQUIRED";
+    err.captcha = captcha;
+    err.query = q;
+    throw err;
+  }
+  return reply;
 }
 
 function buildJisouSearchResult(q, reply) {
@@ -156,14 +284,19 @@ function buildJisouSearchResult(q, reply) {
 }
 
 /**
- * 向 @jisou 发关键词；若遇人机验证则自动/等待处理后重试
+ * 向 @jisou 发关键词；若遇人机验证则自动/等待/web 交给前端
  * @param {string} query
+ * @param {{ webCaptcha?: boolean }} opts — API 测试页传 webCaptcha:true 强制网页验证码
  */
-async function searchJisouChannels(query) {
+async function searchJisouChannels(query, opts = {}) {
   const q = String(query || "").trim();
   if (!q) return { query: "", channels: [], hotKeywords: [], ads: [], buttons: { filters: [], actions: [] } };
 
-  console.log(`[tg-search:collector] ${new Date().toISOString()} searchJisouChannels start q=${JSON.stringify(q)}`);
+  const deliverWebCaptcha = opts.webCaptcha === true || captchaMode() === "web";
+
+  console.log(
+    `[tg-search:collector] ${new Date().toISOString()} searchJisouChannels start q=${JSON.stringify(q)} webCaptcha=${deliverWebCaptcha}`
+  );
 
   return withGramClient(async (client) => {
     const botEntity = await client.getEntity(BOT_USERNAME);
@@ -177,8 +310,9 @@ async function searchJisouChannels(query) {
       const reply = await waitForJisouReply(client, botEntity, sent.id, jisouReplyTimeoutMs());
 
       if (isJisouCaptcha(reply)) {
-        if (captchaMode() === "web") {
-          const captcha = await packCaptchaForWeb(client, botEntity, reply, q);
+        if (deliverWebCaptcha) {
+          console.log(`[tg-search:collector] 人机验证 → 打包给网页用户（不阻塞 wait/auto）`);
+          const captcha = await packCaptchaForWeb(client, botEntity, reply, q, sent.id);
           const err = new Error("极搜需要人机验证，请由网页用户选择正确答案");
           err.code = "JISOU_CAPTCHA_REQUIRED";
           err.captcha = captcha;
@@ -227,23 +361,53 @@ async function solveJisouCaptchaAndSearch(challengeId, answer) {
   return withGramClient(async (client) => {
     const botEntity = await client.getEntity(BOT_USERNAME);
     await submitWebCaptchaAnswer(client, botEntity, challenge, answer);
-    await sleep(1200);
+    await sleep(800);
 
-    const sent = await client.sendMessage(botEntity, { message: q });
-    const reply = await waitForJisouReply(client, botEntity, sent.id, jisouReplyTimeoutMs());
+    const post = await waitAfterCaptchaAnswer(client, botEntity, challenge);
 
-    if (isJisouCaptcha(reply)) {
-      const captcha = await packCaptchaForWeb(client, botEntity, reply, q);
-      const err = new Error("验证未通过或需要再次验证，请重试");
-      err.code = "JISOU_CAPTCHA_REQUIRED";
-      err.captcha = captcha;
-      err.query = q;
-      throw err;
+    if (post.kind === "captcha") {
+      await throwWebCaptchaRetry(
+        client,
+        botEntity,
+        post.msg,
+        q,
+        challenge.sentMessageId,
+        "答案错误或未通过，请根据新题目重新选择"
+      );
     }
 
+    if (post.kind === "search") {
+      const result = buildJisouSearchResult(q, post.msg);
+      console.log(
+        `[tg-search:collector] captcha solved, search ok channels=${result.channels?.length ?? 0} replyId=${post.msg.id}`
+      );
+      return result;
+    }
+
+    // 超时：若原验证码消息仍存在，优先刷题给用户，避免误重发关键词
+    const [stale] = await client.getMessages(botEntity, { ids: [challenge.captchaMsgId] });
+    if (stale && isJisouCaptcha(stale)) {
+      const sig = captchaOptionsSignature(stale);
+      const knownSig = (challenge.options || []).slice().sort().join(",");
+      const knownMediaSig = String(challenge.captchaMediaSig || "");
+      const mediaSig = captchaMediaSignature(stale);
+      const failedHint = /验证失败|重新尝试|retry/i.test(String(stale.message || ""));
+      const refreshed = failedHint || sig !== knownSig || (knownMediaSig && mediaSig !== knownMediaSig);
+      await throwWebCaptchaRetry(
+        client,
+        botEntity,
+        stale,
+        q,
+        challenge.sentMessageId,
+        refreshed ? "答案错误或未通过，请根据新题目重新选择" : "验证未完成，请重新选择正确答案"
+      );
+    }
+
+    const afterId = Math.max(Number(challenge.captchaMsgId) || 0, Number(challenge.sentMessageId) || 0);
+    const reply = await fetchJisouSearchAfterCaptcha(client, botEntity, q, afterId);
     const result = buildJisouSearchResult(q, reply);
     console.log(
-      `[tg-search:collector] captcha solved, search ok channels=${result.channels?.length ?? 0}`
+      `[tg-search:collector] captcha solved (late), search ok channels=${result.channels?.length ?? 0} replyId=${reply.id}`
     );
     return result;
   });

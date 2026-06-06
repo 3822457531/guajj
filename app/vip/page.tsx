@@ -8,6 +8,7 @@ import { VipHotKeywords } from "@/components/vip-hot-keywords";
 import { VipLatestFeed } from "@/components/vip-latest-feed";
 import { VipSearchFilterTabs } from "@/components/vip-search-filter-tabs";
 import { VipSearchResultCard } from "@/components/vip-search-result-card";
+import { SearchModeTabs } from "@/components/search-mode-tabs";
 import { buildVipDetailHref, buildVipListHref } from "@/lib/tg-index-display";
 import {
   getVipHotKeywords,
@@ -61,6 +62,7 @@ export default async function VipSearchPage({
               <h1 className="vip-results-title">搜索结果</h1>
               <span className="vip-results-head-spacer" aria-hidden />
             </div>
+            <SearchModeTabs active="vip" />
             <form className="vip-search-bar vip-search-bar--results" method="get" action="/vip">
               {tab !== "all" ? <input type="hidden" name="tab" value={tab} /> : null}
               <div className="vip-search-field">
@@ -96,6 +98,7 @@ export default async function VipSearchPage({
                 我的身份
               </Link>
             </div>
+            <SearchModeTabs active="vip" />
             <form className="vip-search-bar" method="get" action="/vip">
               <div className="vip-search-field">
                 <input

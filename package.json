@@ -20,6 +20,7 @@
     "db:import-main": "npm run db:mysql-reset && prisma db execute --schema prisma/schema.prisma --file prisma/main.mysql.sql && prisma migrate resolve --applied 20260520120000_init_mysql",
     "db:check": "node scripts/db-check-tables.js",
     "collector:login": "node collector/login.js",
+    "collector:login:fresh": "node collector/login.js --fresh",
     "collector:sync-channels": "node collector/sync-channels.js",
     "collector:seed-channels": "node scripts/seed-tg-channels.js",
     "collector:backfill": "node collector/backfill.js",

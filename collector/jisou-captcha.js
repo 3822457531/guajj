@@ -21,17 +21,63 @@ function captchaWaitMs() {
   return Number.isFinite(n) && n > 0 ? Math.round(n) : 90000;
 }
 
+function callbackClickTimeoutMs() {
+  const n = Number(process.env.JISOU_CALLBACK_CLICK_TIMEOUT_MS ?? 4500);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : 4500;
+}
+
+function isIgnorableCallbackError(err) {
+  const msg = String(err?.errorMessage || err?.message || err || "");
+  return (
+    err?.code === "JISOU_CALLBACK_LOCAL_TIMEOUT" ||
+    /BOT_RESPONSE_TIMEOUT|CALLBACK_QUERY_TIMEOUT|QUERY_ID_INVALID/i.test(msg) ||
+    /TIMEOUT/i.test(msg)
+  );
+}
+
+/** 用于判断极搜是否刷新了验证码图片 */
+function captchaMediaSignature(msg) {
+  const media = msg?.media;
+  if (!media) return "";
+  const photo = media.photo ?? media.document;
+  if (!photo) return "";
+  const id = photo.id != null ? String(photo.id) : "";
+  const dc = photo.dcId != null ? String(photo.dcId) : "";
+  return `${media.className || "media"}:${dc}:${id}`;
+}
+
+/** 极搜验证码文案里的 @推广号，不展示给网页用户 */
+function sanitizeCaptchaPrompt(text) {
+  const raw = String(text || "").trim();
+  if (!raw) return raw;
+
+  const lines = raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !/^@[A-Za-z0-9_]{2,32}$/.test(line))
+    .map((line) => line.replace(/(?:^|\s)@[A-Za-z0-9_]{2,32}(?=\s|$)/g, " ").trim())
+    .filter(Boolean);
+
+  return lines.join("\n").trim();
+}
+
 function flattenCallbackButtons(msg) {
   const rows = msg?.replyMarkup?.rows || [];
   const out = [];
   for (const row of rows) {
-    for (const btn of row.buttons || []) {
-      if (btn.className === "KeyboardButtonCallback") {
-        out.push({
-          text: String(btn.text ?? "").trim(),
-          data: btn.data
-        });
-      }
+    const buttons = row.buttons || (Array.isArray(row) ? row : []);
+    for (const btn of buttons) {
+      if (!btn) continue;
+      const isCallback =
+        btn.className === "KeyboardButtonCallback" ||
+        btn.className === "KeyboardButtonCallbackButton" ||
+        (btn.data != null && btn.text != null);
+      if (!isCallback) continue;
+      out.push({
+        text: String(btn.text ?? "").trim(),
+        data: btn.data
+      });
     }
   }
   return out;
@@ -41,7 +87,7 @@ function flattenCallbackButtons(msg) {
 function isJisouCaptcha(msg) {
   if (!msg) return false;
   const text = String(msg.message || "");
-  if (/人机验证|完成.*验证|计算结果/i.test(text)) return true;
+  if (/人机验证|完成.*验证|计算结果|必须完成/i.test(text)) return true;
 
   const buttons = flattenCallbackButtons(msg);
   if (msg.media && buttons.length >= 4) {
@@ -155,15 +201,33 @@ function findAnswerButton(msg, answer) {
 async function clickCallbackButton(client, botEntity, msg, button) {
   if (!button?.data) throw new Error("回调按钮无 data");
 
-  await client.invoke(
-    new Api.messages.GetBotCallbackAnswer({
-      peer: botEntity,
-      msgId: msg.id,
-      data: button.data,
-      game: false
+  let ack = false;
+  const invokePromise = client
+    .invoke(
+      new Api.messages.GetBotCallbackAnswer({
+        peer: botEntity,
+        msgId: msg.id,
+        data: button.data,
+        game: false
+      })
+    )
+    .then(() => {
+      ack = true;
     })
-  );
-  await sleep(800);
+    .catch((err) => {
+      if (isIgnorableCallbackError(err)) {
+        console.warn(
+          "[极搜验证] GetBotCallbackAnswer 未即时确认（常见于答错/极搜刷题），继续轮询 TG 消息:",
+          err?.errorMessage || err?.message || err
+        );
+        return;
+      }
+      throw err;
+    });
+
+  await Promise.race([invokePromise, sleep(callbackClickTimeoutMs())]);
+  await sleep(400);
+  return { ack };
 }
 
 /**
@@ -172,8 +236,9 @@ async function clickCallbackButton(client, botEntity, msg, button) {
  * @param {import('telegram').Api.TypeEntityLike} botEntity
  * @param {import('telegram').Api.Message} captchaMsg
  * @param {string} query
+ * @param {number} [sentMessageId] 触发验证码前发出的关键词 messageId
  */
-async function packCaptchaForWeb(client, botEntity, captchaMsg, query) {
+async function packCaptchaForWeb(client, botEntity, captchaMsg, query, sentMessageId) {
   const imageBuffer = await downloadCaptchaImage(client, captchaMsg);
   const buttons = flattenCallbackButtons(captchaMsg);
   const buttonByAnswer = {};
@@ -195,17 +260,19 @@ async function packCaptchaForWeb(client, botEntity, captchaMsg, query) {
   }
 
   const prompt =
-    String(captchaMsg.message || "").trim() ||
-    "极搜人机验证：请查看图片中的算式，点击下方正确答案（由网页用户代采集号提交）";
+    sanitizeCaptchaPrompt(String(captchaMsg.message || "").trim()) ||
+    "极搜人机验证：请查看图片中的算式，点击下方正确答案";
 
   const challengeId = createChallenge({
     query: String(query || "").trim(),
     botUsername: (process.env.JISOU_BOT_USERNAME || "jisou").replace(/^@/, ""),
     captchaMsgId: captchaMsg.id,
+    sentMessageId: Number(sentMessageId) > 0 ? Number(sentMessageId) : null,
     prompt,
     options,
     imageBuffer,
-    buttonByAnswer
+    buttonByAnswer,
+    captchaMediaSig: captchaMediaSignature(captchaMsg)
   });
 
   console.log(`[极搜验证] web 模式：已打包 challenge=${challengeId} options=${options.join(",")}`);
@@ -249,7 +316,7 @@ async function submitWebCaptchaAnswer(client, botEntity, challenge, answer) {
     text: label,
     data: Buffer.from(dataHex, "hex")
   });
-  console.log(`[极搜验证] web 模式：用户选择 ${label}，已代点 callback`);
+  console.log(`[极搜验证] web 模式：用户选择 ${label}，已代点 callback（不依赖 bot callback ack）`);
   return { clicked: true, answer: label };
 }
 
@@ -350,5 +417,7 @@ module.exports = {
   parseMathFromOcr,
   flattenCallbackButtons,
   captchaMode,
-  downloadCaptchaImage
+  downloadCaptchaImage,
+  captchaMediaSignature,
+  sanitizeCaptchaPrompt
 };
