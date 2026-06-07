@@ -50,9 +50,7 @@ export function HotSearchBoard({
         <p className="hot-board-meta-line">
           共 <strong>{items.length}</strong> 条 · 更新于 {formatBoardTime(updatedAt)}
         </p>
-        {sourceFetchedAt ? (
-          <p className="hot-board-meta-sub">极搜采集 {formatBoardTime(sourceFetchedAt)}</p>
-        ) : null}
+    
       </div>
 
       <div className="hot-board-section">
