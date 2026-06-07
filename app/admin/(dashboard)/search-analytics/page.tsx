@@ -1,7 +1,7 @@
 import type { SearchLog, SocialUser } from "@/lib/generated/prisma";
 import {
   getRecentSearchLogs,
-  getSearchStatsOverview,
+  getSearchStatsForSource,
   SearchSource,
   type SearchStatsSlice
 } from "@/lib/search-analytics";
@@ -19,6 +19,7 @@ function formatDateTime(value: Date) {
 
 type SearchLogRow = SearchLog & {
   socialUser: Pick<SocialUser, "id" | "nickname" | "loginType"> | null;
+  guestUser: { id: string; publicId: string } | null;
 };
 
 function TopKeywordsTable({ rows }: { rows: Array<{ keyword: string; count: number }> }) {
@@ -47,7 +48,7 @@ function TopKeywordsTable({ rows }: { rows: Array<{ keyword: string; count: numb
   );
 }
 
-function SearchLogsTable({ rows }: { rows: SearchLogRow[] }) {
+function SearchLogsTable({ rows, showGuest }: { rows: SearchLogRow[]; showGuest?: boolean }) {
   if (rows.length === 0) {
     return <p style={{ color: "var(--muted)" }}>暂无搜索记录。</p>;
   }
@@ -60,6 +61,7 @@ function SearchLogsTable({ rows }: { rows: SearchLogRow[] }) {
             <th>关键词</th>
             <th>结果数</th>
             <th>IP</th>
+            {showGuest ? <th>GUA 用户</th> : null}
             <th>登录用户</th>
           </tr>
         </thead>
@@ -70,6 +72,9 @@ function SearchLogsTable({ rows }: { rows: SearchLogRow[] }) {
               <td style={{ fontWeight: 600 }}>{row.keyword}</td>
               <td>{row.resultCount}</td>
               <td style={{ fontSize: 13 }}>{row.ip}</td>
+              {showGuest ? (
+                <td style={{ fontSize: 13 }}>{row.guestUser?.publicId ?? "—"}</td>
+              ) : null}
               <td style={{ fontSize: 13 }}>
                 {row.socialUser ? (
                   <>
@@ -93,12 +98,14 @@ function SearchSourcePanel({
   title,
   scopeNote,
   stats,
-  recentLogs
+  recentLogs,
+  showGuest
 }: {
   title: string;
   scopeNote: string;
   stats: SearchStatsSlice;
   recentLogs: SearchLogRow[];
+  showGuest?: boolean;
 }) {
   return (
     <section style={{ marginBottom: 40 }}>
@@ -134,33 +141,26 @@ function SearchSourcePanel({
 
       <div className="admin-panel">
         <h3 className="admin-panel-title">搜索明细（最近 100 条）</h3>
-        <SearchLogsTable rows={recentLogs} />
+        <SearchLogsTable rows={recentLogs} showGuest={showGuest} />
       </div>
     </section>
   );
 }
 
 export default async function AdminSearchAnalyticsPage() {
-  const [overview, homeLogs, vipLogs] = await Promise.all([
-    getSearchStatsOverview(),
-    getRecentSearchLogs(SearchSource.HOME, 100),
-    getRecentSearchLogs(SearchSource.VIP, 100)
+  const [globalStats, globalLogs] = await Promise.all([
+    getSearchStatsForSource(SearchSource.GLOBAL),
+    getRecentSearchLogs(SearchSource.GLOBAL, 100)
   ]);
 
   return (
     <>
       <SearchSourcePanel
-        title="首页搜索"
-        scopeNote="统计范围：`/?q=…` 提交的全站帖子关键词搜索。每次搜索记一条；翻页不重复记（仅首页搜索无分页）。"
-        stats={overview.home}
-        recentLogs={homeLogs}
-      />
-
-      <SearchSourcePanel
-        title="VIP 搜索"
-        scopeNote="统计范围：`/vip?q=…` 提交的频道索引搜索。每次新搜索记一条（翻页不重复）；结果数为索引命中总数。"
-        stats={overview.vip}
-        recentLogs={vipLogs}
+        title="全网搜索"
+        scopeNote="统计范围：`/global-search` 暗网索引搜索。极搜返回频道列表后扣 1 次额度并记一条明细；验证码阶段不扣次。"
+        stats={globalStats}
+        recentLogs={globalLogs}
+        showGuest
       />
     </>
   );

@@ -19,6 +19,7 @@ export async function updateSiteSettingsAction(formData: FormData) {
   const newAccessKey = String(formData.get("r2AccessKeyId") || "").trim();
   const newSecretKey = String(formData.get("r2SecretAccessKey") || "").trim();
   const blockedKeywordsRaw = String(formData.get("blockedKeywords") || "");
+  const globalDailySearchLimit = Math.max(0, Math.floor(Number(formData.get("globalDailySearchLimit")) || 5));
   const dailySearchLimit = Math.max(0, Math.floor(Number(formData.get("dailySearchLimit")) || 3));
   const referralSearchBonus = Math.max(0, Math.floor(Number(formData.get("referralSearchBonus")) || 1));
 
@@ -36,6 +37,7 @@ export async function updateSiteSettingsAction(formData: FormData) {
       r2SecretAccessKey: newSecretKey || null,
       blockedKeywords: blockedKeywordsRaw.trim() || null,
       dailySearchLimit,
+      globalDailySearchLimit,
       referralSearchBonus
     },
     update: {
@@ -47,6 +49,7 @@ export async function updateSiteSettingsAction(formData: FormData) {
       r2PublicBaseUrl,
       blockedKeywords: blockedKeywordsRaw.trim() || null,
       dailySearchLimit,
+      globalDailySearchLimit,
       referralSearchBonus,
       ...(newAccessKey ? { r2AccessKeyId: newAccessKey } : {}),
       ...(newSecretKey ? { r2SecretAccessKey: newSecretKey } : {})
@@ -56,6 +59,7 @@ export async function updateSiteSettingsAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/vip");
   revalidatePath("/my");
+  revalidatePath("/global-search");
   revalidatePath("/admin/settings");
   redirect(`${adminPath("/settings")}?saved=1`);
 }

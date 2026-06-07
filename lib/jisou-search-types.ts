@@ -10,6 +10,11 @@ export type JisouChannelItem = {
   label?: string;
 };
 
+/** 极搜频道结果中 username 为空表示邀请链接推广位（广告） */
+export function isJisouPromotedChannel(channel: Pick<JisouChannelItem, "username">): boolean {
+  return !channel.username;
+}
+
 export type JisouSearchResult = {
   query: string;
   replyMessageId?: number;
@@ -36,6 +41,8 @@ export type ChannelMessageItem = {
   ids: number[];
   date: string | null;
   caption?: string;
+  /** 完整正文（查看原文用） */
+  fullText?: string;
   textPreview: string;
   contentType: string;
   hasMedia: boolean;

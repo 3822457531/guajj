@@ -9,7 +9,14 @@ export const metadata: Metadata = {
   description: "暗网索引 · 检索全网公开频道与消息预览"
 };
 
-export default function GlobalSearchPage() {
+export default async function GlobalSearchPage({
+  searchParams
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const params = await searchParams;
+  const initialQuery = typeof params.q === "string" ? params.q.trim() : "";
+
   return (
     <main className="site-shell h5-home global-search-page">
       <header className="h5-top global-search-top">
@@ -33,7 +40,7 @@ export default function GlobalSearchPage() {
       </header>
 
       <div className="h5-container global-search-container">
-        <GlobalSearchClient />
+        <GlobalSearchClient initialQuery={initialQuery} />
       </div>
 
       <H5SiteBottomNav active="global" variant="dark" />

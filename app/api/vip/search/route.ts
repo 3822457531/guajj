@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { searchIndexedMessages, VIP_SEARCH_PAGE_SIZE } from "@/lib/tg-index-search";
-import { assertSearchAllowed } from "@/lib/search-quota";
+import { assertAdvancedSearchIdentity } from "@/lib/search-quota";
 import { recordSearchLog } from "@/lib/search-analytics";
 import { SearchSource } from "@/lib/generated/prisma";
 import { cookies, headers } from "next/headers";
@@ -28,20 +28,18 @@ export async function GET(request: Request) {
   }
 
   if (page === 1) {
-    const check = await assertSearchAllowed();
+    const check = await assertAdvancedSearchIdentity();
     if (!check.allowed) {
       return NextResponse.json(
         {
           ok: false,
-          error: "daily_limit",
+          error: "identity_required",
           quota: {
-            used: check.quota.used,
-            limit: check.quota.limit,
-            remaining: check.quota.remaining,
-            hasIdentity: check.quota.hasIdentity
+            hasIdentity: check.quota.hasIdentity,
+            unlimited: true
           }
         },
-        { status: 429 }
+        { status: 401 }
       );
     }
   }

@@ -25,6 +25,8 @@ export default async function AdminIndexMessagesPage({
     error?: string;
     saved?: string;
     deleted?: string;
+    media?: string;
+    mediaFailed?: string;
     q?: string;
     chat?: string | string[];
     page?: string;
@@ -78,6 +80,11 @@ export default async function AdminIndexMessagesPage({
       {params.deleted ? (
         <p className="admin-flash success">
           {Number(params.deleted) > 1 ? `已删除 ${params.deleted} 条索引。` : "索引已删除。"}
+          {params.media ? ` 同步清理媒体文件 ${params.media} 个` : null}
+          {params.mediaFailed && Number(params.mediaFailed) > 0 ? (
+            <span style={{ color: "#b45309" }}>（{params.mediaFailed} 个媒体文件删除失败，请至存储管理检查）</span>
+          ) : null}
+          。
         </p>
       ) : null}
       {params.error === "empty" ? <p className="admin-flash" style={{ color: "#b45309" }}>请先勾选要删除的条目。</p> : null}

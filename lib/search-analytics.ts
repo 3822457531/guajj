@@ -87,6 +87,34 @@ export async function recordSearchLogFromServer(source: SearchSource, keyword: s
   });
 }
 
+/** API（如全网搜索 POST）写入搜索明细 */
+export async function recordSearchLogFromRequest(
+  request: Request,
+  source: SearchSource,
+  keyword: string,
+  resultCount: number
+) {
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const visitorId =
+    cookieHeader
+      .split(";")
+      .map((p) => p.trim())
+      .find((p) => p.startsWith("cg_vid="))
+      ?.slice("cg_vid=".length)
+      .trim() || "unknown";
+
+  await recordSearchLog({
+    source,
+    keyword,
+    visitorId,
+    ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+    socialUserId: readSocialUserIdFromCookieHeader(cookieHeader),
+    guestUserId: readGuestUserIdFromCookieHeader(cookieHeader),
+    resultCount,
+    userAgent: request.headers.get("user-agent")
+  });
+}
+
 export async function getTopSearchKeywords(source: SearchSource, since: Date, limit = 15) {
   const grouped = await prisma.searchLog.groupBy({
     by: ["keyword"],
@@ -105,7 +133,8 @@ export async function getRecentSearchLogs(source: SearchSource, limit = 100) {
     orderBy: { createdAt: "desc" },
     take: limit,
     include: {
-      socialUser: { select: { id: true, nickname: true, loginType: true } }
+      socialUser: { select: { id: true, nickname: true, loginType: true } },
+      guestUser: { select: { id: true, publicId: true } }
     }
   });
 }
@@ -128,9 +157,89 @@ export async function getSearchStatsForSource(source: SearchSource): Promise<Sea
 }
 
 export async function getSearchStatsOverview() {
-  const [home, vip] = await Promise.all([
+  const [home, vip, global] = await Promise.all([
     getSearchStatsForSource(SearchSource.HOME),
-    getSearchStatsForSource(SearchSource.VIP)
+    getSearchStatsForSource(SearchSource.VIP),
+    getSearchStatsForSource(SearchSource.GLOBAL)
   ]);
-  return { home, vip };
+  return { home, vip, global };
+}
+
+export async function getGuestGlobalSearchHistory(guestUserId: string, limit = 30) {
+  return prisma.searchLog.findMany({
+    where: { guestUserId, source: SearchSource.GLOBAL, userHiddenAt: null },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      keyword: true,
+      resultCount: true,
+      createdAt: true
+    }
+  });
+}
+
+/** 全网搜索历史：按关键词去重（淘宝式标签），优先使用缓存更新时间 */
+export async function getGuestGlobalSearchHistoryKeywords(guestUserId: string, limit = 30) {
+  const [cacheRows, logGrouped] = await Promise.all([
+    prisma.globalSearchCache.findMany({
+      where: { guestUserId, userHiddenAt: null },
+      select: { keyword: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+      take: limit
+    }),
+    prisma.searchLog.groupBy({
+      by: ["keyword"],
+      where: {
+        guestUserId,
+        source: SearchSource.GLOBAL,
+        userHiddenAt: null
+      },
+      _max: { createdAt: true },
+      orderBy: { _max: { createdAt: "desc" } },
+      take: limit
+    })
+  ]);
+
+  const merged = new Map<string, Date>();
+  for (const row of cacheRows) {
+    merged.set(row.keyword, row.updatedAt);
+  }
+  for (const row of logGrouped) {
+    const logDate = row._max.createdAt;
+    if (!logDate) continue;
+    const existing = merged.get(row.keyword);
+    if (!existing || logDate > existing) {
+      merged.set(row.keyword, logDate);
+    }
+  }
+
+  return Array.from(merged.entries())
+    .sort((a, b) => b[1].getTime() - a[1].getTime())
+    .slice(0, limit)
+    .map(([keyword, searchedAt]) => ({ keyword, searchedAt }));
+}
+
+/** 用户端清除搜索记录（软删除，不影响管理员统计） */
+export async function hideGuestGlobalSearchHistory(
+  guestUserId: string,
+  options: { all?: boolean; keyword?: string }
+) {
+  const keyword = options.keyword?.trim();
+  if (!options.all && !keyword) return;
+
+  const { hideGuestGlobalSearchCache } = await import("@/lib/global-search-cache");
+
+  await Promise.all([
+    prisma.searchLog.updateMany({
+      where: {
+        guestUserId,
+        source: SearchSource.GLOBAL,
+        userHiddenAt: null,
+        ...(keyword ? { keyword: normalizeSearchKeyword(keyword) ?? keyword } : {})
+      },
+      data: { userHiddenAt: new Date() }
+    }),
+    hideGuestGlobalSearchCache(guestUserId, options)
+  ]);
 }

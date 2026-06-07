@@ -1,7 +1,9 @@
 import { adminPath } from "@/lib/admin-path";
 import AdminLink from "@/components/admin-link";
-import { formatBytes, getStorageMonitorReport, type StorageScanResult, type StorageStats } from "@/lib/storage-stats";
+import { formatBytes, getStorageMonitorReport, listStorageObjects, type StorageScanResult, type StorageStats } from "@/lib/storage-stats";
 import StorageRefreshButton from "./refresh-button";
+import { StorageObjectTable } from "./storage-object-table";
+import { StoragePrefixPicker } from "./storage-prefix-picker";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +43,13 @@ function StatCards({ stats, label }: { stats: StorageStats; label: string }) {
 function ScanPanel({
   title,
   result,
-  note
+  note,
+  showDelete = false
 }: {
   title: string;
   result: StorageScanResult;
   note?: string;
+  showDelete?: boolean;
 }) {
   return (
     <div className="admin-panel" style={{ marginBottom: 24 }}>
@@ -76,7 +80,9 @@ function ScanPanel({
                 {result.stats.prefixBreakdown.map((row) => (
                   <tr key={row.prefix}>
                     <td>
-                      <code style={{ fontSize: 13 }}>{row.prefix}</code>
+                      <AdminLink href={`${adminPath("/storage")}?prefix=${encodeURIComponent(row.prefix)}`}>
+                        <code style={{ fontSize: 13 }}>{row.prefix}</code>
+                      </AdminLink>
                     </td>
                     <td>{row.count}</td>
                     <td>{formatBytes(row.bytes)}</td>
@@ -86,32 +92,7 @@ function ScanPanel({
             </table>
           </div>
           <h3 style={{ fontSize: 15, margin: "20px 0 10px" }}>最大文件（Top 15）</h3>
-          <div style={{ overflowX: "auto" }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>路径 / Key</th>
-                  <th>类型</th>
-                  <th>大小</th>
-                  <th>更新时间</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.stats.largestFiles.map((row) => (
-                  <tr key={row.key}>
-                    <td>
-                      <code style={{ fontSize: 12, wordBreak: "break-all" }}>{row.key}</code>
-                    </td>
-                    <td>{row.kind === "image" ? "图片" : row.kind === "video" ? "视频" : "其他"}</td>
-                    <td style={{ whiteSpace: "nowrap" }}>{formatBytes(row.size)}</td>
-                    <td style={{ whiteSpace: "nowrap", fontSize: 13 }}>
-                      {row.lastModified ? formatDateTime(row.lastModified) : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <StorageObjectTable rows={result.stats.largestFiles} selectable={showDelete} />
         </>
       )}
       <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 12, marginBottom: 0 }}>
@@ -121,13 +102,20 @@ function ScanPanel({
   );
 }
 
-export default async function AdminStoragePage() {
+export default async function AdminStoragePage({
+  searchParams
+}: {
+  searchParams: Promise<{ prefix?: string; deleted?: string; error?: string; key?: string }>;
+}) {
+  const params = await searchParams;
   const report = await getStorageMonitorReport();
+  const browsePrefix = params.prefix?.trim() || "uploads/tg-index/";
+  const browseFiles = await listStorageObjects(browsePrefix, 200);
 
   const activeLabel = report.activeStorage === "r2" ? "Cloudflare R2" : "本地 public/uploads";
   const r2Note =
     report.activeStorage === "r2"
-      ? "当前站点写入目标。对象 Key 统一为 uploads/…"
+      ? "当前站点写入目标。对象 Key 统一为 uploads/…，可直接删除 R2 对象。"
       : "已在设置中启用 R2 配置，但当前写入仍为本地；以下为桶内已有对象统计。";
 
   return (
@@ -135,6 +123,20 @@ export default async function AdminStoragePage() {
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
         <StorageRefreshButton />
       </div>
+
+      {params.deleted ? (
+        <p className="admin-flash success">
+          已删除 {params.deleted} 个存储对象
+          {params.key ? (
+            <>
+              ：<code style={{ fontSize: 12 }}>{params.key}</code>
+            </>
+          ) : null}
+          。
+        </p>
+      ) : null}
+      {params.error ? <p className="admin-flash" style={{ color: "var(--danger, #c0392b)" }}>删除失败：{params.error}</p> : null}
+
       <p className="admin-page-note" style={{ marginTop: 0 }}>
         当前媒体存储：<strong>{activeLabel}</strong>
         {report.bucketName ? (
@@ -152,7 +154,7 @@ export default async function AdminStoragePage() {
             </a>
           </>
         ) : null}
-        。统计于 {formatDateTime(report.scannedAt)}；桶内文件较多时首次加载可能稍慢。
+        。删除索引内容时会同步清理关联 R2/本地媒体文件。
         {!report.r2Ready ? (
           <>
             {" "}
@@ -161,7 +163,7 @@ export default async function AdminStoragePage() {
         ) : null}
       </p>
 
-      {report.r2 ? <ScanPanel title="Cloudflare R2 存储桶" result={report.r2} note={r2Note} /> : null}
+      {report.r2 ? <ScanPanel title="Cloudflare R2 存储桶" result={report.r2} note={r2Note} showDelete /> : null}
 
       <ScanPanel
         title="本地 uploads 目录"
@@ -171,7 +173,17 @@ export default async function AdminStoragePage() {
             ? "public/uploads 下所有文件（含 R2 上传失败时的本地回退）。"
             : "本地磁盘上的 uploads 目录，可能含历史文件或上传 R2 失败时的回退文件。"
         }
+        showDelete
       />
+
+      <div className="admin-panel">
+        <h2 className="admin-panel-title">文件管理（按前缀浏览并删除）</h2>
+        <p className="admin-page-note" style={{ marginTop: 0 }}>
+          选择或输入前缀后浏览文件，可单个删除或勾选批量删除。仅允许 <code>uploads/</code> 下的 Key。
+        </p>
+        <StoragePrefixPicker currentPrefix={browsePrefix} />
+        <StorageObjectTable rows={browseFiles} selectable />
+      </div>
     </>
   );
 }

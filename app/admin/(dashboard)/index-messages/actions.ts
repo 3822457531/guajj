@@ -5,6 +5,7 @@ import { TgIndexContentType } from "@/lib/generated/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import { deleteIndexMessagesWithMedia } from "@/lib/delete-index-messages";
 import { prisma } from "@/lib/prisma";
 
 function readIndexForm(formData: FormData) {
@@ -33,6 +34,14 @@ function validateIndex(data: ReturnType<typeof readIndexForm>) {
   return data.title && data.snippet;
 }
 
+function revalidateIndexPaths(id?: string) {
+  revalidatePath("/");
+  revalidatePath("/vip");
+  if (id) revalidatePath(`/vip/${id}`);
+  revalidatePath(`${adminPath("/index-messages")}`);
+  revalidatePath(`${adminPath("/storage")}`);
+}
+
 export async function updateIndexMessageAction(id: string, formData: FormData) {
   await requireAdmin();
   const data = readIndexForm(formData);
@@ -58,20 +67,17 @@ export async function updateIndexMessageAction(id: string, formData: FormData) {
     }
   });
 
-  revalidatePath("/");
-  revalidatePath("/vip");
-  revalidatePath(`/vip/${id}`);
-  revalidatePath(`${adminPath("/index-messages")}`);
+  revalidateIndexPaths(id);
   redirect(`${adminPath("/index-messages")}?saved=1`);
 }
 
 export async function deleteIndexMessageAction(id: string) {
   await requireAdmin();
-  await prisma.tgIndexedMessage.delete({ where: { id } });
-  revalidatePath("/");
-  revalidatePath("/vip");
-  revalidatePath(`${adminPath("/index-messages")}`);
-  redirect(`${adminPath("/index-messages")}?deleted=1`);
+  const result = await deleteIndexMessagesWithMedia([id]);
+  revalidateIndexPaths(id);
+  redirect(
+    `${adminPath("/index-messages")}?deleted=1&media=${result.mediaDeleted}&mediaFailed=${result.mediaFailed}`
+  );
 }
 
 export async function batchDeleteIndexMessagesAction(formData: FormData) {
@@ -81,9 +87,9 @@ export async function batchDeleteIndexMessagesAction(formData: FormData) {
     redirect(`${adminPath("/index-messages")}?error=empty`);
   }
 
-  await prisma.tgIndexedMessage.deleteMany({ where: { id: { in: ids } } });
-  revalidatePath("/");
-  revalidatePath("/vip");
-  revalidatePath(`${adminPath("/index-messages")}`);
-  redirect(`${adminPath("/index-messages")}?deleted=${ids.length}`);
+  const result = await deleteIndexMessagesWithMedia(ids);
+  revalidateIndexPaths();
+  redirect(
+    `${adminPath("/index-messages")}?deleted=${result.deleted}&media=${result.mediaDeleted}&mediaFailed=${result.mediaFailed}`
+  );
 }

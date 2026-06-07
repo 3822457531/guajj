@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { H5MediaViewer, type MediaViewerSource } from "@/components/h5-media-viewer";
 import type { ChannelMediaItem } from "@/lib/jisou-search-types";
 import { TG_SEARCH_API } from "@/lib/tg-search-api-paths";
 
@@ -13,12 +14,7 @@ function proxyMediaUrl(apiBase: string, username: string, messageId: number, thu
   return `${apiBase}/media?${params.toString()}`;
 }
 
-function pickSrc(
-  apiBase: string,
-  item: ChannelMediaItem,
-  username: string,
-  thumb: boolean
-) {
+function pickSrc(apiBase: string, item: ChannelMediaItem, username: string, thumb: boolean) {
   if (thumb && item.thumbUrl) return item.thumbUrl;
   if (!thumb && item.fullUrl) return item.fullUrl;
   return proxyMediaUrl(apiBase, username, item.id, thumb);
@@ -36,12 +32,14 @@ export function LazyPhotoThumb({
   apiBase,
   username,
   item,
-  size = 120
+  size = 120,
+  onOpen
 }: {
   apiBase: string;
   username: string;
   item: ChannelMediaItem;
   size?: number;
+  onOpen?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -72,20 +70,22 @@ export function LazyPhotoThumb({
         <MediaSkeleton label={error ? "失败" : item.status === "pending" ? "待加载" : undefined} />
       ) : null}
       {src && !error ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
-          className="gs-media-img"
-          style={{
-            width: size,
-            height: size,
-            display: loaded ? "block" : "none"
-          }}
-        />
+        <button type="button" className="gs-media-thumb-btn" onClick={onOpen} aria-label="查看原图">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            onError={() => setError(true)}
+            className="gs-media-img"
+            style={{
+              width: size,
+              height: size,
+              display: loaded ? "block" : "none"
+            }}
+          />
+        </button>
       ) : null}
       {!loaded && src && !error ? <MediaSkeleton /> : null}
     </div>
@@ -159,32 +159,61 @@ export function MessageMediaGallery({
   };
 }) {
   const [expanded, setExpanded] = useState(false);
-  const visualItems = msg.mediaItems.filter(
-    (m) => m.contentType === "PHOTO" || m.contentType === "VIDEO"
-  );
+  const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
+
+  const visualItems = msg.mediaItems.filter((m) => m.contentType === "PHOTO" || m.contentType === "VIDEO");
   if (!visualItems.length) return null;
+
+  const photoItems = visualItems.filter((m) => m.contentType === "PHOTO");
+  const viewerSources: MediaViewerSource[] = photoItems.map((item) => ({
+    thumb: pickSrc(apiBase, item, username, true),
+    full: pickSrc(apiBase, item, username, false)
+  }));
 
   const isAlbum = msg.kind === "album" && visualItems.length > 1;
   const showItems = isAlbum && !expanded ? visualItems.slice(0, 1) : visualItems;
   const hiddenCount = isAlbum ? visualItems.length - 1 : 0;
 
+  function openPhoto(item: ChannelMediaItem) {
+    const photoIndex = photoItems.findIndex((p) => p.id === item.id);
+    if (photoIndex < 0) return;
+    setViewer({ urls: viewerSources, index: photoIndex });
+  }
+
   return (
-    <div className="gs-media-gallery">
-      <div className="gs-media-row">
-        {showItems.map((item) =>
-          item.contentType === "VIDEO" ? (
-            <LazyVideoPlayer key={item.id} apiBase={apiBase} username={username} item={item} />
-          ) : (
-            <LazyPhotoThumb key={item.id} apiBase={apiBase} username={username} item={item} />
-          )
-        )}
-        {isAlbum && !expanded && hiddenCount > 0 ? (
-          <button type="button" className="gs-media-album-more" onClick={() => setExpanded(true)}>
-            +{hiddenCount}
-            <span>展开相册</span>
-          </button>
-        ) : null}
+    <>
+      <div className="gs-media-gallery">
+        <div className="gs-media-row">
+          {showItems.map((item) =>
+            item.contentType === "VIDEO" ? (
+              <LazyVideoPlayer key={item.id} apiBase={apiBase} username={username} item={item} />
+            ) : (
+              <LazyPhotoThumb
+                key={item.id}
+                apiBase={apiBase}
+                username={username}
+                item={item}
+                onOpen={() => openPhoto(item)}
+              />
+            )
+          )}
+          {isAlbum && !expanded && hiddenCount > 0 ? (
+            <button type="button" className="gs-media-album-more" onClick={() => setExpanded(true)}>
+              +{hiddenCount}
+              <span>展开相册</span>
+            </button>
+          ) : null}
+        </div>
       </div>
-    </div>
+
+      {viewer ? (
+        <H5MediaViewer
+          urls={viewer.urls}
+          index={viewer.index}
+          onClose={() => setViewer(null)}
+          onIndexChange={(index) => setViewer((v) => (v ? { ...v, index } : v))}
+        />
+      ) : null}
+    </>
   );
 }

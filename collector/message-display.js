@@ -46,6 +46,7 @@ function groupMessagesForDisplay(items, username) {
         ids: albumItems.map((m) => m.id),
         date: albumItems[0].date,
         caption,
+        fullText: caption,
         textPreview: caption.slice(0, 200) || `相册 ${mediaItems.length || albumItems.length} 项（无配文）`,
         contentType: "ALBUM",
         hasMedia: mediaItems.length > 0,
@@ -62,6 +63,7 @@ function groupMessagesForDisplay(items, username) {
       ids: [msg.id],
       date: msg.date,
       caption: msg.text,
+      fullText: msg.text,
       textPreview:
         msg.textPreview ||
         (msg.hasMedia ? (msg.contentType === "VIDEO" ? "[视频]" : "[图片]") : "(无文字)"),

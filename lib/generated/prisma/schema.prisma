@@ -67,9 +67,13 @@ model SiteSettings {
    */
   blockedKeywords        String?  @db.LongText
   /**
-   * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）
+   * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已用于全网搜索配额
    */
   dailySearchLimit       Int      @default(3)
+  /**
+   * 全网搜索（暗网索引）每日基础次数，不含邀请奖励
+   */
+  globalDailySearchLimit Int      @default(5)
   /**
    * 每成功邀请一位新用户，邀请人额外获得的搜索次数
    */
@@ -369,6 +373,7 @@ model PageVisit {
 enum SearchSource {
   HOME
   VIP
+  GLOBAL
 }
 
 /**

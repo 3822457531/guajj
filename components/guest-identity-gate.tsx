@@ -94,11 +94,22 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const handleLeave = useCallback(() => {
+    setNeedsModal(false);
+    if (typeof window !== "undefined") {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = "/";
+      }
+    }
+  }, []);
+
   return (
     <>
       {children}
       {!checking && needsModal ? (
-        <GuestIdentityModal initialRef={capturedRef} onComplete={() => setNeedsModal(false)} />
+        <GuestIdentityModal initialRef={capturedRef} onComplete={() => setNeedsModal(false)} onLeave={handleLeave} />
       ) : null}
     </>
   );

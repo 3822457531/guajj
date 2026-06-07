@@ -52,8 +52,10 @@ model SiteSettings {
   homeFeedMode           String   @default("manual") @db.VarChar(16)
   /** 前台屏蔽关键词，每行一个；标题/摘要/正文命中则不在首页与搜索中展示 */
   blockedKeywords        String?  @db.LongText
-  /** 匿名用户每日搜索次数上限（基础值，不含邀请奖励） */
+  /** 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已用于全网搜索配额 */
   dailySearchLimit       Int      @default(3)
+  /** 全网搜索（暗网索引）每日基础次数，不含邀请奖励 */
+  globalDailySearchLimit Int      @default(5)
   /** 每成功邀请一位新用户，邀请人额外获得的搜索次数 */
   referralSearchBonus    Int      @default(1)
   updatedAt              DateTime @updatedAt
@@ -75,9 +77,10 @@ model GuestUser {
   lastLoginIp     String?     @db.VarChar(45)
   /** 最近一次登录/恢复会话时间 */
   lastLoginAt     DateTime?
-  searchLogs      SearchLog[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  searchLogs         SearchLog[]
+  globalSearchCaches GlobalSearchCache[]
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 
   @@index([referrerId])
   @@index([createdAt])
@@ -309,6 +312,7 @@ model PageVisit {
 enum SearchSource {
   HOME
   VIP
+  GLOBAL
 }
 
 /** 前台关键词搜索明细（首页 / VIP） */
@@ -324,14 +328,46 @@ model SearchLog {
   guestUser    GuestUser?   @relation(fields: [guestUserId], references: [id], onDelete: SetNull)
   resultCount  Int          @default(0)
   userAgent    String?      @db.VarChar(512)
+  /** 用户在前台清除搜索记录时写入；管理员统计仍可见原记录 */
+  userHiddenAt DateTime?
   createdAt    DateTime     @default(now())
 
   @@index([source, createdAt])
   @@index([source, keyword, createdAt])
+  @@index([guestUserId, source, userHiddenAt, createdAt])
   @@index([createdAt])
   @@index([visitorId, createdAt])
   @@index([socialUserId, createdAt])
   @@index([guestUserId, createdAt])
+}
+
+/** 全网搜索按用户+关键词缓存的极搜频道结果 */
+model GlobalSearchCache {
+  id              String    @id @default(cuid()) @db.VarChar(30)
+  keyword         String    @db.VarChar(191)
+  guestUserId     String    @db.VarChar(30)
+  guestUser       GuestUser @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  channelCount    Int       @default(0)
+  payload         Json
+  sourceFetchedAt DateTime?
+  userHiddenAt    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([guestUserId, keyword])
+  @@index([guestUserId, userHiddenAt, updatedAt])
+}
+
+/** 极搜 /reso 热搜榜快照（宝塔定时任务写入，前台读最新一条） */
+model JisouHotSearchSnapshot {
+  id              String   @id @default(cuid()) @db.VarChar(30)
+  keywordCount    Int      @default(0)
+  /** [{ label, rank, group: "top" | "more", callback? }] */
+  items           Json
+  sourceFetchedAt DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 /** 按日汇总的全站访问统计 */

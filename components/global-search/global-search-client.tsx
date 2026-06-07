@@ -1,22 +1,191 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-media";
-import { TG_SEARCH_API } from "@/lib/tg-search-api-paths";
-import type { ChannelMessageItem, JisouCaptchaChallenge, JisouChannelItem } from "@/lib/jisou-search-types";
+import { TG_SEARCH_API, TG_SEARCH_HISTORY_API, TG_SEARCH_QUOTA_API } from "@/lib/tg-search-api-paths";
+import {
+  isJisouPromotedChannel,
+  type ChannelMessageItem,
+  type JisouCaptchaChallenge,
+  type JisouChannelItem
+} from "@/lib/jisou-search-types";
 
 const API = TG_SEARCH_API.prod;
 
 type JisouChannel = JisouChannelItem;
+
+type QuotaState = {
+  used: number;
+  limit: number;
+  remaining: number;
+  searchBonus: number;
+  hasIdentity: boolean;
+  publicId: string | null;
+  dailyBaseLimit: number;
+};
+
+type HistoryKeyword = {
+  keyword: string;
+  searchedAt: string | null;
+};
+
+const HISTORY_COLLAPSED = 8;
 
 function formatMembers(raw: string | null | undefined) {
   if (!raw) return null;
   return raw.replace(/\s+/g, " ").trim();
 }
 
-export function GlobalSearchClient() {
-  const [query, setQuery] = useState("");
+function normalizeChannelText(value: string) {
+  return value.replace(/^📢\s*/u, "").replace(/\s+/g, " ").trim();
+}
+
+/** 极搜 label 常与 title 重复且很长，仅保留短且不同的 badge */
+function shouldShowChannelLabel(title: string, label?: string | null) {
+  if (!label) return false;
+  const a = normalizeChannelText(title);
+  const b = normalizeChannelText(label);
+  if (!b || a === b) return false;
+  if (a.includes(b) || b.includes(a)) return false;
+  return b.length <= 20;
+}
+
+function ConfirmModal({
+  title,
+  message,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+  pending
+}: {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  pending?: boolean;
+}) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !pending) onCancel();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onCancel, pending]);
+
+  return (
+    <div className="gs-article-modal" role="dialog" aria-modal="true" aria-label={title}>
+      <button
+        type="button"
+        className="gs-article-modal-backdrop"
+        onClick={onCancel}
+        disabled={pending}
+        aria-label="关闭"
+      />
+      <div className="gs-article-modal-panel gs-confirm-panel">
+        <div className="gs-article-modal-head">
+          <h3 className="gs-article-modal-title">{title}</h3>
+          <button type="button" className="gs-article-modal-close" onClick={onCancel} disabled={pending} aria-label="关闭">
+            ✕
+          </button>
+        </div>
+        <div className="gs-article-modal-body">
+          <p className="gs-confirm-text">{message}</p>
+          <div className="gs-confirm-actions">
+            <button type="button" className="gs-confirm-btn gs-confirm-btn--ghost" onClick={onCancel} disabled={pending}>
+              取消
+            </button>
+            <button type="button" className="gs-confirm-btn gs-confirm-btn--danger" onClick={onConfirm} disabled={pending}>
+              {pending ? "处理中…" : confirmLabel}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdBlockedModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="gs-article-modal" role="dialog" aria-modal="true" aria-label="广告已屏蔽">
+      <button type="button" className="gs-article-modal-backdrop" onClick={onClose} aria-label="关闭" />
+      <div className="gs-article-modal-panel gs-ad-blocked-panel">
+        <div className="gs-article-modal-head">
+          <h3 className="gs-article-modal-title">提示</h3>
+          <button type="button" className="gs-article-modal-close" onClick={onClose} aria-label="关闭">
+            ✕
+          </button>
+        </div>
+        <div className="gs-article-modal-body">
+          <p className="gs-ad-blocked-text">广告内容，已自动屏蔽</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArticleModal({ title, text, onClose }: { title: string; text: string; onClose: () => void }) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="gs-article-modal" role="dialog" aria-modal="true" aria-label="查看原文">
+      <button type="button" className="gs-article-modal-backdrop" onClick={onClose} aria-label="关闭" />
+      <div className="gs-article-modal-panel">
+        <div className="gs-article-modal-head">
+          <h3 className="gs-article-modal-title">{title}</h3>
+          <button type="button" className="gs-article-modal-close" onClick={onClose} aria-label="关闭">
+            ✕
+          </button>
+        </div>
+        <div className="gs-article-modal-body">
+          {text.split(/\n{2,}/).map((para, i) => (
+            <p key={i} className="gs-article-modal-p">
+              {para.split("\n").map((line, j, arr) => (
+                <span key={j}>
+                  {line}
+                  {j < arr.length - 1 ? <br /> : null}
+                </span>
+              ))}
+            </p>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: string }) {
+  const [query, setQuery] = useState(initialQuery);
   const [channelSearch, setChannelSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [channelLoading, setChannelLoading] = useState(false);
@@ -34,7 +203,60 @@ export function GlobalSearchClient() {
   const [captcha, setCaptcha] = useState<JisouCaptchaChallenge | null>(null);
   const [captchaSubmitting, setCaptchaSubmitting] = useState(false);
   const [mobileDetail, setMobileDetail] = useState(false);
+  const [quota, setQuota] = useState<QuotaState | null>(null);
+  const [history, setHistory] = useState<HistoryKeyword[]>([]);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [historyClearing, setHistoryClearing] = useState(false);
+  const [article, setArticle] = useState<{ title: string; text: string } | null>(null);
+  const [adBlockedOpen, setAdBlockedOpen] = useState(false);
+  const [historyClearConfirmOpen, setHistoryClearConfirmOpen] = useState(false);
+  const [fromCache, setFromCache] = useState(false);
   const anchorRef = useRef<HTMLLIElement>(null);
+
+  const refreshQuota = useCallback(async () => {
+    try {
+      const res = await fetch(TG_SEARCH_QUOTA_API, { cache: "no-store" });
+      const data = (await res.json()) as { ok?: boolean; quota?: QuotaState };
+      if (data.ok && data.quota) setQuota(data.quota);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      const res = await fetch(TG_SEARCH_HISTORY_API, { cache: "no-store" });
+      const data = (await res.json()) as { ok?: boolean; keywords?: HistoryKeyword[] };
+      if (data.ok && data.keywords) setHistory(data.keywords);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const clearSearchHistory = useCallback(async () => {
+    setHistoryClearing(true);
+    try {
+      const res = await fetch(TG_SEARCH_HISTORY_API, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true })
+      });
+      if (res.ok) {
+        setHistory([]);
+        setHistoryExpanded(false);
+        setHistoryClearConfirmOpen(false);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setHistoryClearing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshQuota();
+    void refreshHistory();
+  }, [refreshQuota, refreshHistory]);
 
   useEffect(() => {
     if (channelLoading || !messages.some((m) => m.isAnchor)) return;
@@ -44,18 +266,37 @@ export function GlobalSearchClient() {
     return () => window.clearTimeout(t);
   }, [messages, channelLoading]);
 
-  function applySearchSuccess(data: { channels?: JisouChannel[] }) {
+  function applyQuotaFromResponse(data: { quota?: QuotaState }) {
+    if (data.quota) setQuota(data.quota);
+  }
+
+  function applySearchSuccess(data: { channels?: JisouChannel[]; quota?: QuotaState; cached?: boolean }) {
     setCaptcha(null);
     setChannels(data.channels || []);
     setActiveChannel(null);
     setMessages([]);
     setChannelMeta(null);
     setMobileDetail(false);
+    setFromCache(Boolean(data.cached));
+    applyQuotaFromResponse(data);
+    void refreshHistory();
     if (!data.channels?.length) {
       setError("未找到相关频道，请换个关键词试试");
     } else {
       setError(null);
     }
+  }
+
+  function handleSearchError(res: Response, data: { message?: string; error?: string; quota?: QuotaState }) {
+    applyQuotaFromResponse(data);
+    if (data.error === "SEARCH_QUOTA_EXCEEDED" || data.error === "GUEST_IDENTITY_REQUIRED") {
+      setError(data.message || "今日搜索额度已用完");
+      return true;
+    }
+    if (!res.ok || !data) {
+      throw new Error(data.message || data.error || "搜索失败");
+    }
+    return false;
   }
 
   async function submitCaptchaAnswer(answer: string) {
@@ -76,6 +317,7 @@ export function GlobalSearchClient() {
         error?: string;
         channels?: JisouChannel[];
         captcha?: JisouCaptchaChallenge;
+        quota?: QuotaState;
       };
 
       if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
@@ -84,6 +326,7 @@ export function GlobalSearchClient() {
         return;
       }
 
+      if (handleSearchError(res, data)) return;
       if (!res.ok || !data.ok) {
         throw new Error(data.message || data.error || "验证失败");
       }
@@ -115,6 +358,7 @@ export function GlobalSearchClient() {
     setChannelMeta(null);
     setCaptcha(null);
     setMobileDetail(false);
+    setFromCache(false);
 
     try {
       const res = await fetch(`${API}/search`, {
@@ -129,14 +373,18 @@ export function GlobalSearchClient() {
         error?: string;
         channels?: JisouChannel[];
         captcha?: JisouCaptchaChallenge;
+        quota?: QuotaState;
+        cached?: boolean;
       };
 
       if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
+        applyQuotaFromResponse(data);
         setCaptcha(data.captcha);
         setError(null);
         return;
       }
 
+      if (handleSearchError(res, data)) return;
       if (!res.ok || !data.ok) {
         throw new Error(data.message || data.error || "搜索失败");
       }
@@ -155,11 +403,16 @@ export function GlobalSearchClient() {
     }
   }
 
-  async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
-    if (!channel.username) {
-      setError("该结果为邀请链接频道，暂仅支持 @username 公开频道");
+  function onChannelClick(channel: JisouChannel) {
+    if (isJisouPromotedChannel(channel)) {
+      setAdBlockedOpen(true);
       return;
     }
+    void loadChannel(channel);
+  }
+
+  async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
+    if (!channel.username) return;
 
     setActiveChannel(channel);
     setChannelLoading(true);
@@ -216,9 +469,102 @@ export function GlobalSearchClient() {
   }
 
   const hasResults = channels.length > 0 || Boolean(activeChannel) || loading;
+  const visibleHistory = historyExpanded ? history : history.slice(0, HISTORY_COLLAPSED);
+  const historyHasMore = history.length > HISTORY_COLLAPSED;
+
+  async function searchKeyword(keyword: string) {
+    setQuery(keyword);
+    setLoading(true);
+    setError(null);
+    setChannels([]);
+    setActiveChannel(null);
+    setMessages([]);
+    setChannelMeta(null);
+    setCaptcha(null);
+    setMobileDetail(false);
+    setFromCache(false);
+
+    try {
+      const res = await fetch(`${API}/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q: keyword }),
+        signal: AbortSignal.timeout(55000)
+      });
+      const data = (await res.json()) as {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+        channels?: JisouChannel[];
+        captcha?: JisouCaptchaChallenge;
+        quota?: QuotaState;
+        cached?: boolean;
+      };
+
+      if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
+        applyQuotaFromResponse(data);
+        setCaptcha(data.captcha);
+        setError(null);
+        return;
+      }
+
+      if (handleSearchError(res, data)) return;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || data.error || "搜索失败");
+      }
+
+      applySearchSuccess(data);
+    } catch (err) {
+      const msg =
+        err instanceof Error && err.name === "TimeoutError"
+          ? "搜索超时，请稍后重试"
+          : err instanceof Error
+            ? err.message
+            : "搜索失败";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const initialSearchDone = useRef(false);
+  useEffect(() => {
+    const q = initialQuery.trim();
+    if (!q || initialSearchDone.current) return;
+    initialSearchDone.current = true;
+    void searchKeyword(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 仅 URL 带入的首搜
+  }, [initialQuery]);
 
   return (
     <div className="global-search-body">
+      {/* {quota ? (
+        <section className="gs-quota-bar" aria-label="今日全网搜索额度">
+          <div className="gs-quota-main">
+            <p className="gs-quota-title">今日全网搜索额度</p>
+            <p className="gs-quota-numbers">
+              {quota.hasIdentity ? (
+                <>
+                  <strong>{quota.remaining}</strong>
+                  <span> / {quota.limit}</span>
+                </>
+              ) : (
+                <span className="gs-quota-muted">需先获取身份</span>
+              )}
+            </p>
+            {quota.hasIdentity ? (
+              <p className="gs-quota-tip">
+                基础每日 {quota.dailyBaseLimit} 次 + 邀请奖励 {quota.searchBonus} 次 · 新关键词返回结果后扣 1 次 · 已搜过的关键词直接读本地缓存
+              </p>
+            ) : (
+              <p className="gs-quota-tip">
+                <Link href="/my">前往「我的」获取 GUA 身份</Link> 后即可使用全网搜索
+              </p>
+            )}
+          </div>
+        </section>
+      ) : null} */}
+
       <form
         className="vip-search-bar global-search-bar"
         onSubmit={(e) => {
@@ -235,12 +581,55 @@ export function GlobalSearchClient() {
             className="h5-search-input vip-search-input"
             autoComplete="off"
             enterKeyHint="search"
+            disabled={loading}
           />
         </div>
         <button type="submit" className="h5-search-submit vip-search-submit" disabled={loading}>
           {loading ? "搜索中" : "搜索"}
         </button>
       </form>
+
+      {history.length > 0 ? (
+        <section className="gs-history-tags" aria-label="历史搜索">
+          <div className="gs-history-tags-head">
+            <h3 className="gs-history-tags-title">历史搜索</h3>
+            <button
+              type="button"
+              className="gs-history-clear"
+              onClick={() => setHistoryClearConfirmOpen(true)}
+              disabled={historyClearing}
+              aria-label="清空历史搜索"
+              title="清空历史搜索"
+            >
+              🗑
+            </button>
+          </div>
+          <div className="gs-history-tags-row">
+            {visibleHistory.map((row) => (
+              <button
+                key={row.keyword}
+                type="button"
+                className="gs-history-tag"
+                onClick={() => void searchKeyword(row.keyword)}
+                disabled={loading}
+              >
+                {row.keyword}
+              </button>
+            ))}
+            {historyHasMore ? (
+              <button
+                type="button"
+                className="gs-history-expand"
+                onClick={() => setHistoryExpanded((v) => !v)}
+                aria-label={historyExpanded ? "收起" : "展开更多"}
+                title={historyExpanded ? "收起" : "展开更多"}
+              >
+                {historyExpanded ? "▴" : "▾"}
+              </button>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {captcha ? (
         <section className="gs-captcha" key={captcha.challengeId}>
@@ -282,26 +671,37 @@ export function GlobalSearchClient() {
             🌐
           </div>
           <h2 className="gs-empty-title">搜索暗网全网频道</h2>
-          <p className="gs-empty-desc">
-            通过暗网索引检索公开频道与群组，点击结果可预览消息与媒体，无需安装任何客户端。
+          <p className="gs-empty-warn">
+          ⚠️⚠️⚠️通过暗网搜索引擎全网搜索，请切勿将其中视频、图片、文字等内容传播、转载至抖音,微信等国内平台
+          </p>
+          <p className="gs-empty-warn">
+            ⚠️⚠️⚠️使用前请确认您已年满 18 周岁，且自愿浏览可能令人不适的成人向内容。未满 18 岁请立即离开。
+          </p>
+
+          <p className="gs-empty-warn">
+            ⚠️⚠️⚠️搜索结果可能含色情、血腥等敏感内容，请谨慎点击。
           </p>
           <ul className="gs-empty-tips">
-            <li>支持定位到索引返回的具体帖子</li>
-            <li>图片封面预缓存，视频点击后播放</li>
-            <li>遇验证码时在网页完成即可</li>
+            {/* <li>支持定位到索引返回的具体帖子</li>
+            <li>点击图片可查看原图，查看原文可阅读完整内容</li>
+            <li>每日 {quota?.dailyBaseLimit ?? 5} 次额度，邀请好友可增加</li> */}
+            {/* <li>搜索结果可能含色情、血腥等敏感内容，请谨慎点击</li> */}
           </ul>
+          {/* <p className="gs-empty-disclaimer">
+            <strong>免责声明：</strong>
+            本索引内容仅限通过瓜站访问，仅供个人观看与收藏，不得用于任何商业用途。请切勿将其中视频、图片、文字等内容传播、转载至抖音、微信、微博、小红书等国内平台；因用户自行传播所引发的一切法律责任，由用户本人承担，与本站无关。
+          </p> */}
         </section>
       ) : null}
 
       {hasResults ? (
-        <div
-          className={`gs-panels${mobileDetail && activeChannel ? " gs-panels--detail" : ""}`}
-        >
+        <div className={`gs-panels${mobileDetail && activeChannel ? " gs-panels--detail" : ""}`}>
           <section className="gs-panel gs-panel--channels" aria-label="暗网结果列表">
             <div className="gs-panel-head">
               <h2 className="gs-panel-title">暗网结果</h2>
               <span className="gs-panel-count">{channels.length}</span>
             </div>
+            {fromCache ? <p className="gs-cache-hint">已使用本地缓存，秒开结果，不消耗今日额度</p> : null}
 
             {loading ? (
               <p className="gs-panel-loading">正在全网检索…</p>
@@ -312,22 +712,41 @@ export function GlobalSearchClient() {
                 {channels.map((ch) => {
                   const active = activeChannel?.url === ch.url;
                   const members = formatMembers(ch.members);
+                  const isAd = isJisouPromotedChannel(ch);
                   return (
                     <li key={ch.url}>
                       <button
                         type="button"
-                        className={`gs-channel-card${active ? " is-active" : ""}`}
-                        onClick={() => void loadChannel(ch)}
-                        disabled={channelLoading}
+                        className={`gs-channel-card${active ? " is-active" : ""}${isAd ? " gs-channel-card--ad" : ""}`}
+                        onClick={() => onChannelClick(ch)}
+                        disabled={channelLoading && !isAd}
+                        aria-label={isAd ? "推广内容，已屏蔽" : ch.title}
                       >
                         <div className="gs-channel-card-main">
-                          <span className="gs-channel-title">{ch.title}</span>
-                          {ch.label ? <span className="gs-channel-label">{ch.label}</span> : null}
+                          {isAd ? (
+                            <div className="gs-channel-ad-mosaic" aria-hidden="true">
+                              <span className="gs-channel-ad-text">{ch.title}</span>
+                              {ch.label ? <span className="gs-channel-ad-text gs-channel-ad-text--sub">{ch.label}</span> : null}
+                            </div>
+                          ) : (
+                            <>
+                              <span className="gs-channel-title">{ch.title}</span>
+                              {shouldShowChannelLabel(ch.title, ch.label) ? (
+                                <span className="gs-channel-label">{ch.label}</span>
+                              ) : null}
+                            </>
+                          )}
                         </div>
                         <div className="gs-channel-meta">
-                          @{ch.username || "—"}
-                          {ch.postId ? <span className="gs-channel-post"> · #{ch.postId}</span> : null}
-                          {members ? <span> · {members}</span> : null}
+                          {isAd ? (
+                            <span className="gs-channel-ad-badge">广告 · 已屏蔽</span>
+                          ) : (
+                            <>
+                              @{ch.username}
+                              {ch.postId ? <span className="gs-channel-post"> · #{ch.postId}</span> : null}
+                              {members ? <span> · {members}</span> : null}
+                            </>
+                          )}
                         </div>
                       </button>
                     </li>
@@ -339,18 +758,14 @@ export function GlobalSearchClient() {
 
           <section className="gs-panel gs-panel--messages" aria-label="频道消息">
             {mobileDetail && activeChannel ? (
-              <button
-                type="button"
-                className="gs-mobile-back"
-                onClick={() => setMobileDetail(false)}
-              >
+              <button type="button" className="gs-mobile-back" onClick={() => setMobileDetail(false)}>
                 ← 返回暗网列表
               </button>
             ) : null}
 
             {!activeChannel ? (
               <div className="gs-panel-placeholder">
-                <p>选择左侧频道查看消息预览</p>
+                <p>选择暗网索引查看消息预览</p>
               </div>
             ) : (
               <>
@@ -389,50 +804,78 @@ export function GlobalSearchClient() {
                   <p className="gs-panel-loading">正在加载消息并并发预缓存封面…</p>
                 ) : (
                   <ul className="gs-message-list">
-                    {messages.map((msg) => (
-                      <li
-                        key={`${msg.kind}-${msg.id}`}
-                        ref={msg.isAnchor ? anchorRef : undefined}
-                        className={`gs-message-card${msg.isAnchor ? " is-anchor" : ""}`}
-                      >
-                        <div className="gs-message-head">
-                          <span>
-                            {msg.isAnchor ? <strong className="gs-anchor-tag">定位</strong> : null}
-                            {msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id}`}
-                            {" · "}
-                            {msg.contentType}
-                          </span>
-                          <Link
-                            href={msg.permalink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="gs-message-tg-link"
-                          >
-                            查看原文
-                          </Link>
-                        </div>
+                    {messages.map((msg) => {
+                      const fullText = msg.fullText || msg.caption || msg.textPreview || "";
+                      const articleTitle =
+                        msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id} · ${msg.contentType}`;
+                      return (
+                        <li
+                          key={`${msg.kind}-${msg.id}`}
+                          ref={msg.isAnchor ? anchorRef : undefined}
+                          className={`gs-message-card${msg.isAnchor ? " is-anchor" : ""}`}
+                        >
+                          <div className="gs-message-head">
+                            <span>
+                              {msg.isAnchor ? <strong className="gs-anchor-tag">定位</strong> : null}
+                              {msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id}`}
+                              {" · "}
+                              {msg.contentType}
+                            </span>
+                            {fullText ? (
+                              <button
+                                type="button"
+                                className="gs-message-tg-link gs-message-view-btn"
+                                onClick={() => setArticle({ title: articleTitle, text: fullText })}
+                              >
+                                查看原文
+                              </button>
+                            ) : msg.permalink ? (
+                              <Link
+                                href={msg.permalink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="gs-message-tg-link"
+                              >
+                                查看原文
+                              </Link>
+                            ) : null}
+                          </div>
 
-                        {activeChannel.username && msg.mediaItems.length > 0 ? (
-                          <MessageMediaGallery username={activeChannel.username} msg={msg} />
-                        ) : null}
+                          {activeChannel.username && msg.mediaItems.length > 0 ? (
+                            <MessageMediaGallery username={activeChannel.username} msg={msg} />
+                          ) : null}
 
-                        {msg.textPreview ? (
-                          <p className="gs-message-text">{msg.textPreview}</p>
-                        ) : null}
+                          {msg.textPreview ? <p className="gs-message-text">{msg.textPreview}</p> : null}
 
-                        {msg.date ? (
-                          <time className="gs-message-time" dateTime={msg.date}>
-                            {new Date(msg.date).toLocaleString("zh-CN")}
-                          </time>
-                        ) : null}
-                      </li>
-                    ))}
+                          {msg.date ? (
+                            <time className="gs-message-time" dateTime={msg.date}>
+                              {new Date(msg.date).toLocaleString("zh-CN")}
+                            </time>
+                          ) : null}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </>
             )}
           </section>
         </div>
+      ) : null}
+
+      {article ? <ArticleModal title={article.title} text={article.text} onClose={() => setArticle(null)} /> : null}
+      {adBlockedOpen ? <AdBlockedModal onClose={() => setAdBlockedOpen(false)} /> : null}
+      {historyClearConfirmOpen ? (
+        <ConfirmModal
+          title="清空历史搜索"
+          message="确定清空全部历史搜索记录吗？清空后需重新搜索才会再次出现在列表中。"
+          confirmLabel="清空"
+          pending={historyClearing}
+          onCancel={() => {
+            if (!historyClearing) setHistoryClearConfirmOpen(false);
+          }}
+          onConfirm={() => void clearSearchHistory()}
+        />
       ) : null}
     </div>
   );

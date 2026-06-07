@@ -83,10 +83,21 @@ export default async function AdminSettingsPage({
 
           <h2 style={{ margin: "22px 0 12px" }}>匿名身份与搜索配额</h2>
           <p style={{ margin: "0 0 12px", color: "var(--muted)", fontSize: 13, lineHeight: 1.55 }}>
-            前台用户需先获取 GUA 匿名身份方可搜索。每日搜索次数 = 基础配额 + 邀请奖励累计次数。
+            热搜榜由定时任务同步极搜热词；全网搜索每日次数 = 基础配额 + 邀请奖励累计次数。
           </p>
           <div className="field">
-            <label htmlFor="dailySearchLimit">每日基础搜索次数</label>
+            <label htmlFor="globalDailySearchLimit">全网搜索每日基础次数</label>
+            <input
+              id="globalDailySearchLimit"
+              name="globalDailySearchLimit"
+              type="number"
+              min={0}
+              max={999}
+              defaultValue={settings.globalDailySearchLimit ?? 5}
+            />
+          </div>
+          <div className="field" style={{ marginBottom: 8 }}>
+            <label htmlFor="dailySearchLimit">（已废弃）全站搜索每日次数</label>
             <input
               id="dailySearchLimit"
               name="dailySearchLimit"
@@ -94,6 +105,8 @@ export default async function AdminSettingsPage({
               min={0}
               max={999}
               defaultValue={settings.dailySearchLimit}
+              disabled
+              title="高级搜索已改为不限次数，此字段保留兼容"
             />
           </div>
           <div className="field" style={{ marginBottom: 20 }}>

@@ -6,7 +6,7 @@ import {
   guestSessionCookieOptions
 } from "@/lib/guest-auth";
 import { countGuestReferrals, findGuestById, touchGuestLogin, verifyGuestSecret } from "@/lib/guest-user";
-import { countTodaySearchesForGuest } from "@/lib/search-quota";
+import { countTodaySearchesForGuest, SearchSource } from "@/lib/search-quota";
 import { getSiteSettings } from "@/lib/site-settings";
 import { getClientIp } from "@/lib/client-ip";
 
@@ -28,11 +28,11 @@ export async function GET(request: Request) {
 
   const settings = await getSiteSettings();
   const [usedToday, referralCount] = await Promise.all([
-    countTodaySearchesForGuest(user.id),
+    countTodaySearchesForGuest(user.id, SearchSource.GLOBAL),
     countGuestReferrals(user.id)
   ]);
 
-  const limit = Math.max(0, settings.dailySearchLimit) + Math.max(0, user.searchBonus);
+  const limit = Math.max(0, settings.globalDailySearchLimit ?? 5) + Math.max(0, user.searchBonus);
   const remaining = Math.max(0, limit - usedToday);
 
   return NextResponse.json({

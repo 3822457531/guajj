@@ -51,8 +51,8 @@ export default async function AdminGuestUsersPage({
     <>
       {params.deleted ? <p className="admin-flash success">用户已删除。</p> : null}
       <p className="admin-page-note" style={{ marginTop: 0 }}>
-        前台通过「匿名加密身份」自动注册的用户（GUA 编号）。密钥仅以哈希存储于服务端，不在后台展示。当前全站每日基础搜索{" "}
-        <strong>{settings.dailySearchLimit}</strong> 次，每成功邀请额外{" "}
+        前台通过「匿名加密身份」自动注册的用户（GUA 编号）。密钥仅以哈希存储于服务端，不在后台展示。热搜榜免费浏览；全网搜索每日基础{" "}
+        <strong>{settings.globalDailySearchLimit ?? 5}</strong> 次，每成功邀请额外{" "}
         <strong>{settings.referralSearchBonus}</strong> 次。
       </p>
       {tableRows.length === 0 ? (

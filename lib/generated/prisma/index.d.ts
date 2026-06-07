@@ -99,6 +99,16 @@ export type PageVisit = $Result.DefaultSelection<Prisma.$PageVisitPayload>
  */
 export type SearchLog = $Result.DefaultSelection<Prisma.$SearchLogPayload>
 /**
+ * Model GlobalSearchCache
+ * * 全网搜索按用户+关键词缓存的极搜频道结果
+ */
+export type GlobalSearchCache = $Result.DefaultSelection<Prisma.$GlobalSearchCachePayload>
+/**
+ * Model JisouHotSearchSnapshot
+ * * 极搜 /reso 热搜榜快照（宝塔定时任务写入，前台读最新一条）
+ */
+export type JisouHotSearchSnapshot = $Result.DefaultSelection<Prisma.$JisouHotSearchSnapshotPayload>
+/**
  * Model DailySiteStat
  * * 按日汇总的全站访问统计
  */
@@ -147,7 +157,8 @@ export type TgIndexContentType = (typeof TgIndexContentType)[keyof typeof TgInde
 
 export const SearchSource: {
   HOME: 'HOME',
-  VIP: 'VIP'
+  VIP: 'VIP',
+  GLOBAL: 'GLOBAL'
 };
 
 export type SearchSource = (typeof SearchSource)[keyof typeof SearchSource]
@@ -461,6 +472,26 @@ export class PrismaClient<
     * ```
     */
   get searchLog(): Prisma.SearchLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.globalSearchCache`: Exposes CRUD operations for the **GlobalSearchCache** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GlobalSearchCaches
+    * const globalSearchCaches = await prisma.globalSearchCache.findMany()
+    * ```
+    */
+  get globalSearchCache(): Prisma.GlobalSearchCacheDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.jisouHotSearchSnapshot`: Exposes CRUD operations for the **JisouHotSearchSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JisouHotSearchSnapshots
+    * const jisouHotSearchSnapshots = await prisma.jisouHotSearchSnapshot.findMany()
+    * ```
+    */
+  get jisouHotSearchSnapshot(): Prisma.JisouHotSearchSnapshotDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.dailySiteStat`: Exposes CRUD operations for the **DailySiteStat** model.
@@ -929,6 +960,8 @@ export namespace Prisma {
     TgIndexedMessage: 'TgIndexedMessage',
     PageVisit: 'PageVisit',
     SearchLog: 'SearchLog',
+    GlobalSearchCache: 'GlobalSearchCache',
+    JisouHotSearchSnapshot: 'JisouHotSearchSnapshot',
     DailySiteStat: 'DailySiteStat'
   };
 
@@ -948,7 +981,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "adminUser" | "siteSettings" | "guestUser" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "dailySiteStat"
+      modelProps: "adminUser" | "siteSettings" | "guestUser" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2074,6 +2107,138 @@ export namespace Prisma {
           }
         }
       }
+      GlobalSearchCache: {
+        payload: Prisma.$GlobalSearchCachePayload<ExtArgs>
+        fields: Prisma.GlobalSearchCacheFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GlobalSearchCacheFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GlobalSearchCacheFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>
+          }
+          findFirst: {
+            args: Prisma.GlobalSearchCacheFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GlobalSearchCacheFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>
+          }
+          findMany: {
+            args: Prisma.GlobalSearchCacheFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>[]
+          }
+          create: {
+            args: Prisma.GlobalSearchCacheCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>
+          }
+          createMany: {
+            args: Prisma.GlobalSearchCacheCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.GlobalSearchCacheDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>
+          }
+          update: {
+            args: Prisma.GlobalSearchCacheUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>
+          }
+          deleteMany: {
+            args: Prisma.GlobalSearchCacheDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GlobalSearchCacheUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GlobalSearchCacheUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalSearchCachePayload>
+          }
+          aggregate: {
+            args: Prisma.GlobalSearchCacheAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGlobalSearchCache>
+          }
+          groupBy: {
+            args: Prisma.GlobalSearchCacheGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GlobalSearchCacheGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GlobalSearchCacheCountArgs<ExtArgs>
+            result: $Utils.Optional<GlobalSearchCacheCountAggregateOutputType> | number
+          }
+        }
+      }
+      JisouHotSearchSnapshot: {
+        payload: Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>
+        fields: Prisma.JisouHotSearchSnapshotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JisouHotSearchSnapshotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JisouHotSearchSnapshotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>
+          }
+          findFirst: {
+            args: Prisma.JisouHotSearchSnapshotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JisouHotSearchSnapshotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>
+          }
+          findMany: {
+            args: Prisma.JisouHotSearchSnapshotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>[]
+          }
+          create: {
+            args: Prisma.JisouHotSearchSnapshotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>
+          }
+          createMany: {
+            args: Prisma.JisouHotSearchSnapshotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.JisouHotSearchSnapshotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>
+          }
+          update: {
+            args: Prisma.JisouHotSearchSnapshotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>
+          }
+          deleteMany: {
+            args: Prisma.JisouHotSearchSnapshotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JisouHotSearchSnapshotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.JisouHotSearchSnapshotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JisouHotSearchSnapshotPayload>
+          }
+          aggregate: {
+            args: Prisma.JisouHotSearchSnapshotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJisouHotSearchSnapshot>
+          }
+          groupBy: {
+            args: Prisma.JisouHotSearchSnapshotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JisouHotSearchSnapshotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JisouHotSearchSnapshotCountArgs<ExtArgs>
+            result: $Utils.Optional<JisouHotSearchSnapshotCountAggregateOutputType> | number
+          }
+        }
+      }
       DailySiteStat: {
         payload: Prisma.$DailySiteStatPayload<ExtArgs>
         fields: Prisma.DailySiteStatFieldRefs
@@ -2253,6 +2418,8 @@ export namespace Prisma {
     tgIndexedMessage?: TgIndexedMessageOmit
     pageVisit?: PageVisitOmit
     searchLog?: SearchLogOmit
+    globalSearchCache?: GlobalSearchCacheOmit
+    jisouHotSearchSnapshot?: JisouHotSearchSnapshotOmit
     dailySiteStat?: DailySiteStatOmit
   }
 
@@ -2336,11 +2503,13 @@ export namespace Prisma {
   export type GuestUserCountOutputType = {
     referrals: number
     searchLogs: number
+    globalSearchCaches: number
   }
 
   export type GuestUserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referrals?: boolean | GuestUserCountOutputTypeCountReferralsArgs
     searchLogs?: boolean | GuestUserCountOutputTypeCountSearchLogsArgs
+    globalSearchCaches?: boolean | GuestUserCountOutputTypeCountGlobalSearchCachesArgs
   }
 
   // Custom InputTypes
@@ -2366,6 +2535,13 @@ export namespace Prisma {
    */
   export type GuestUserCountOutputTypeCountSearchLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SearchLogWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountGlobalSearchCachesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalSearchCacheWhereInput
   }
 
 
@@ -3460,11 +3636,13 @@ export namespace Prisma {
 
   export type SiteSettingsAvgAggregateOutputType = {
     dailySearchLimit: number | null
+    globalDailySearchLimit: number | null
     referralSearchBonus: number | null
   }
 
   export type SiteSettingsSumAggregateOutputType = {
     dailySearchLimit: number | null
+    globalDailySearchLimit: number | null
     referralSearchBonus: number | null
   }
 
@@ -3480,6 +3658,7 @@ export namespace Prisma {
     homeFeedMode: string | null
     blockedKeywords: string | null
     dailySearchLimit: number | null
+    globalDailySearchLimit: number | null
     referralSearchBonus: number | null
     updatedAt: Date | null
   }
@@ -3496,6 +3675,7 @@ export namespace Prisma {
     homeFeedMode: string | null
     blockedKeywords: string | null
     dailySearchLimit: number | null
+    globalDailySearchLimit: number | null
     referralSearchBonus: number | null
     updatedAt: Date | null
   }
@@ -3512,6 +3692,7 @@ export namespace Prisma {
     homeFeedMode: number
     blockedKeywords: number
     dailySearchLimit: number
+    globalDailySearchLimit: number
     referralSearchBonus: number
     updatedAt: number
     _all: number
@@ -3520,11 +3701,13 @@ export namespace Prisma {
 
   export type SiteSettingsAvgAggregateInputType = {
     dailySearchLimit?: true
+    globalDailySearchLimit?: true
     referralSearchBonus?: true
   }
 
   export type SiteSettingsSumAggregateInputType = {
     dailySearchLimit?: true
+    globalDailySearchLimit?: true
     referralSearchBonus?: true
   }
 
@@ -3540,6 +3723,7 @@ export namespace Prisma {
     homeFeedMode?: true
     blockedKeywords?: true
     dailySearchLimit?: true
+    globalDailySearchLimit?: true
     referralSearchBonus?: true
     updatedAt?: true
   }
@@ -3556,6 +3740,7 @@ export namespace Prisma {
     homeFeedMode?: true
     blockedKeywords?: true
     dailySearchLimit?: true
+    globalDailySearchLimit?: true
     referralSearchBonus?: true
     updatedAt?: true
   }
@@ -3572,6 +3757,7 @@ export namespace Prisma {
     homeFeedMode?: true
     blockedKeywords?: true
     dailySearchLimit?: true
+    globalDailySearchLimit?: true
     referralSearchBonus?: true
     updatedAt?: true
     _all?: true
@@ -3675,6 +3861,7 @@ export namespace Prisma {
     homeFeedMode: string
     blockedKeywords: string | null
     dailySearchLimit: number
+    globalDailySearchLimit: number
     referralSearchBonus: number
     updatedAt: Date
     _count: SiteSettingsCountAggregateOutputType | null
@@ -3710,6 +3897,7 @@ export namespace Prisma {
     homeFeedMode?: boolean
     blockedKeywords?: boolean
     dailySearchLimit?: boolean
+    globalDailySearchLimit?: boolean
     referralSearchBonus?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["siteSettings"]>
@@ -3728,11 +3916,12 @@ export namespace Prisma {
     homeFeedMode?: boolean
     blockedKeywords?: boolean
     dailySearchLimit?: boolean
+    globalDailySearchLimit?: boolean
     referralSearchBonus?: boolean
     updatedAt?: boolean
   }
 
-  export type SiteSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "allowAnonymousComments" | "mediaStorage" | "r2AccountId" | "r2BucketName" | "r2PublicBaseUrl" | "r2AccessKeyId" | "r2SecretAccessKey" | "homeFeedMode" | "blockedKeywords" | "dailySearchLimit" | "referralSearchBonus" | "updatedAt", ExtArgs["result"]["siteSettings"]>
+  export type SiteSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "allowAnonymousComments" | "mediaStorage" | "r2AccountId" | "r2BucketName" | "r2PublicBaseUrl" | "r2AccessKeyId" | "r2SecretAccessKey" | "homeFeedMode" | "blockedKeywords" | "dailySearchLimit" | "globalDailySearchLimit" | "referralSearchBonus" | "updatedAt", ExtArgs["result"]["siteSettings"]>
 
   export type $SiteSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SiteSettings"
@@ -3767,9 +3956,13 @@ export namespace Prisma {
        */
       blockedKeywords: string | null
       /**
-       * * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）
+       * * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已用于全网搜索配额
        */
       dailySearchLimit: number
+      /**
+       * * 全网搜索（暗网索引）每日基础次数，不含邀请奖励
+       */
+      globalDailySearchLimit: number
       /**
        * * 每成功邀请一位新用户，邀请人额外获得的搜索次数
        */
@@ -4155,6 +4348,7 @@ export namespace Prisma {
     readonly homeFeedMode: FieldRef<"SiteSettings", 'String'>
     readonly blockedKeywords: FieldRef<"SiteSettings", 'String'>
     readonly dailySearchLimit: FieldRef<"SiteSettings", 'Int'>
+    readonly globalDailySearchLimit: FieldRef<"SiteSettings", 'Int'>
     readonly referralSearchBonus: FieldRef<"SiteSettings", 'Int'>
     readonly updatedAt: FieldRef<"SiteSettings", 'DateTime'>
   }
@@ -4719,6 +4913,7 @@ export namespace Prisma {
     referrer?: boolean | GuestUser$referrerArgs<ExtArgs>
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
     searchLogs?: boolean | GuestUser$searchLogsArgs<ExtArgs>
+    globalSearchCaches?: boolean | GuestUser$globalSearchCachesArgs<ExtArgs>
     _count?: boolean | GuestUserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["guestUser"]>
 
@@ -4742,6 +4937,7 @@ export namespace Prisma {
     referrer?: boolean | GuestUser$referrerArgs<ExtArgs>
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
     searchLogs?: boolean | GuestUser$searchLogsArgs<ExtArgs>
+    globalSearchCaches?: boolean | GuestUser$globalSearchCachesArgs<ExtArgs>
     _count?: boolean | GuestUserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -4751,6 +4947,7 @@ export namespace Prisma {
       referrer: Prisma.$GuestUserPayload<ExtArgs> | null
       referrals: Prisma.$GuestUserPayload<ExtArgs>[]
       searchLogs: Prisma.$SearchLogPayload<ExtArgs>[]
+      globalSearchCaches: Prisma.$GlobalSearchCachePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5118,6 +5315,7 @@ export namespace Prisma {
     referrer<T extends GuestUser$referrerArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$referrerArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     referrals<T extends GuestUser$referralsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$referralsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     searchLogs<T extends GuestUser$searchLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$searchLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SearchLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    globalSearchCaches<T extends GuestUser$globalSearchCachesArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$globalSearchCachesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5564,6 +5762,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SearchLogScalarFieldEnum | SearchLogScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.globalSearchCaches
+   */
+  export type GuestUser$globalSearchCachesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    where?: GlobalSearchCacheWhereInput
+    orderBy?: GlobalSearchCacheOrderByWithRelationInput | GlobalSearchCacheOrderByWithRelationInput[]
+    cursor?: GlobalSearchCacheWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GlobalSearchCacheScalarFieldEnum | GlobalSearchCacheScalarFieldEnum[]
   }
 
   /**
@@ -18605,6 +18827,7 @@ export namespace Prisma {
     guestUserId: string | null
     resultCount: number | null
     userAgent: string | null
+    userHiddenAt: Date | null
     createdAt: Date | null
   }
 
@@ -18618,6 +18841,7 @@ export namespace Prisma {
     guestUserId: string | null
     resultCount: number | null
     userAgent: string | null
+    userHiddenAt: Date | null
     createdAt: Date | null
   }
 
@@ -18631,6 +18855,7 @@ export namespace Prisma {
     guestUserId: number
     resultCount: number
     userAgent: number
+    userHiddenAt: number
     createdAt: number
     _all: number
   }
@@ -18654,6 +18879,7 @@ export namespace Prisma {
     guestUserId?: true
     resultCount?: true
     userAgent?: true
+    userHiddenAt?: true
     createdAt?: true
   }
 
@@ -18667,6 +18893,7 @@ export namespace Prisma {
     guestUserId?: true
     resultCount?: true
     userAgent?: true
+    userHiddenAt?: true
     createdAt?: true
   }
 
@@ -18680,6 +18907,7 @@ export namespace Prisma {
     guestUserId?: true
     resultCount?: true
     userAgent?: true
+    userHiddenAt?: true
     createdAt?: true
     _all?: true
   }
@@ -18780,6 +19008,7 @@ export namespace Prisma {
     guestUserId: string | null
     resultCount: number
     userAgent: string | null
+    userHiddenAt: Date | null
     createdAt: Date
     _count: SearchLogCountAggregateOutputType | null
     _avg: SearchLogAvgAggregateOutputType | null
@@ -18812,6 +19041,7 @@ export namespace Prisma {
     guestUserId?: boolean
     resultCount?: boolean
     userAgent?: boolean
+    userHiddenAt?: boolean
     createdAt?: boolean
     socialUser?: boolean | SearchLog$socialUserArgs<ExtArgs>
     guestUser?: boolean | SearchLog$guestUserArgs<ExtArgs>
@@ -18829,10 +19059,11 @@ export namespace Prisma {
     guestUserId?: boolean
     resultCount?: boolean
     userAgent?: boolean
+    userHiddenAt?: boolean
     createdAt?: boolean
   }
 
-  export type SearchLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "source" | "keyword" | "visitorId" | "ip" | "socialUserId" | "guestUserId" | "resultCount" | "userAgent" | "createdAt", ExtArgs["result"]["searchLog"]>
+  export type SearchLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "source" | "keyword" | "visitorId" | "ip" | "socialUserId" | "guestUserId" | "resultCount" | "userAgent" | "userHiddenAt" | "createdAt", ExtArgs["result"]["searchLog"]>
   export type SearchLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     socialUser?: boolean | SearchLog$socialUserArgs<ExtArgs>
     guestUser?: boolean | SearchLog$guestUserArgs<ExtArgs>
@@ -18854,6 +19085,10 @@ export namespace Prisma {
       guestUserId: string | null
       resultCount: number
       userAgent: string | null
+      /**
+       * * 用户在前台清除搜索记录时写入；管理员统计仍可见原记录
+       */
+      userHiddenAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["searchLog"]>
     composites: {}
@@ -19235,6 +19470,7 @@ export namespace Prisma {
     readonly guestUserId: FieldRef<"SearchLog", 'String'>
     readonly resultCount: FieldRef<"SearchLog", 'Int'>
     readonly userAgent: FieldRef<"SearchLog", 'String'>
+    readonly userHiddenAt: FieldRef<"SearchLog", 'DateTime'>
     readonly createdAt: FieldRef<"SearchLog", 'DateTime'>
   }
     
@@ -19632,6 +19868,1924 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SearchLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GlobalSearchCache
+   */
+
+  export type AggregateGlobalSearchCache = {
+    _count: GlobalSearchCacheCountAggregateOutputType | null
+    _avg: GlobalSearchCacheAvgAggregateOutputType | null
+    _sum: GlobalSearchCacheSumAggregateOutputType | null
+    _min: GlobalSearchCacheMinAggregateOutputType | null
+    _max: GlobalSearchCacheMaxAggregateOutputType | null
+  }
+
+  export type GlobalSearchCacheAvgAggregateOutputType = {
+    channelCount: number | null
+  }
+
+  export type GlobalSearchCacheSumAggregateOutputType = {
+    channelCount: number | null
+  }
+
+  export type GlobalSearchCacheMinAggregateOutputType = {
+    id: string | null
+    keyword: string | null
+    guestUserId: string | null
+    channelCount: number | null
+    sourceFetchedAt: Date | null
+    userHiddenAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GlobalSearchCacheMaxAggregateOutputType = {
+    id: string | null
+    keyword: string | null
+    guestUserId: string | null
+    channelCount: number | null
+    sourceFetchedAt: Date | null
+    userHiddenAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GlobalSearchCacheCountAggregateOutputType = {
+    id: number
+    keyword: number
+    guestUserId: number
+    channelCount: number
+    payload: number
+    sourceFetchedAt: number
+    userHiddenAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GlobalSearchCacheAvgAggregateInputType = {
+    channelCount?: true
+  }
+
+  export type GlobalSearchCacheSumAggregateInputType = {
+    channelCount?: true
+  }
+
+  export type GlobalSearchCacheMinAggregateInputType = {
+    id?: true
+    keyword?: true
+    guestUserId?: true
+    channelCount?: true
+    sourceFetchedAt?: true
+    userHiddenAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GlobalSearchCacheMaxAggregateInputType = {
+    id?: true
+    keyword?: true
+    guestUserId?: true
+    channelCount?: true
+    sourceFetchedAt?: true
+    userHiddenAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GlobalSearchCacheCountAggregateInputType = {
+    id?: true
+    keyword?: true
+    guestUserId?: true
+    channelCount?: true
+    payload?: true
+    sourceFetchedAt?: true
+    userHiddenAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GlobalSearchCacheAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GlobalSearchCache to aggregate.
+     */
+    where?: GlobalSearchCacheWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalSearchCaches to fetch.
+     */
+    orderBy?: GlobalSearchCacheOrderByWithRelationInput | GlobalSearchCacheOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GlobalSearchCacheWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalSearchCaches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalSearchCaches.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GlobalSearchCaches
+    **/
+    _count?: true | GlobalSearchCacheCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GlobalSearchCacheAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GlobalSearchCacheSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GlobalSearchCacheMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GlobalSearchCacheMaxAggregateInputType
+  }
+
+  export type GetGlobalSearchCacheAggregateType<T extends GlobalSearchCacheAggregateArgs> = {
+        [P in keyof T & keyof AggregateGlobalSearchCache]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGlobalSearchCache[P]>
+      : GetScalarType<T[P], AggregateGlobalSearchCache[P]>
+  }
+
+
+
+
+  export type GlobalSearchCacheGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalSearchCacheWhereInput
+    orderBy?: GlobalSearchCacheOrderByWithAggregationInput | GlobalSearchCacheOrderByWithAggregationInput[]
+    by: GlobalSearchCacheScalarFieldEnum[] | GlobalSearchCacheScalarFieldEnum
+    having?: GlobalSearchCacheScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GlobalSearchCacheCountAggregateInputType | true
+    _avg?: GlobalSearchCacheAvgAggregateInputType
+    _sum?: GlobalSearchCacheSumAggregateInputType
+    _min?: GlobalSearchCacheMinAggregateInputType
+    _max?: GlobalSearchCacheMaxAggregateInputType
+  }
+
+  export type GlobalSearchCacheGroupByOutputType = {
+    id: string
+    keyword: string
+    guestUserId: string
+    channelCount: number
+    payload: JsonValue
+    sourceFetchedAt: Date | null
+    userHiddenAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: GlobalSearchCacheCountAggregateOutputType | null
+    _avg: GlobalSearchCacheAvgAggregateOutputType | null
+    _sum: GlobalSearchCacheSumAggregateOutputType | null
+    _min: GlobalSearchCacheMinAggregateOutputType | null
+    _max: GlobalSearchCacheMaxAggregateOutputType | null
+  }
+
+  type GetGlobalSearchCacheGroupByPayload<T extends GlobalSearchCacheGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GlobalSearchCacheGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GlobalSearchCacheGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GlobalSearchCacheGroupByOutputType[P]>
+            : GetScalarType<T[P], GlobalSearchCacheGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GlobalSearchCacheSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    keyword?: boolean
+    guestUserId?: boolean
+    channelCount?: boolean
+    payload?: boolean
+    sourceFetchedAt?: boolean
+    userHiddenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["globalSearchCache"]>
+
+
+
+  export type GlobalSearchCacheSelectScalar = {
+    id?: boolean
+    keyword?: boolean
+    guestUserId?: boolean
+    channelCount?: boolean
+    payload?: boolean
+    sourceFetchedAt?: boolean
+    userHiddenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GlobalSearchCacheOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "keyword" | "guestUserId" | "channelCount" | "payload" | "sourceFetchedAt" | "userHiddenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["globalSearchCache"]>
+  export type GlobalSearchCacheInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $GlobalSearchCachePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GlobalSearchCache"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      keyword: string
+      guestUserId: string
+      channelCount: number
+      payload: Prisma.JsonValue
+      sourceFetchedAt: Date | null
+      userHiddenAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["globalSearchCache"]>
+    composites: {}
+  }
+
+  type GlobalSearchCacheGetPayload<S extends boolean | null | undefined | GlobalSearchCacheDefaultArgs> = $Result.GetResult<Prisma.$GlobalSearchCachePayload, S>
+
+  type GlobalSearchCacheCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GlobalSearchCacheFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GlobalSearchCacheCountAggregateInputType | true
+    }
+
+  export interface GlobalSearchCacheDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GlobalSearchCache'], meta: { name: 'GlobalSearchCache' } }
+    /**
+     * Find zero or one GlobalSearchCache that matches the filter.
+     * @param {GlobalSearchCacheFindUniqueArgs} args - Arguments to find a GlobalSearchCache
+     * @example
+     * // Get one GlobalSearchCache
+     * const globalSearchCache = await prisma.globalSearchCache.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GlobalSearchCacheFindUniqueArgs>(args: SelectSubset<T, GlobalSearchCacheFindUniqueArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GlobalSearchCache that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GlobalSearchCacheFindUniqueOrThrowArgs} args - Arguments to find a GlobalSearchCache
+     * @example
+     * // Get one GlobalSearchCache
+     * const globalSearchCache = await prisma.globalSearchCache.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GlobalSearchCacheFindUniqueOrThrowArgs>(args: SelectSubset<T, GlobalSearchCacheFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GlobalSearchCache that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheFindFirstArgs} args - Arguments to find a GlobalSearchCache
+     * @example
+     * // Get one GlobalSearchCache
+     * const globalSearchCache = await prisma.globalSearchCache.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GlobalSearchCacheFindFirstArgs>(args?: SelectSubset<T, GlobalSearchCacheFindFirstArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GlobalSearchCache that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheFindFirstOrThrowArgs} args - Arguments to find a GlobalSearchCache
+     * @example
+     * // Get one GlobalSearchCache
+     * const globalSearchCache = await prisma.globalSearchCache.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GlobalSearchCacheFindFirstOrThrowArgs>(args?: SelectSubset<T, GlobalSearchCacheFindFirstOrThrowArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GlobalSearchCaches that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GlobalSearchCaches
+     * const globalSearchCaches = await prisma.globalSearchCache.findMany()
+     * 
+     * // Get first 10 GlobalSearchCaches
+     * const globalSearchCaches = await prisma.globalSearchCache.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const globalSearchCacheWithIdOnly = await prisma.globalSearchCache.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GlobalSearchCacheFindManyArgs>(args?: SelectSubset<T, GlobalSearchCacheFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GlobalSearchCache.
+     * @param {GlobalSearchCacheCreateArgs} args - Arguments to create a GlobalSearchCache.
+     * @example
+     * // Create one GlobalSearchCache
+     * const GlobalSearchCache = await prisma.globalSearchCache.create({
+     *   data: {
+     *     // ... data to create a GlobalSearchCache
+     *   }
+     * })
+     * 
+     */
+    create<T extends GlobalSearchCacheCreateArgs>(args: SelectSubset<T, GlobalSearchCacheCreateArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GlobalSearchCaches.
+     * @param {GlobalSearchCacheCreateManyArgs} args - Arguments to create many GlobalSearchCaches.
+     * @example
+     * // Create many GlobalSearchCaches
+     * const globalSearchCache = await prisma.globalSearchCache.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GlobalSearchCacheCreateManyArgs>(args?: SelectSubset<T, GlobalSearchCacheCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a GlobalSearchCache.
+     * @param {GlobalSearchCacheDeleteArgs} args - Arguments to delete one GlobalSearchCache.
+     * @example
+     * // Delete one GlobalSearchCache
+     * const GlobalSearchCache = await prisma.globalSearchCache.delete({
+     *   where: {
+     *     // ... filter to delete one GlobalSearchCache
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GlobalSearchCacheDeleteArgs>(args: SelectSubset<T, GlobalSearchCacheDeleteArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GlobalSearchCache.
+     * @param {GlobalSearchCacheUpdateArgs} args - Arguments to update one GlobalSearchCache.
+     * @example
+     * // Update one GlobalSearchCache
+     * const globalSearchCache = await prisma.globalSearchCache.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GlobalSearchCacheUpdateArgs>(args: SelectSubset<T, GlobalSearchCacheUpdateArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GlobalSearchCaches.
+     * @param {GlobalSearchCacheDeleteManyArgs} args - Arguments to filter GlobalSearchCaches to delete.
+     * @example
+     * // Delete a few GlobalSearchCaches
+     * const { count } = await prisma.globalSearchCache.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GlobalSearchCacheDeleteManyArgs>(args?: SelectSubset<T, GlobalSearchCacheDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GlobalSearchCaches.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GlobalSearchCaches
+     * const globalSearchCache = await prisma.globalSearchCache.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GlobalSearchCacheUpdateManyArgs>(args: SelectSubset<T, GlobalSearchCacheUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GlobalSearchCache.
+     * @param {GlobalSearchCacheUpsertArgs} args - Arguments to update or create a GlobalSearchCache.
+     * @example
+     * // Update or create a GlobalSearchCache
+     * const globalSearchCache = await prisma.globalSearchCache.upsert({
+     *   create: {
+     *     // ... data to create a GlobalSearchCache
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GlobalSearchCache we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GlobalSearchCacheUpsertArgs>(args: SelectSubset<T, GlobalSearchCacheUpsertArgs<ExtArgs>>): Prisma__GlobalSearchCacheClient<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GlobalSearchCaches.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheCountArgs} args - Arguments to filter GlobalSearchCaches to count.
+     * @example
+     * // Count the number of GlobalSearchCaches
+     * const count = await prisma.globalSearchCache.count({
+     *   where: {
+     *     // ... the filter for the GlobalSearchCaches we want to count
+     *   }
+     * })
+    **/
+    count<T extends GlobalSearchCacheCountArgs>(
+      args?: Subset<T, GlobalSearchCacheCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GlobalSearchCacheCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GlobalSearchCache.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GlobalSearchCacheAggregateArgs>(args: Subset<T, GlobalSearchCacheAggregateArgs>): Prisma.PrismaPromise<GetGlobalSearchCacheAggregateType<T>>
+
+    /**
+     * Group by GlobalSearchCache.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalSearchCacheGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GlobalSearchCacheGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GlobalSearchCacheGroupByArgs['orderBy'] }
+        : { orderBy?: GlobalSearchCacheGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GlobalSearchCacheGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGlobalSearchCacheGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GlobalSearchCache model
+   */
+  readonly fields: GlobalSearchCacheFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GlobalSearchCache.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GlobalSearchCacheClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GlobalSearchCache model
+   */
+  interface GlobalSearchCacheFieldRefs {
+    readonly id: FieldRef<"GlobalSearchCache", 'String'>
+    readonly keyword: FieldRef<"GlobalSearchCache", 'String'>
+    readonly guestUserId: FieldRef<"GlobalSearchCache", 'String'>
+    readonly channelCount: FieldRef<"GlobalSearchCache", 'Int'>
+    readonly payload: FieldRef<"GlobalSearchCache", 'Json'>
+    readonly sourceFetchedAt: FieldRef<"GlobalSearchCache", 'DateTime'>
+    readonly userHiddenAt: FieldRef<"GlobalSearchCache", 'DateTime'>
+    readonly createdAt: FieldRef<"GlobalSearchCache", 'DateTime'>
+    readonly updatedAt: FieldRef<"GlobalSearchCache", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GlobalSearchCache findUnique
+   */
+  export type GlobalSearchCacheFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalSearchCache to fetch.
+     */
+    where: GlobalSearchCacheWhereUniqueInput
+  }
+
+  /**
+   * GlobalSearchCache findUniqueOrThrow
+   */
+  export type GlobalSearchCacheFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalSearchCache to fetch.
+     */
+    where: GlobalSearchCacheWhereUniqueInput
+  }
+
+  /**
+   * GlobalSearchCache findFirst
+   */
+  export type GlobalSearchCacheFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalSearchCache to fetch.
+     */
+    where?: GlobalSearchCacheWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalSearchCaches to fetch.
+     */
+    orderBy?: GlobalSearchCacheOrderByWithRelationInput | GlobalSearchCacheOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GlobalSearchCaches.
+     */
+    cursor?: GlobalSearchCacheWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalSearchCaches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalSearchCaches.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GlobalSearchCaches.
+     */
+    distinct?: GlobalSearchCacheScalarFieldEnum | GlobalSearchCacheScalarFieldEnum[]
+  }
+
+  /**
+   * GlobalSearchCache findFirstOrThrow
+   */
+  export type GlobalSearchCacheFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalSearchCache to fetch.
+     */
+    where?: GlobalSearchCacheWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalSearchCaches to fetch.
+     */
+    orderBy?: GlobalSearchCacheOrderByWithRelationInput | GlobalSearchCacheOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GlobalSearchCaches.
+     */
+    cursor?: GlobalSearchCacheWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalSearchCaches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalSearchCaches.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GlobalSearchCaches.
+     */
+    distinct?: GlobalSearchCacheScalarFieldEnum | GlobalSearchCacheScalarFieldEnum[]
+  }
+
+  /**
+   * GlobalSearchCache findMany
+   */
+  export type GlobalSearchCacheFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalSearchCaches to fetch.
+     */
+    where?: GlobalSearchCacheWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalSearchCaches to fetch.
+     */
+    orderBy?: GlobalSearchCacheOrderByWithRelationInput | GlobalSearchCacheOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GlobalSearchCaches.
+     */
+    cursor?: GlobalSearchCacheWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalSearchCaches from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalSearchCaches.
+     */
+    skip?: number
+    distinct?: GlobalSearchCacheScalarFieldEnum | GlobalSearchCacheScalarFieldEnum[]
+  }
+
+  /**
+   * GlobalSearchCache create
+   */
+  export type GlobalSearchCacheCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GlobalSearchCache.
+     */
+    data: XOR<GlobalSearchCacheCreateInput, GlobalSearchCacheUncheckedCreateInput>
+  }
+
+  /**
+   * GlobalSearchCache createMany
+   */
+  export type GlobalSearchCacheCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GlobalSearchCaches.
+     */
+    data: GlobalSearchCacheCreateManyInput | GlobalSearchCacheCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GlobalSearchCache update
+   */
+  export type GlobalSearchCacheUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GlobalSearchCache.
+     */
+    data: XOR<GlobalSearchCacheUpdateInput, GlobalSearchCacheUncheckedUpdateInput>
+    /**
+     * Choose, which GlobalSearchCache to update.
+     */
+    where: GlobalSearchCacheWhereUniqueInput
+  }
+
+  /**
+   * GlobalSearchCache updateMany
+   */
+  export type GlobalSearchCacheUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GlobalSearchCaches.
+     */
+    data: XOR<GlobalSearchCacheUpdateManyMutationInput, GlobalSearchCacheUncheckedUpdateManyInput>
+    /**
+     * Filter which GlobalSearchCaches to update
+     */
+    where?: GlobalSearchCacheWhereInput
+    /**
+     * Limit how many GlobalSearchCaches to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GlobalSearchCache upsert
+   */
+  export type GlobalSearchCacheUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GlobalSearchCache to update in case it exists.
+     */
+    where: GlobalSearchCacheWhereUniqueInput
+    /**
+     * In case the GlobalSearchCache found by the `where` argument doesn't exist, create a new GlobalSearchCache with this data.
+     */
+    create: XOR<GlobalSearchCacheCreateInput, GlobalSearchCacheUncheckedCreateInput>
+    /**
+     * In case the GlobalSearchCache was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GlobalSearchCacheUpdateInput, GlobalSearchCacheUncheckedUpdateInput>
+  }
+
+  /**
+   * GlobalSearchCache delete
+   */
+  export type GlobalSearchCacheDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+    /**
+     * Filter which GlobalSearchCache to delete.
+     */
+    where: GlobalSearchCacheWhereUniqueInput
+  }
+
+  /**
+   * GlobalSearchCache deleteMany
+   */
+  export type GlobalSearchCacheDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GlobalSearchCaches to delete
+     */
+    where?: GlobalSearchCacheWhereInput
+    /**
+     * Limit how many GlobalSearchCaches to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GlobalSearchCache without action
+   */
+  export type GlobalSearchCacheDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalSearchCache
+     */
+    select?: GlobalSearchCacheSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalSearchCache
+     */
+    omit?: GlobalSearchCacheOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalSearchCacheInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JisouHotSearchSnapshot
+   */
+
+  export type AggregateJisouHotSearchSnapshot = {
+    _count: JisouHotSearchSnapshotCountAggregateOutputType | null
+    _avg: JisouHotSearchSnapshotAvgAggregateOutputType | null
+    _sum: JisouHotSearchSnapshotSumAggregateOutputType | null
+    _min: JisouHotSearchSnapshotMinAggregateOutputType | null
+    _max: JisouHotSearchSnapshotMaxAggregateOutputType | null
+  }
+
+  export type JisouHotSearchSnapshotAvgAggregateOutputType = {
+    keywordCount: number | null
+  }
+
+  export type JisouHotSearchSnapshotSumAggregateOutputType = {
+    keywordCount: number | null
+  }
+
+  export type JisouHotSearchSnapshotMinAggregateOutputType = {
+    id: string | null
+    keywordCount: number | null
+    sourceFetchedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type JisouHotSearchSnapshotMaxAggregateOutputType = {
+    id: string | null
+    keywordCount: number | null
+    sourceFetchedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type JisouHotSearchSnapshotCountAggregateOutputType = {
+    id: number
+    keywordCount: number
+    items: number
+    sourceFetchedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type JisouHotSearchSnapshotAvgAggregateInputType = {
+    keywordCount?: true
+  }
+
+  export type JisouHotSearchSnapshotSumAggregateInputType = {
+    keywordCount?: true
+  }
+
+  export type JisouHotSearchSnapshotMinAggregateInputType = {
+    id?: true
+    keywordCount?: true
+    sourceFetchedAt?: true
+    createdAt?: true
+  }
+
+  export type JisouHotSearchSnapshotMaxAggregateInputType = {
+    id?: true
+    keywordCount?: true
+    sourceFetchedAt?: true
+    createdAt?: true
+  }
+
+  export type JisouHotSearchSnapshotCountAggregateInputType = {
+    id?: true
+    keywordCount?: true
+    items?: true
+    sourceFetchedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type JisouHotSearchSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JisouHotSearchSnapshot to aggregate.
+     */
+    where?: JisouHotSearchSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JisouHotSearchSnapshots to fetch.
+     */
+    orderBy?: JisouHotSearchSnapshotOrderByWithRelationInput | JisouHotSearchSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JisouHotSearchSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JisouHotSearchSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JisouHotSearchSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JisouHotSearchSnapshots
+    **/
+    _count?: true | JisouHotSearchSnapshotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JisouHotSearchSnapshotAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JisouHotSearchSnapshotSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JisouHotSearchSnapshotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JisouHotSearchSnapshotMaxAggregateInputType
+  }
+
+  export type GetJisouHotSearchSnapshotAggregateType<T extends JisouHotSearchSnapshotAggregateArgs> = {
+        [P in keyof T & keyof AggregateJisouHotSearchSnapshot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJisouHotSearchSnapshot[P]>
+      : GetScalarType<T[P], AggregateJisouHotSearchSnapshot[P]>
+  }
+
+
+
+
+  export type JisouHotSearchSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JisouHotSearchSnapshotWhereInput
+    orderBy?: JisouHotSearchSnapshotOrderByWithAggregationInput | JisouHotSearchSnapshotOrderByWithAggregationInput[]
+    by: JisouHotSearchSnapshotScalarFieldEnum[] | JisouHotSearchSnapshotScalarFieldEnum
+    having?: JisouHotSearchSnapshotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JisouHotSearchSnapshotCountAggregateInputType | true
+    _avg?: JisouHotSearchSnapshotAvgAggregateInputType
+    _sum?: JisouHotSearchSnapshotSumAggregateInputType
+    _min?: JisouHotSearchSnapshotMinAggregateInputType
+    _max?: JisouHotSearchSnapshotMaxAggregateInputType
+  }
+
+  export type JisouHotSearchSnapshotGroupByOutputType = {
+    id: string
+    keywordCount: number
+    items: JsonValue
+    sourceFetchedAt: Date | null
+    createdAt: Date
+    _count: JisouHotSearchSnapshotCountAggregateOutputType | null
+    _avg: JisouHotSearchSnapshotAvgAggregateOutputType | null
+    _sum: JisouHotSearchSnapshotSumAggregateOutputType | null
+    _min: JisouHotSearchSnapshotMinAggregateOutputType | null
+    _max: JisouHotSearchSnapshotMaxAggregateOutputType | null
+  }
+
+  type GetJisouHotSearchSnapshotGroupByPayload<T extends JisouHotSearchSnapshotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JisouHotSearchSnapshotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JisouHotSearchSnapshotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JisouHotSearchSnapshotGroupByOutputType[P]>
+            : GetScalarType<T[P], JisouHotSearchSnapshotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JisouHotSearchSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    keywordCount?: boolean
+    items?: boolean
+    sourceFetchedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["jisouHotSearchSnapshot"]>
+
+
+
+  export type JisouHotSearchSnapshotSelectScalar = {
+    id?: boolean
+    keywordCount?: boolean
+    items?: boolean
+    sourceFetchedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type JisouHotSearchSnapshotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "keywordCount" | "items" | "sourceFetchedAt" | "createdAt", ExtArgs["result"]["jisouHotSearchSnapshot"]>
+
+  export type $JisouHotSearchSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JisouHotSearchSnapshot"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      keywordCount: number
+      /**
+       * * [{ label, rank, group: "top" | "more", callback? }]
+       */
+      items: Prisma.JsonValue
+      sourceFetchedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["jisouHotSearchSnapshot"]>
+    composites: {}
+  }
+
+  type JisouHotSearchSnapshotGetPayload<S extends boolean | null | undefined | JisouHotSearchSnapshotDefaultArgs> = $Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload, S>
+
+  type JisouHotSearchSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JisouHotSearchSnapshotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JisouHotSearchSnapshotCountAggregateInputType | true
+    }
+
+  export interface JisouHotSearchSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JisouHotSearchSnapshot'], meta: { name: 'JisouHotSearchSnapshot' } }
+    /**
+     * Find zero or one JisouHotSearchSnapshot that matches the filter.
+     * @param {JisouHotSearchSnapshotFindUniqueArgs} args - Arguments to find a JisouHotSearchSnapshot
+     * @example
+     * // Get one JisouHotSearchSnapshot
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JisouHotSearchSnapshotFindUniqueArgs>(args: SelectSubset<T, JisouHotSearchSnapshotFindUniqueArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JisouHotSearchSnapshot that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JisouHotSearchSnapshotFindUniqueOrThrowArgs} args - Arguments to find a JisouHotSearchSnapshot
+     * @example
+     * // Get one JisouHotSearchSnapshot
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JisouHotSearchSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, JisouHotSearchSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JisouHotSearchSnapshot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotFindFirstArgs} args - Arguments to find a JisouHotSearchSnapshot
+     * @example
+     * // Get one JisouHotSearchSnapshot
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JisouHotSearchSnapshotFindFirstArgs>(args?: SelectSubset<T, JisouHotSearchSnapshotFindFirstArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JisouHotSearchSnapshot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotFindFirstOrThrowArgs} args - Arguments to find a JisouHotSearchSnapshot
+     * @example
+     * // Get one JisouHotSearchSnapshot
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JisouHotSearchSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, JisouHotSearchSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JisouHotSearchSnapshots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JisouHotSearchSnapshots
+     * const jisouHotSearchSnapshots = await prisma.jisouHotSearchSnapshot.findMany()
+     * 
+     * // Get first 10 JisouHotSearchSnapshots
+     * const jisouHotSearchSnapshots = await prisma.jisouHotSearchSnapshot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jisouHotSearchSnapshotWithIdOnly = await prisma.jisouHotSearchSnapshot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JisouHotSearchSnapshotFindManyArgs>(args?: SelectSubset<T, JisouHotSearchSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JisouHotSearchSnapshot.
+     * @param {JisouHotSearchSnapshotCreateArgs} args - Arguments to create a JisouHotSearchSnapshot.
+     * @example
+     * // Create one JisouHotSearchSnapshot
+     * const JisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.create({
+     *   data: {
+     *     // ... data to create a JisouHotSearchSnapshot
+     *   }
+     * })
+     * 
+     */
+    create<T extends JisouHotSearchSnapshotCreateArgs>(args: SelectSubset<T, JisouHotSearchSnapshotCreateArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JisouHotSearchSnapshots.
+     * @param {JisouHotSearchSnapshotCreateManyArgs} args - Arguments to create many JisouHotSearchSnapshots.
+     * @example
+     * // Create many JisouHotSearchSnapshots
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JisouHotSearchSnapshotCreateManyArgs>(args?: SelectSubset<T, JisouHotSearchSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a JisouHotSearchSnapshot.
+     * @param {JisouHotSearchSnapshotDeleteArgs} args - Arguments to delete one JisouHotSearchSnapshot.
+     * @example
+     * // Delete one JisouHotSearchSnapshot
+     * const JisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.delete({
+     *   where: {
+     *     // ... filter to delete one JisouHotSearchSnapshot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JisouHotSearchSnapshotDeleteArgs>(args: SelectSubset<T, JisouHotSearchSnapshotDeleteArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JisouHotSearchSnapshot.
+     * @param {JisouHotSearchSnapshotUpdateArgs} args - Arguments to update one JisouHotSearchSnapshot.
+     * @example
+     * // Update one JisouHotSearchSnapshot
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JisouHotSearchSnapshotUpdateArgs>(args: SelectSubset<T, JisouHotSearchSnapshotUpdateArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JisouHotSearchSnapshots.
+     * @param {JisouHotSearchSnapshotDeleteManyArgs} args - Arguments to filter JisouHotSearchSnapshots to delete.
+     * @example
+     * // Delete a few JisouHotSearchSnapshots
+     * const { count } = await prisma.jisouHotSearchSnapshot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JisouHotSearchSnapshotDeleteManyArgs>(args?: SelectSubset<T, JisouHotSearchSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JisouHotSearchSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JisouHotSearchSnapshots
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JisouHotSearchSnapshotUpdateManyArgs>(args: SelectSubset<T, JisouHotSearchSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one JisouHotSearchSnapshot.
+     * @param {JisouHotSearchSnapshotUpsertArgs} args - Arguments to update or create a JisouHotSearchSnapshot.
+     * @example
+     * // Update or create a JisouHotSearchSnapshot
+     * const jisouHotSearchSnapshot = await prisma.jisouHotSearchSnapshot.upsert({
+     *   create: {
+     *     // ... data to create a JisouHotSearchSnapshot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JisouHotSearchSnapshot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JisouHotSearchSnapshotUpsertArgs>(args: SelectSubset<T, JisouHotSearchSnapshotUpsertArgs<ExtArgs>>): Prisma__JisouHotSearchSnapshotClient<$Result.GetResult<Prisma.$JisouHotSearchSnapshotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JisouHotSearchSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotCountArgs} args - Arguments to filter JisouHotSearchSnapshots to count.
+     * @example
+     * // Count the number of JisouHotSearchSnapshots
+     * const count = await prisma.jisouHotSearchSnapshot.count({
+     *   where: {
+     *     // ... the filter for the JisouHotSearchSnapshots we want to count
+     *   }
+     * })
+    **/
+    count<T extends JisouHotSearchSnapshotCountArgs>(
+      args?: Subset<T, JisouHotSearchSnapshotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JisouHotSearchSnapshotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JisouHotSearchSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JisouHotSearchSnapshotAggregateArgs>(args: Subset<T, JisouHotSearchSnapshotAggregateArgs>): Prisma.PrismaPromise<GetJisouHotSearchSnapshotAggregateType<T>>
+
+    /**
+     * Group by JisouHotSearchSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JisouHotSearchSnapshotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JisouHotSearchSnapshotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JisouHotSearchSnapshotGroupByArgs['orderBy'] }
+        : { orderBy?: JisouHotSearchSnapshotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JisouHotSearchSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJisouHotSearchSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JisouHotSearchSnapshot model
+   */
+  readonly fields: JisouHotSearchSnapshotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JisouHotSearchSnapshot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JisouHotSearchSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JisouHotSearchSnapshot model
+   */
+  interface JisouHotSearchSnapshotFieldRefs {
+    readonly id: FieldRef<"JisouHotSearchSnapshot", 'String'>
+    readonly keywordCount: FieldRef<"JisouHotSearchSnapshot", 'Int'>
+    readonly items: FieldRef<"JisouHotSearchSnapshot", 'Json'>
+    readonly sourceFetchedAt: FieldRef<"JisouHotSearchSnapshot", 'DateTime'>
+    readonly createdAt: FieldRef<"JisouHotSearchSnapshot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JisouHotSearchSnapshot findUnique
+   */
+  export type JisouHotSearchSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * Filter, which JisouHotSearchSnapshot to fetch.
+     */
+    where: JisouHotSearchSnapshotWhereUniqueInput
+  }
+
+  /**
+   * JisouHotSearchSnapshot findUniqueOrThrow
+   */
+  export type JisouHotSearchSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * Filter, which JisouHotSearchSnapshot to fetch.
+     */
+    where: JisouHotSearchSnapshotWhereUniqueInput
+  }
+
+  /**
+   * JisouHotSearchSnapshot findFirst
+   */
+  export type JisouHotSearchSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * Filter, which JisouHotSearchSnapshot to fetch.
+     */
+    where?: JisouHotSearchSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JisouHotSearchSnapshots to fetch.
+     */
+    orderBy?: JisouHotSearchSnapshotOrderByWithRelationInput | JisouHotSearchSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JisouHotSearchSnapshots.
+     */
+    cursor?: JisouHotSearchSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JisouHotSearchSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JisouHotSearchSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JisouHotSearchSnapshots.
+     */
+    distinct?: JisouHotSearchSnapshotScalarFieldEnum | JisouHotSearchSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * JisouHotSearchSnapshot findFirstOrThrow
+   */
+  export type JisouHotSearchSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * Filter, which JisouHotSearchSnapshot to fetch.
+     */
+    where?: JisouHotSearchSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JisouHotSearchSnapshots to fetch.
+     */
+    orderBy?: JisouHotSearchSnapshotOrderByWithRelationInput | JisouHotSearchSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JisouHotSearchSnapshots.
+     */
+    cursor?: JisouHotSearchSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JisouHotSearchSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JisouHotSearchSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JisouHotSearchSnapshots.
+     */
+    distinct?: JisouHotSearchSnapshotScalarFieldEnum | JisouHotSearchSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * JisouHotSearchSnapshot findMany
+   */
+  export type JisouHotSearchSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * Filter, which JisouHotSearchSnapshots to fetch.
+     */
+    where?: JisouHotSearchSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JisouHotSearchSnapshots to fetch.
+     */
+    orderBy?: JisouHotSearchSnapshotOrderByWithRelationInput | JisouHotSearchSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JisouHotSearchSnapshots.
+     */
+    cursor?: JisouHotSearchSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JisouHotSearchSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JisouHotSearchSnapshots.
+     */
+    skip?: number
+    distinct?: JisouHotSearchSnapshotScalarFieldEnum | JisouHotSearchSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * JisouHotSearchSnapshot create
+   */
+  export type JisouHotSearchSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * The data needed to create a JisouHotSearchSnapshot.
+     */
+    data: XOR<JisouHotSearchSnapshotCreateInput, JisouHotSearchSnapshotUncheckedCreateInput>
+  }
+
+  /**
+   * JisouHotSearchSnapshot createMany
+   */
+  export type JisouHotSearchSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JisouHotSearchSnapshots.
+     */
+    data: JisouHotSearchSnapshotCreateManyInput | JisouHotSearchSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JisouHotSearchSnapshot update
+   */
+  export type JisouHotSearchSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * The data needed to update a JisouHotSearchSnapshot.
+     */
+    data: XOR<JisouHotSearchSnapshotUpdateInput, JisouHotSearchSnapshotUncheckedUpdateInput>
+    /**
+     * Choose, which JisouHotSearchSnapshot to update.
+     */
+    where: JisouHotSearchSnapshotWhereUniqueInput
+  }
+
+  /**
+   * JisouHotSearchSnapshot updateMany
+   */
+  export type JisouHotSearchSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JisouHotSearchSnapshots.
+     */
+    data: XOR<JisouHotSearchSnapshotUpdateManyMutationInput, JisouHotSearchSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which JisouHotSearchSnapshots to update
+     */
+    where?: JisouHotSearchSnapshotWhereInput
+    /**
+     * Limit how many JisouHotSearchSnapshots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JisouHotSearchSnapshot upsert
+   */
+  export type JisouHotSearchSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * The filter to search for the JisouHotSearchSnapshot to update in case it exists.
+     */
+    where: JisouHotSearchSnapshotWhereUniqueInput
+    /**
+     * In case the JisouHotSearchSnapshot found by the `where` argument doesn't exist, create a new JisouHotSearchSnapshot with this data.
+     */
+    create: XOR<JisouHotSearchSnapshotCreateInput, JisouHotSearchSnapshotUncheckedCreateInput>
+    /**
+     * In case the JisouHotSearchSnapshot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JisouHotSearchSnapshotUpdateInput, JisouHotSearchSnapshotUncheckedUpdateInput>
+  }
+
+  /**
+   * JisouHotSearchSnapshot delete
+   */
+  export type JisouHotSearchSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
+    /**
+     * Filter which JisouHotSearchSnapshot to delete.
+     */
+    where: JisouHotSearchSnapshotWhereUniqueInput
+  }
+
+  /**
+   * JisouHotSearchSnapshot deleteMany
+   */
+  export type JisouHotSearchSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JisouHotSearchSnapshots to delete
+     */
+    where?: JisouHotSearchSnapshotWhereInput
+    /**
+     * Limit how many JisouHotSearchSnapshots to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JisouHotSearchSnapshot without action
+   */
+  export type JisouHotSearchSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JisouHotSearchSnapshot
+     */
+    select?: JisouHotSearchSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JisouHotSearchSnapshot
+     */
+    omit?: JisouHotSearchSnapshotOmit<ExtArgs> | null
   }
 
 
@@ -20607,6 +22761,7 @@ export namespace Prisma {
     homeFeedMode: 'homeFeedMode',
     blockedKeywords: 'blockedKeywords',
     dailySearchLimit: 'dailySearchLimit',
+    globalDailySearchLimit: 'globalDailySearchLimit',
     referralSearchBonus: 'referralSearchBonus',
     updatedAt: 'updatedAt'
   };
@@ -20835,10 +22990,37 @@ export namespace Prisma {
     guestUserId: 'guestUserId',
     resultCount: 'resultCount',
     userAgent: 'userAgent',
+    userHiddenAt: 'userHiddenAt',
     createdAt: 'createdAt'
   };
 
   export type SearchLogScalarFieldEnum = (typeof SearchLogScalarFieldEnum)[keyof typeof SearchLogScalarFieldEnum]
+
+
+  export const GlobalSearchCacheScalarFieldEnum: {
+    id: 'id',
+    keyword: 'keyword',
+    guestUserId: 'guestUserId',
+    channelCount: 'channelCount',
+    payload: 'payload',
+    sourceFetchedAt: 'sourceFetchedAt',
+    userHiddenAt: 'userHiddenAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GlobalSearchCacheScalarFieldEnum = (typeof GlobalSearchCacheScalarFieldEnum)[keyof typeof GlobalSearchCacheScalarFieldEnum]
+
+
+  export const JisouHotSearchSnapshotScalarFieldEnum: {
+    id: 'id',
+    keywordCount: 'keywordCount',
+    items: 'items',
+    sourceFetchedAt: 'sourceFetchedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type JisouHotSearchSnapshotScalarFieldEnum = (typeof JisouHotSearchSnapshotScalarFieldEnum)[keyof typeof JisouHotSearchSnapshotScalarFieldEnum]
 
 
   export const DailySiteStatScalarFieldEnum: {
@@ -20859,6 +23041,13 @@ export namespace Prisma {
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const AdminUserOrderByRelevanceFieldEnum: {
@@ -21071,6 +23260,39 @@ export namespace Prisma {
   export type SearchLogOrderByRelevanceFieldEnum = (typeof SearchLogOrderByRelevanceFieldEnum)[keyof typeof SearchLogOrderByRelevanceFieldEnum]
 
 
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const GlobalSearchCacheOrderByRelevanceFieldEnum: {
+    id: 'id',
+    keyword: 'keyword',
+    guestUserId: 'guestUserId'
+  };
+
+  export type GlobalSearchCacheOrderByRelevanceFieldEnum = (typeof GlobalSearchCacheOrderByRelevanceFieldEnum)[keyof typeof GlobalSearchCacheOrderByRelevanceFieldEnum]
+
+
+  export const JisouHotSearchSnapshotOrderByRelevanceFieldEnum: {
+    id: 'id'
+  };
+
+  export type JisouHotSearchSnapshotOrderByRelevanceFieldEnum = (typeof JisouHotSearchSnapshotOrderByRelevanceFieldEnum)[keyof typeof JisouHotSearchSnapshotOrderByRelevanceFieldEnum]
+
+
   export const DailySiteStatOrderByRelevanceFieldEnum: {
     id: 'id'
   };
@@ -21143,6 +23365,20 @@ export namespace Prisma {
    * Reference to a field of type 'SearchSource'
    */
   export type EnumSearchSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SearchSource'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -21224,6 +23460,7 @@ export namespace Prisma {
     homeFeedMode?: StringFilter<"SiteSettings"> | string
     blockedKeywords?: StringNullableFilter<"SiteSettings"> | string | null
     dailySearchLimit?: IntFilter<"SiteSettings"> | number
+    globalDailySearchLimit?: IntFilter<"SiteSettings"> | number
     referralSearchBonus?: IntFilter<"SiteSettings"> | number
     updatedAt?: DateTimeFilter<"SiteSettings"> | Date | string
   }
@@ -21240,6 +23477,7 @@ export namespace Prisma {
     homeFeedMode?: SortOrder
     blockedKeywords?: SortOrderInput | SortOrder
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
     _relevance?: SiteSettingsOrderByRelevanceInput
@@ -21260,6 +23498,7 @@ export namespace Prisma {
     homeFeedMode?: StringFilter<"SiteSettings"> | string
     blockedKeywords?: StringNullableFilter<"SiteSettings"> | string | null
     dailySearchLimit?: IntFilter<"SiteSettings"> | number
+    globalDailySearchLimit?: IntFilter<"SiteSettings"> | number
     referralSearchBonus?: IntFilter<"SiteSettings"> | number
     updatedAt?: DateTimeFilter<"SiteSettings"> | Date | string
   }, "id">
@@ -21276,6 +23515,7 @@ export namespace Prisma {
     homeFeedMode?: SortOrder
     blockedKeywords?: SortOrderInput | SortOrder
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
     _count?: SiteSettingsCountOrderByAggregateInput
@@ -21300,6 +23540,7 @@ export namespace Prisma {
     homeFeedMode?: StringWithAggregatesFilter<"SiteSettings"> | string
     blockedKeywords?: StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
     dailySearchLimit?: IntWithAggregatesFilter<"SiteSettings"> | number
+    globalDailySearchLimit?: IntWithAggregatesFilter<"SiteSettings"> | number
     referralSearchBonus?: IntWithAggregatesFilter<"SiteSettings"> | number
     updatedAt?: DateTimeWithAggregatesFilter<"SiteSettings"> | Date | string
   }
@@ -21321,6 +23562,7 @@ export namespace Prisma {
     referrer?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
     referrals?: GuestUserListRelationFilter
     searchLogs?: SearchLogListRelationFilter
+    globalSearchCaches?: GlobalSearchCacheListRelationFilter
   }
 
   export type GuestUserOrderByWithRelationInput = {
@@ -21337,6 +23579,7 @@ export namespace Prisma {
     referrer?: GuestUserOrderByWithRelationInput
     referrals?: GuestUserOrderByRelationAggregateInput
     searchLogs?: SearchLogOrderByRelationAggregateInput
+    globalSearchCaches?: GlobalSearchCacheOrderByRelationAggregateInput
     _relevance?: GuestUserOrderByRelevanceInput
   }
 
@@ -21357,6 +23600,7 @@ export namespace Prisma {
     referrer?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
     referrals?: GuestUserListRelationFilter
     searchLogs?: SearchLogListRelationFilter
+    globalSearchCaches?: GlobalSearchCacheListRelationFilter
   }, "id" | "publicId">
 
   export type GuestUserOrderByWithAggregationInput = {
@@ -22422,6 +24666,7 @@ export namespace Prisma {
     guestUserId?: StringNullableFilter<"SearchLog"> | string | null
     resultCount?: IntFilter<"SearchLog"> | number
     userAgent?: StringNullableFilter<"SearchLog"> | string | null
+    userHiddenAt?: DateTimeNullableFilter<"SearchLog"> | Date | string | null
     createdAt?: DateTimeFilter<"SearchLog"> | Date | string
     socialUser?: XOR<SocialUserNullableScalarRelationFilter, SocialUserWhereInput> | null
     guestUser?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
@@ -22437,6 +24682,7 @@ export namespace Prisma {
     guestUserId?: SortOrderInput | SortOrder
     resultCount?: SortOrder
     userAgent?: SortOrderInput | SortOrder
+    userHiddenAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     socialUser?: SocialUserOrderByWithRelationInput
     guestUser?: GuestUserOrderByWithRelationInput
@@ -22456,6 +24702,7 @@ export namespace Prisma {
     guestUserId?: StringNullableFilter<"SearchLog"> | string | null
     resultCount?: IntFilter<"SearchLog"> | number
     userAgent?: StringNullableFilter<"SearchLog"> | string | null
+    userHiddenAt?: DateTimeNullableFilter<"SearchLog"> | Date | string | null
     createdAt?: DateTimeFilter<"SearchLog"> | Date | string
     socialUser?: XOR<SocialUserNullableScalarRelationFilter, SocialUserWhereInput> | null
     guestUser?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
@@ -22471,6 +24718,7 @@ export namespace Prisma {
     guestUserId?: SortOrderInput | SortOrder
     resultCount?: SortOrder
     userAgent?: SortOrderInput | SortOrder
+    userHiddenAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: SearchLogCountOrderByAggregateInput
     _avg?: SearchLogAvgOrderByAggregateInput
@@ -22492,7 +24740,142 @@ export namespace Prisma {
     guestUserId?: StringNullableWithAggregatesFilter<"SearchLog"> | string | null
     resultCount?: IntWithAggregatesFilter<"SearchLog"> | number
     userAgent?: StringNullableWithAggregatesFilter<"SearchLog"> | string | null
+    userHiddenAt?: DateTimeNullableWithAggregatesFilter<"SearchLog"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SearchLog"> | Date | string
+  }
+
+  export type GlobalSearchCacheWhereInput = {
+    AND?: GlobalSearchCacheWhereInput | GlobalSearchCacheWhereInput[]
+    OR?: GlobalSearchCacheWhereInput[]
+    NOT?: GlobalSearchCacheWhereInput | GlobalSearchCacheWhereInput[]
+    id?: StringFilter<"GlobalSearchCache"> | string
+    keyword?: StringFilter<"GlobalSearchCache"> | string
+    guestUserId?: StringFilter<"GlobalSearchCache"> | string
+    channelCount?: IntFilter<"GlobalSearchCache"> | number
+    payload?: JsonFilter<"GlobalSearchCache">
+    sourceFetchedAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
+    userHiddenAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
+    createdAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+    updatedAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type GlobalSearchCacheOrderByWithRelationInput = {
+    id?: SortOrder
+    keyword?: SortOrder
+    guestUserId?: SortOrder
+    channelCount?: SortOrder
+    payload?: SortOrder
+    sourceFetchedAt?: SortOrderInput | SortOrder
+    userHiddenAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: GlobalSearchCacheOrderByRelevanceInput
+  }
+
+  export type GlobalSearchCacheWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    guestUserId_keyword?: GlobalSearchCacheGuestUserIdKeywordCompoundUniqueInput
+    AND?: GlobalSearchCacheWhereInput | GlobalSearchCacheWhereInput[]
+    OR?: GlobalSearchCacheWhereInput[]
+    NOT?: GlobalSearchCacheWhereInput | GlobalSearchCacheWhereInput[]
+    keyword?: StringFilter<"GlobalSearchCache"> | string
+    guestUserId?: StringFilter<"GlobalSearchCache"> | string
+    channelCount?: IntFilter<"GlobalSearchCache"> | number
+    payload?: JsonFilter<"GlobalSearchCache">
+    sourceFetchedAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
+    userHiddenAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
+    createdAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+    updatedAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id" | "guestUserId_keyword">
+
+  export type GlobalSearchCacheOrderByWithAggregationInput = {
+    id?: SortOrder
+    keyword?: SortOrder
+    guestUserId?: SortOrder
+    channelCount?: SortOrder
+    payload?: SortOrder
+    sourceFetchedAt?: SortOrderInput | SortOrder
+    userHiddenAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GlobalSearchCacheCountOrderByAggregateInput
+    _avg?: GlobalSearchCacheAvgOrderByAggregateInput
+    _max?: GlobalSearchCacheMaxOrderByAggregateInput
+    _min?: GlobalSearchCacheMinOrderByAggregateInput
+    _sum?: GlobalSearchCacheSumOrderByAggregateInput
+  }
+
+  export type GlobalSearchCacheScalarWhereWithAggregatesInput = {
+    AND?: GlobalSearchCacheScalarWhereWithAggregatesInput | GlobalSearchCacheScalarWhereWithAggregatesInput[]
+    OR?: GlobalSearchCacheScalarWhereWithAggregatesInput[]
+    NOT?: GlobalSearchCacheScalarWhereWithAggregatesInput | GlobalSearchCacheScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GlobalSearchCache"> | string
+    keyword?: StringWithAggregatesFilter<"GlobalSearchCache"> | string
+    guestUserId?: StringWithAggregatesFilter<"GlobalSearchCache"> | string
+    channelCount?: IntWithAggregatesFilter<"GlobalSearchCache"> | number
+    payload?: JsonWithAggregatesFilter<"GlobalSearchCache">
+    sourceFetchedAt?: DateTimeNullableWithAggregatesFilter<"GlobalSearchCache"> | Date | string | null
+    userHiddenAt?: DateTimeNullableWithAggregatesFilter<"GlobalSearchCache"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GlobalSearchCache"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GlobalSearchCache"> | Date | string
+  }
+
+  export type JisouHotSearchSnapshotWhereInput = {
+    AND?: JisouHotSearchSnapshotWhereInput | JisouHotSearchSnapshotWhereInput[]
+    OR?: JisouHotSearchSnapshotWhereInput[]
+    NOT?: JisouHotSearchSnapshotWhereInput | JisouHotSearchSnapshotWhereInput[]
+    id?: StringFilter<"JisouHotSearchSnapshot"> | string
+    keywordCount?: IntFilter<"JisouHotSearchSnapshot"> | number
+    items?: JsonFilter<"JisouHotSearchSnapshot">
+    sourceFetchedAt?: DateTimeNullableFilter<"JisouHotSearchSnapshot"> | Date | string | null
+    createdAt?: DateTimeFilter<"JisouHotSearchSnapshot"> | Date | string
+  }
+
+  export type JisouHotSearchSnapshotOrderByWithRelationInput = {
+    id?: SortOrder
+    keywordCount?: SortOrder
+    items?: SortOrder
+    sourceFetchedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _relevance?: JisouHotSearchSnapshotOrderByRelevanceInput
+  }
+
+  export type JisouHotSearchSnapshotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: JisouHotSearchSnapshotWhereInput | JisouHotSearchSnapshotWhereInput[]
+    OR?: JisouHotSearchSnapshotWhereInput[]
+    NOT?: JisouHotSearchSnapshotWhereInput | JisouHotSearchSnapshotWhereInput[]
+    keywordCount?: IntFilter<"JisouHotSearchSnapshot"> | number
+    items?: JsonFilter<"JisouHotSearchSnapshot">
+    sourceFetchedAt?: DateTimeNullableFilter<"JisouHotSearchSnapshot"> | Date | string | null
+    createdAt?: DateTimeFilter<"JisouHotSearchSnapshot"> | Date | string
+  }, "id">
+
+  export type JisouHotSearchSnapshotOrderByWithAggregationInput = {
+    id?: SortOrder
+    keywordCount?: SortOrder
+    items?: SortOrder
+    sourceFetchedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: JisouHotSearchSnapshotCountOrderByAggregateInput
+    _avg?: JisouHotSearchSnapshotAvgOrderByAggregateInput
+    _max?: JisouHotSearchSnapshotMaxOrderByAggregateInput
+    _min?: JisouHotSearchSnapshotMinOrderByAggregateInput
+    _sum?: JisouHotSearchSnapshotSumOrderByAggregateInput
+  }
+
+  export type JisouHotSearchSnapshotScalarWhereWithAggregatesInput = {
+    AND?: JisouHotSearchSnapshotScalarWhereWithAggregatesInput | JisouHotSearchSnapshotScalarWhereWithAggregatesInput[]
+    OR?: JisouHotSearchSnapshotScalarWhereWithAggregatesInput[]
+    NOT?: JisouHotSearchSnapshotScalarWhereWithAggregatesInput | JisouHotSearchSnapshotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JisouHotSearchSnapshot"> | string
+    keywordCount?: IntWithAggregatesFilter<"JisouHotSearchSnapshot"> | number
+    items?: JsonWithAggregatesFilter<"JisouHotSearchSnapshot">
+    sourceFetchedAt?: DateTimeNullableWithAggregatesFilter<"JisouHotSearchSnapshot"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"JisouHotSearchSnapshot"> | Date | string
   }
 
   export type DailySiteStatWhereInput = {
@@ -22623,6 +25006,7 @@ export namespace Prisma {
     homeFeedMode?: string
     blockedKeywords?: string | null
     dailySearchLimit?: number
+    globalDailySearchLimit?: number
     referralSearchBonus?: number
     updatedAt?: Date | string
   }
@@ -22639,6 +25023,7 @@ export namespace Prisma {
     homeFeedMode?: string
     blockedKeywords?: string | null
     dailySearchLimit?: number
+    globalDailySearchLimit?: number
     referralSearchBonus?: number
     updatedAt?: Date | string
   }
@@ -22655,6 +25040,7 @@ export namespace Prisma {
     homeFeedMode?: StringFieldUpdateOperationsInput | string
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
+    globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22671,6 +25057,7 @@ export namespace Prisma {
     homeFeedMode?: StringFieldUpdateOperationsInput | string
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
+    globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22687,6 +25074,7 @@ export namespace Prisma {
     homeFeedMode?: string
     blockedKeywords?: string | null
     dailySearchLimit?: number
+    globalDailySearchLimit?: number
     referralSearchBonus?: number
     updatedAt?: Date | string
   }
@@ -22703,6 +25091,7 @@ export namespace Prisma {
     homeFeedMode?: StringFieldUpdateOperationsInput | string
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
+    globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22719,6 +25108,7 @@ export namespace Prisma {
     homeFeedMode?: StringFieldUpdateOperationsInput | string
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
+    globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22736,6 +25126,7 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateInput = {
@@ -22751,6 +25142,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUpdateInput = {
@@ -22766,6 +25158,7 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateInput = {
@@ -22781,6 +25174,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateManyInput = {
@@ -23950,6 +26344,7 @@ export namespace Prisma {
     ip: string
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
     socialUser?: SocialUserCreateNestedOneWithoutSearchLogsInput
     guestUser?: GuestUserCreateNestedOneWithoutSearchLogsInput
@@ -23965,6 +26360,7 @@ export namespace Prisma {
     guestUserId?: string | null
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -23976,6 +26372,7 @@ export namespace Prisma {
     ip?: StringFieldUpdateOperationsInput | string
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     socialUser?: SocialUserUpdateOneWithoutSearchLogsNestedInput
     guestUser?: GuestUserUpdateOneWithoutSearchLogsNestedInput
@@ -23991,6 +26388,7 @@ export namespace Prisma {
     guestUserId?: NullableStringFieldUpdateOperationsInput | string | null
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -24004,6 +26402,7 @@ export namespace Prisma {
     guestUserId?: string | null
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -24015,6 +26414,7 @@ export namespace Prisma {
     ip?: StringFieldUpdateOperationsInput | string
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -24028,6 +26428,146 @@ export namespace Prisma {
     guestUserId?: NullableStringFieldUpdateOperationsInput | string | null
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalSearchCacheCreateInput = {
+    id?: string
+    keyword: string
+    channelCount?: number
+    payload: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutGlobalSearchCachesInput
+  }
+
+  export type GlobalSearchCacheUncheckedCreateInput = {
+    id?: string
+    keyword: string
+    guestUserId: string
+    channelCount?: number
+    payload: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalSearchCacheUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutGlobalSearchCachesNestedInput
+  }
+
+  export type GlobalSearchCacheUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalSearchCacheCreateManyInput = {
+    id?: string
+    keyword: string
+    guestUserId: string
+    channelCount?: number
+    payload: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalSearchCacheUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalSearchCacheUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JisouHotSearchSnapshotCreateInput = {
+    id?: string
+    keywordCount?: number
+    items: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type JisouHotSearchSnapshotUncheckedCreateInput = {
+    id?: string
+    keywordCount?: number
+    items: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type JisouHotSearchSnapshotUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keywordCount?: IntFieldUpdateOperationsInput | number
+    items?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JisouHotSearchSnapshotUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keywordCount?: IntFieldUpdateOperationsInput | number
+    items?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JisouHotSearchSnapshotCreateManyInput = {
+    id?: string
+    keywordCount?: number
+    items: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type JisouHotSearchSnapshotUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keywordCount?: IntFieldUpdateOperationsInput | number
+    items?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JisouHotSearchSnapshotUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keywordCount?: IntFieldUpdateOperationsInput | number
+    items?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -24236,12 +26776,14 @@ export namespace Prisma {
     homeFeedMode?: SortOrder
     blockedKeywords?: SortOrder
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type SiteSettingsAvgOrderByAggregateInput = {
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
   }
 
@@ -24257,6 +26799,7 @@ export namespace Prisma {
     homeFeedMode?: SortOrder
     blockedKeywords?: SortOrder
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24273,12 +26816,14 @@ export namespace Prisma {
     homeFeedMode?: SortOrder
     blockedKeywords?: SortOrder
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type SiteSettingsSumOrderByAggregateInput = {
     dailySearchLimit?: SortOrder
+    globalDailySearchLimit?: SortOrder
     referralSearchBonus?: SortOrder
   }
 
@@ -24352,11 +26897,21 @@ export namespace Prisma {
     none?: SearchLogWhereInput
   }
 
+  export type GlobalSearchCacheListRelationFilter = {
+    every?: GlobalSearchCacheWhereInput
+    some?: GlobalSearchCacheWhereInput
+    none?: GlobalSearchCacheWhereInput
+  }
+
   export type GuestUserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type SearchLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GlobalSearchCacheOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -25254,6 +27809,7 @@ export namespace Prisma {
     guestUserId?: SortOrder
     resultCount?: SortOrder
     userAgent?: SortOrder
+    userHiddenAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -25271,6 +27827,7 @@ export namespace Prisma {
     guestUserId?: SortOrder
     resultCount?: SortOrder
     userAgent?: SortOrder
+    userHiddenAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -25284,6 +27841,7 @@ export namespace Prisma {
     guestUserId?: SortOrder
     resultCount?: SortOrder
     userAgent?: SortOrder
+    userHiddenAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -25299,6 +27857,149 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumSearchSourceFilter<$PrismaModel>
     _max?: NestedEnumSearchSourceFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type GuestUserScalarRelationFilter = {
+    is?: GuestUserWhereInput
+    isNot?: GuestUserWhereInput
+  }
+
+  export type GlobalSearchCacheOrderByRelevanceInput = {
+    fields: GlobalSearchCacheOrderByRelevanceFieldEnum | GlobalSearchCacheOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type GlobalSearchCacheGuestUserIdKeywordCompoundUniqueInput = {
+    guestUserId: string
+    keyword: string
+  }
+
+  export type GlobalSearchCacheCountOrderByAggregateInput = {
+    id?: SortOrder
+    keyword?: SortOrder
+    guestUserId?: SortOrder
+    channelCount?: SortOrder
+    payload?: SortOrder
+    sourceFetchedAt?: SortOrder
+    userHiddenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GlobalSearchCacheAvgOrderByAggregateInput = {
+    channelCount?: SortOrder
+  }
+
+  export type GlobalSearchCacheMaxOrderByAggregateInput = {
+    id?: SortOrder
+    keyword?: SortOrder
+    guestUserId?: SortOrder
+    channelCount?: SortOrder
+    sourceFetchedAt?: SortOrder
+    userHiddenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GlobalSearchCacheMinOrderByAggregateInput = {
+    id?: SortOrder
+    keyword?: SortOrder
+    guestUserId?: SortOrder
+    channelCount?: SortOrder
+    sourceFetchedAt?: SortOrder
+    userHiddenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GlobalSearchCacheSumOrderByAggregateInput = {
+    channelCount?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type JisouHotSearchSnapshotOrderByRelevanceInput = {
+    fields: JisouHotSearchSnapshotOrderByRelevanceFieldEnum | JisouHotSearchSnapshotOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type JisouHotSearchSnapshotCountOrderByAggregateInput = {
+    id?: SortOrder
+    keywordCount?: SortOrder
+    items?: SortOrder
+    sourceFetchedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JisouHotSearchSnapshotAvgOrderByAggregateInput = {
+    keywordCount?: SortOrder
+  }
+
+  export type JisouHotSearchSnapshotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    keywordCount?: SortOrder
+    sourceFetchedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JisouHotSearchSnapshotMinOrderByAggregateInput = {
+    id?: SortOrder
+    keywordCount?: SortOrder
+    sourceFetchedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JisouHotSearchSnapshotSumOrderByAggregateInput = {
+    keywordCount?: SortOrder
   }
 
   export type DailySiteStatOrderByRelevanceInput = {
@@ -25390,6 +28091,13 @@ export namespace Prisma {
     connect?: SearchLogWhereUniqueInput | SearchLogWhereUniqueInput[]
   }
 
+  export type GlobalSearchCacheCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<GlobalSearchCacheCreateWithoutGuestUserInput, GlobalSearchCacheUncheckedCreateWithoutGuestUserInput> | GlobalSearchCacheCreateWithoutGuestUserInput[] | GlobalSearchCacheUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GlobalSearchCacheCreateOrConnectWithoutGuestUserInput | GlobalSearchCacheCreateOrConnectWithoutGuestUserInput[]
+    createMany?: GlobalSearchCacheCreateManyGuestUserInputEnvelope
+    connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+  }
+
   export type GuestUserUncheckedCreateNestedManyWithoutReferrerInput = {
     create?: XOR<GuestUserCreateWithoutReferrerInput, GuestUserUncheckedCreateWithoutReferrerInput> | GuestUserCreateWithoutReferrerInput[] | GuestUserUncheckedCreateWithoutReferrerInput[]
     connectOrCreate?: GuestUserCreateOrConnectWithoutReferrerInput | GuestUserCreateOrConnectWithoutReferrerInput[]
@@ -25402,6 +28110,13 @@ export namespace Prisma {
     connectOrCreate?: SearchLogCreateOrConnectWithoutGuestUserInput | SearchLogCreateOrConnectWithoutGuestUserInput[]
     createMany?: SearchLogCreateManyGuestUserInputEnvelope
     connect?: SearchLogWhereUniqueInput | SearchLogWhereUniqueInput[]
+  }
+
+  export type GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<GlobalSearchCacheCreateWithoutGuestUserInput, GlobalSearchCacheUncheckedCreateWithoutGuestUserInput> | GlobalSearchCacheCreateWithoutGuestUserInput[] | GlobalSearchCacheUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GlobalSearchCacheCreateOrConnectWithoutGuestUserInput | GlobalSearchCacheCreateOrConnectWithoutGuestUserInput[]
+    createMany?: GlobalSearchCacheCreateManyGuestUserInputEnvelope
+    connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -25446,6 +28161,20 @@ export namespace Prisma {
     deleteMany?: SearchLogScalarWhereInput | SearchLogScalarWhereInput[]
   }
 
+  export type GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<GlobalSearchCacheCreateWithoutGuestUserInput, GlobalSearchCacheUncheckedCreateWithoutGuestUserInput> | GlobalSearchCacheCreateWithoutGuestUserInput[] | GlobalSearchCacheUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GlobalSearchCacheCreateOrConnectWithoutGuestUserInput | GlobalSearchCacheCreateOrConnectWithoutGuestUserInput[]
+    upsert?: GlobalSearchCacheUpsertWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: GlobalSearchCacheCreateManyGuestUserInputEnvelope
+    set?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    disconnect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    delete?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    update?: GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput | GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
+  }
+
   export type GuestUserUncheckedUpdateManyWithoutReferrerNestedInput = {
     create?: XOR<GuestUserCreateWithoutReferrerInput, GuestUserUncheckedCreateWithoutReferrerInput> | GuestUserCreateWithoutReferrerInput[] | GuestUserUncheckedCreateWithoutReferrerInput[]
     connectOrCreate?: GuestUserCreateOrConnectWithoutReferrerInput | GuestUserCreateOrConnectWithoutReferrerInput[]
@@ -25472,6 +28201,20 @@ export namespace Prisma {
     update?: SearchLogUpdateWithWhereUniqueWithoutGuestUserInput | SearchLogUpdateWithWhereUniqueWithoutGuestUserInput[]
     updateMany?: SearchLogUpdateManyWithWhereWithoutGuestUserInput | SearchLogUpdateManyWithWhereWithoutGuestUserInput[]
     deleteMany?: SearchLogScalarWhereInput | SearchLogScalarWhereInput[]
+  }
+
+  export type GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<GlobalSearchCacheCreateWithoutGuestUserInput, GlobalSearchCacheUncheckedCreateWithoutGuestUserInput> | GlobalSearchCacheCreateWithoutGuestUserInput[] | GlobalSearchCacheUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GlobalSearchCacheCreateOrConnectWithoutGuestUserInput | GlobalSearchCacheCreateOrConnectWithoutGuestUserInput[]
+    upsert?: GlobalSearchCacheUpsertWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: GlobalSearchCacheCreateManyGuestUserInputEnvelope
+    set?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    disconnect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    delete?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+    update?: GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput | GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
   }
 
   export type PostCreateNestedManyWithoutCategoryInput = {
@@ -26030,6 +28773,20 @@ export namespace Prisma {
     update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutSearchLogsInput, GuestUserUpdateWithoutSearchLogsInput>, GuestUserUncheckedUpdateWithoutSearchLogsInput>
   }
 
+  export type GuestUserCreateNestedOneWithoutGlobalSearchCachesInput = {
+    create?: XOR<GuestUserCreateWithoutGlobalSearchCachesInput, GuestUserUncheckedCreateWithoutGlobalSearchCachesInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutGlobalSearchCachesInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutGlobalSearchCachesNestedInput = {
+    create?: XOR<GuestUserCreateWithoutGlobalSearchCachesInput, GuestUserUncheckedCreateWithoutGlobalSearchCachesInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutGlobalSearchCachesInput
+    upsert?: GuestUserUpsertWithoutGlobalSearchCachesInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutGlobalSearchCachesInput, GuestUserUpdateWithoutGlobalSearchCachesInput>, GuestUserUncheckedUpdateWithoutGlobalSearchCachesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -26319,6 +29076,29 @@ export namespace Prisma {
     _min?: NestedEnumSearchSourceFilter<$PrismaModel>
     _max?: NestedEnumSearchSourceFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type GuestUserCreateWithoutReferralsInput = {
     id?: string
@@ -26332,6 +29112,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutReferralsInput = {
@@ -26346,6 +29127,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutReferralsInput = {
@@ -26365,6 +29147,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutReferrerInput = {
@@ -26379,6 +29162,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutReferrerInput = {
@@ -26399,6 +29183,7 @@ export namespace Prisma {
     ip: string
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
     socialUser?: SocialUserCreateNestedOneWithoutSearchLogsInput
   }
@@ -26412,6 +29197,7 @@ export namespace Prisma {
     socialUserId?: string | null
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -26422,6 +29208,38 @@ export namespace Prisma {
 
   export type SearchLogCreateManyGuestUserInputEnvelope = {
     data: SearchLogCreateManyGuestUserInput | SearchLogCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GlobalSearchCacheCreateWithoutGuestUserInput = {
+    id?: string
+    keyword: string
+    channelCount?: number
+    payload: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalSearchCacheUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    keyword: string
+    channelCount?: number
+    payload: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalSearchCacheCreateOrConnectWithoutGuestUserInput = {
+    where: GlobalSearchCacheWhereUniqueInput
+    create: XOR<GlobalSearchCacheCreateWithoutGuestUserInput, GlobalSearchCacheUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type GlobalSearchCacheCreateManyGuestUserInputEnvelope = {
+    data: GlobalSearchCacheCreateManyGuestUserInput | GlobalSearchCacheCreateManyGuestUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -26448,6 +29266,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutReferralsInput = {
@@ -26462,6 +29281,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUpsertWithWhereUniqueWithoutReferrerInput = {
@@ -26525,7 +29345,39 @@ export namespace Prisma {
     guestUserId?: StringNullableFilter<"SearchLog"> | string | null
     resultCount?: IntFilter<"SearchLog"> | number
     userAgent?: StringNullableFilter<"SearchLog"> | string | null
+    userHiddenAt?: DateTimeNullableFilter<"SearchLog"> | Date | string | null
     createdAt?: DateTimeFilter<"SearchLog"> | Date | string
+  }
+
+  export type GlobalSearchCacheUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: GlobalSearchCacheWhereUniqueInput
+    update: XOR<GlobalSearchCacheUpdateWithoutGuestUserInput, GlobalSearchCacheUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<GlobalSearchCacheCreateWithoutGuestUserInput, GlobalSearchCacheUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: GlobalSearchCacheWhereUniqueInput
+    data: XOR<GlobalSearchCacheUpdateWithoutGuestUserInput, GlobalSearchCacheUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput = {
+    where: GlobalSearchCacheScalarWhereInput
+    data: XOR<GlobalSearchCacheUpdateManyMutationInput, GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type GlobalSearchCacheScalarWhereInput = {
+    AND?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
+    OR?: GlobalSearchCacheScalarWhereInput[]
+    NOT?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
+    id?: StringFilter<"GlobalSearchCache"> | string
+    keyword?: StringFilter<"GlobalSearchCache"> | string
+    guestUserId?: StringFilter<"GlobalSearchCache"> | string
+    channelCount?: IntFilter<"GlobalSearchCache"> | number
+    payload?: JsonFilter<"GlobalSearchCache">
+    sourceFetchedAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
+    userHiddenAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
+    createdAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+    updatedAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
   }
 
   export type PostCreateWithoutCategoryInput = {
@@ -27089,6 +29941,7 @@ export namespace Prisma {
     ip: string
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
     guestUser?: GuestUserCreateNestedOneWithoutSearchLogsInput
   }
@@ -27102,6 +29955,7 @@ export namespace Prisma {
     guestUserId?: string | null
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -27689,6 +30543,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSearchLogsInput = {
@@ -27703,6 +30558,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSearchLogsInput = {
@@ -27774,6 +30630,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSearchLogsInput = {
@@ -27788,6 +30645,83 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserCreateWithoutGlobalSearchCachesInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutGlobalSearchCachesInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutGlobalSearchCachesInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutGlobalSearchCachesInput, GuestUserUncheckedCreateWithoutGlobalSearchCachesInput>
+  }
+
+  export type GuestUserUpsertWithoutGlobalSearchCachesInput = {
+    update: XOR<GuestUserUpdateWithoutGlobalSearchCachesInput, GuestUserUncheckedUpdateWithoutGlobalSearchCachesInput>
+    create: XOR<GuestUserCreateWithoutGlobalSearchCachesInput, GuestUserUncheckedCreateWithoutGlobalSearchCachesInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutGlobalSearchCachesInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutGlobalSearchCachesInput, GuestUserUncheckedUpdateWithoutGlobalSearchCachesInput>
+  }
+
+  export type GuestUserUpdateWithoutGlobalSearchCachesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutGlobalSearchCachesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateManyReferrerInput = {
@@ -27811,7 +30745,19 @@ export namespace Prisma {
     socialUserId?: string | null
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
+  }
+
+  export type GlobalSearchCacheCreateManyGuestUserInput = {
+    id?: string
+    keyword: string
+    channelCount?: number
+    payload: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type GuestUserUpdateWithoutReferrerInput = {
@@ -27826,6 +30772,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutReferrerInput = {
@@ -27840,6 +30787,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateManyWithoutReferrerInput = {
@@ -27862,6 +30810,7 @@ export namespace Prisma {
     ip?: StringFieldUpdateOperationsInput | string
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     socialUser?: SocialUserUpdateOneWithoutSearchLogsNestedInput
   }
@@ -27875,6 +30824,7 @@ export namespace Prisma {
     socialUserId?: NullableStringFieldUpdateOperationsInput | string | null
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27887,7 +30837,41 @@ export namespace Prisma {
     socialUserId?: NullableStringFieldUpdateOperationsInput | string | null
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalSearchCacheUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalSearchCacheUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    channelCount?: IntFieldUpdateOperationsInput | number
+    payload?: JsonNullValueInput | InputJsonValue
+    sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PostCreateManyCategoryInput = {
@@ -28122,6 +31106,7 @@ export namespace Prisma {
     guestUserId?: string | null
     resultCount?: number
     userAgent?: string | null
+    userHiddenAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -28192,6 +31177,7 @@ export namespace Prisma {
     ip?: StringFieldUpdateOperationsInput | string
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     guestUser?: GuestUserUpdateOneWithoutSearchLogsNestedInput
   }
@@ -28205,6 +31191,7 @@ export namespace Prisma {
     guestUserId?: NullableStringFieldUpdateOperationsInput | string | null
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -28217,6 +31204,7 @@ export namespace Prisma {
     guestUserId?: NullableStringFieldUpdateOperationsInput | string | null
     resultCount?: IntFieldUpdateOperationsInput | number
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

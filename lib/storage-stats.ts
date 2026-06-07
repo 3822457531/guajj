@@ -4,58 +4,19 @@ import { readdir, stat } from "fs/promises";
 import path from "path";
 import { createR2Client, isR2Ready } from "@/lib/media-storage";
 import { getSiteSettings } from "@/lib/site-settings";
+import type { MediaKind, StorageObjectRow, StorageScanResult, StorageStats, StorageMonitorReport } from "@/lib/storage-stats-shared";
+
+export type {
+  MediaKind,
+  StorageObjectRow,
+  StorageStats,
+  StorageScanResult,
+  StorageMonitorReport
+} from "@/lib/storage-stats-shared";
+export { formatBytes } from "@/lib/storage-stats-shared";
 
 const IMAGE_EXT = new Set(["jpg", "jpeg", "png", "gif", "webp", "avif", "bmp", "svg", "heic", "heif"]);
 const VIDEO_EXT = new Set(["mp4", "webm", "mov", "mkv", "avi", "m4v", "mpeg", "mpg", "3gp"]);
-
-export type MediaKind = "image" | "video" | "other";
-
-export type StorageObjectRow = {
-  key: string;
-  size: number;
-  lastModified?: Date;
-  kind: MediaKind;
-};
-
-export type StorageStats = {
-  imageCount: number;
-  videoCount: number;
-  otherCount: number;
-  totalCount: number;
-  totalBytes: number;
-  prefixBreakdown: { prefix: string; count: number; bytes: number }[];
-  largestFiles: StorageObjectRow[];
-};
-
-export type StorageScanResult = {
-  ok: boolean;
-  error?: string;
-  stats: StorageStats | null;
-  scannedAt: Date;
-};
-
-export type StorageMonitorReport = {
-  activeStorage: "r2" | "local";
-  r2Ready: boolean;
-  bucketName: string | null;
-  publicBaseUrl: string | null;
-  r2: StorageScanResult | null;
-  local: StorageScanResult;
-  scannedAt: Date;
-};
-
-export function formatBytes(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
-  const units = ["B", "KB", "MB", "GB", "TB"] as const;
-  let n = bytes;
-  let i = 0;
-  while (n >= 1024 && i < units.length - 1) {
-    n /= 1024;
-    i++;
-  }
-  const digits = i === 0 ? 0 : n >= 100 ? 0 : n >= 10 ? 1 : 2;
-  return `${n.toFixed(digits)} ${units[i]}`;
-}
 
 function extOf(keyOrPath: string): string {
   const base = keyOrPath.split("?")[0] ?? keyOrPath;
@@ -148,29 +109,62 @@ export async function scanR2Bucket(prefix = "uploads/"): Promise<StorageScanResu
   }
 
   try {
-    const rows: StorageObjectRow[] = [];
-    let continuationToken: string | undefined;
-
-    do {
-      const out = await client.send(
-        new ListObjectsV2Command({
-          Bucket: bucket,
-          Prefix: prefix || undefined,
-          ContinuationToken: continuationToken
-        })
-      );
-      for (const obj of out.Contents ?? []) {
-        const row = objectRow(obj);
-        if (row) rows.push(row);
-      }
-      continuationToken = out.IsTruncated ? out.NextContinuationToken : undefined;
-    } while (continuationToken);
-
+    const rows = await listR2ObjectRows(client, bucket, prefix);
     return { ok: true, stats: aggregateObjects(rows), scannedAt };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     return { ok: false, error: message, stats: null, scannedAt };
   }
+}
+
+async function listR2ObjectRows(
+  client: ReturnType<typeof createR2Client>,
+  bucket: string,
+  prefix: string,
+  limit?: number
+): Promise<StorageObjectRow[]> {
+  if (!client) return [];
+  const rows: StorageObjectRow[] = [];
+  let continuationToken: string | undefined;
+
+  do {
+    const out = await client.send(
+      new ListObjectsV2Command({
+        Bucket: bucket,
+        Prefix: prefix || undefined,
+        ContinuationToken: continuationToken
+      })
+    );
+    for (const obj of out.Contents ?? []) {
+      const row = objectRow(obj);
+      if (row) rows.push(row);
+      if (limit && rows.length >= limit) return rows.slice(0, limit);
+    }
+    continuationToken = out.IsTruncated ? out.NextContinuationToken : undefined;
+  } while (continuationToken && (!limit || rows.length < limit));
+
+  return limit ? rows.slice(0, limit) : rows;
+}
+
+/** 按前缀列出 R2 或本地文件（后台删除用） */
+export async function listStorageObjects(prefix = "uploads/", limit = 200): Promise<StorageObjectRow[]> {
+  const settings = await getSiteSettings();
+  const safePrefix = prefix.startsWith("uploads/") ? prefix : `uploads/${prefix.replace(/^\/+/, "")}`;
+
+  if (isR2Ready(settings)) {
+    const client = createR2Client(settings);
+    const bucket = settings.r2BucketName!.trim();
+    if (client && bucket) {
+      try {
+        return await listR2ObjectRows(client, bucket, safePrefix, limit);
+      } catch {
+        /* fall through to local */
+      }
+    }
+  }
+
+  const allLocal = await walkLocalUploads(path.join(process.cwd(), "public", "uploads"));
+  return allLocal.filter((row) => row.key.startsWith(safePrefix)).slice(0, limit);
 }
 
 async function walkLocalUploads(dir: string, baseKey = "uploads"): Promise<StorageObjectRow[]> {
