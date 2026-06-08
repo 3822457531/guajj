@@ -96,3 +96,23 @@ export function filterIndexedMessagesByBlocked<T extends Pick<TgIndexedMessage, 
   if (keywords.length === 0) return items;
   return items.filter((item) => !indexedMessageIsBlocked(item, keywords));
 }
+
+/** 暗网频道消息预览：正文/摘要命中屏蔽词 */
+export function channelMessageIsBlocked(
+  msg: { textPreview?: string | null; fullText?: string | null; caption?: string | null },
+  keywords: string[]
+): boolean {
+  if (keywords.length === 0) return false;
+  const haystack = `${msg.textPreview ?? ""}\n${msg.fullText ?? ""}\n${msg.caption ?? ""}`;
+  if (!haystack.trim()) return false;
+  return keywords.some((kw) => haystackIncludesKeyword(haystack, kw));
+}
+
+export function markChannelMessagesSensitive<
+  T extends { textPreview?: string | null; fullText?: string | null; caption?: string | null }
+>(messages: T[], keywords: string[]): Array<T & { sensitiveBlocked?: boolean }> {
+  if (keywords.length === 0) return messages;
+  return messages.map((msg) =>
+    channelMessageIsBlocked(msg, keywords) ? { ...msg, sensitiveBlocked: true } : msg
+  );
+}

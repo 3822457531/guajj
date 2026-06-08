@@ -67,12 +67,28 @@ function mapGramError(err) {
 
 function thumbPrefetchConcurrency() {
   const maxCap = Math.min(16, Math.max(4, Number(process.env.TG_SEARCH_THUMB_MAX) || 12));
-  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 8;
+  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 4;
   return Math.min(maxCap, Math.max(1, Math.round(n)));
 }
 
+function channelThumbPrefetchMax() {
+  return Math.min(24, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_THUMB_MAX) || 0));
+}
+
 function videoPrefetchMax() {
-  return Math.min(12, Math.max(0, Number(process.env.TG_SEARCH_VIDEO_PREFETCH_MAX) || 6));
+  return Math.min(12, Math.max(0, Number(process.env.TG_SEARCH_VIDEO_PREFETCH_MAX) || 0));
+}
+
+function videoPrefetchOnChannelLoad() {
+  return String(process.env.TG_SEARCH_VIDEO_PREFETCH_ON_CHANNEL || "0").trim() === "1";
+}
+
+function throwIfAborted(signal) {
+  if (signal?.aborted) {
+    const err = new Error("请求已取消");
+    err.code = "REQUEST_ABORTED";
+    throw err;
+  }
 }
 
 function videoPrefetchConcurrency() {
@@ -85,8 +101,9 @@ function videoPrefetchConcurrency() {
  * @param {string} username
  * @param {object[]} displayList
  * @param {Map<number, import('telegram').Api.Message>} msgById
+ * @param {{ signal?: AbortSignal }} [opts]
  */
-async function enrichDisplayListWithVideoFull(client, username, displayList, msgById) {
+async function enrichDisplayListWithVideoFull(client, username, displayList, msgById, opts = {}) {
   const max = videoPrefetchMax();
   if (max <= 0) return displayList;
 
@@ -109,17 +126,26 @@ async function enrichDisplayListWithVideoFull(client, username, displayList, msg
     `[tg-search:collector] video prefetch jobs=${jobs.length} concurrency=${concurrency}`
   );
 
-  await mapPool(jobs, concurrency, async ({ mi, msg }) => {
-    try {
-      const result = await cacheMessageMediaWithClient(client, username, msg, { thumb: false });
-      mi.fullUrl = result.url;
-      mi.status = "ready";
-    } catch (err) {
-      console.warn(
-        `[tg-search:collector] video prefetch fail ${username}/${mi.id}: ${err?.message || err}`
-      );
-    }
-  });
+  await mapPool(
+    jobs,
+    concurrency,
+    async ({ mi, msg }) => {
+      try {
+        const result = await cacheMessageMediaWithClient(client, username, msg, {
+          thumb: false,
+          signal: opts.signal
+        });
+        mi.fullUrl = result.url;
+        mi.status = "ready";
+      } catch (err) {
+        if (err?.code === "REQUEST_ABORTED") throw err;
+        console.warn(
+          `[tg-search:collector] video prefetch fail ${username}/${mi.id}: ${err?.message || err}`
+        );
+      }
+    },
+    opts.signal
+  );
 
   return displayList;
 }
@@ -131,8 +157,9 @@ async function enrichDisplayListWithVideoFull(client, username, displayList, msg
  * @param {string} username
  * @param {object[]} displayList
  * @param {Map<number, import('telegram').Api.Message>} msgById
+ * @param {{ signal?: AbortSignal }} [opts]
  */
-async function enrichDisplayListWithThumbs(client, username, displayList, msgById) {
+async function enrichDisplayListWithThumbs(client, username, displayList, msgById, opts = {}) {
   const thumbJobs = [];
 
   for (const item of displayList) {
@@ -153,23 +180,34 @@ async function enrichDisplayListWithThumbs(client, username, displayList, msgByI
     }
   }
 
+  const maxJobs = channelThumbPrefetchMax();
+  const jobsToRun = maxJobs > 0 ? thumbJobs.slice(0, maxJobs) : [];
   const concurrency = thumbPrefetchConcurrency();
   console.log(
-    `[tg-search:collector] thumb prefetch jobs=${thumbJobs.length} concurrency=${concurrency}`
+    `[tg-search:collector] thumb prefetch jobs=${jobsToRun.length}/${thumbJobs.length} concurrency=${concurrency}`
   );
 
-  await mapPool(thumbJobs, concurrency, async ({ item, mi, msg }) => {
-    try {
-      const result = await cacheMessageMediaWithClient(client, username, msg, { thumb: true });
-      mi.thumbUrl = result.url;
-      mi.status = "thumb_ready";
-      if (!item.coverUrl) item.coverUrl = result.url;
-    } catch (err) {
-      console.warn(
-        `[tg-search:collector] thumb prefetch fail ${username}/${mi.id}: ${err?.message || err}`
-      );
-    }
-  });
+  await mapPool(
+    jobsToRun,
+    concurrency,
+    async ({ item, mi, msg }) => {
+      try {
+        const result = await cacheMessageMediaWithClient(client, username, msg, {
+          thumb: true,
+          signal: opts.signal
+        });
+        mi.thumbUrl = result.url;
+        mi.status = "thumb_ready";
+        if (!item.coverUrl) item.coverUrl = result.url;
+      } catch (err) {
+        if (err?.code === "REQUEST_ABORTED") throw err;
+        console.warn(
+          `[tg-search:collector] thumb prefetch fail ${username}/${mi.id}: ${err?.message || err}`
+        );
+      }
+    },
+    opts.signal
+  );
 
   for (const item of displayList) {
     if (!item.hasMedia) continue;
@@ -628,9 +666,12 @@ async function fetchMessagesAroundAnchor(client, entity, anchorId, limit = 20) {
 /**
  * 读取频道消息（默认不 join；公开广播频道通常可直接读）
  * @param {string} usernameOrUrl
- * @param {{ limit?: number, search?: string, messageId?: number }} opts
+ * @param {{ limit?: number, search?: string, messageId?: number, signal?: AbortSignal }} opts
  */
 async function fetchChannelMessages(usernameOrUrl, opts = {}) {
+  const signal = opts.signal;
+  throwIfAborted(signal);
+
   const username = normalizeUsername(usernameOrUrl);
   if (!username) {
     const err = new Error("请提供频道 username");
@@ -648,6 +689,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   );
 
   return withGramClient(async (client) => {
+    throwIfAborted(signal);
     let entity;
     try {
       entity = await client.getEntity(username);
@@ -701,8 +743,28 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       if (msg?.id) msgById.set(msg.id, msg);
     }
 
-    await enrichDisplayListWithThumbs(client, username, displayList, msgById);
-    await enrichDisplayListWithVideoFull(client, username, displayList, msgById);
+    // 默认不在频道加载时阻塞预取；缩略图/视频由前端按需走 /api/tg-search/media
+    const thumbMax = channelThumbPrefetchMax();
+    if (thumbMax > 0) {
+      await enrichDisplayListWithThumbs(client, username, displayList, msgById, { signal });
+      throwIfAborted(signal);
+    } else {
+      for (const item of displayList) {
+        item.coverUrl = null;
+        item.mediaStatus = item.hasMedia ? "pending" : null;
+        for (const mi of item.mediaItems) {
+          mi.thumbUrl = null;
+          mi.fullUrl = null;
+          mi.status = "pending";
+        }
+      }
+    }
+
+    if (videoPrefetchOnChannelLoad()) {
+      await enrichDisplayListWithVideoFull(client, username, displayList, msgById, { signal });
+    }
+
+    throwIfAborted(signal);
 
     console.log(
       `[tg-search:collector] fetchChannelMessages ok username=${username} raw=${rawList.length} display=${displayList.length}`
@@ -716,8 +778,8 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       note:
         broadcast === true
           ? anchorMessageId
-            ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。封面与视频已预缓存。`
-            : "公开频道：可直接预览历史。封面与近期视频已预缓存，点击即可播放。"
+            ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。`
+            : "公开频道：可直接预览历史。"
           : "超级群/私有频道：往往需要加入后才能读取",
       search: search || null,
       anchorMessageId,
@@ -726,7 +788,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       messages: displayList,
       fetchedAt: new Date().toISOString()
     };
-  });
+  }, { signal });
 }
 
 /**

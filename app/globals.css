@@ -5896,6 +5896,90 @@ button.h5-detail-img-cell:active {
   background: rgba(255, 87, 34, 0.08);
 }
 
+.gs-message-card--sensitive {
+  border-color: rgba(244, 67, 54, 0.35);
+  background: rgba(244, 67, 54, 0.06);
+}
+
+.gs-sensitive-head-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ff8a80;
+}
+
+.gs-sensitive-mosaic {
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  min-height: 48px;
+}
+
+.gs-sensitive-mosaic-text {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #fff;
+  filter: blur(10px);
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
+  word-break: break-word;
+}
+
+.gs-sensitive-mosaic::after,
+.gs-sensitive-media-placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.05) 0,
+      rgba(255, 255, 255, 0.05) 6px,
+      transparent 6px,
+      transparent 12px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0,
+      rgba(255, 255, 255, 0.05) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  pointer-events: none;
+}
+
+.gs-sensitive-mosaic-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid rgba(244, 67, 54, 0.45);
+  color: #ff8a80;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.gs-sensitive-media-placeholder {
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+  width: 100%;
+  max-width: 320px;
+  height: 160px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
 .gs-message-head {
   display: flex;
   justify-content: space-between;

@@ -12,9 +12,18 @@ let gramMutex = Promise.resolve();
 /**
  * @template T
  * @param {(client: TelegramClient) => Promise<T>} fn
+ * @param {{ signal?: AbortSignal }} [options]
  * @returns {Promise<T>}
  */
-async function withGramClient(fn) {
+async function withGramClient(fn, options = {}) {
+  const { signal } = options;
+
+  if (signal?.aborted) {
+    const err = new Error("请求已取消");
+    err.code = "REQUEST_ABORTED";
+    throw err;
+  }
+
   let releaseMutex;
   const waitTurn = gramMutex;
   gramMutex = new Promise((resolve) => {
@@ -22,6 +31,13 @@ async function withGramClient(fn) {
   });
 
   await waitTurn;
+
+  if (signal?.aborted) {
+    releaseMutex();
+    const err = new Error("请求已取消");
+    err.code = "REQUEST_ABORTED";
+    throw err;
+  }
 
   const { apiId, apiHash, sessionFile } = requireEnv();
   const session = readSession(sessionFile);
@@ -38,11 +54,27 @@ async function withGramClient(fn) {
     connectionRetries: 5
   });
 
+  const onAbort = () => {
+    console.log(`[tg-search:collector] GramJS abort disconnect`);
+    client.disconnect().catch(() => {});
+  };
+  if (signal) {
+    signal.addEventListener("abort", onAbort, { once: true });
+  }
+
   try {
     await client.connect();
     console.log(`[tg-search:collector] GramJS connected`);
+    if (signal?.aborted) {
+      const err = new Error("请求已取消");
+      err.code = "REQUEST_ABORTED";
+      throw err;
+    }
     return await fn(client);
   } finally {
+    if (signal) {
+      signal.removeEventListener("abort", onAbort);
+    }
     try {
       await client.disconnect();
       console.log(`[tg-search:collector] GramJS disconnected`);

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getBlockedKeywords, markChannelMessagesSensitive } from "@/lib/blocked-keywords";
 import { getGuestSessionPayload } from "@/lib/guest-auth";
 import {
   getCachedGlobalSearch,
@@ -372,18 +373,25 @@ export async function handleTgChannelGet(request: Request) {
     const result = await svc.fetchChannelMessages(username, {
       limit,
       search: search || undefined,
-      messageId: messageId > 0 ? messageId : undefined
+      messageId: messageId > 0 ? messageId : undefined,
+      signal: request.signal
     });
+    const keywords = await getBlockedKeywords();
+    const messages = markChannelMessagesSensitive(result.messages ?? [], keywords);
     tgSearchLog("channel-api", "频道消息拉取成功", {
       username,
       count: result.count,
+      sensitive: messages.filter((m) => m.sensitiveBlocked).length,
       ms: Date.now() - started
     });
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.json({ ok: true, ...result, messages });
   } catch (err: unknown) {
     const mapped = svc.mapGramError(err);
     const code = (err as { code?: string })?.code || mapped.code;
     const message = (err as Error)?.message || mapped.message;
+    if (code === "REQUEST_ABORTED") {
+      return new NextResponse(null, { status: 499 });
+    }
     const status =
       code === "CHANNEL_PRIVATE" || code === "USERNAME_INVALID"
         ? 403

@@ -55,6 +55,8 @@ export type ChannelMessageItem = {
   permalink: string;
   /** 极搜定位的目标消息 */
   isAnchor?: boolean;
+  /** 命中后台屏蔽关键词，前台马赛克展示 */
+  sensitiveBlocked?: boolean;
 };
 
 export type ChannelMessagesResult = {
@@ -103,7 +105,7 @@ export type JisouSearchService = {
   getJisouCaptchaImage: (challengeId: string) => { buffer: Buffer; mime: string } | null;
   fetchChannelMessages: (
     username: string,
-    opts: { limit?: number; search?: string; messageId?: number }
+    opts: { limit?: number; search?: string; messageId?: number; signal?: AbortSignal }
   ) => Promise<ChannelMessagesResult>;
   resolveMessageMedia: (
     username: string,

@@ -146,6 +146,15 @@ function ChannelResourcesLoading() {
   );
 }
 
+function SensitiveContentMosaic({ text }: { text?: string | null }) {
+  return (
+    <div className="gs-sensitive-mosaic" aria-label="平台已屏蔽敏感内容">
+      {text ? <span className="gs-sensitive-mosaic-text">{text}</span> : null}
+      <span className="gs-sensitive-mosaic-badge">平台已屏蔽敏感内容</span>
+    </div>
+  );
+}
+
 function ChannelMessagesModal({
   channel,
   activeFilterType,
@@ -250,11 +259,12 @@ function ChannelMessagesModal({
                 const fullText = msg.fullText || msg.caption || msg.textPreview || "";
                 const articleTitle =
                   msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id} · ${msg.contentType}`;
+                const isSensitive = Boolean(msg.sensitiveBlocked);
                 return (
                   <li
                     key={`${msg.kind}-${msg.id}`}
                     ref={msg.isAnchor ? anchorRef : undefined}
-                    className={`gs-message-card${msg.isAnchor ? " is-anchor" : ""}`}
+                    className={`gs-message-card${msg.isAnchor ? " is-anchor" : ""}${isSensitive ? " gs-message-card--sensitive" : ""}`}
                   >
                     <div className="gs-message-head">
                       <span>
@@ -263,7 +273,7 @@ function ChannelMessagesModal({
                         {" · "}
                         {msg.contentType}
                       </span>
-                      {fullText ? (
+                      {!isSensitive && fullText ? (
                         <button
                           type="button"
                           className="gs-message-tg-link gs-message-view-btn"
@@ -271,7 +281,7 @@ function ChannelMessagesModal({
                         >
                           查看原文
                         </button>
-                      ) : msg.permalink ? (
+                      ) : !isSensitive && msg.permalink ? (
                         <Link
                           href={msg.permalink}
                           target="_blank"
@@ -280,23 +290,38 @@ function ChannelMessagesModal({
                         >
                           查看原文
                         </Link>
+                      ) : isSensitive ? (
+                        <span className="gs-sensitive-head-badge">已屏蔽</span>
                       ) : null}
                     </div>
 
-                    {channel.username && msg.mediaItems.length > 0 ? (
-                      <MessageMediaGallery username={channel.username} msg={msg} />
-                    ) : null}
-
-                    {msg.textPreview ? (
-                      <p className="gs-message-text">
-                        {messageIcon ? (
-                          <span className="gs-result-type-icon" aria-hidden>
-                            {messageIcon}
-                          </span>
+                    {isSensitive ? (
+                      <>
+                        {msg.mediaItems.length > 0 ? (
+                          <div className="gs-sensitive-media-placeholder" aria-hidden>
+                            <span className="gs-sensitive-mosaic-badge">平台已屏蔽敏感内容</span>
+                          </div>
                         ) : null}
-                        {msg.textPreview}
-                      </p>
-                    ) : null}
+                        {msg.textPreview ? <SensitiveContentMosaic text={msg.textPreview} /> : null}
+                      </>
+                    ) : (
+                      <>
+                        {channel.username && msg.mediaItems.length > 0 ? (
+                          <MessageMediaGallery username={channel.username} msg={msg} />
+                        ) : null}
+
+                        {msg.textPreview ? (
+                          <p className="gs-message-text">
+                            {messageIcon ? (
+                              <span className="gs-result-type-icon" aria-hidden>
+                                {messageIcon}
+                              </span>
+                            ) : null}
+                            {msg.textPreview}
+                          </p>
+                        ) : null}
+                      </>
+                    )}
 
                     {msg.date ? (
                       <time className="gs-message-time" dateTime={msg.date}>
@@ -495,6 +520,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [pendingFilterCallback, setPendingFilterCallback] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const anchorRef = useRef<HTMLLIElement>(null);
+  const channelAbortRef = useRef<AbortController | null>(null);
 
   const activeFilterType = parseJisouCallbackFilterType(activeFilterCallback);
   const toolbarEnabled = !fromCache && replyMessageId != null && !loading;
@@ -771,6 +797,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   }
 
   function closeChannelModal() {
+    channelAbortRef.current?.abort();
+    channelAbortRef.current = null;
     setActiveChannel(null);
     setMessages([]);
     setChannelMeta(null);
@@ -780,6 +808,10 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
   async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
     if (!channel.username) return;
+
+    channelAbortRef.current?.abort();
+    const abortController = new AbortController();
+    channelAbortRef.current = abortController;
 
     setActiveChannel(channel);
     setChannelLoading(true);
@@ -797,7 +829,9 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         params.set("messageId", String(channel.postId));
       }
 
-      const res = await fetch(`${API}/channel?${params.toString()}`);
+      const res = await fetch(`${API}/channel?${params.toString()}`, {
+        signal: abortController.signal
+      });
       const data = (await res.json()) as {
         ok?: boolean;
         message?: string;
@@ -826,8 +860,12 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         setChannelLoadError("频道可读，但当前条件下没有消息");
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setChannelLoadError(err instanceof Error ? err.message : "读取频道失败");
     } finally {
+      if (channelAbortRef.current === abortController) {
+        channelAbortRef.current = null;
+      }
       setChannelLoading(false);
     }
   }

@@ -8,6 +8,19 @@ const { saveMediaBytes, getSiteSettingsCached, isR2Ready, buildObjectKey, trimBa
 
 const inflight = new Map();
 
+function mediaDownloadTimeoutMs() {
+  const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 20000;
+  return Math.min(60000, Math.max(5000, Math.round(n)));
+}
+
+function throwIfAborted(signal) {
+  if (signal?.aborted) {
+    const err = new Error("请求已取消");
+    err.code = "REQUEST_ABORTED";
+    throw err;
+  }
+}
+
 /**
  * @param {string} username
  * @param {number} messageId
@@ -87,12 +100,34 @@ function singleflight(key, fn) {
  * @param {import('telegram').TelegramClient} client
  * @param {import('telegram').Api.Message} msg
  * @param {boolean} wantThumb
+ * @param {AbortSignal} [signal]
  */
-async function downloadMediaBuffer(client, msg, wantThumb) {
+async function downloadMediaBuffer(client, msg, wantThumb, signal) {
+  throwIfAborted(signal);
   const { pickContentType } = require("./parse");
   const contentType = pickContentType(msg);
   const downloadOpts = wantThumb ? { thumb: 1 } : {};
-  const buffer = await client.downloadMedia(msg, downloadOpts);
+  const timeoutMs = mediaDownloadTimeoutMs();
+
+  let timer;
+  const downloadPromise = client.downloadMedia(msg, downloadOpts);
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const err = new Error(`媒体下载超时（${timeoutMs}ms）`);
+      err.code = "DOWNLOAD_TIMEOUT";
+      reject(err);
+    }, timeoutMs);
+  });
+
+  let buffer;
+  try {
+    buffer = await Promise.race([downloadPromise, timeoutPromise]);
+  } finally {
+    clearTimeout(timer);
+  }
+
+  throwIfAborted(signal);
+
   if (!buffer || !Buffer.isBuffer(buffer) || buffer.length === 0) {
     const err = new Error("媒体下载失败");
     err.code = "DOWNLOAD_FAILED";
@@ -116,7 +151,7 @@ async function downloadMediaBuffer(client, msg, wantThumb) {
  * @param {import('telegram').TelegramClient} client
  * @param {string} username
  * @param {import('telegram').Api.Message} msg
- * @param {{ thumb?: boolean }} opts
+ * @param {{ thumb?: boolean, signal?: AbortSignal }} opts
  */
 async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
   const { pickContentType } = require("./parse");
@@ -134,6 +169,7 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
   const flightKey = `cache:${subPath}`;
 
   return singleflight(flightKey, async () => {
+    throwIfAborted(opts.signal);
     const cachedUrl = await getCachedMediaUrl(subPath);
     if (cachedUrl) {
       return {
@@ -146,7 +182,7 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
       };
     }
 
-    const { buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb);
+    const { buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal);
     const url = await putCachedMedia(buffer, subPath, mime);
     console.log(
       `[tg-search:collector] cached media ${variant} ${username}/${msg.id} → ${url.slice(0, 80)}`
@@ -170,21 +206,35 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
  * @param {T[]} items
  * @param {number} concurrency
  * @param {(item: T, index: number) => Promise<R>} fn
+ * @param {AbortSignal} [signal]
  */
-async function mapPool(items, concurrency, fn) {
+async function mapPool(items, concurrency, fn, signal) {
   if (!items.length) return [];
   const results = new Array(items.length);
   let cursor = 0;
 
   async function worker() {
     while (cursor < items.length) {
+      if (signal?.aborted) break;
       const index = cursor++;
-      results[index] = await fn(items[index], index);
+      try {
+        results[index] = await fn(items[index], index);
+      } catch (err) {
+        if (signal?.aborted || err?.code === "REQUEST_ABORTED") break;
+        throw err;
+      }
     }
   }
 
   const workers = Math.min(concurrency, items.length);
   await Promise.all(Array.from({ length: workers }, () => worker()));
+
+  if (signal?.aborted) {
+    const err = new Error("请求已取消");
+    err.code = "REQUEST_ABORTED";
+    throw err;
+  }
+
   return results;
 }
 
