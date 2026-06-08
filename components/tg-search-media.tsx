@@ -44,18 +44,10 @@ export function LazyPhotoThumb({
   allowIndividualFetch?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  const [loaded, setLoaded] = useState(Boolean(item.thumbUrl));
+  const [visible, setVisible] = useState(Boolean(item.thumbUrl));
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
-
-  useEffect(() => {
-    if (item.thumbUrl) {
-      setLoaded(false);
-      setError(false);
-      setVisible(true);
-    }
-  }, [item.thumbUrl]);
 
   useEffect(() => {
     const el = ref.current;
@@ -80,30 +72,43 @@ export function LazyPhotoThumb({
       ? `${proxyMediaUrl(apiBase, username, item.id, true)}${retryKey ? `&_r=${retryKey}` : ""}`
       : null;
 
+  useEffect(() => {
+    setLoaded(false);
+    setError(false);
+  }, [src]);
+
   return (
     <div ref={ref} className="gs-media-thumb" style={{ width: size }}>
-      {!src || error ? (
-        <MediaSkeleton label={error ? "点击重试" : item.status === "pending" ? "加载中" : undefined} />
-      ) : null}
-      {src && !error ? (
+      {!src ? (
+        <MediaSkeleton label={item.status === "pending" ? "加载中" : undefined} />
+      ) : (
         <button type="button" className="gs-media-thumb-btn" onClick={onOpen} aria-label="查看原图">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt=""
-            loading="lazy"
-            onLoad={() => setLoaded(true)}
-            onError={() => setError(true)}
-            className="gs-media-img"
-            style={{
-              width: size,
-              height: size,
-              display: loaded ? "block" : "none"
-            }}
-          />
+          <div className="gs-media-thumb-stage" style={{ width: size, height: size }}>
+            {!loaded && !error ? <div className="gs-media-skeleton gs-media-skeleton--overlay" aria-hidden /> : null}
+            {error ? (
+              <MediaSkeleton label="加载失败" />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={src}
+                src={src}
+                alt=""
+                loading={item.thumbUrl ? "eager" : "lazy"}
+                decoding="async"
+                onLoad={() => setLoaded(true)}
+                onError={() => setError(true)}
+                className="gs-media-img"
+                style={{
+                  width: size,
+                  height: size,
+                  opacity: loaded ? 1 : 0,
+                  transition: "opacity 0.2s ease"
+                }}
+              />
+            )}
+          </div>
         </button>
-      ) : null}
-      {!loaded && src && !error ? <MediaSkeleton /> : null}
+      )}
       {error && allowIndividualFetch ? (
         <button
           type="button"
@@ -244,7 +249,7 @@ export function LazyVideoPlayer({
           >
             {poster ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={poster} alt="" className="gs-media-video-cover" />
+              <img src={poster} alt="" className="gs-media-video-cover" loading="eager" decoding="async" />
             ) : (
               <MediaSkeleton label="加载中" />
             )}
@@ -331,7 +336,7 @@ export function MessageMediaGallery({
           {showItems.map((item) =>
             item.contentType === "VIDEO" ? (
               <LazyVideoPlayer
-                key={item.id}
+                key={`${item.id}-${item.thumbUrl || "pending"}`}
                 apiBase={apiBase}
                 username={username}
                 item={item}
@@ -339,7 +344,7 @@ export function MessageMediaGallery({
               />
             ) : (
               <LazyPhotoThumb
-                key={item.id}
+                key={`${item.id}-${item.thumbUrl || "pending"}`}
                 apiBase={apiBase}
                 username={username}
                 item={item}

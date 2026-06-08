@@ -23,9 +23,26 @@ export function mergeChannelThumbMap(
 
   return messages.map((msg) => {
     let coverUrl = msg.coverUrl ?? null;
-    const mediaItems = (msg.mediaItems || []).map((mi) => applyThumbToItem(mi, media, (url) => {
-      if (!coverUrl) coverUrl = url;
-    }));
+    let mediaItems = (msg.mediaItems || []).map((mi) =>
+      applyThumbToItem(mi, media, (url) => {
+        if (!coverUrl) coverUrl = url;
+      })
+    );
+
+    // 单图消息：batch 键可能与消息 id 对齐
+    if (mediaItems.length === 1 && !mediaItems[0]?.thumbUrl) {
+      const directUrl = lookupThumbUrl(media, msg.id);
+      if (directUrl) {
+        mediaItems = [
+          {
+            ...mediaItems[0]!,
+            thumbUrl: directUrl,
+            status: "thumb_ready"
+          }
+        ];
+        if (!coverUrl) coverUrl = directUrl;
+      }
+    }
 
     const visual = mediaItems.filter((m) => m.contentType === "PHOTO" || m.contentType === "VIDEO");
     let mediaStatus = msg.mediaStatus ?? null;
@@ -40,17 +57,23 @@ export function mergeChannelThumbMap(
   });
 }
 
+function lookupThumbUrl(media: ChannelThumbMap, id: number): string | null {
+  const key = String(id);
+  const hit = media[key] ?? (media as Record<number, { url?: string }>)[id];
+  return hit?.url ?? null;
+}
+
 function applyThumbToItem(
   mi: ChannelMediaItem,
   media: ChannelThumbMap,
   onCover: (url: string) => void
 ): ChannelMediaItem {
-  const hit = media[String(mi.id)];
-  if (!hit?.url) return mi;
-  onCover(hit.url);
+  const url = lookupThumbUrl(media, mi.id);
+  if (!url) return mi;
+  onCover(url);
   return {
     ...mi,
-    thumbUrl: hit.url,
+    thumbUrl: url,
     status: mi.status === "pending" || mi.status === "thumb_ready" ? "thumb_ready" : mi.status
   };
 }

@@ -6044,6 +6044,19 @@ button.h5-detail-img-cell:active {
   flex-shrink: 0;
 }
 
+.gs-media-thumb-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.gs-media-skeleton--overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  min-height: 0;
+}
+
 .gs-media-thumb-btn {
   display: block;
   padding: 0;
