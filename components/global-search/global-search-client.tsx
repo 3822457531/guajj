@@ -109,6 +109,43 @@ function JisouSearchToolbar({
   );
 }
 
+function ChannelResourcesLoading() {
+  const steps = ["正在连接暗网索引…", "正在拉取频道消息…", "正在预缓存封面与视频…"];
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setStep((current) => (current + 1) % steps.length);
+    }, 2400);
+    return () => window.clearInterval(timer);
+  }, [steps.length]);
+
+  return (
+    <div className="gs-resources-loading" aria-busy="true" aria-live="polite">
+      <div className="gs-resources-loading-orbit" aria-hidden>
+        <span className="gs-resources-loading-globe">🌐</span>
+        <span className="gs-resources-loading-ring" />
+      </div>
+      <p className="gs-resources-loading-title">拉取全网资源中</p>
+      <p className="gs-resources-loading-step">{steps[step]}</p>
+      <div className="gs-resources-loading-dots" aria-hidden>
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="gs-resources-loading-skeletons" aria-hidden>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="gs-resources-loading-card" style={{ animationDelay: `${i * 120}ms` }}>
+            <div className="gs-resources-loading-line gs-resources-loading-line--short" />
+            <div className="gs-resources-loading-line" />
+            <div className="gs-resources-loading-thumb" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ChannelMessagesModal({
   channel,
   activeFilterType,
@@ -181,28 +218,32 @@ function ChannelMessagesModal({
           <p className="gs-channel-sheet-meta">已定位到消息 #{channelMeta.anchorMessageId}</p>
         ) : null}
 
-        <form
-          className="gs-inline-search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onReload();
-          }}
-        >
-          <input
-            value={channelSearch}
-            onChange={(e) => onChannelSearchChange(e.target.value)}
-            placeholder="频道内搜索（可选）"
-            className="gs-inline-search-input"
-          />
-          <button type="submit" className="gs-inline-search-btn" disabled={channelLoading}>
-            {channelLoading ? "…" : "刷新"}
-          </button>
-        </form>
+        {!channelLoading || messages.length > 0 ? (
+          <form
+            className="gs-inline-search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onReload();
+            }}
+          >
+            <input
+              value={channelSearch}
+              onChange={(e) => onChannelSearchChange(e.target.value)}
+              placeholder="频道内搜索（可选）"
+              className="gs-inline-search-input"
+            />
+            <button type="submit" className="gs-inline-search-btn" disabled={channelLoading}>
+              {channelLoading ? "…" : "刷新"}
+            </button>
+          </form>
+        ) : null}
 
         <div className="gs-channel-sheet-body">
-          {loadError ? <p className="gs-alert gs-alert--inline">{loadError}</p> : null}
-          {channelLoading ? (
-            <p className="gs-panel-loading">正在加载消息并并发预缓存封面…</p>
+          {loadError && !channelLoading ? <p className="gs-alert gs-alert--inline">{loadError}</p> : null}
+          {channelLoading && messages.length === 0 ? (
+            <ChannelResourcesLoading />
+          ) : channelLoading ? (
+            <p className="gs-panel-loading">正在刷新…</p>
           ) : (
             <ul className="gs-message-list">
               {messages.map((msg) => {

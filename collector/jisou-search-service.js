@@ -71,6 +71,59 @@ function thumbPrefetchConcurrency() {
   return Math.min(maxCap, Math.max(1, Math.round(n)));
 }
 
+function videoPrefetchMax() {
+  return Math.min(12, Math.max(0, Number(process.env.TG_SEARCH_VIDEO_PREFETCH_MAX) || 6));
+}
+
+function videoPrefetchConcurrency() {
+  return Math.min(4, Math.max(1, Number(process.env.TG_SEARCH_VIDEO_PREFETCH_CONCURRENCY) || 2));
+}
+
+/**
+ * 列表返回前：预取视频原文件写入 R2/本地，点击播放时可直接命中缓存
+ * @param {import('telegram').TelegramClient} client
+ * @param {string} username
+ * @param {object[]} displayList
+ * @param {Map<number, import('telegram').Api.Message>} msgById
+ */
+async function enrichDisplayListWithVideoFull(client, username, displayList, msgById) {
+  const max = videoPrefetchMax();
+  if (max <= 0) return displayList;
+
+  const jobs = [];
+  for (const item of displayList) {
+    for (const mi of item.mediaItems) {
+      if (mi.contentType !== "VIDEO") continue;
+      const msg = msgById.get(mi.id);
+      if (!msg?.media) continue;
+      jobs.push({ mi, msg });
+      if (jobs.length >= max) break;
+    }
+    if (jobs.length >= max) break;
+  }
+
+  if (!jobs.length) return displayList;
+
+  const concurrency = videoPrefetchConcurrency();
+  console.log(
+    `[tg-search:collector] video prefetch jobs=${jobs.length} concurrency=${concurrency}`
+  );
+
+  await mapPool(jobs, concurrency, async ({ mi, msg }) => {
+    try {
+      const result = await cacheMessageMediaWithClient(client, username, msg, { thumb: false });
+      mi.fullUrl = result.url;
+      mi.status = "ready";
+    } catch (err) {
+      console.warn(
+        `[tg-search:collector] video prefetch fail ${username}/${mi.id}: ${err?.message || err}`
+      );
+    }
+  });
+
+  return displayList;
+}
+
 /**
  * 列表返回前：在同一 GramJS 连接内预取封面缩略图并写入 R2/本地
  * 相册内全部缩略图并发预取，展开相册无需再等
@@ -649,6 +702,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
     }
 
     await enrichDisplayListWithThumbs(client, username, displayList, msgById);
+    await enrichDisplayListWithVideoFull(client, username, displayList, msgById);
 
     console.log(
       `[tg-search:collector] fetchChannelMessages ok username=${username} raw=${rawList.length} display=${displayList.length}`
@@ -662,8 +716,8 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       note:
         broadcast === true
           ? anchorMessageId
-            ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。封面已预缓存。`
-            : "公开频道：可直接预览历史。封面已并发预缓存，视频按需加载。"
+            ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。封面与视频已预缓存。`
+            : "公开频道：可直接预览历史。封面与近期视频已预缓存，点击即可播放。"
           : "超级群/私有频道：往往需要加入后才能读取",
       search: search || null,
       anchorMessageId,

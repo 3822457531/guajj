@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { H5MediaViewer, type MediaViewerSource } from "@/components/h5-media-viewer";
 import type { ChannelMediaItem } from "@/lib/jisou-search-types";
 import { TG_SEARCH_API } from "@/lib/tg-search-api-paths";
@@ -101,42 +101,141 @@ export function LazyVideoPlayer({
   username: string;
   item: ChannelMediaItem;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [prefetchStarted, setPrefetchStarted] = useState(Boolean(item.fullUrl));
+  const [playReady, setPlayReady] = useState(Boolean(item.fullUrl));
+  const [warming, setWarming] = useState(false);
+  const [buffering, setBuffering] = useState(false);
+
   const poster = item.thumbUrl || proxyMediaUrl(apiBase, username, item.id, true);
+  const videoSrc = pickSrc(apiBase, item, username, false);
+
+  const startPrefetch = useCallback(() => {
+    if (prefetchStarted) return;
+    setPrefetchStarted(true);
+    if (!item.fullUrl) setWarming(true);
+  }, [item.fullUrl, prefetchStarted]);
+
+  useEffect(() => {
+    if (item.fullUrl) {
+      setPrefetchStarted(true);
+      setPlayReady(true);
+      setWarming(false);
+    }
+  }, [item.fullUrl]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || item.fullUrl) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          startPrefetch();
+          io.disconnect();
+        }
+      },
+      { rootMargin: "280px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [item.fullUrl, startPrefetch]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !prefetchStarted) return;
+
+    const markReady = () => {
+      setPlayReady(true);
+      setWarming(false);
+      setBuffering(false);
+    };
+
+    const onCanPlay = () => {
+      markReady();
+      if (playing) void video.play().catch(() => setBuffering(true));
+    };
+    const onCanPlayThrough = () => markReady();
+    const onWaiting = () => {
+      if (playing) setBuffering(true);
+    };
+    const onPlaying = () => setBuffering(false);
+    const onLoadedData = () => {
+      if (video.readyState >= 2) markReady();
+    };
+
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("canplaythrough", onCanPlayThrough);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("playing", onPlaying);
+    video.addEventListener("loadeddata", onLoadedData);
+
+    if (video.readyState >= 3) markReady();
+
+    return () => {
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("canplaythrough", onCanPlayThrough);
+      video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("loadeddata", onLoadedData);
+    };
+  }, [prefetchStarted, playing]);
+
+  function handlePlayClick() {
+    startPrefetch();
+    setPlaying(true);
+    setBuffering(!playReady);
+    const video = videoRef.current;
+    if (video && playReady) {
+      void video.play().catch(() => setBuffering(true));
+    }
+  }
 
   return (
-    <div className="gs-media-video">
-      {!playing ? (
-        <button
-          type="button"
-          className="gs-media-video-poster"
-          onClick={() => {
-            setPlaying(true);
-            setLoading(true);
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={poster} alt="" className="gs-media-video-cover" />
-          <span className="gs-media-video-play">▶ 点击播放</span>
-        </button>
-      ) : (
-        <video
-          controls
-          autoPlay
-          playsInline
-          preload="auto"
-          poster={poster}
-          src={pickSrc(apiBase, item, username, false)}
-          onLoadedData={() => setLoading(false)}
-          onWaiting={() => setLoading(true)}
-          onCanPlay={() => setLoading(false)}
-          className="gs-media-video-el"
-        />
-      )}
+    <div ref={containerRef} className="gs-media-video">
+      <div className="gs-media-video-stage">
+        {!playing ? (
+          <button
+            type="button"
+            className="gs-media-video-poster"
+            onClick={handlePlayClick}
+            onPointerEnter={startPrefetch}
+            onTouchStart={startPrefetch}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={poster} alt="" className="gs-media-video-cover" />
+            <span className="gs-media-video-play">
+              {warming && !playReady ? "准备视频…" : "▶ 点击播放"}
+            </span>
+            {warming && !playReady ? (
+              <span className="gs-media-video-warm-spinner" aria-hidden />
+            ) : null}
+          </button>
+        ) : null}
+
+        {prefetchStarted ? (
+          <video
+            ref={videoRef}
+            className={`gs-media-video-el${playing ? " is-active" : " is-preload"}`}
+            controls={playing}
+            playsInline
+            preload="auto"
+            poster={poster}
+            src={videoSrc}
+          />
+        ) : null}
+
+        {playing && buffering ? (
+          <div className="gs-media-video-buffering" aria-live="polite">
+            <span className="gs-media-video-warm-spinner" aria-hidden />
+            <span>缓冲中…</span>
+          </div>
+        ) : null}
+      </div>
       <div className="gs-media-meta">
         #{item.id}
-        {loading ? " · 缓冲中…" : playing ? " · 播放中" : " · 封面已缓存"}
+        {buffering ? " · 缓冲中…" : playing ? " · 播放中" : playReady ? " · 已就绪" : warming ? " · 准备中" : " · 封面已缓存"}
       </div>
     </div>
   );
