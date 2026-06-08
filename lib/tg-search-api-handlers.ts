@@ -252,6 +252,101 @@ export async function handleTgCaptchaSolvePost(request: Request, apiBase: string
   }
 }
 
+export async function handleTgSearchActionPost(request: Request, apiBase: string) {
+  const started = Date.now();
+  tgSearchLog("search-api", `POST ${apiBase}/action 收到请求`);
+
+  const guestUserId = await readGuestUserIdFromRequest();
+  if (!guestUserId) {
+    const quota = await getGuestGlobalSearchQuota(null);
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "GUEST_IDENTITY_REQUIRED",
+        message: "请先在「我的」获取 GUA 身份后再使用全网搜索",
+        quota: quotaJson(quota)
+      },
+      { status: 401 }
+    );
+  }
+
+  let body: { replyMessageId?: number; callback?: string; text?: string; query?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
+  }
+
+  const replyMessageId = Number(body.replyMessageId) || 0;
+  const callback = String(body.callback ?? "").trim();
+  const text = String(body.text ?? "").trim();
+  const query = String(body.query ?? "").trim();
+
+  if (replyMessageId <= 0 || (!callback && !text)) {
+    return NextResponse.json({ ok: false, error: "missing_params", message: "缺少操作参数" }, { status: 400 });
+  }
+
+  tgSearchLog("search-api", "极搜按钮操作", { replyMessageId, callback: callback || null, text: text || null, query });
+  const svc = loadJisouSearchService<JisouSearchService>();
+
+  try {
+    const result = await svc.clickJisouSearchButton({
+      replyMessageId,
+      callback: callback || undefined,
+      text: text || undefined,
+      query,
+      webCaptcha: true
+    });
+    const channelCount = result.channels?.length ?? 0;
+    const quota = await getGuestGlobalSearchQuota(guestUserId);
+    tgSearchLog("search-api", "极搜按钮操作成功", {
+      replyMessageId,
+      channels: channelCount,
+      ms: Date.now() - started
+    });
+    return NextResponse.json({
+      ok: true,
+      ...result,
+      channelCount,
+      cached: false,
+      quota: quotaJson(quota)
+    });
+  } catch (err: unknown) {
+    const e = err as CaptchaErr;
+    const mapped = svc.mapGramError(err);
+    const code = e?.code || mapped.code;
+    const message = e?.message || mapped.message;
+
+    if (code === "JISOU_CAPTCHA_REQUIRED" && e.captcha) {
+      tgSearchLog("search-api", "极搜操作需网页验证码", {
+        replyMessageId,
+        challengeId: e.captcha.challengeId,
+        ms: Date.now() - started
+      });
+      return NextResponse.json(
+        captchaJsonPayload(apiBase, e.captcha, {
+          ok: false,
+          error: code,
+          message,
+          query: e.query || query
+        }),
+        { status: 428 }
+      );
+    }
+
+    tgSearchLog("search-api", "极搜按钮操作失败", { replyMessageId, code, message, ms: Date.now() - started });
+    const status =
+      code === "JISOU_MESSAGE_NOT_FOUND" || code === "JISOU_BUTTON_NOT_FOUND"
+        ? 404
+        : code === "NO_SESSION" || code === "SESSION_REVOKED"
+          ? 503
+          : code === "JISOU_SEARCH_UPDATE_TIMEOUT" || code === "FLOOD_WAIT"
+            ? 504
+            : 500;
+    return NextResponse.json({ ok: false, error: code, message }, { status });
+  }
+}
+
 export async function handleTgChannelGet(request: Request) {
   const started = Date.now();
   const { searchParams } = new URL(request.url);

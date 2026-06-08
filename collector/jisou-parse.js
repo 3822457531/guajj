@@ -2,6 +2,31 @@
  * 解析 @jisou 极搜 bot 私聊搜索回复（基于实测消息格式）
  */
 
+const JISOU_RESULT_ICONS = ["📄", "🎬", "🏞", "🎧", "💬", "📢"];
+
+function parseLeadingResultIcon(text) {
+  let trimmed = String(text).trimStart();
+  let icon = null;
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+    for (const candidate of JISOU_RESULT_ICONS) {
+      if (trimmed.startsWith(candidate)) {
+        icon = candidate;
+        trimmed = trimmed.slice(candidate.length).trimStart();
+        changed = true;
+        break;
+      }
+    }
+  }
+
+  return {
+    icon,
+    rest: trimmed.replace(/\s+\d+(?:\.\d+)?[kK万]?\s*$/, "").trim()
+  };
+}
+
 function lineAtOffset(text, offset) {
   const start = Math.max(0, text.lastIndexOf("\n", offset - 1) + 1);
   const endIdx = text.indexOf("\n", offset);
@@ -85,12 +110,14 @@ function parseJisouSearchMessage(text, entities = []) {
 
     const line = lineAtOffset(text, ent.offset);
     const members = parseMemberCount(line);
-    const titleFromLine = line.replace(/^📢\s*/, "").replace(/\s+\d+(?:\.\d+)?[kK万]?\s*$/, "").trim();
+    const { icon: contentIcon, rest: titleFromLine } = parseLeadingResultIcon(line);
+    const labelTitle = parseLeadingResultIcon(label).rest;
     const parsed = parseTelegramUrl(url);
 
     channels.push({
-      title: titleFromLine || label.replace(/^📢\s*/, "").trim(),
+      title: titleFromLine || labelTitle,
       label: label.trim(),
+      contentIcon,
       url,
       username: parsed?.username || null,
       /** 极搜若指向具体帖子，如 t.me/channel/12345 */

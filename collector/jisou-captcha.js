@@ -416,6 +416,7 @@ module.exports = {
   submitWebCaptchaAnswer,
   parseMathFromOcr,
   flattenCallbackButtons,
+  clickCallbackButton,
   captchaMode,
   downloadCaptchaImage,
   captchaMediaSignature,

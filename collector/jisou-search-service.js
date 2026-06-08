@@ -12,8 +12,10 @@ const {
   packCaptchaForWeb,
   captchaMode,
   flattenCallbackButtons,
+  clickCallbackButton,
   captchaMediaSignature
 } = require("./jisou-captcha");
+const { decodeCallbackData } = require("./jisou-parse");
 const { consumeChallenge, getChallenge } = require("./jisou-captcha-store");
 const { cacheMessageMediaWithClient, mapPool } = require("./tg-search-media-cache");
 
@@ -286,6 +288,108 @@ function buildJisouSearchResult(q, reply) {
   };
 }
 
+function findCallbackButton(msg, { callback, text }) {
+  const buttons = flattenCallbackButtons(msg);
+  const targetCallback = callback ? String(callback).trim() : "";
+  const targetText = text ? String(text).trim() : "";
+  return (
+    buttons.find((btn) => {
+      const decoded = decodeCallbackData(btn.data);
+      if (targetCallback && decoded === targetCallback) return true;
+      if (targetText && String(btn.text ?? "").trim() === targetText) return true;
+      return false;
+    }) || null
+  );
+}
+
+async function waitForJisouSearchUpdate(client, botEntity, messageId, previousText) {
+  const timeoutMs = jisouReplyTimeoutMs();
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const batch = await client.getMessages(botEntity, { ids: [messageId] });
+    const msg = batch?.[0];
+    if (msg) {
+      if (isJisouCaptcha(msg)) {
+        return { kind: "captcha", msg };
+      }
+      const text = String(msg.message || "");
+      if (text !== previousText && isLikelyJisouSearchReply(msg)) {
+        return { kind: "search", msg };
+      }
+    }
+    await sleep(650);
+  }
+
+  return { kind: "timeout" };
+}
+
+/**
+ * 点击极搜结果消息上的 inline 按钮（筛选 / 翻页 / 最新等）
+ * @param {{ replyMessageId: number, callback?: string, text?: string, query?: string, webCaptcha?: boolean }} opts
+ */
+async function clickJisouSearchButton(opts = {}) {
+  const replyMessageId = Number(opts.replyMessageId) || 0;
+  const query = String(opts.query || "").trim();
+  const deliverWebCaptcha = opts.webCaptcha !== false;
+
+  if (replyMessageId <= 0) {
+    const err = new Error("缺少极搜消息 ID");
+    err.code = "JISOU_MESSAGE_NOT_FOUND";
+    throw err;
+  }
+
+  return withGramClient(async (client) => {
+    const botEntity = await client.getEntity(BOT_USERNAME);
+    const batch = await client.getMessages(botEntity, { ids: [replyMessageId] });
+    const msg = batch?.[0];
+    if (!msg) {
+      const err = new Error("极搜结果消息不存在或已过期，请重新搜索");
+      err.code = "JISOU_MESSAGE_NOT_FOUND";
+      throw err;
+    }
+
+    const button = findCallbackButton(msg, opts);
+    if (!button?.data) {
+      const err = new Error("未找到对应操作按钮，请重新搜索后再试");
+      err.code = "JISOU_BUTTON_NOT_FOUND";
+      throw err;
+    }
+
+    const previousText = String(msg.message || "");
+    console.log(
+      `[tg-search:collector] clickJisouSearchButton msgId=${replyMessageId} text=${JSON.stringify(button.text)} callback=${JSON.stringify(decodeCallbackData(button.data))}`
+    );
+
+    await clickCallbackButton(client, botEntity, msg, button);
+    const outcome = await waitForJisouSearchUpdate(client, botEntity, replyMessageId, previousText);
+
+    if (outcome.kind === "captcha") {
+      if (deliverWebCaptcha) {
+        const captcha = await packCaptchaForWeb(client, botEntity, outcome.msg, query, replyMessageId);
+        const err = new Error("极搜需要人机验证，请由网页用户选择正确答案");
+        err.code = "JISOU_CAPTCHA_REQUIRED";
+        err.captcha = captcha;
+        err.query = query;
+        throw err;
+      }
+      await handleJisouCaptcha(client, botEntity, outcome.msg);
+      const err = new Error("操作后需要人机验证，请重试");
+      err.code = "JISOU_CAPTCHA_REQUIRED";
+      throw err;
+    }
+
+    if (outcome.kind !== "search" || !outcome.msg) {
+      const err = new Error("极搜未返回更新后的结果，请稍后重试");
+      err.code = "JISOU_SEARCH_UPDATE_TIMEOUT";
+      throw err;
+    }
+
+    const result = buildJisouSearchResult(query, outcome.msg);
+    console.log(`[tg-search:collector] button ok channels=${result.channels?.length ?? 0} msgId=${outcome.msg.id}`);
+    return result;
+  });
+}
 /**
  * 向 @jisou 发关键词；若遇人机验证则自动/等待/web 交给前端
  * @param {string} query
@@ -643,6 +747,7 @@ async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
 module.exports = {
   searchJisouChannels,
   solveJisouCaptchaAndSearch,
+  clickJisouSearchButton,
   getJisouCaptchaImage,
   fetchChannelMessages,
   resolveMessageMedia,

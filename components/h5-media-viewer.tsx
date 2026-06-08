@@ -28,7 +28,7 @@ export function H5MediaViewer({
 }) {
   const source = urls[index];
   const [displayUrl, setDisplayUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingFull, setLoadingFull] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const hasNav = urls.length > 1;
 
@@ -47,10 +47,11 @@ export function H5MediaViewer({
     let cancelled = false;
 
     setLoadError(false);
-    setLoading(true);
-    setDisplayUrl(thumb);
+    setDisplayUrl(thumb || full);
+    const needsFullLoad = Boolean(full && thumb && full !== thumb);
+    setLoadingFull(needsFullLoad);
 
-    if (!full || full === thumb) {
+    if (!needsFullLoad || !full) {
       return;
     }
 
@@ -58,11 +59,12 @@ export function H5MediaViewer({
     img.onload = () => {
       if (cancelled) return;
       setDisplayUrl(full);
-      setLoading(false);
+      setLoadingFull(false);
     };
     img.onerror = () => {
       if (cancelled) return;
-      setLoading(false);
+      setLoadingFull(false);
+      setLoadError(true);
     };
     img.src = full;
 
@@ -112,22 +114,20 @@ export function H5MediaViewer({
           ✕
         </button>
         <div className="h5-media-viewer-stage">
-          {loading ? <p className="h5-media-viewer-loading">原图加载中…</p> : null}
-          {loadError ? <p className="h5-media-viewer-loading">图片加载失败</p> : null}
+          {loadingFull ? (
+            <div className="h5-media-viewer-loading-overlay" aria-live="polite" aria-busy="true">
+              <div className="h5-media-viewer-spinner" aria-hidden />
+              <p className="h5-media-viewer-loading-text">加载原图…</p>
+            </div>
+          ) : null}
+          {loadError ? <p className="h5-media-viewer-error">原图加载失败，已显示预览图</p> : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={displayUrl}
             src={displayUrl}
             alt=""
-            className="h5-media-viewer-img"
-            onLoad={() => {
-              setLoading(false);
-              setLoadError(false);
-            }}
-            onError={() => {
-              setLoading(false);
-              setLoadError(true);
-            }}
+            className={`h5-media-viewer-img${loadingFull ? " is-preview" : ""}`}
+            onError={() => setLoadError(true)}
           />
         </div>
         {hasNav ? (

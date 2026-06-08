@@ -10,6 +10,17 @@ import {
   type JisouCaptchaChallenge,
   type JisouChannelItem
 } from "@/lib/jisou-search-types";
+import {
+  isSupportedJisouFilterCallback,
+  normalizeJisouSearchButtons,
+  parseJisouCallbackFilterType,
+  pickSupportedJisouFilterButtons,
+  formatJisouChannelRow,
+  jisouFilterButtonLabel,
+  jisouFilterButtonTitle,
+  type JisouButtonItem,
+  type JisouSearchButtons
+} from "@/lib/jisou-search-buttons";
 
 const API = TG_SEARCH_API.prod;
 
@@ -32,9 +43,234 @@ type HistoryKeyword = {
 
 const HISTORY_COLLAPSED = 8;
 
-function formatMembers(raw: string | null | undefined) {
-  if (!raw) return null;
-  return raw.replace(/\s+/g, " ").trim();
+type SearchSuccessPayload = {
+  channels?: JisouChannel[];
+  quota?: QuotaState;
+  cached?: boolean;
+  buttons?: unknown;
+  replyMessageId?: number;
+  query?: string;
+};
+
+function JisouSearchToolbar({
+  buttons,
+  activeFilterCallback,
+  disabled,
+  loading,
+  onAction
+}: {
+  buttons: JisouSearchButtons;
+  activeFilterCallback: string | null;
+  disabled?: boolean;
+  loading?: boolean;
+  onAction: (button: JisouButtonItem) => void;
+}) {
+  const visibleFilters = pickSupportedJisouFilterButtons(buttons.filters);
+  if (!visibleFilters.length && !buttons.actions.length) return null;
+
+  return (
+    <div className="gs-jisou-toolbar" aria-label="极搜筛选与翻页">
+      {visibleFilters.length > 0 ? (
+        <div className="gs-jisou-row gs-jisou-row--filters" role="toolbar" aria-label="结果类型筛选">
+          {visibleFilters.map((btn) => {
+            const active = Boolean(btn.callback && btn.callback === activeFilterCallback);
+            return (
+              <button
+                key={`filter-${btn.callback || btn.text}`}
+                type="button"
+                className={`gs-jisou-btn gs-jisou-btn--filter${active ? " is-active" : ""}`}
+                disabled={disabled || loading || !btn.callback}
+                title={jisouFilterButtonTitle(btn)}
+                aria-pressed={active}
+                onClick={() => onAction(btn)}
+              >
+                {jisouFilterButtonLabel(btn)}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+      {buttons.actions.length > 0 ? (
+        <div className="gs-jisou-row gs-jisou-row--actions" role="toolbar" aria-label="结果操作">
+          {buttons.actions.map((btn) => (
+            <button
+              key={`action-${btn.callback || btn.text}`}
+              type="button"
+              className="gs-jisou-btn gs-jisou-btn--action"
+              disabled={disabled || loading || !btn.callback}
+              onClick={() => onAction(btn)}
+            >
+              {btn.text}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ChannelMessagesModal({
+  channel,
+  activeFilterType,
+  channelMeta,
+  channelSearch,
+  onChannelSearchChange,
+  onReload,
+  messages,
+  channelLoading,
+  loadError,
+  onClose,
+  onOpenArticle,
+  anchorRef
+}: {
+  channel: JisouChannel;
+  activeFilterType: string | null;
+  channelMeta: {
+    entityType?: string;
+    broadcast?: boolean | null;
+    note?: string;
+    rawCount?: number;
+    anchorMessageId?: number | null;
+  } | null;
+  channelSearch: string;
+  onChannelSearchChange: (value: string) => void;
+  onReload: () => void;
+  messages: ChannelMessageItem[];
+  channelLoading: boolean;
+  loadError: string | null;
+  onClose: () => void;
+  onOpenArticle: (payload: { title: string; text: string }) => void;
+  anchorRef: React.RefObject<HTMLLIElement | null>;
+}) {
+  const { icon: headerIcon, title: headerTitle } = formatJisouChannelRow(channel, activeFilterType);
+  const messageIcon = formatJisouChannelRow(channel, activeFilterType).icon;
+
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="gs-channel-sheet" role="dialog" aria-modal="true" aria-label="频道消息">
+      <button type="button" className="gs-channel-sheet-backdrop" onClick={onClose} aria-label="关闭" />
+      <div className="gs-channel-sheet-panel">
+        <div className="gs-channel-sheet-head">
+          <h3 className="gs-channel-sheet-title">
+            {headerIcon ? (
+              <span className="gs-result-type-icon" aria-hidden>
+                {headerIcon}
+              </span>
+            ) : null}
+            {headerTitle || channel.title}
+          </h3>
+          <button type="button" className="gs-channel-sheet-close" onClick={onClose} aria-label="关闭">
+            ✕
+          </button>
+        </div>
+
+        {channelMeta?.note ? <p className="gs-panel-note">{channelMeta.note}</p> : null}
+        {channelMeta?.anchorMessageId ? (
+          <p className="gs-channel-sheet-meta">已定位到消息 #{channelMeta.anchorMessageId}</p>
+        ) : null}
+
+        <form
+          className="gs-inline-search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onReload();
+          }}
+        >
+          <input
+            value={channelSearch}
+            onChange={(e) => onChannelSearchChange(e.target.value)}
+            placeholder="频道内搜索（可选）"
+            className="gs-inline-search-input"
+          />
+          <button type="submit" className="gs-inline-search-btn" disabled={channelLoading}>
+            {channelLoading ? "…" : "刷新"}
+          </button>
+        </form>
+
+        <div className="gs-channel-sheet-body">
+          {loadError ? <p className="gs-alert gs-alert--inline">{loadError}</p> : null}
+          {channelLoading ? (
+            <p className="gs-panel-loading">正在加载消息并并发预缓存封面…</p>
+          ) : (
+            <ul className="gs-message-list">
+              {messages.map((msg) => {
+                const fullText = msg.fullText || msg.caption || msg.textPreview || "";
+                const articleTitle =
+                  msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id} · ${msg.contentType}`;
+                return (
+                  <li
+                    key={`${msg.kind}-${msg.id}`}
+                    ref={msg.isAnchor ? anchorRef : undefined}
+                    className={`gs-message-card${msg.isAnchor ? " is-anchor" : ""}`}
+                  >
+                    <div className="gs-message-head">
+                      <span>
+                        {msg.isAnchor ? <strong className="gs-anchor-tag">定位</strong> : null}
+                        {msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id}`}
+                        {" · "}
+                        {msg.contentType}
+                      </span>
+                      {fullText ? (
+                        <button
+                          type="button"
+                          className="gs-message-tg-link gs-message-view-btn"
+                          onClick={() => onOpenArticle({ title: articleTitle, text: fullText })}
+                        >
+                          查看原文
+                        </button>
+                      ) : msg.permalink ? (
+                        <Link
+                          href={msg.permalink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="gs-message-tg-link"
+                        >
+                          查看原文
+                        </Link>
+                      ) : null}
+                    </div>
+
+                    {channel.username && msg.mediaItems.length > 0 ? (
+                      <MessageMediaGallery username={channel.username} msg={msg} />
+                    ) : null}
+
+                    {msg.textPreview ? (
+                      <p className="gs-message-text">
+                        {messageIcon ? (
+                          <span className="gs-result-type-icon" aria-hidden>
+                            {messageIcon}
+                          </span>
+                        ) : null}
+                        {msg.textPreview}
+                      </p>
+                    ) : null}
+
+                    {msg.date ? (
+                      <time className="gs-message-time" dateTime={msg.date}>
+                        {new Date(msg.date).toLocaleString("zh-CN")}
+                      </time>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function normalizeChannelText(value: string) {
@@ -202,7 +438,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [messages, setMessages] = useState<ChannelMessageItem[]>([]);
   const [captcha, setCaptcha] = useState<JisouCaptchaChallenge | null>(null);
   const [captchaSubmitting, setCaptchaSubmitting] = useState(false);
-  const [mobileDetail, setMobileDetail] = useState(false);
+  const [channelLoadError, setChannelLoadError] = useState<string | null>(null);
   const [quota, setQuota] = useState<QuotaState | null>(null);
   const [history, setHistory] = useState<HistoryKeyword[]>([]);
   const [historyExpanded, setHistoryExpanded] = useState(false);
@@ -211,7 +447,16 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [adBlockedOpen, setAdBlockedOpen] = useState(false);
   const [historyClearConfirmOpen, setHistoryClearConfirmOpen] = useState(false);
   const [fromCache, setFromCache] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [replyMessageId, setReplyMessageId] = useState<number | null>(null);
+  const [searchButtons, setSearchButtons] = useState<JisouSearchButtons>({ filters: [], actions: [] });
+  const [activeFilterCallback, setActiveFilterCallback] = useState<string | null>(null);
+  const [pendingFilterCallback, setPendingFilterCallback] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
   const anchorRef = useRef<HTMLLIElement>(null);
+
+  const activeFilterType = parseJisouCallbackFilterType(activeFilterCallback);
+  const toolbarEnabled = !fromCache && replyMessageId != null && !loading;
 
   const refreshQuota = useCallback(async () => {
     try {
@@ -270,16 +515,30 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     if (data.quota) setQuota(data.quota);
   }
 
-  function applySearchSuccess(data: { channels?: JisouChannel[]; quota?: QuotaState; cached?: boolean }) {
+  function applySearchSuccess(data: SearchSuccessPayload, opts?: { freshKeyword?: boolean }) {
     setCaptcha(null);
     setChannels(data.channels || []);
     setActiveChannel(null);
     setMessages([]);
     setChannelMeta(null);
-    setMobileDetail(false);
-    setFromCache(Boolean(data.cached));
-    applyQuotaFromResponse(data);
-    void refreshHistory();
+    setChannelLoadError(null);
+    setSearchButtons(normalizeJisouSearchButtons(data.buttons));
+    if (data.replyMessageId != null) setReplyMessageId(data.replyMessageId);
+    if (data.query) setSearchQuery(data.query);
+
+    if (opts?.freshKeyword) {
+      setFromCache(Boolean(data.cached));
+      setActiveFilterCallback(null);
+      setPendingFilterCallback(null);
+      applyQuotaFromResponse(data);
+      void refreshHistory();
+    } else if (pendingFilterCallback) {
+      setActiveFilterCallback(pendingFilterCallback);
+      setPendingFilterCallback(null);
+    }
+
+    if (!opts?.freshKeyword && data.quota) applyQuotaFromResponse(data);
+
     if (!data.channels?.length) {
       setError("未找到相关频道，请换个关键词试试");
     } else {
@@ -311,13 +570,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         body: JSON.stringify({ challengeId: captcha.challengeId, answer }),
         signal: AbortSignal.timeout(115000)
       });
-      const data = (await res.json()) as {
+      const data = (await res.json()) as SearchSuccessPayload & {
         ok?: boolean;
         message?: string;
         error?: string;
-        channels?: JisouChannel[];
         captcha?: JisouCaptchaChallenge;
-        quota?: QuotaState;
       };
 
       if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
@@ -333,6 +590,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
       applySearchSuccess(data);
     } catch (err) {
+      setPendingFilterCallback(null);
       const msg =
         err instanceof Error && err.name === "TimeoutError"
           ? "验证超时，请稍后重试"
@@ -357,8 +615,12 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setMessages([]);
     setChannelMeta(null);
     setCaptcha(null);
-    setMobileDetail(false);
     setFromCache(false);
+    setChannelLoadError(null);
+    setActiveFilterCallback(null);
+    setPendingFilterCallback(null);
+    setReplyMessageId(null);
+    setSearchButtons({ filters: [], actions: [] });
 
     try {
       const res = await fetch(`${API}/search`, {
@@ -367,14 +629,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         body: JSON.stringify({ q }),
         signal: AbortSignal.timeout(55000)
       });
-      const data = (await res.json()) as {
+      const data = (await res.json()) as SearchSuccessPayload & {
         ok?: boolean;
         message?: string;
         error?: string;
-        channels?: JisouChannel[];
         captcha?: JisouCaptchaChallenge;
-        quota?: QuotaState;
-        cached?: boolean;
       };
 
       if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
@@ -389,7 +648,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         throw new Error(data.message || data.error || "搜索失败");
       }
 
-      applySearchSuccess(data);
+      setSearchQuery(q);
+      applySearchSuccess({ ...data, query: data.query || q }, { freshKeyword: true });
     } catch (err) {
       const msg =
         err instanceof Error && err.name === "TimeoutError"
@@ -403,6 +663,64 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
   }
 
+  async function runSearchAction(button: JisouButtonItem) {
+    if (!replyMessageId || !button.callback || fromCache) return;
+
+    if (isSupportedJisouFilterCallback(button.callback)) {
+      setPendingFilterCallback(button.callback);
+    }
+
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API}/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          replyMessageId,
+          callback: button.callback,
+          text: button.text,
+          query: searchQuery
+        }),
+        signal: AbortSignal.timeout(55000)
+      });
+      const data = (await res.json()) as SearchSuccessPayload & {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+        captcha?: JisouCaptchaChallenge;
+      };
+
+      if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
+        setCaptcha(data.captcha);
+        setError(data.message || "操作需要人机验证，请选择正确答案");
+        return;
+      }
+
+      if (handleSearchError(res, data)) {
+        setPendingFilterCallback(null);
+        return;
+      }
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || data.error || "操作失败");
+      }
+
+      applySearchSuccess({ ...data, query: data.query || searchQuery });
+    } catch (err) {
+      setPendingFilterCallback(null);
+      const msg =
+        err instanceof Error && err.name === "TimeoutError"
+          ? "操作超时，请稍后重试"
+          : err instanceof Error
+            ? err.message
+            : "操作失败";
+      setError(msg);
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   function onChannelClick(channel: JisouChannel) {
     if (isJisouPromotedChannel(channel)) {
       setAdBlockedOpen(true);
@@ -411,15 +729,20 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     void loadChannel(channel);
   }
 
+  function closeChannelModal() {
+    setActiveChannel(null);
+    setMessages([]);
+    setChannelMeta(null);
+    setChannelLoadError(null);
+    setChannelSearch("");
+  }
+
   async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
     if (!channel.username) return;
 
     setActiveChannel(channel);
     setChannelLoading(true);
-    setError(null);
-    setMessages([]);
-    setChannelMeta(null);
-    setMobileDetail(true);
+    setChannelLoadError(null);
 
     try {
       const params = new URLSearchParams({
@@ -459,16 +782,16 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       });
       setMessages(data.messages || []);
       if (!data.messages?.length) {
-        setError("频道可读，但当前条件下没有消息");
+        setChannelLoadError("频道可读，但当前条件下没有消息");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "读取频道失败");
+      setChannelLoadError(err instanceof Error ? err.message : "读取频道失败");
     } finally {
       setChannelLoading(false);
     }
   }
 
-  const hasResults = channels.length > 0 || Boolean(activeChannel) || loading;
+  const hasResults = channels.length > 0 || loading;
   const visibleHistory = historyExpanded ? history : history.slice(0, HISTORY_COLLAPSED);
   const historyHasMore = history.length > HISTORY_COLLAPSED;
 
@@ -481,8 +804,12 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setMessages([]);
     setChannelMeta(null);
     setCaptcha(null);
-    setMobileDetail(false);
     setFromCache(false);
+    setChannelLoadError(null);
+    setActiveFilterCallback(null);
+    setPendingFilterCallback(null);
+    setReplyMessageId(null);
+    setSearchButtons({ filters: [], actions: [] });
 
     try {
       const res = await fetch(`${API}/search`, {
@@ -491,14 +818,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         body: JSON.stringify({ q: keyword }),
         signal: AbortSignal.timeout(55000)
       });
-      const data = (await res.json()) as {
+      const data = (await res.json()) as SearchSuccessPayload & {
         ok?: boolean;
         message?: string;
         error?: string;
-        channels?: JisouChannel[];
         captcha?: JisouCaptchaChallenge;
-        quota?: QuotaState;
-        cached?: boolean;
       };
 
       if (data.captcha && (data.error === "JISOU_CAPTCHA_REQUIRED" || res.status === 428)) {
@@ -513,7 +837,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         throw new Error(data.message || data.error || "搜索失败");
       }
 
-      applySearchSuccess(data);
+      setSearchQuery(keyword);
+      applySearchSuccess({ ...data, query: data.query || keyword }, { freshKeyword: true });
     } catch (err) {
       const msg =
         err instanceof Error && err.name === "TimeoutError"
@@ -663,7 +988,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         </section>
       ) : null}
 
-      {error && !captcha && !channelLoading ? <p className="gs-alert">{error}</p> : null}
+      {error && !captcha && !activeChannel ? <p className="gs-alert">{error}</p> : null}
 
       {!hasResults && !captcha && !loading ? (
         <section className="gs-empty-intro">
@@ -695,172 +1020,102 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       ) : null}
 
       {hasResults ? (
-        <div className={`gs-panels${mobileDetail && activeChannel ? " gs-panels--detail" : ""}`}>
-          <section className="gs-panel gs-panel--channels" aria-label="暗网结果列表">
-            <div className="gs-panel-head">
-              <h2 className="gs-panel-title">暗网结果</h2>
-              <span className="gs-panel-count">{channels.length}</span>
-            </div>
-            {fromCache ? <p className="gs-cache-hint">已使用本地缓存，秒开结果，不消耗今日额度</p> : null}
+        <section className="gs-panel gs-panel--channels gs-results-panel" aria-label="暗网结果列表">
+          <div className="gs-panel-head">
+            <h2 className="gs-panel-title">暗网结果</h2>
+            <span className="gs-panel-count">{channels.length}</span>
+          </div>
+          {fromCache ? <p className="gs-cache-hint">已使用本地缓存，不消耗今日额度</p> : null}
+          {fromCache && (searchButtons.filters.length > 0 || searchButtons.actions.length > 0) ? (
+            <p className="gs-cache-hint gs-cache-hint--muted">缓存结果不支持筛选与翻页，请重新搜索后再操作</p>
+          ) : null}
 
-            {loading ? (
-              <p className="gs-panel-loading">正在全网检索…</p>
-            ) : channels.length === 0 ? (
-              <p className="gs-panel-muted">暂无频道</p>
-            ) : (
-              <ul className="gs-channel-list">
-                {channels.map((ch) => {
-                  const active = activeChannel?.url === ch.url;
-                  const members = formatMembers(ch.members);
-                  const isAd = isJisouPromotedChannel(ch);
-                  return (
-                    <li key={ch.url}>
-                      <button
-                        type="button"
-                        className={`gs-channel-card${active ? " is-active" : ""}${isAd ? " gs-channel-card--ad" : ""}`}
-                        onClick={() => onChannelClick(ch)}
-                        disabled={channelLoading && !isAd}
-                        aria-label={isAd ? "推广内容，已屏蔽" : ch.title}
-                      >
-                        <div className="gs-channel-card-main">
-                          {isAd ? (
-                            <div className="gs-channel-ad-mosaic" aria-hidden="true">
-                              <span className="gs-channel-ad-text">{ch.title}</span>
-                              {ch.label ? <span className="gs-channel-ad-text gs-channel-ad-text--sub">{ch.label}</span> : null}
-                            </div>
-                          ) : (
-                            <>
-                              <span className="gs-channel-title">{ch.title}</span>
-                              {shouldShowChannelLabel(ch.title, ch.label) ? (
-                                <span className="gs-channel-label">{ch.label}</span>
-                              ) : null}
-                            </>
-                          )}
-                        </div>
-                        <div className="gs-channel-meta">
-                          {isAd ? (
-                            <span className="gs-channel-ad-badge">广告 · 已屏蔽</span>
-                          ) : (
-                            <>
-                              @{ch.username}
-                              {ch.postId ? <span className="gs-channel-post"> · #{ch.postId}</span> : null}
-                              {members ? <span> · {members}</span> : null}
-                            </>
-                          )}
-                        </div>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
+          {(pickSupportedJisouFilterButtons(searchButtons.filters).length > 0 ||
+            searchButtons.actions.length > 0) &&
+          !loading ? (
+            <JisouSearchToolbar
+              buttons={searchButtons}
+              activeFilterCallback={activeFilterCallback}
+              disabled={!toolbarEnabled}
+              loading={actionLoading}
+              onAction={(btn) => void runSearchAction(btn)}
+            />
+          ) : null}
 
-          <section className="gs-panel gs-panel--messages" aria-label="频道消息">
-            {mobileDetail && activeChannel ? (
-              <button type="button" className="gs-mobile-back" onClick={() => setMobileDetail(false)}>
-                ← 返回暗网列表
-              </button>
-            ) : null}
+          {actionLoading ? <p className="gs-panel-loading">正在更新结果…</p> : null}
 
-            {!activeChannel ? (
-              <div className="gs-panel-placeholder">
-                <p>选择暗网索引查看消息预览</p>
-              </div>
-            ) : (
-              <>
-                <div className="gs-panel-head gs-panel-head--stack">
-                  <h2 className="gs-panel-title">@{activeChannel.username}</h2>
-                  <p className="gs-channel-submeta">
-                    {channelMeta?.entityType ? `${channelMeta.entityType}` : "频道"}
-                    {channelMeta?.broadcast ? " · 公开广播" : ""}
-                    {channelMeta?.anchorMessageId ? (
-                      <span className="gs-channel-post"> · 定位 #{channelMeta.anchorMessageId}</span>
-                    ) : null}
-                  </p>
-                </div>
-
-                {channelMeta?.note ? <p className="gs-panel-note">{channelMeta.note}</p> : null}
-
-                <form
-                  className="gs-inline-search"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (activeChannel) void loadChannel(activeChannel, channelSearch);
-                  }}
-                >
-                  <input
-                    value={channelSearch}
-                    onChange={(e) => setChannelSearch(e.target.value)}
-                    placeholder="频道内搜索（可选）"
-                    className="gs-inline-search-input"
-                  />
-                  <button type="submit" className="gs-inline-search-btn" disabled={channelLoading}>
-                    {channelLoading ? "…" : "刷新"}
-                  </button>
-                </form>
-
-                {channelLoading ? (
-                  <p className="gs-panel-loading">正在加载消息并并发预缓存封面…</p>
-                ) : (
-                  <ul className="gs-message-list">
-                    {messages.map((msg) => {
-                      const fullText = msg.fullText || msg.caption || msg.textPreview || "";
-                      const articleTitle =
-                        msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id} · ${msg.contentType}`;
-                      return (
-                        <li
-                          key={`${msg.kind}-${msg.id}`}
-                          ref={msg.isAnchor ? anchorRef : undefined}
-                          className={`gs-message-card${msg.isAnchor ? " is-anchor" : ""}`}
-                        >
-                          <div className="gs-message-head">
-                            <span>
-                              {msg.isAnchor ? <strong className="gs-anchor-tag">定位</strong> : null}
-                              {msg.kind === "album" ? `相册 · ${msg.albumSize} 张` : `#${msg.id}`}
-                              {" · "}
-                              {msg.contentType}
-                            </span>
-                            {fullText ? (
-                              <button
-                                type="button"
-                                className="gs-message-tg-link gs-message-view-btn"
-                                onClick={() => setArticle({ title: articleTitle, text: fullText })}
-                              >
-                                查看原文
-                              </button>
-                            ) : msg.permalink ? (
-                              <Link
-                                href={msg.permalink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="gs-message-tg-link"
-                              >
-                                查看原文
-                              </Link>
-                            ) : null}
+          {loading ? (
+            <p className="gs-panel-loading">正在全网检索…</p>
+          ) : channels.length === 0 ? (
+            <p className="gs-panel-muted">暂无频道</p>
+          ) : (
+            <ul className="gs-channel-list">
+              {channels.map((ch) => {
+                const opening = channelLoading && activeChannel?.url === ch.url;
+                const isAd = isJisouPromotedChannel(ch);
+                const { icon: rowIcon, title: rowTitle } = isAd
+                  ? { icon: null, title: ch.title }
+                  : formatJisouChannelRow(ch, activeFilterType);
+                return (
+                  <li key={ch.url}>
+                    <button
+                      type="button"
+                      className={`gs-channel-card${opening ? " is-active" : ""}${isAd ? " gs-channel-card--ad" : ""}`}
+                      onClick={() => onChannelClick(ch)}
+                      disabled={opening && !isAd}
+                      aria-label={isAd ? "推广内容，已屏蔽" : rowTitle || ch.title}
+                    >
+                      <div className="gs-channel-card-main">
+                        {isAd ? (
+                          <div className="gs-channel-ad-mosaic" aria-hidden="true">
+                            <span className="gs-channel-ad-text">{ch.title}</span>
+                            {ch.label ? <span className="gs-channel-ad-text gs-channel-ad-text--sub">{ch.label}</span> : null}
                           </div>
+                        ) : (
+                          <>
+                            <span className="gs-channel-title">
+                              {rowIcon ? (
+                                <span className="gs-result-type-icon" aria-hidden>
+                                  {rowIcon}
+                                </span>
+                              ) : null}
+                              {rowTitle}
+                            </span>
+                            {shouldShowChannelLabel(rowTitle, ch.label) ? (
+                              <span className="gs-channel-label">{ch.label}</span>
+                            ) : null}
+                          </>
+                        )}
+                      </div>
+                      {isAd ? (
+                        <div className="gs-channel-meta">
+                          <span className="gs-channel-ad-badge">广告 · 已屏蔽</span>
+                        </div>
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      ) : null}
 
-                          {activeChannel.username && msg.mediaItems.length > 0 ? (
-                            <MessageMediaGallery username={activeChannel.username} msg={msg} />
-                          ) : null}
-
-                          {msg.textPreview ? <p className="gs-message-text">{msg.textPreview}</p> : null}
-
-                          {msg.date ? (
-                            <time className="gs-message-time" dateTime={msg.date}>
-                              {new Date(msg.date).toLocaleString("zh-CN")}
-                            </time>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </>
-            )}
-          </section>
-        </div>
+      {activeChannel ? (
+        <ChannelMessagesModal
+          channel={activeChannel}
+          activeFilterType={activeFilterType}
+          channelMeta={channelMeta}
+          channelSearch={channelSearch}
+          onChannelSearchChange={setChannelSearch}
+          onReload={() => void loadChannel(activeChannel, channelSearch)}
+          messages={messages}
+          channelLoading={channelLoading}
+          loadError={channelLoadError}
+          onClose={closeChannelModal}
+          onOpenArticle={setArticle}
+          anchorRef={anchorRef}
+        />
       ) : null}
 
       {article ? <ArticleModal title={article.title} text={article.text} onClose={() => setArticle(null)} /> : null}

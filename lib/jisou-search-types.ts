@@ -8,6 +8,8 @@ export type JisouChannelItem = {
   /** 极搜链接若指向具体帖子 t.me/channel/12345 */
   postId?: number | null;
   label?: string;
+  /** 极搜结果行前缀图标（📢/🎬/🎧/💬） */
+  contentIcon?: string;
 };
 
 /** 极搜频道结果中 username 为空表示邀请链接推广位（广告） */
@@ -91,6 +93,13 @@ export type JisouCaptchaChallenge = {
 export type JisouSearchService = {
   searchJisouChannels: (query: string, opts?: { webCaptcha?: boolean }) => Promise<JisouSearchResult>;
   solveJisouCaptchaAndSearch: (challengeId: string, answer: string) => Promise<JisouSearchResult>;
+  clickJisouSearchButton: (opts: {
+    replyMessageId: number;
+    callback?: string;
+    text?: string;
+    query?: string;
+    webCaptcha?: boolean;
+  }) => Promise<JisouSearchResult>;
   getJisouCaptchaImage: (challengeId: string) => { buffer: Buffer; mime: string } | null;
   fetchChannelMessages: (
     username: string,
