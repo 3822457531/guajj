@@ -91,6 +91,8 @@ async function tryServeCachedGlobalSearch(guestUserId: string, keyword: string, 
 export async function handleTgSearchPost(request: Request, apiBase: string) {
   const started = Date.now();
   tgSearchLog("search-api", `POST ${apiBase}/search 收到请求`);
+  const svc = loadJisouSearchService<JisouSearchService>();
+  svc.preemptLowPriorityWork?.("search_request");
 
   let body: { q?: string };
   try {
@@ -119,10 +121,8 @@ export async function handleTgSearchPost(request: Request, apiBase: string) {
   }
 
   tgSearchLog("search-api", "开始极搜", { q });
-  const svc = loadJisouSearchService<JisouSearchService>();
-
   try {
-    const result = await svc.searchJisouChannels(q, { webCaptcha: true });
+    const result = await svc.searchJisouChannels(q, { webCaptcha: true, signal: request.signal });
     const channelCount = result.channels?.length ?? 0;
     if (channelCount > 0) {
       await recordGlobalSearchIfBillable(request, q, channelCount);
@@ -256,6 +256,8 @@ export async function handleTgCaptchaSolvePost(request: Request, apiBase: string
 export async function handleTgSearchActionPost(request: Request, apiBase: string) {
   const started = Date.now();
   tgSearchLog("search-api", `POST ${apiBase}/action 收到请求`);
+  const svc = loadJisouSearchService<JisouSearchService>();
+  svc.preemptLowPriorityWork?.("search_action");
 
   const guestUserId = await readGuestUserIdFromRequest();
   if (!guestUserId) {
@@ -288,7 +290,6 @@ export async function handleTgSearchActionPost(request: Request, apiBase: string
   }
 
   tgSearchLog("search-api", "极搜按钮操作", { replyMessageId, callback: callback || null, text: text || null, query });
-  const svc = loadJisouSearchService<JisouSearchService>();
 
   try {
     const result = await svc.clickJisouSearchButton({
@@ -419,7 +420,51 @@ export async function handleTgMediaGet(request: Request) {
   const svc = loadJisouSearchService<JisouSearchService>();
 
   try {
-    const result = await svc.resolveMessageMedia(username, messageId, { thumb });
+    if (thumb !== false) {
+      const cachedThumb = await svc.getCachedThumbMediaUrl?.(username, messageId);
+      if (cachedThumb?.url) {
+        tgSearchLog("media-api", "缩略图缓存命中", {
+          username,
+          messageId,
+          contentType: cachedThumb.contentType,
+          ms: Date.now() - started
+        });
+        return NextResponse.redirect(cachedThumb.url, {
+          status: 302,
+          headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" }
+        });
+      }
+
+      tgSearchLog("media-api", "缩略图 GET 已拒绝（未缓存，请走 batch）", {
+        username,
+        messageId,
+        ms: Date.now() - started
+      });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "THUMB_USE_BATCH",
+          message: "缩略图请使用 POST /media/batch，避免阻塞搜索"
+        },
+        { status: 410 }
+      );
+    }
+
+    const cachedFull = await svc.getCachedFullMediaUrl(username, messageId);
+    if (cachedFull?.url) {
+      tgSearchLog("media-api", "媒体缓存命中", {
+        username,
+        messageId,
+        contentType: cachedFull.contentType,
+        ms: Date.now() - started
+      });
+      return NextResponse.redirect(cachedFull.url, {
+        status: 302,
+        headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" }
+      });
+    }
+
+    const result = await svc.resolveMessageMedia(username, messageId, { thumb: false, signal: request.signal });
     tgSearchLog("media-api", "媒体就绪", {
       username,
       messageId,
@@ -455,6 +500,88 @@ export async function handleTgMediaGet(request: Request) {
       { status }
     );
   }
+}
+
+export async function handleTgMediaStreamGet(request: Request) {
+  const started = Date.now();
+  const { searchParams } = new URL(request.url);
+  const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
+  const messageId = Number(searchParams.get("messageId") ?? searchParams.get("mid") ?? 0);
+
+  if (!username || messageId <= 0) {
+    return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
+  }
+
+  const svc = loadJisouSearchService<JisouSearchService>();
+
+  try {
+    const result = await svc.createVideoStreamResponse(username, messageId, {
+      signal: request.signal
+    });
+
+    if ("redirect" in result) {
+      tgSearchLog("media-api", "视频流缓存命中", { username, messageId, ms: Date.now() - started });
+      return NextResponse.redirect(result.redirect, {
+        status: 302,
+        headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" }
+      });
+    }
+
+    tgSearchLog("media-api", "视频流开始", { username, messageId, ms: Date.now() - started });
+
+    return new NextResponse(result.stream, {
+      headers: {
+        "Content-Type": result.mime || "video/mp4",
+        "Cache-Control": "public, max-age=3600",
+        "Accept-Ranges": "none",
+        "X-Accel-Buffering": "no"
+      }
+    });
+  } catch (err: unknown) {
+    const mapped = svc.mapGramError(err);
+    const code = (err as { code?: string })?.code || mapped.code;
+    if (code === "REQUEST_ABORTED") {
+      return new NextResponse(null, { status: 499 });
+    }
+    const status =
+      code === "NO_MEDIA" || code === "NOT_VIDEO" || code === "INVALID_PARAMS" ? 404 : 500;
+    return NextResponse.json(
+      { ok: false, error: code, message: (err as Error)?.message || mapped.message },
+      { status }
+    );
+  }
+}
+
+export async function handleTgMediaWarmPost(request: Request) {
+  let body: { username?: string; messageId?: number; messageIds?: number[] };
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
+  }
+
+  const username = String(body.username ?? "").trim();
+  const ids = new Set<number>();
+  if (body.messageId) ids.add(Math.floor(Number(body.messageId)));
+  for (const id of body.messageIds || []) {
+    const n = Math.floor(Number(id));
+    if (n > 0) ids.add(n);
+  }
+
+  if (!username || !ids.size) {
+    return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
+  }
+
+  const svc = loadJisouSearchService<JisouSearchService>();
+  const list = [...ids].slice(0, 3);
+
+  for (const messageId of list) {
+    void svc.warmVideoMedia(username, messageId);
+  }
+
+  tgSearchLog("media-api", "视频预热排队", { username, count: list.length, messageIds: list });
+
+  return NextResponse.json({ ok: true, queued: list.length, messageIds: list }, { status: 202 });
 }
 
 export async function handleTgMediaBatchPost(request: Request) {

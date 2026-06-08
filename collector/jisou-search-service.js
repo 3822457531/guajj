@@ -2,7 +2,7 @@
  * 极搜搜索 + 公开频道读消息（测试 / API 用）
  */
 const { Api } = require("telegram/tl");
-const { withGramClient, sleep } = require("./gram-client");
+const { withGramClient, sleep, preemptLowPriorityWork } = require("./gram-client");
 const { parseJisouSearchMessage, parseJisouReplyMarkup } = require("./jisou-parse");
 const { pickContentType } = require("./parse");
 const { mapRawMessage, groupMessagesForDisplay } = require("./message-display");
@@ -479,7 +479,7 @@ async function clickJisouSearchButton(opts = {}) {
     const result = buildJisouSearchResult(query, outcome.msg);
     console.log(`[tg-search:collector] button ok channels=${result.channels?.length ?? 0} msgId=${outcome.msg.id}`);
     return result;
-  });
+  }, { priority: "high" });
 }
 /**
  * 向 @jisou 发关键词；若遇人机验证则自动/等待/web 交给前端
@@ -531,7 +531,7 @@ async function searchJisouChannels(query, opts = {}) {
     const err = new Error("极搜搜索在验证后仍未返回结果，请稍后重试");
     err.code = "JISOU_SEARCH_FAILED";
     throw err;
-  });
+  }, { priority: "high", signal: opts.signal });
 }
 
 /**
@@ -608,7 +608,7 @@ async function solveJisouCaptchaAndSearch(challengeId, answer) {
       `[tg-search:collector] captcha solved (late), search ok channels=${result.channels?.length ?? 0} replyId=${reply.id}`
     );
     return result;
-  });
+  }, { priority: "high" });
 }
 
 /**
@@ -788,7 +788,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       messages: displayList,
       fetchedAt: new Date().toISOString()
     };
-  }, { signal });
+  }, { signal, priority: "high" });
 }
 
 async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
@@ -845,7 +845,7 @@ async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
         thumb: wantThumb,
         buffer: result.buffer || null
       };
-    })
+    }, { priority: "low", signal: opts.signal })
   );
 }
 
@@ -907,7 +907,13 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
       throwIfAborted(opts.signal);
       const entity = await client.getEntity(username);
       const batch = await client.getMessages(entity, { ids: needFetch });
-      const messages = (batch || []).filter((m) => m?.media);
+      const messages = (batch || [])
+        .filter((m) => m?.media)
+        .sort((a, b) => {
+          const av = pickContentType(a) === "VIDEO" ? 1 : 0;
+          const bv = pickContentType(b) === "VIDEO" ? 1 : 0;
+          return av - bv;
+        });
 
       const concurrency = thumbPrefetchConcurrency();
       const budgetMs = mediaBatchBudgetMs();
@@ -951,13 +957,58 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
       );
 
       return { username, media, partial };
-    }, { signal: opts.signal })
+    }, { signal: opts.signal, priority: "low" })
   );
 }
 
 /** @deprecated 请用 resolveMessageMedia；仅保留类型兼容 */
 async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
   return resolveMessageMedia(usernameOrUrl, messageId, opts);
+}
+
+async function getCachedFullMediaUrl(username, messageId) {
+  const { getCachedFullMediaUrl: getCached } = require("./tg-search-media-stream");
+  return getCached(username, messageId);
+}
+
+async function getCachedThumbMediaUrl(usernameOrUrl, messageId) {
+  const username = normalizeUsername(usernameOrUrl);
+  const mid = Math.floor(Number(messageId));
+  if (!username || mid <= 0) return null;
+
+  const { getCachedMediaUrl, buildMediaSubPath } = require("./tg-search-media-cache");
+  for (const contentType of ["PHOTO", "VIDEO"]) {
+    const subPath = buildMediaSubPath(username, mid, "thumb", contentType);
+    const url = await getCachedMediaUrl(subPath);
+    if (url) {
+      return { url, contentType, messageId: mid, username };
+    }
+  }
+  return null;
+}
+
+async function createVideoStreamResponse(username, messageId, opts = {}) {
+  const { createVideoStreamResponse: createStream } = require("./tg-search-media-stream");
+  return createStream(username, messageId, opts);
+}
+
+/**
+ * 后台预热视频到 R2（低优先级，供二次播放秒开）
+ */
+function warmVideoMedia(usernameOrUrl, messageId) {
+  const username = normalizeUsername(usernameOrUrl);
+  const mid = Math.floor(Number(messageId));
+  if (!username || mid <= 0) return Promise.resolve(null);
+
+  const { singleflight } = require("./tg-search-media-cache");
+  const key = `warm:${username}:${mid}`;
+
+  return singleflight(key, () =>
+    resolveMessageMedia(username, mid, { thumb: false }).catch((err) => {
+      console.warn(`[tg-search:collector] video warm fail ${username}/${mid}:`, err?.message || err);
+      return null;
+    })
+  );
 }
 
 module.exports = {
@@ -968,7 +1019,12 @@ module.exports = {
   fetchChannelMessages,
   resolveMessageMedia,
   resolveMessageMediaBatch,
+  getCachedFullMediaUrl,
+  getCachedThumbMediaUrl,
+  createVideoStreamResponse,
+  warmVideoMedia,
   downloadMessageMedia,
   normalizeUsername,
-  mapGramError
+  mapGramError,
+  preemptLowPriorityWork
 };

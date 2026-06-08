@@ -170,7 +170,6 @@ function ChannelMessagesModal({
   messages,
   channelLoading,
   loadError,
-  mediaBatchDone,
   onClose,
   onOpenArticle,
   anchorRef
@@ -190,7 +189,6 @@ function ChannelMessagesModal({
   messages: ChannelMessageItem[];
   channelLoading: boolean;
   loadError: string | null;
-  mediaBatchDone: boolean;
   onClose: () => void;
   onOpenArticle: (payload: { title: string; text: string }) => void;
   anchorRef: React.RefObject<HTMLLIElement | null>;
@@ -314,11 +312,7 @@ function ChannelMessagesModal({
                     ) : (
                       <>
                         {channel.username && msg.mediaItems.length > 0 ? (
-                          <MessageMediaGallery
-                            username={channel.username}
-                            msg={msg}
-                            allowIndividualFetch={mediaBatchDone}
-                          />
+                          <MessageMediaGallery username={channel.username} msg={msg} />
                         ) : null}
 
                         {msg.textPreview ? (
@@ -530,9 +524,28 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [activeFilterCallback, setActiveFilterCallback] = useState<string | null>(null);
   const [pendingFilterCallback, setPendingFilterCallback] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [mediaBatchDone, setMediaBatchDone] = useState(true);
   const anchorRef = useRef<HTMLLIElement>(null);
   const channelAbortRef = useRef<AbortController | null>(null);
+  const searchAbortRef = useRef<AbortController | null>(null);
+
+  function abortChannelWork() {
+    channelAbortRef.current?.abort();
+    channelAbortRef.current = null;
+    setActiveChannel(null);
+    setMessages([]);
+    setChannelMeta(null);
+    setChannelLoadError(null);
+    setChannelSearch("");
+  }
+
+  function beginSearchSession() {
+    abortChannelWork();
+    searchAbortRef.current?.abort();
+    const controller = new AbortController();
+    searchAbortRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 55000);
+    return { controller, clearTimeout: () => window.clearTimeout(timeout) };
+  }
 
   const activeFilterType = parseJisouCallbackFilterType(activeFilterCallback);
   const toolbarEnabled = !fromCache && replyMessageId != null && !loading;
@@ -687,15 +700,13 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     const q = query.trim();
     if (!q) return;
 
+    const { controller: searchAbort, clearTimeout: clearSearchTimeout } = beginSearchSession();
+
     setLoading(true);
     setError(null);
     setChannels([]);
-    setActiveChannel(null);
-    setMessages([]);
-    setChannelMeta(null);
     setCaptcha(null);
     setFromCache(false);
-    setChannelLoadError(null);
     setActiveFilterCallback(null);
     setPendingFilterCallback(null);
     setReplyMessageId(null);
@@ -706,7 +717,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ q }),
-        signal: AbortSignal.timeout(55000)
+        signal: searchAbort.signal
       });
       const data = (await res.json()) as SearchSuccessPayload & {
         ok?: boolean;
@@ -730,6 +741,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       setSearchQuery(q);
       applySearchSuccess({ ...data, query: data.query || q }, { freshKeyword: true });
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       const msg =
         err instanceof Error && err.name === "TimeoutError"
           ? "搜索超时，请稍后重试"
@@ -738,7 +750,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
             : "搜索失败";
       setError(msg);
     } finally {
-      setLoading(false);
+      clearSearchTimeout();
+      if (searchAbortRef.current === searchAbort) {
+        searchAbortRef.current = null;
+        setLoading(false);
+      }
     }
   }
 
@@ -809,14 +825,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   }
 
   function closeChannelModal() {
-    channelAbortRef.current?.abort();
-    channelAbortRef.current = null;
-    setMediaBatchDone(true);
-    setActiveChannel(null);
-    setMessages([]);
-    setChannelMeta(null);
-    setChannelLoadError(null);
-    setChannelSearch("");
+    abortChannelWork();
   }
 
   async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
@@ -829,7 +838,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setActiveChannel(channel);
     setChannelLoading(true);
     setChannelLoadError(null);
-    setMediaBatchDone(false);
 
     try {
       const params = new URLSearchParams({
@@ -873,17 +881,14 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       setMessages(initialMessages);
       if (!initialMessages.length) {
         setChannelLoadError("频道可读，但当前条件下没有消息");
-        setMediaBatchDone(true);
       } else {
         void prefetchChannelThumbs(channel.username, initialMessages, abortController);
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
-        setMediaBatchDone(true);
         return;
       }
       setChannelLoadError(err instanceof Error ? err.message : "读取频道失败");
-      setMediaBatchDone(true);
     } finally {
       setChannelLoading(false);
     }
@@ -894,28 +899,12 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     initialMessages: ChannelMessageItem[],
     abortController: AbortController
   ) {
-    const ids = collectChannelThumbIds(initialMessages);
-    if (!ids.length) {
-      setMediaBatchDone(true);
-      return;
-    }
-
     const batchSize = 8;
-    const waves: number[][] = [];
-    for (let i = 0; i < ids.length; i += batchSize) {
-      waves.push(ids.slice(i, i + batchSize));
-    }
+    const maxRounds = 4;
+    let pending = new Set(collectChannelThumbIds(initialMessages));
 
-    let individualUnlocked = false;
-    const unlockIndividualFetch = () => {
-      if (individualUnlocked) return;
-      individualUnlocked = true;
-      setMediaBatchDone(true);
-    };
-
-    const unlockTimer = window.setTimeout(unlockIndividualFetch, 10000);
-
-    async function runWave(waveIds: number[]) {
+    async function runWave(waveIds: number[]): Promise<ChannelThumbMap | null> {
+      if (!waveIds.length) return null;
       const res = await fetch(`${API}/media/batch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -927,23 +916,31 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         media?: ChannelThumbMap;
         partial?: boolean;
       };
-      if (abortController.signal.aborted) return;
+      if (abortController.signal.aborted) return null;
       if (res.ok && data.ok && data.media) {
         setMessages((prev) => mergeChannelThumbMap(prev, data.media!));
+        return data.media;
       }
+      return null;
     }
 
     try {
-      for (let i = 0; i < waves.length; i++) {
+      for (let round = 0; round < maxRounds && pending.size > 0; round++) {
         if (abortController.signal.aborted) break;
-        await runWave(waves[i]!);
-        if (i === 0) unlockIndividualFetch();
+        const ids = [...pending];
+        for (let i = 0; i < ids.length; i += batchSize) {
+          if (abortController.signal.aborted) break;
+          const waveIds = ids.slice(i, i + batchSize);
+          const media = await runWave(waveIds);
+          if (!media) continue;
+          for (const id of waveIds) {
+            const hit = media[String(id)] ?? media[id as unknown as keyof ChannelThumbMap];
+            if (hit?.url) pending.delete(id);
+          }
+        }
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
-    } finally {
-      window.clearTimeout(unlockTimer);
-      unlockIndividualFetch();
     }
   }
 
@@ -952,16 +949,14 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const historyHasMore = history.length > HISTORY_COLLAPSED;
 
   async function searchKeyword(keyword: string) {
+    const { controller: searchAbort, clearTimeout: clearSearchTimeout } = beginSearchSession();
+
     setQuery(keyword);
     setLoading(true);
     setError(null);
     setChannels([]);
-    setActiveChannel(null);
-    setMessages([]);
-    setChannelMeta(null);
     setCaptcha(null);
     setFromCache(false);
-    setChannelLoadError(null);
     setActiveFilterCallback(null);
     setPendingFilterCallback(null);
     setReplyMessageId(null);
@@ -972,7 +967,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ q: keyword }),
-        signal: AbortSignal.timeout(55000)
+        signal: searchAbort.signal
       });
       const data = (await res.json()) as SearchSuccessPayload & {
         ok?: boolean;
@@ -996,6 +991,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       setSearchQuery(keyword);
       applySearchSuccess({ ...data, query: data.query || keyword }, { freshKeyword: true });
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       const msg =
         err instanceof Error && err.name === "TimeoutError"
           ? "搜索超时，请稍后重试"
@@ -1004,7 +1000,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
             : "搜索失败";
       setError(msg);
     } finally {
-      setLoading(false);
+      clearSearchTimeout();
+      if (searchAbortRef.current === searchAbort) {
+        searchAbortRef.current = null;
+        setLoading(false);
+      }
     }
   }
 
@@ -1268,7 +1268,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           messages={messages}
           channelLoading={channelLoading}
           loadError={channelLoadError}
-          mediaBatchDone={mediaBatchDone}
           onClose={closeChannelModal}
           onOpenArticle={setArticle}
           anchorRef={anchorRef}

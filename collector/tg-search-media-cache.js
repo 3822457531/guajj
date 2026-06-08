@@ -12,6 +12,29 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/** 视频 document 封面：thumb:1 常越界（仅 1 张封面时），需按 type 或 index 0 */
+function pickDocumentThumbCandidates(msg) {
+  const thumbs = msg.media?.document?.thumbs;
+  if (!Array.isArray(thumbs) || !thumbs.length) return [0];
+
+  const candidates = [];
+  for (const type of ["m", "s", "i", "a", "0"]) {
+    if (thumbs.some((t) => t && typeof t === "object" && "type" in t && t.type === type)) {
+      candidates.push(type);
+    }
+  }
+  candidates.push(0);
+  if (thumbs.length > 1) candidates.push(1);
+  return [...new Set(candidates)];
+}
+
+function buildThumbDownloadOpts(contentType, thumbArg) {
+  if (contentType === "VIDEO") {
+    return { thumb: thumbArg ?? 0 };
+  }
+  return { thumb: thumbArg ?? 1 };
+}
+
 function mediaDownloadTimeoutMs() {
   const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 12000;
   return Math.min(45000, Math.max(4000, Math.round(n)));
@@ -118,39 +141,68 @@ function singleflight(key, fn) {
  * @param {import('telegram').Api.Message} msg
  * @param {boolean} wantThumb
  * @param {AbortSignal} [signal]
+ * @param {number} [retriesLeft]
+ * @param {number | string} [thumbArg]
  */
-async function downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft = mediaDownloadRetries()) {
+async function downloadMediaBuffer(
+  client,
+  msg,
+  wantThumb,
+  signal,
+  retriesLeft = mediaDownloadRetries(),
+  thumbArg
+) {
   throwIfAborted(signal);
   const { pickContentType } = require("./parse");
   const contentType = pickContentType(msg);
-  const downloadOpts = wantThumb ? { thumb: 1 } : {};
+  const downloadOpts = wantThumb ? buildThumbDownloadOpts(contentType, thumbArg) : {};
   const timeoutMs = mediaDownloadTimeoutMs();
 
   let timer;
+  let onAbort;
+  const racers = [];
   const downloadPromise = client.downloadMedia(msg, downloadOpts);
-  const timeoutPromise = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      const err = new Error(`媒体下载超时（${timeoutMs}ms）`);
-      err.code = "DOWNLOAD_TIMEOUT";
-      reject(err);
-    }, timeoutMs);
-  });
+  racers.push(downloadPromise);
+  racers.push(
+    new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        const err = new Error(`媒体下载超时（${timeoutMs}ms）`);
+        err.code = "DOWNLOAD_TIMEOUT";
+        reject(err);
+      }, timeoutMs);
+    })
+  );
+  if (signal) {
+    racers.push(
+      new Promise((_, reject) => {
+        onAbort = () => {
+          const err = new Error("请求已取消");
+          err.code = "REQUEST_ABORTED";
+          reject(err);
+        };
+        if (signal.aborted) onAbort();
+        else signal.addEventListener("abort", onAbort, { once: true });
+      })
+    );
+  }
 
   let buffer;
   try {
-    buffer = await Promise.race([downloadPromise, timeoutPromise]);
+    buffer = await Promise.race(racers);
   } catch (err) {
-    clearTimeout(timer);
     const retryable =
       retriesLeft > 0 &&
+      err?.code !== "REQUEST_ABORTED" &&
       (err?.code === "DOWNLOAD_TIMEOUT" || /TIMEOUT/i.test(String(err?.message || err)));
     if (retryable) {
       await sleep(600);
-      return downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft - 1);
+      throwIfAborted(signal);
+      return downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft - 1, thumbArg);
     }
     throw err;
   } finally {
     clearTimeout(timer);
+    if (signal && onAbort) signal.removeEventListener("abort", onAbort);
   }
 
   throwIfAborted(signal);
@@ -172,6 +224,22 @@ async function downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft =
   }
 
   return { buffer, mime, contentType };
+}
+
+async function downloadVideoThumbBuffer(client, msg, signal) {
+  const candidates = pickDocumentThumbCandidates(msg);
+  let lastErr;
+  for (const thumbArg of candidates) {
+    try {
+      return await downloadMediaBuffer(client, msg, true, signal, mediaDownloadRetries(), thumbArg);
+    } catch (err) {
+      lastErr = err;
+      if (err?.code === "REQUEST_ABORTED") throw err;
+    }
+  }
+  const err = lastErr || new Error("视频封面下载失败");
+  if (!err.code) err.code = "DOWNLOAD_FAILED";
+  throw err;
 }
 
 /**
@@ -212,7 +280,11 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
     let buffer;
     let mime;
     try {
-      ({ buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal));
+      if (wantThumb && contentType === "VIDEO") {
+        ({ buffer, mime } = await downloadVideoThumbBuffer(client, msg, opts.signal));
+      } else {
+        ({ buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal));
+      }
     } catch (thumbErr) {
       if (wantThumb && contentType === "PHOTO") {
         const fullSubPath = buildMediaSubPath(username, msg.id, "full", contentType);
@@ -338,6 +410,7 @@ module.exports = {
   putCachedMedia,
   singleflight,
   downloadMediaBuffer,
+  downloadVideoThumbBuffer,
   cacheMessageMediaWithClient,
   mapPool,
   mapPoolSettled,

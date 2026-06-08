@@ -2,6 +2,19 @@ import type { ChannelMediaItem, ChannelMessageItem } from "@/lib/jisou-search-ty
 
 export type ChannelThumbMap = Record<string, { url: string; cached?: boolean }>;
 
+export function collectChannelVideoIds(messages: ChannelMessageItem[]): number[] {
+  const ids = new Set<number>();
+  for (const msg of messages) {
+    if (msg.sensitiveBlocked) continue;
+    for (const mi of msg.mediaItems || []) {
+      if (mi.contentType === "VIDEO" && !mi.fullUrl) {
+        ids.add(mi.id);
+      }
+    }
+  }
+  return Array.from(ids);
+}
+
 export function collectChannelThumbIds(messages: ChannelMessageItem[]): number[] {
   const ids = new Set<number>();
   for (const msg of messages) {

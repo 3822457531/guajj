@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import {
+  buildAbsoluteReferralLink,
   buildReferralLink,
   readGuestIdentityBackup,
   saveGuestIdentityBackup
@@ -189,7 +190,7 @@ export function MyPageClient(props: MyPageClientProps) {
               label="复制推广链接"
               text={referralLink}
               copied={copiedField === "link"}
-              onCopy={() => void copyText("link", referralLink)}
+              onCopy={() => void copyText("link", buildAbsoluteReferralLink(props.publicId))}
             />
           </div>
           <p className="my-field-hint">好友通过链接注册后，你将获得额外搜索次数</p>

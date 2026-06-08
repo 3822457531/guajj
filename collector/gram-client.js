@@ -1,14 +1,11 @@
 /**
  * 复用 collector session 的 GramJS 连接（API / 测试页用）
  * 同一 session 禁止并发 RPC，否则 Telegram 返回 AUTH_KEY_DUPLICATED
- * 连接保持 warm：避免每次 /media 都 reconnect + 跨 DC 握手（主要慢点）
+ * 高优先级（搜索/频道）可抢占低优先级（媒体批量/缩略图/视频流），并清空排队中的低优先级任务
  */
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { requireEnv, readSession } = require("./config");
-
-/** @type {Promise<void>} */
-let gramMutex = Promise.resolve();
 
 /** @type {TelegramClient | null} */
 let sharedClient = null;
@@ -19,6 +16,26 @@ let connecting = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
 let idleTimer = null;
 
+/** @type {AbortController | null} */
+let activeLowPriorityAbort = null;
+
+/** @type {number} 每次 preempt 递增，排队/执行中的低优先级任务需比对 */
+let lowPriorityGeneration = 0;
+
+/** @type {boolean} */
+let mutexHeld = false;
+
+/**
+ * @type {Array<{
+ *   priority: 'high' | 'low',
+ *   generation: number,
+ *   resolve: () => void,
+ *   reject: (err: Error) => void,
+ *   onAbort?: () => void
+ * }>}
+ */
+const mutexWaiters = [];
+
 function gramIdleMs() {
   const n = Number(process.env.TG_GRAM_IDLE_MS) || 45000;
   return Math.min(120000, Math.max(10000, Math.round(n)));
@@ -27,6 +44,12 @@ function gramIdleMs() {
 function gramRpcTimeoutSec() {
   const n = Number(process.env.TG_GRAM_RPC_TIMEOUT_SEC) || 45;
   return Math.min(90, Math.max(15, Math.round(n)));
+}
+
+function abortedError(reason) {
+  const err = new Error(reason === "preempt" ? "请求已被高优先级任务打断" : "请求已取消");
+  err.code = "REQUEST_ABORTED";
+  return err;
 }
 
 function clearIdleTimer() {
@@ -60,6 +83,121 @@ async function dropSharedClient(reason) {
 function isSessionFatal(err) {
   const msg = String(err?.errorMessage || err?.message || err);
   return /SESSION_REVOKED|AUTH_KEY_DUPLICATED|AUTH_KEY_UNREGISTERED|USER_DEACTIVATED/i.test(msg);
+}
+
+function mergeAbortSignals(...signals) {
+  const controller = new AbortController();
+  const onAbort = (signal) => {
+    if (!signal) return;
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      return;
+    }
+    signal.addEventListener("abort", () => controller.abort(signal.reason), { once: true });
+  };
+  for (const s of signals) onAbort(s);
+  return controller.signal;
+}
+
+function rejectQueuedLowPriority(reason) {
+  lowPriorityGeneration++;
+  const err = abortedError(reason);
+  const keep = [];
+  for (const waiter of mutexWaiters) {
+    if (waiter.priority === "low") {
+      if (waiter.onAbort) waiter.onAbort();
+      waiter.reject(err);
+    } else {
+      keep.push(waiter);
+    }
+  }
+  mutexWaiters.length = 0;
+  mutexWaiters.push(...keep);
+}
+
+function cancelActiveLowPriority(reason) {
+  if (!activeLowPriorityAbort) return;
+  console.log(`[tg-search:collector] GramJS preempt active low (${reason})`);
+  activeLowPriorityAbort.abort();
+  activeLowPriorityAbort = null;
+  void dropSharedClient("preempt");
+}
+
+/** 搜索等新任务到达时主动打断媒体下载，并清空低优先级排队 */
+function preemptLowPriorityWork(reason = "high_priority") {
+  rejectQueuedLowPriority(reason);
+  cancelActiveLowPriority(reason);
+}
+
+function assertLowGeneration(generation) {
+  if (generation !== lowPriorityGeneration) {
+    throw abortedError("preempt");
+  }
+}
+
+/**
+ * @param {'high' | 'low'} priority
+ * @param {AbortSignal | undefined} signal
+ */
+function acquireGramTurn(priority, signal) {
+  if (priority === "high") {
+    preemptLowPriorityWork("high_priority_enqueue");
+  }
+
+  const generation = lowPriorityGeneration;
+
+  if (signal?.aborted) {
+    throw abortedError("abort");
+  }
+
+  if (!mutexHeld) {
+    mutexHeld = true;
+    return Promise.resolve(generation);
+  }
+
+  return new Promise((resolve, reject) => {
+    const entry = {
+      priority,
+      generation,
+      resolve: () => resolve(generation),
+      reject
+    };
+
+    if (signal) {
+      const onAbort = () => {
+        const idx = mutexWaiters.indexOf(entry);
+        if (idx >= 0) mutexWaiters.splice(idx, 1);
+        reject(abortedError("abort"));
+      };
+      entry.onAbort = onAbort;
+      signal.addEventListener("abort", onAbort, { once: true });
+    }
+
+    if (priority === "high") {
+      mutexWaiters.unshift(entry);
+    } else {
+      mutexWaiters.push(entry);
+    }
+  });
+}
+
+function releaseGramTurn() {
+  mutexHeld = false;
+
+  while (mutexWaiters.length) {
+    const highIdx = mutexWaiters.findIndex((w) => w.priority === "high");
+    const idx = highIdx >= 0 ? highIdx : 0;
+    const next = mutexWaiters.splice(idx, 1)[0];
+
+    if (next.priority === "low" && next.generation !== lowPriorityGeneration) {
+      next.reject(abortedError("preempt"));
+      continue;
+    }
+
+    mutexHeld = true;
+    next.resolve();
+    return;
+  }
 }
 
 /**
@@ -109,40 +247,43 @@ async function acquireSharedClient() {
 /**
  * @template T
  * @param {(client: TelegramClient) => Promise<T>} fn
- * @param {{ signal?: AbortSignal }} [options]
+ * @param {{ signal?: AbortSignal, priority?: 'high' | 'low' }} [options]
  * @returns {Promise<T>}
  */
 async function withGramClient(fn, options = {}) {
-  const { signal } = options;
+  const priority = options.priority === "low" ? "low" : "high";
 
-  if (signal?.aborted) {
-    const err = new Error("请求已取消");
-    err.code = "REQUEST_ABORTED";
-    throw err;
+  /** @type {AbortController | null} */
+  let lowLocalAbort = null;
+  let effectiveSignal = options.signal;
+
+  if (priority === "low") {
+    lowLocalAbort = new AbortController();
+    activeLowPriorityAbort = lowLocalAbort;
+    effectiveSignal = mergeAbortSignals(options.signal, lowLocalAbort.signal);
   }
 
-  let releaseMutex;
-  const waitTurn = gramMutex;
-  gramMutex = new Promise((resolve) => {
-    releaseMutex = resolve;
-  });
-
-  await waitTurn;
-
-  if (signal?.aborted) {
-    releaseMutex();
-    const err = new Error("请求已取消");
-    err.code = "REQUEST_ABORTED";
-    throw err;
-  }
-
+  let turnGeneration;
   try {
-    const client = await acquireSharedClient();
-    if (signal?.aborted) {
-      const err = new Error("请求已取消");
-      err.code = "REQUEST_ABORTED";
-      throw err;
+    turnGeneration = await acquireGramTurn(priority, effectiveSignal);
+
+    if (priority === "low") {
+      assertLowGeneration(turnGeneration);
     }
+
+    if (effectiveSignal?.aborted) {
+      throw abortedError("abort");
+    }
+
+    const client = await acquireSharedClient();
+    if (priority === "low") {
+      assertLowGeneration(turnGeneration);
+    }
+
+    if (effectiveSignal?.aborted) {
+      throw abortedError("abort");
+    }
+
     scheduleIdleDisconnect();
     return await fn(client);
   } catch (err) {
@@ -151,7 +292,10 @@ async function withGramClient(fn, options = {}) {
     }
     throw err;
   } finally {
-    releaseMutex();
+    if (lowLocalAbort && activeLowPriorityAbort === lowLocalAbort) {
+      activeLowPriorityAbort = null;
+    }
+    releaseGramTurn();
     scheduleIdleDisconnect();
   }
 }
@@ -160,4 +304,4 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-module.exports = { withGramClient, sleep, dropSharedClient };
+module.exports = { withGramClient, sleep, dropSharedClient, preemptLowPriorityWork };

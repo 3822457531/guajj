@@ -14,10 +14,21 @@ function proxyMediaUrl(apiBase: string, username: string, messageId: number, thu
   return `${apiBase}/media?${params.toString()}`;
 }
 
+function streamVideoUrl(apiBase: string, username: string, messageId: number) {
+  const params = new URLSearchParams({
+    username,
+    messageId: String(messageId)
+  });
+  return `${apiBase}/media/stream?${params.toString()}`;
+}
+
 function pickSrc(apiBase: string, item: ChannelMediaItem, username: string, thumb: boolean) {
-  if (thumb && item.thumbUrl) return item.thumbUrl;
-  if (!thumb && item.fullUrl) return item.fullUrl;
-  return proxyMediaUrl(apiBase, username, item.id, thumb);
+  if (thumb) return item.thumbUrl || null;
+  if (item.fullUrl) return item.fullUrl;
+  if (item.contentType === "VIDEO") {
+    return streamVideoUrl(apiBase, username, item.id);
+  }
+  return proxyMediaUrl(apiBase, username, item.id, false);
 }
 
 function MediaSkeleton({ label }: { label?: string }) {
@@ -33,44 +44,18 @@ export function LazyPhotoThumb({
   username,
   item,
   size = 120,
-  onOpen,
-  allowIndividualFetch = true
+  onOpen
 }: {
   apiBase: string;
   username: string;
   item: ChannelMediaItem;
   size?: number;
   onOpen?: () => void;
-  allowIndividualFetch?: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(Boolean(item.thumbUrl));
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setVisible(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "120px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const canFetchIndividual = allowIndividualFetch && visible && !item.thumbUrl;
-  const src = item.thumbUrl
-    ? item.thumbUrl
-    : canFetchIndividual
-      ? `${proxyMediaUrl(apiBase, username, item.id, true)}${retryKey ? `&_r=${retryKey}` : ""}`
-      : null;
+  const src = item.thumbUrl || null;
 
   useEffect(() => {
     setLoaded(false);
@@ -78,22 +63,22 @@ export function LazyPhotoThumb({
   }, [src]);
 
   return (
-    <div ref={ref} className="gs-media-thumb" style={{ width: size }}>
+    <div className="gs-media-thumb" style={{ width: size }}>
       {!src ? (
-        <MediaSkeleton label={item.status === "pending" ? "加载中" : undefined} />
+        <MediaSkeleton label="加载封面…" />
       ) : (
         <button type="button" className="gs-media-thumb-btn" onClick={onOpen} aria-label="查看原图">
           <div className="gs-media-thumb-stage" style={{ width: size, height: size }}>
             {!loaded && !error ? <div className="gs-media-skeleton gs-media-skeleton--overlay" aria-hidden /> : null}
             {error ? (
-              <MediaSkeleton label="加载失败" />
+              <MediaSkeleton label="封面失败" />
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={src}
                 src={src}
                 alt=""
-                loading={item.thumbUrl ? "eager" : "lazy"}
+                loading="eager"
                 decoding="async"
                 onLoad={() => setLoaded(true)}
                 onError={() => setError(true)}
@@ -109,19 +94,6 @@ export function LazyPhotoThumb({
           </div>
         </button>
       )}
-      {error && allowIndividualFetch ? (
-        <button
-          type="button"
-          className="gs-media-thumb-retry"
-          onClick={() => {
-            setError(false);
-            setLoaded(false);
-            setRetryKey((k) => k + 1);
-          }}
-        >
-          重试
-        </button>
-      ) : null}
     </div>
   );
 }
@@ -130,14 +102,13 @@ export function LazyVideoPlayer({
   apiBase,
   username,
   item,
-  allowIndividualFetch = true
+  coverUrl
 }: {
   apiBase: string;
   username: string;
   item: ChannelMediaItem;
-  allowIndividualFetch?: boolean;
+  coverUrl?: string | null;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [prefetchStarted, setPrefetchStarted] = useState(Boolean(item.fullUrl));
@@ -145,22 +116,14 @@ export function LazyVideoPlayer({
   const [warming, setWarming] = useState(false);
   const [buffering, setBuffering] = useState(false);
 
-  useEffect(() => {
-    if (item.thumbUrl) {
-      setPrefetchStarted(true);
-    }
-  }, [item.thumbUrl]);
-
-  const poster =
-    item.thumbUrl ||
-    (allowIndividualFetch ? proxyMediaUrl(apiBase, username, item.id, true) : undefined);
-  const videoSrc = pickSrc(apiBase, item, username, false);
+  const poster = item.thumbUrl || coverUrl || null;
+  const videoSrc = item.fullUrl || streamVideoUrl(apiBase, username, item.id);
 
   const startPrefetch = useCallback(() => {
     if (prefetchStarted) return;
     setPrefetchStarted(true);
-    if (!item.fullUrl) setWarming(true);
-  }, [item.fullUrl, prefetchStarted]);
+    setWarming(true);
+  }, [prefetchStarted]);
 
   useEffect(() => {
     if (item.fullUrl) {
@@ -169,22 +132,6 @@ export function LazyVideoPlayer({
       setWarming(false);
     }
   }, [item.fullUrl]);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el || item.fullUrl) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          startPrefetch();
-          io.disconnect();
-        }
-      },
-      { rootMargin: "280px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [item.fullUrl, startPrefetch]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -237,7 +184,7 @@ export function LazyVideoPlayer({
   }
 
   return (
-    <div ref={containerRef} className="gs-media-video">
+    <div className="gs-media-video">
       <div className="gs-media-video-stage">
         {!playing ? (
           <button
@@ -251,7 +198,7 @@ export function LazyVideoPlayer({
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={poster} alt="" className="gs-media-video-cover" loading="eager" decoding="async" />
             ) : (
-              <MediaSkeleton label="加载中" />
+              <MediaSkeleton label="加载封面…" />
             )}
             <span className="gs-media-video-play">
               {warming && !playReady ? "准备视频…" : "▶ 点击播放"}
@@ -265,11 +212,12 @@ export function LazyVideoPlayer({
         {prefetchStarted ? (
           <video
             ref={videoRef}
+            key={videoSrc}
             className={`gs-media-video-el${playing ? " is-active" : " is-preload"}`}
             controls={playing}
             playsInline
             preload="auto"
-            poster={poster}
+            {...(poster ? { poster } : {})}
             src={videoSrc}
           />
         ) : null}
@@ -292,8 +240,7 @@ export function LazyVideoPlayer({
 export function MessageMediaGallery({
   apiBase = TG_SEARCH_API.prod,
   username,
-  msg,
-  allowIndividualFetch = true
+  msg
 }: {
   apiBase?: string;
   username: string;
@@ -305,7 +252,6 @@ export function MessageMediaGallery({
     coverUrl?: string | null;
     mediaStatus?: string | null;
   };
-  allowIndividualFetch?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
@@ -315,8 +261,8 @@ export function MessageMediaGallery({
 
   const photoItems = visualItems.filter((m) => m.contentType === "PHOTO");
   const viewerSources: MediaViewerSource[] = photoItems.map((item) => ({
-    thumb: pickSrc(apiBase, item, username, true),
-    full: pickSrc(apiBase, item, username, false)
+    thumb: pickSrc(apiBase, item, username, true) || "",
+    full: pickSrc(apiBase, item, username, false) || ""
   }));
 
   const isAlbum = msg.kind === "album" && visualItems.length > 1;
@@ -336,11 +282,11 @@ export function MessageMediaGallery({
           {showItems.map((item) =>
             item.contentType === "VIDEO" ? (
               <LazyVideoPlayer
-                key={`${item.id}-${item.thumbUrl || "pending"}`}
+                key={`${item.id}-${item.thumbUrl || msg.coverUrl || "pending"}`}
                 apiBase={apiBase}
                 username={username}
                 item={item}
-                allowIndividualFetch={allowIndividualFetch}
+                coverUrl={msg.coverUrl}
               />
             ) : (
               <LazyPhotoThumb
@@ -349,7 +295,6 @@ export function MessageMediaGallery({
                 username={username}
                 item={item}
                 onOpen={() => openPhoto(item)}
-                allowIndividualFetch={allowIndividualFetch}
               />
             )
           )}

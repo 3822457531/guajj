@@ -27,7 +27,14 @@ export function saveGuestIdentityBackup(identity: GuestIdentityBackup) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(identity));
 }
 
+/** SSR/渲染用相对路径，避免 hydration 与 window.location 不一致 */
 export function buildReferralLink(publicId: string) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  return `${origin}/?ref=${encodeURIComponent(publicId)}`;
+  return `/?ref=${encodeURIComponent(publicId)}`;
+}
+
+/** 复制/分享时用完整 URL（仅客户端调用） */
+export function buildAbsoluteReferralLink(publicId: string) {
+  const path = buildReferralLink(publicId);
+  if (typeof window === "undefined") return path;
+  return `${window.location.origin}${path}`;
 }

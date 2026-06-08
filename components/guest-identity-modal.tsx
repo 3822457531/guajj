@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  buildReferralLink,
+  buildAbsoluteReferralLink,
   readGuestIdentityBackup,
   saveGuestIdentityBackup,
   type GuestIdentityBackup
@@ -95,7 +95,7 @@ export function GuestIdentityModal({ onComplete, onLeave, initialRef }: GuestIde
 
   const copyAll = useCallback(async () => {
     if (!identity) return;
-    const text = `吃瓜网 · 匿名加密身份\n\n您的 ID：${identity.publicId}\n您的密钥：${identity.secretKey}\n\n推广链接：${buildReferralLink(identity.publicId)}\n\n身份信息已加密保存在您的浏览器中。如更换设备或清理缓存，请使用密钥找回。本站无数据库找回功能，请务必妥善保管。`;
+    const text = `吃瓜网 · 匿名加密身份\n\n您的 ID：${identity.publicId}\n您的密钥：${identity.secretKey}\n\n推广链接：${buildAbsoluteReferralLink(identity.publicId)}\n\n身份信息已加密保存在您的浏览器中。如更换设备或清理缓存，请使用密钥找回。本站无数据库找回功能，请务必妥善保管。`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

@@ -93,7 +93,11 @@ export type JisouCaptchaChallenge = {
 };
 
 export type JisouSearchService = {
-  searchJisouChannels: (query: string, opts?: { webCaptcha?: boolean }) => Promise<JisouSearchResult>;
+  searchJisouChannels: (
+    query: string,
+    opts?: { webCaptcha?: boolean; signal?: AbortSignal }
+  ) => Promise<JisouSearchResult>;
+  preemptLowPriorityWork?: (reason?: string) => void;
   solveJisouCaptchaAndSearch: (challengeId: string, answer: string) => Promise<JisouSearchResult>;
   clickJisouSearchButton: (opts: {
     replyMessageId: number;
@@ -110,13 +114,30 @@ export type JisouSearchService = {
   resolveMessageMedia: (
     username: string,
     messageId: number,
-    opts: { thumb?: boolean }
+    opts: { thumb?: boolean; signal?: AbortSignal }
   ) => Promise<ResolvedMedia>;
   resolveMessageMediaBatch: (
     username: string,
     messageIds: number[],
     opts?: { thumb?: boolean; signal?: AbortSignal }
   ) => Promise<{ username: string; media: Record<number, { url: string; cached?: boolean }>; partial?: boolean }>;
+  getCachedFullMediaUrl: (
+    username: string,
+    messageId: number
+  ) => Promise<{ url: string; contentType: string; messageId: number; username: string } | null>;
+  getCachedThumbMediaUrl?: (
+    username: string,
+    messageId: number
+  ) => Promise<{ url: string; contentType: string; messageId: number; username: string } | null>;
+  createVideoStreamResponse: (
+    username: string,
+    messageId: number,
+    opts?: { signal?: AbortSignal }
+  ) => Promise<
+    | { redirect: string }
+    | { stream: ReadableStream<Uint8Array>; mime: string; fileSize?: number }
+  >;
+  warmVideoMedia: (username: string, messageId: number) => Promise<ResolvedMedia | null>;
   downloadMessageMedia: (
     username: string,
     messageId: number,
