@@ -116,7 +116,7 @@ export type JisouSearchService = {
     username: string,
     messageIds: number[],
     opts?: { thumb?: boolean; signal?: AbortSignal }
-  ) => Promise<{ username: string; media: Record<number, { url: string; cached?: boolean }> }>;
+  ) => Promise<{ username: string; media: Record<number, { url: string; cached?: boolean }>; partial?: boolean }>;
   downloadMessageMedia: (
     username: string,
     messageId: number,

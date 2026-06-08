@@ -13,8 +13,21 @@ function sleep(ms) {
 }
 
 function mediaDownloadTimeoutMs() {
-  const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 20000;
-  return Math.min(60000, Math.max(5000, Math.round(n)));
+  const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 12000;
+  return Math.min(45000, Math.max(4000, Math.round(n)));
+}
+
+function mediaDownloadRetries() {
+  return Math.min(2, Math.max(0, Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_RETRIES) || 1));
+}
+
+function mediaBatchBudgetMs() {
+  const n = Number(process.env.TG_SEARCH_MEDIA_BATCH_BUDGET_MS) || 12000;
+  return Math.min(30000, Math.max(5000, Math.round(n)));
+}
+
+function mediaBatchMaxIds() {
+  return Math.min(24, Math.max(1, Number(process.env.TG_SEARCH_MEDIA_BATCH_MAX) || 8));
 }
 
 function throwIfAborted(signal) {
@@ -106,7 +119,7 @@ function singleflight(key, fn) {
  * @param {boolean} wantThumb
  * @param {AbortSignal} [signal]
  */
-async function downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft = 2) {
+async function downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft = mediaDownloadRetries()) {
   throwIfAborted(signal);
   const { pickContentType } = require("./parse");
   const contentType = pickContentType(msg);
@@ -287,6 +300,38 @@ async function mapPool(items, concurrency, fn, signal) {
   return results;
 }
 
+/**
+ * 并发 map，单项失败不中断；可选总耗时上限（到点停止接新任务）
+ * @template T,R
+ */
+async function mapPoolSettled(items, concurrency, fn, opts = {}) {
+  if (!items.length) return [];
+  const { signal, budgetMs = 0, startedAt = Date.now() } = opts;
+  const results = new Array(items.length);
+  let cursor = 0;
+
+  function overBudget() {
+    return budgetMs > 0 && Date.now() - startedAt >= budgetMs;
+  }
+
+  async function worker() {
+    while (cursor < items.length) {
+      if (signal?.aborted || overBudget()) break;
+      const index = cursor++;
+      try {
+        results[index] = { ok: true, value: await fn(items[index], index) };
+      } catch (err) {
+        if (signal?.aborted || err?.code === "REQUEST_ABORTED") break;
+        results[index] = { ok: false, error: err };
+      }
+    }
+  }
+
+  const workers = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workers }, () => worker()));
+  return results;
+}
+
 module.exports = {
   buildMediaSubPath,
   getCachedMediaUrl,
@@ -294,5 +339,8 @@ module.exports = {
   singleflight,
   downloadMediaBuffer,
   cacheMessageMediaWithClient,
-  mapPool
+  mapPool,
+  mapPoolSettled,
+  mediaBatchBudgetMs,
+  mediaBatchMaxIds
 };

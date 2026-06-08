@@ -66,8 +66,8 @@ function mapGramError(err) {
 }
 
 function thumbPrefetchConcurrency() {
-  const maxCap = Math.min(16, Math.max(4, Number(process.env.TG_SEARCH_THUMB_MAX) || 12));
-  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 4;
+  const maxCap = Math.min(8, Math.max(2, Number(process.env.TG_SEARCH_THUMB_MAX) || 6));
+  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 2;
   return Math.min(maxCap, Math.max(1, Math.round(n)));
 }
 
@@ -857,12 +857,13 @@ async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
  */
 async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
   const username = normalizeUsername(usernameOrUrl);
+  const maxIds = require("./tg-search-media-cache").mediaBatchMaxIds();
   const ids = [...new Set(messageIds.map((id) => Math.floor(Number(id))).filter((id) => id > 0))].slice(
     0,
-    32
+    maxIds
   );
   if (!username || !ids.length) {
-    return { username, media: {} };
+    return { username, media: {}, partial: false };
   }
 
   const wantThumb = opts.thumb !== false;
@@ -871,8 +872,9 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
     getCachedMediaUrl,
     buildMediaSubPath,
     cacheMessageMediaWithClient,
-    mapPool,
-    singleflight
+    mapPoolSettled,
+    singleflight,
+    mediaBatchBudgetMs
   } = require("./tg-search-media-cache");
   const { pickContentType } = require("./parse");
 
@@ -895,7 +897,7 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
   }
 
   if (!needFetch.length) {
-    return { username, media };
+    return { username, media, partial: false };
   }
 
   const flightKey = `batch:${username}:${needFetch.sort((a, b) => a - b).join(",")}:${variant}`;
@@ -908,11 +910,13 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
       const messages = (batch || []).filter((m) => m?.media);
 
       const concurrency = thumbPrefetchConcurrency();
+      const budgetMs = mediaBatchBudgetMs();
+      const startedAt = Date.now();
       console.log(
-        `[tg-search:collector] media batch username=${username} jobs=${messages.length} concurrency=${concurrency}`
+        `[tg-search:collector] media batch username=${username} jobs=${messages.length} concurrency=${concurrency} budgetMs=${budgetMs}`
       );
 
-      await mapPool(
+      await mapPoolSettled(
         messages,
         concurrency,
         async (msg) => {
@@ -925,26 +929,28 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
           } catch (err) {
             if (err?.code === "REQUEST_ABORTED") throw err;
             if (wantThumb && pickContentType(msg) === "PHOTO") {
-              try {
-                const full = await cacheMessageMediaWithClient(client, username, msg, {
-                  thumb: false,
-                  signal: opts.signal
-                });
-                media[msg.id] = { url: full.url, cached: full.cached };
-                return;
-              } catch {
-                /* fall through */
-              }
+              const full = await cacheMessageMediaWithClient(client, username, msg, {
+                thumb: false,
+                signal: opts.signal
+              });
+              media[msg.id] = { url: full.url, cached: full.cached };
+              return;
             }
-            console.warn(
-              `[tg-search:collector] media batch fail ${username}/${msg.id}: ${err?.message || err}`
-            );
+            throw err;
           }
         },
-        opts.signal
+        { signal: opts.signal, budgetMs, startedAt }
       );
 
-      return { username, media };
+      const resolvedCount = ids.filter((id) => Boolean(media[id])).length;
+      const partial =
+        resolvedCount < ids.length || (budgetMs > 0 && Date.now() - startedAt >= budgetMs - 50);
+
+      console.log(
+        `[tg-search:collector] media batch done username=${username} resolved=${Object.keys(media).length}/${ids.length} partial=${partial} ms=${Date.now() - startedAt}`
+      );
+
+      return { username, media, partial };
     }, { signal: opts.signal })
   );
 }

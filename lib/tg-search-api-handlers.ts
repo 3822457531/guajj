@@ -496,7 +496,7 @@ export async function handleTgMediaBatchPost(request: Request) {
       ms: Date.now() - started
     });
     return NextResponse.json(
-      { ok: true, username: result.username, media: result.media },
+      { ok: true, username: result.username, media: result.media, partial: Boolean(result.partial) },
       {
         headers: {
           "Cache-Control": "private, max-age=60"

@@ -900,27 +900,50 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       return;
     }
 
-    try {
+    const batchSize = 8;
+    const waves: number[][] = [];
+    for (let i = 0; i < ids.length; i += batchSize) {
+      waves.push(ids.slice(i, i + batchSize));
+    }
+
+    let individualUnlocked = false;
+    const unlockIndividualFetch = () => {
+      if (individualUnlocked) return;
+      individualUnlocked = true;
+      setMediaBatchDone(true);
+    };
+
+    const unlockTimer = window.setTimeout(unlockIndividualFetch, 10000);
+
+    async function runWave(waveIds: number[]) {
       const res = await fetch(`${API}/media/batch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, messageIds: ids, thumb: true }),
+        body: JSON.stringify({ username, messageIds: waveIds, thumb: true }),
         signal: abortController.signal
       });
       const data = (await res.json()) as {
         ok?: boolean;
         media?: ChannelThumbMap;
+        partial?: boolean;
       };
       if (abortController.signal.aborted) return;
       if (res.ok && data.ok && data.media) {
         setMessages((prev) => mergeChannelThumbMap(prev, data.media!));
       }
+    }
+
+    try {
+      for (let i = 0; i < waves.length; i++) {
+        if (abortController.signal.aborted) break;
+        await runWave(waves[i]!);
+        if (i === 0) unlockIndividualFetch();
+      }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
     } finally {
-      if (!abortController.signal.aborted) {
-        setMediaBatchDone(true);
-      }
+      window.clearTimeout(unlockTimer);
+      unlockIndividualFetch();
     }
   }
 
