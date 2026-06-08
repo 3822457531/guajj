@@ -8,6 +8,10 @@ const { saveMediaBytes, getSiteSettingsCached, isR2Ready, buildObjectKey, trimBa
 
 const inflight = new Map();
 
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 function mediaDownloadTimeoutMs() {
   const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 20000;
   return Math.min(60000, Math.max(5000, Math.round(n)));
@@ -102,7 +106,7 @@ function singleflight(key, fn) {
  * @param {boolean} wantThumb
  * @param {AbortSignal} [signal]
  */
-async function downloadMediaBuffer(client, msg, wantThumb, signal) {
+async function downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft = 2) {
   throwIfAborted(signal);
   const { pickContentType } = require("./parse");
   const contentType = pickContentType(msg);
@@ -122,6 +126,16 @@ async function downloadMediaBuffer(client, msg, wantThumb, signal) {
   let buffer;
   try {
     buffer = await Promise.race([downloadPromise, timeoutPromise]);
+  } catch (err) {
+    clearTimeout(timer);
+    const retryable =
+      retriesLeft > 0 &&
+      (err?.code === "DOWNLOAD_TIMEOUT" || /TIMEOUT/i.test(String(err?.message || err)));
+    if (retryable) {
+      await sleep(600);
+      return downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft - 1);
+    }
+    throw err;
   } finally {
     clearTimeout(timer);
   }
@@ -182,7 +196,42 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
       };
     }
 
-    const { buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal);
+    let buffer;
+    let mime;
+    try {
+      ({ buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal));
+    } catch (thumbErr) {
+      if (wantThumb && contentType === "PHOTO") {
+        const fullSubPath = buildMediaSubPath(username, msg.id, "full", contentType);
+        const fullCached = await getCachedMediaUrl(fullSubPath);
+        if (fullCached) {
+          return {
+            url: fullCached,
+            cached: true,
+            contentType,
+            variant,
+            messageId: msg.id,
+            username
+          };
+        }
+        ({ buffer, mime } = await downloadMediaBuffer(client, msg, false, opts.signal));
+        const url = await putCachedMedia(buffer, fullSubPath, mime);
+        console.log(
+          `[tg-search:collector] cached media full-as-thumb ${username}/${msg.id} → ${url.slice(0, 80)}`
+        );
+        return {
+          url,
+          cached: false,
+          contentType,
+          variant,
+          messageId: msg.id,
+          username,
+          buffer,
+          mime
+        };
+      }
+      throw thumbErr;
+    }
     const url = await putCachedMedia(buffer, subPath, mime);
     console.log(
       `[tg-search:collector] cached media ${variant} ${username}/${msg.id} → ${url.slice(0, 80)}`

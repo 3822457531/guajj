@@ -112,6 +112,11 @@ export type JisouSearchService = {
     messageId: number,
     opts: { thumb?: boolean }
   ) => Promise<ResolvedMedia>;
+  resolveMessageMediaBatch: (
+    username: string,
+    messageIds: number[],
+    opts?: { thumb?: boolean; signal?: AbortSignal }
+  ) => Promise<{ username: string; media: Record<number, { url: string; cached?: boolean }> }>;
   downloadMessageMedia: (
     username: string,
     messageId: number,

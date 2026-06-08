@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-media";
+import {
+  collectChannelThumbIds,
+  mergeChannelThumbMap,
+  type ChannelThumbMap
+} from "@/lib/channel-media-batch";
 import { TG_SEARCH_API, TG_SEARCH_HISTORY_API, TG_SEARCH_QUOTA_API } from "@/lib/tg-search-api-paths";
 import {
   isJisouPromotedChannel,
@@ -165,6 +170,7 @@ function ChannelMessagesModal({
   messages,
   channelLoading,
   loadError,
+  mediaBatchDone,
   onClose,
   onOpenArticle,
   anchorRef
@@ -184,6 +190,7 @@ function ChannelMessagesModal({
   messages: ChannelMessageItem[];
   channelLoading: boolean;
   loadError: string | null;
+  mediaBatchDone: boolean;
   onClose: () => void;
   onOpenArticle: (payload: { title: string; text: string }) => void;
   anchorRef: React.RefObject<HTMLLIElement | null>;
@@ -307,7 +314,11 @@ function ChannelMessagesModal({
                     ) : (
                       <>
                         {channel.username && msg.mediaItems.length > 0 ? (
-                          <MessageMediaGallery username={channel.username} msg={msg} />
+                          <MessageMediaGallery
+                            username={channel.username}
+                            msg={msg}
+                            allowIndividualFetch={mediaBatchDone}
+                          />
                         ) : null}
 
                         {msg.textPreview ? (
@@ -519,6 +530,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [activeFilterCallback, setActiveFilterCallback] = useState<string | null>(null);
   const [pendingFilterCallback, setPendingFilterCallback] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [mediaBatchDone, setMediaBatchDone] = useState(true);
   const anchorRef = useRef<HTMLLIElement>(null);
   const channelAbortRef = useRef<AbortController | null>(null);
 
@@ -799,6 +811,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   function closeChannelModal() {
     channelAbortRef.current?.abort();
     channelAbortRef.current = null;
+    setMediaBatchDone(true);
     setActiveChannel(null);
     setMessages([]);
     setChannelMeta(null);
@@ -816,6 +829,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setActiveChannel(channel);
     setChannelLoading(true);
     setChannelLoadError(null);
+    setMediaBatchDone(false);
 
     try {
       const params = new URLSearchParams({
@@ -855,18 +869,58 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         rawCount: data.rawCount,
         anchorMessageId: data.anchorMessageId
       });
-      setMessages(data.messages || []);
-      if (!data.messages?.length) {
+      const initialMessages = data.messages || [];
+      setMessages(initialMessages);
+      if (!initialMessages.length) {
         setChannelLoadError("频道可读，但当前条件下没有消息");
+        setMediaBatchDone(true);
+      } else {
+        void prefetchChannelThumbs(channel.username, initialMessages, abortController);
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setMediaBatchDone(true);
+        return;
+      }
+      setChannelLoadError(err instanceof Error ? err.message : "读取频道失败");
+      setMediaBatchDone(true);
+    } finally {
+      setChannelLoading(false);
+    }
+  }
+
+  async function prefetchChannelThumbs(
+    username: string,
+    initialMessages: ChannelMessageItem[],
+    abortController: AbortController
+  ) {
+    const ids = collectChannelThumbIds(initialMessages);
+    if (!ids.length) {
+      setMediaBatchDone(true);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/media/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, messageIds: ids, thumb: true }),
+        signal: abortController.signal
+      });
+      const data = (await res.json()) as {
+        ok?: boolean;
+        media?: ChannelThumbMap;
+      };
+      if (abortController.signal.aborted) return;
+      if (res.ok && data.ok && data.media) {
+        setMessages((prev) => mergeChannelThumbMap(prev, data.media!));
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
-      setChannelLoadError(err instanceof Error ? err.message : "读取频道失败");
     } finally {
-      if (channelAbortRef.current === abortController) {
-        channelAbortRef.current = null;
+      if (!abortController.signal.aborted) {
+        setMediaBatchDone(true);
       }
-      setChannelLoading(false);
     }
   }
 
@@ -1191,6 +1245,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           messages={messages}
           channelLoading={channelLoading}
           loadError={channelLoadError}
+          mediaBatchDone={mediaBatchDone}
           onClose={closeChannelModal}
           onOpenArticle={setArticle}
           anchorRef={anchorRef}

@@ -457,6 +457,65 @@ export async function handleTgMediaGet(request: Request) {
   }
 }
 
+export async function handleTgMediaBatchPost(request: Request) {
+  const started = Date.now();
+  let body: { username?: string; messageIds?: number[]; thumb?: boolean };
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
+  }
+
+  const username = String(body.username ?? "").trim();
+  const messageIds = Array.isArray(body.messageIds)
+    ? body.messageIds.map((id) => Math.floor(Number(id))).filter((id) => id > 0)
+    : [];
+  const thumb = body.thumb !== false;
+
+  if (!username || !messageIds.length) {
+    return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
+  }
+
+  tgSearchLog("media-api", "批量媒体请求", {
+    username,
+    count: messageIds.length,
+    thumb
+  });
+
+  const svc = loadJisouSearchService<JisouSearchService>();
+
+  try {
+    const result = await svc.resolveMessageMediaBatch(username, messageIds, {
+      thumb,
+      signal: request.signal
+    });
+    tgSearchLog("media-api", "批量媒体就绪", {
+      username,
+      requested: messageIds.length,
+      resolved: Object.keys(result.media || {}).length,
+      ms: Date.now() - started
+    });
+    return NextResponse.json(
+      { ok: true, username: result.username, media: result.media },
+      {
+        headers: {
+          "Cache-Control": "private, max-age=60"
+        }
+      }
+    );
+  } catch (err: unknown) {
+    const mapped = svc.mapGramError(err);
+    const code = (err as { code?: string })?.code || mapped.code;
+    if (code === "REQUEST_ABORTED") {
+      return new NextResponse(null, { status: 499 });
+    }
+    return NextResponse.json(
+      { ok: false, error: code, message: (err as Error)?.message || mapped.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function handleTgCaptchaImageGet(challengeId: string) {
   if (!challengeId) {
     return NextResponse.json({ ok: false, error: "missing_id" }, { status: 400 });

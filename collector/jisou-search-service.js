@@ -791,12 +791,6 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   }, { signal });
 }
 
-/**
- * 按需解析媒体：先读 R2/本地缓存，未命中则 GramJS 下载并写穿缓存
- * @param {string} usernameOrUrl
- * @param {number} messageId
- * @param {{ thumb?: boolean }} opts
- */
 async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
   const username = normalizeUsername(usernameOrUrl);
   const mid = Math.floor(Number(messageId));
@@ -855,6 +849,106 @@ async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
   );
 }
 
+/**
+ * 批量解析缩略图：单次 GramJS 连接并发下载，避免相册 N 次 connect + TIMEOUT
+ * @param {string} usernameOrUrl
+ * @param {number[]} messageIds
+ * @param {{ thumb?: boolean, signal?: AbortSignal }} opts
+ */
+async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
+  const username = normalizeUsername(usernameOrUrl);
+  const ids = [...new Set(messageIds.map((id) => Math.floor(Number(id))).filter((id) => id > 0))].slice(
+    0,
+    32
+  );
+  if (!username || !ids.length) {
+    return { username, media: {} };
+  }
+
+  const wantThumb = opts.thumb !== false;
+  const variant = wantThumb ? "thumb" : "full";
+  const {
+    getCachedMediaUrl,
+    buildMediaSubPath,
+    cacheMessageMediaWithClient,
+    mapPool,
+    singleflight
+  } = require("./tg-search-media-cache");
+  const { pickContentType } = require("./parse");
+
+  /** @type {Record<number, { url: string, cached?: boolean }>} */
+  const media = {};
+  const needFetch = [];
+
+  for (const mid of ids) {
+    let hit = null;
+    for (const contentType of ["PHOTO", "VIDEO"]) {
+      const subPath = buildMediaSubPath(username, mid, variant, contentType);
+      const cachedUrl = await getCachedMediaUrl(subPath);
+      if (cachedUrl) {
+        hit = { url: cachedUrl, cached: true };
+        break;
+      }
+    }
+    if (hit) media[mid] = hit;
+    else needFetch.push(mid);
+  }
+
+  if (!needFetch.length) {
+    return { username, media };
+  }
+
+  const flightKey = `batch:${username}:${needFetch.sort((a, b) => a - b).join(",")}:${variant}`;
+
+  return singleflight(flightKey, () =>
+    withGramClient(async (client) => {
+      throwIfAborted(opts.signal);
+      const entity = await client.getEntity(username);
+      const batch = await client.getMessages(entity, { ids: needFetch });
+      const messages = (batch || []).filter((m) => m?.media);
+
+      const concurrency = thumbPrefetchConcurrency();
+      console.log(
+        `[tg-search:collector] media batch username=${username} jobs=${messages.length} concurrency=${concurrency}`
+      );
+
+      await mapPool(
+        messages,
+        concurrency,
+        async (msg) => {
+          try {
+            const result = await cacheMessageMediaWithClient(client, username, msg, {
+              thumb: wantThumb,
+              signal: opts.signal
+            });
+            media[msg.id] = { url: result.url, cached: result.cached };
+          } catch (err) {
+            if (err?.code === "REQUEST_ABORTED") throw err;
+            if (wantThumb && pickContentType(msg) === "PHOTO") {
+              try {
+                const full = await cacheMessageMediaWithClient(client, username, msg, {
+                  thumb: false,
+                  signal: opts.signal
+                });
+                media[msg.id] = { url: full.url, cached: full.cached };
+                return;
+              } catch {
+                /* fall through */
+              }
+            }
+            console.warn(
+              `[tg-search:collector] media batch fail ${username}/${msg.id}: ${err?.message || err}`
+            );
+          }
+        },
+        opts.signal
+      );
+
+      return { username, media };
+    }, { signal: opts.signal })
+  );
+}
+
 /** @deprecated 请用 resolveMessageMedia；仅保留类型兼容 */
 async function downloadMessageMedia(usernameOrUrl, messageId, opts = {}) {
   return resolveMessageMedia(usernameOrUrl, messageId, opts);
@@ -867,6 +961,7 @@ module.exports = {
   getJisouCaptchaImage,
   fetchChannelMessages,
   resolveMessageMedia,
+  resolveMessageMediaBatch,
   downloadMessageMedia,
   normalizeUsername,
   mapGramError
