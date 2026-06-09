@@ -1,14 +1,19 @@
 /**
- * 视频流式输出：边从 Telegram 拉取边响应浏览器，首帧可在数秒内播放；完成后写 R2 缓存
+ * 视频流式输出：边从 Telegram 拉取边响应浏览器；缓存由 Worker 后台写入
  */
 const { withGramClient } = require("./gram-client");
-const { buildMediaSubPath, getCachedMediaUrl, putCachedMedia } = require("./tg-search-media-cache");
+const {
+  buildMediaSubPath,
+  getCachedMediaUrl
+} = require("./tg-search-media-cache");
+const { saveMediaStream } = require("./save-media");
 const { pickContentType } = require("./parse");
 const { Api } = require("telegram/tl");
+const { PassThrough } = require("stream");
 
 function videoStreamChunkKb() {
-  const n = Number(process.env.TG_SEARCH_VIDEO_STREAM_CHUNK_KB) || 256;
-  return Math.min(512, Math.max(64, Math.round(n)));
+  const n = Number(process.env.TG_SEARCH_VIDEO_STREAM_CHUNK_KB) || 512;
+  return Math.min(1024, Math.max(64, Math.round(n)));
 }
 
 function throwIfAborted(signal) {
@@ -20,7 +25,6 @@ function throwIfAborted(signal) {
 }
 
 /**
- * GramJS iterDownload 不能直接传 Message，需传 MessageMediaDocument 或 InputDocumentFileLocation
  * @param {import('telegram').Api.Message} msg
  * @param {import('telegram').EntityLike} entity
  * @param {number} chunkBytes
@@ -55,10 +59,56 @@ function buildVideoDownloadIter(client, msg, entity, chunkBytes) {
   });
 }
 
+function resolveVideoMime(msg) {
+  const docMime = msg.media?.document?.mimeType || "";
+  return docMime.startsWith("video/") ? docMime : "video/mp4";
+}
+
 /**
- * @param {string} username
- * @param {number} messageId
+ * iterDownload → multipart 上传 R2/本地（Worker warm 用，无 HTTP 响应）
  */
+async function streamVideoMessageToCache(client, username, msg, entity, opts = {}) {
+  if (pickContentType(msg) !== "VIDEO") {
+    const err = new Error("该消息不是视频");
+    err.code = "NOT_VIDEO";
+    throw err;
+  }
+
+  const mid = Math.floor(Number(msg.id));
+  const subPath = buildMediaSubPath(username, mid, "full", "VIDEO");
+  const cacheMime = resolveVideoMime(msg);
+  const doc = msg.media?.document;
+  const fileSize = doc?.size ? Number(doc.size) : undefined;
+  const chunkBytes = videoStreamChunkKb() * 1024;
+
+  console.log(
+    `[tg-search:collector] video cache stream start ${username}/${mid} chunkKb=${videoStreamChunkKb()} size=${fileSize || "?"}`
+  );
+
+  const cachePass = new PassThrough();
+  const uploadPromise = saveMediaStream(cachePass, subPath, cacheMime);
+  const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes);
+
+  try {
+    for await (const chunk of iter) {
+      throwIfAborted(opts.signal);
+      if (!cachePass.write(chunk)) {
+        await new Promise((resolve) => cachePass.once("drain", resolve));
+      }
+    }
+    cachePass.end();
+    const url = await uploadPromise;
+    console.log(
+      `[tg-search:collector] video cache stream done ${username}/${mid} → ${String(url).slice(0, 80)}`
+    );
+    return { url, subPath, mime: cacheMime, messageId: mid, username };
+  } catch (err) {
+    cachePass.destroy();
+    uploadPromise.catch(() => {});
+    throw err;
+  }
+}
+
 async function getCachedFullMediaUrl(username, messageId) {
   const mid = Math.floor(Number(messageId));
   for (const contentType of ["VIDEO", "PHOTO"]) {
@@ -69,11 +119,17 @@ async function getCachedFullMediaUrl(username, messageId) {
   return null;
 }
 
+function enqueueBackgroundCache(username, messageId) {
+  try {
+    const { enqueueVideoWarmJob } = require("./media-worker");
+    void enqueueVideoWarmJob({ username, messageId }).catch(() => {});
+  } catch {
+    /* ignore */
+  }
+}
+
 /**
- * @param {string} username
- * @param {number} messageId
- * @param {{ signal?: AbortSignal }} [opts]
- * @returns {Promise<{ redirect: string } | { stream: ReadableStream, mime: string, fileSize?: number }>}
+ * 浏览器播放：仅 TG→HTTP 流式输出，不阻塞 R2；播完后后台 warm 写缓存
  */
 async function createVideoStreamResponse(username, messageId, opts = {}) {
   const mid = Math.floor(Number(messageId));
@@ -85,13 +141,10 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
   const chunkBytes = videoStreamChunkKb() * 1024;
   const { ReadableStream } = require("stream/web");
   const responseMime = "video/mp4";
+  let cacheEnqueued = false;
 
   const stream = new ReadableStream({
     async start(controller) {
-      const chunks = [];
-      let cacheMime = responseMime;
-      let subPath = "";
-
       try {
         await withGramClient(async (client) => {
           throwIfAborted(opts.signal);
@@ -109,9 +162,8 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             throw err;
           }
 
+          const cacheMime = resolveVideoMime(msg);
           const doc = msg.media?.document;
-          cacheMime = doc?.mimeType?.startsWith("video/") ? doc.mimeType : responseMime;
-          subPath = buildMediaSubPath(username, mid, "full", "VIDEO");
           const fileSize = doc?.size ? Number(doc.size) : undefined;
 
           console.log(
@@ -122,28 +174,16 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
 
           for await (const chunk of iter) {
             throwIfAborted(opts.signal);
-            chunks.push(chunk);
             controller.enqueue(new Uint8Array(chunk));
           }
 
           controller.close();
 
-          if (chunks.length) {
-            const buffer = Buffer.concat(chunks);
-            void putCachedMedia(buffer, subPath, cacheMime)
-              .then((url) => {
-                console.log(
-                  `[tg-search:collector] video stream cached ${username}/${mid} → ${String(url).slice(0, 80)}`
-                );
-              })
-              .catch((err) => {
-                console.warn(
-                  `[tg-search:collector] video stream cache fail ${username}/${mid}:`,
-                  err?.message || err
-                );
-              });
+          if (!cacheEnqueued) {
+            cacheEnqueued = true;
+            enqueueBackgroundCache(username, mid);
           }
-        }, { ...opts, priority: "low" });
+        }, { ...opts, priority: "high" });
       } catch (err) {
         try {
           controller.error(err);
@@ -162,5 +202,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
 
 module.exports = {
   getCachedFullMediaUrl,
-  createVideoStreamResponse
+  createVideoStreamResponse,
+  streamVideoMessageToCache,
+  buildVideoDownloadIter
 };

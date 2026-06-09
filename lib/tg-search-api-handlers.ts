@@ -57,6 +57,16 @@ function quotaBlockedResponse(quota: SearchQuotaStatus) {
   );
 }
 
+/** Next.js redirect 需要绝对 URL；相对 /uploads/… 会 500 */
+function mediaRedirectResponse(request: Request, url: string, cacheControl: string) {
+  const target =
+    url.startsWith("http://") || url.startsWith("https://") ? url : new URL(url, request.url).toString();
+  return NextResponse.redirect(target, {
+    status: 302,
+    headers: { "Cache-Control": cacheControl }
+  });
+}
+
 async function recordGlobalSearchIfBillable(request: Request, keyword: string, channelCount: number) {
   if (channelCount <= 0) return;
   await recordSearchLogFromRequest(request, SearchSource.GLOBAL, keyword, channelCount);
@@ -429,10 +439,11 @@ export async function handleTgMediaGet(request: Request) {
           contentType: cachedThumb.contentType,
           ms: Date.now() - started
         });
-        return NextResponse.redirect(cachedThumb.url, {
-          status: 302,
-          headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" }
-        });
+        return mediaRedirectResponse(
+          request,
+          cachedThumb.url,
+          "public, max-age=86400, stale-while-revalidate=604800"
+        );
       }
 
       tgSearchLog("media-api", "缩略图 GET 已拒绝（未缓存，请走 batch）", {
@@ -458,10 +469,11 @@ export async function handleTgMediaGet(request: Request) {
         contentType: cachedFull.contentType,
         ms: Date.now() - started
       });
-      return NextResponse.redirect(cachedFull.url, {
-        status: 302,
-        headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" }
-      });
+      return mediaRedirectResponse(
+        request,
+        cachedFull.url,
+        "public, max-age=86400, stale-while-revalidate=604800"
+      );
     }
 
     const result = await svc.resolveMessageMedia(username, messageId, { thumb: false, signal: request.signal });
@@ -473,12 +485,7 @@ export async function handleTgMediaGet(request: Request) {
     });
 
     if (result.url) {
-      return NextResponse.redirect(result.url, {
-        status: 302,
-        headers: {
-          "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800"
-        }
-      });
+      return mediaRedirectResponse(request, result.url, "public, max-age=86400, stale-while-revalidate=604800");
     }
 
     if (result.buffer) {
@@ -521,10 +528,11 @@ export async function handleTgMediaStreamGet(request: Request) {
 
     if ("redirect" in result) {
       tgSearchLog("media-api", "视频流缓存命中", { username, messageId, ms: Date.now() - started });
-      return NextResponse.redirect(result.redirect, {
-        status: 302,
-        headers: { "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800" }
-      });
+      return mediaRedirectResponse(
+        request,
+        result.redirect,
+        "public, max-age=86400, stale-while-revalidate=604800"
+      );
     }
 
     tgSearchLog("media-api", "视频流开始", { username, messageId, ms: Date.now() - started });
@@ -552,6 +560,50 @@ export async function handleTgMediaStreamGet(request: Request) {
   }
 }
 
+export async function handleTgMediaCachedGet(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
+  const messageId = Number(searchParams.get("messageId") ?? searchParams.get("mid") ?? 0);
+
+  if (!username || messageId <= 0) {
+    return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
+  }
+
+  const svc = loadJisouSearchService<JisouSearchService>();
+
+  try {
+    const cached = await svc.getCachedFullMediaUrl(username, messageId);
+    return NextResponse.json(
+      {
+        ok: true,
+        ready: Boolean(cached?.url),
+        url: cached?.url ?? null,
+        contentType: cached?.contentType ?? null
+      },
+      {
+        headers: {
+          "Cache-Control": "private, no-cache"
+        }
+      }
+    );
+  } catch (err: unknown) {
+    const mapped = svc.mapGramError(err);
+    const code = (err as { code?: string })?.code || mapped.code;
+    return NextResponse.json(
+      { ok: false, error: code, message: (err as Error)?.message || mapped.message },
+      { status: 500 }
+    );
+  }
+}
+
+function videoWarmMaxIds() {
+  return Math.min(16, Math.max(1, Number(process.env.TG_SEARCH_VIDEO_WARM_MAX) || 8));
+}
+
+function channelWarmVideoMax() {
+  return Math.min(8, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX) || 2));
+}
+
 export async function handleTgMediaWarmPost(request: Request) {
   let body: { username?: string; messageId?: number; messageIds?: number[] };
   try {
@@ -573,10 +625,18 @@ export async function handleTgMediaWarmPost(request: Request) {
   }
 
   const svc = loadJisouSearchService<JisouSearchService>();
-  const list = [...ids].slice(0, 3);
+  const isChannelBatch = ids.size > 3;
+  const max = isChannelBatch ? channelWarmVideoMax() : videoWarmMaxIds();
+  const list = [...ids].slice(0, max);
 
   for (const messageId of list) {
-    void svc.warmVideoMedia(username, messageId);
+    void svc.warmVideoMedia(username, messageId).catch((err: unknown) => {
+      tgSearchLog("media-api", "视频预热失败", {
+        username,
+        messageId,
+        error: err instanceof Error ? err.message : String(err)
+      });
+    });
   }
 
   tgSearchLog("media-api", "视频预热排队", { username, count: list.length, messageIds: list });

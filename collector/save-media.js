@@ -4,7 +4,10 @@
  */
 const fs = require("fs");
 const path = require("path");
+const { pipeline } = require("stream/promises");
+const { PassThrough } = require("stream");
 const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
+const { Upload } = require("@aws-sdk/lib-storage");
 const { createPrisma } = require("../lib/tg-index-ingest");
 
 const R2_REGION = "auto";
@@ -88,6 +91,90 @@ function getR2Client(settings) {
   return { client, bucket, accountId, creds };
 }
 
+function r2MultipartPartSize() {
+  const mb = Number(process.env.R2_MULTIPART_PART_SIZE_MB) || 8;
+  return Math.min(32, Math.max(5, Math.round(mb))) * 1024 * 1024;
+}
+
+function r2MultipartQueueSize() {
+  return Math.min(8, Math.max(2, Number(process.env.R2_MULTIPART_QUEUE_SIZE) || 4));
+}
+
+/**
+ * 流式写入 R2（multipart）或本地文件，适合大视频边下边传
+ * @param {import('stream').Readable} readable
+ * @returns {Promise<string>}
+ */
+async function saveMediaStream(readable, subPath, contentType) {
+  const settings = await getSiteSettingsCached();
+  const key = buildObjectKey(subPath);
+
+  if (isR2Ready(settings)) {
+    const { client, bucket } = getR2Client(settings);
+    try {
+      const upload = new Upload({
+        client,
+        params: {
+          Bucket: bucket,
+          Key: key,
+          Body: readable,
+          ContentType: contentType || "application/octet-stream"
+        },
+        queueSize: r2MultipartQueueSize(),
+        partSize: r2MultipartPartSize(),
+        leavePartsOnError: false
+      });
+      await upload.done();
+      const base = trimBaseUrl(settings.r2PublicBaseUrl.trim());
+      return `${base}/${key}`;
+    } catch (e) {
+      console.warn("[collector/save-media] R2 stream 失败，回退本地:", e.message);
+    }
+  }
+
+  const fsPath = path.join(process.cwd(), "public", key);
+  const partPath = `${fsPath}.part`;
+  fs.mkdirSync(path.dirname(fsPath), { recursive: true });
+  try {
+    await pipeline(readable, fs.createWriteStream(partPath));
+    if (fs.existsSync(fsPath)) fs.unlinkSync(fsPath);
+    fs.renameSync(partPath, fsPath);
+    return `/${key}`;
+  } catch (e) {
+    try {
+      if (fs.existsSync(partPath)) fs.unlinkSync(partPath);
+    } catch {
+      /* ignore */
+    }
+    throw e;
+  }
+}
+
+/**
+ * 将 async iterable chunks 流式写入 R2/本地（Worker / 视频缓存用）
+ * @param {AsyncIterable<Buffer|Uint8Array>} chunkIter
+ * @returns {Promise<string>}
+ */
+async function saveMediaFromChunkIter(chunkIter, subPath, contentType) {
+  const pass = new PassThrough();
+  const uploadPromise = saveMediaStream(pass, subPath, contentType);
+
+  void (async () => {
+    try {
+      for await (const chunk of chunkIter) {
+        if (!pass.write(chunk)) {
+          await new Promise((resolve) => pass.once("drain", resolve));
+        }
+      }
+      pass.end();
+    } catch (err) {
+      pass.destroy(err instanceof Error ? err : new Error(String(err)));
+    }
+  })();
+
+  return uploadPromise;
+}
+
 async function saveMediaBytes(buffer, subPath, contentType) {
   const settings = await getSiteSettingsCached();
   const key = buildObjectKey(subPath);
@@ -118,6 +205,8 @@ async function saveMediaBytes(buffer, subPath, contentType) {
 
 module.exports = {
   saveMediaBytes,
+  saveMediaStream,
+  saveMediaFromChunkIter,
   getSiteSettingsCached,
   isR2Ready,
   buildObjectKey,

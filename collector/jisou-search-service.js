@@ -779,7 +779,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
         broadcast === true
           ? anchorMessageId
             ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。`
-            : "公开频道：可直接预览历史。"
+            : "搜索索引已公开：可直接预览历史。"
           : "超级群/私有频道：往往需要加入后才能读取",
       search: search || null,
       anchorMessageId,
@@ -957,7 +957,7 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
       );
 
       return { username, media, partial };
-    }, { signal: opts.signal, priority: "low" })
+    }, { signal: opts.signal, priority: "high" })
   );
 }
 
@@ -993,22 +993,15 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
 }
 
 /**
- * 后台预热视频到 R2（低优先级，供二次播放秒开）
+ * 后台预热视频到 R2（低优先级队列，流式 multipart 上传）
  */
 function warmVideoMedia(usernameOrUrl, messageId) {
   const username = normalizeUsername(usernameOrUrl);
   const mid = Math.floor(Number(messageId));
   if (!username || mid <= 0) return Promise.resolve(null);
 
-  const { singleflight } = require("./tg-search-media-cache");
-  const key = `warm:${username}:${mid}`;
-
-  return singleflight(key, () =>
-    resolveMessageMedia(username, mid, { thumb: false }).catch((err) => {
-      console.warn(`[tg-search:collector] video warm fail ${username}/${mid}:`, err?.message || err);
-      return null;
-    })
-  );
+  const { enqueueVideoWarmJob } = require("./media-worker");
+  return enqueueVideoWarmJob({ username, messageId: mid });
 }
 
 module.exports = {

@@ -36,14 +36,17 @@ let mutexHeld = false;
  */
 const mutexWaiters = [];
 
+/** @type {number} 进行中的 Gram 任务（含长视频下载），>0 时不 idle 断连 */
+let activeGramWork = 0;
+
 function gramIdleMs() {
-  const n = Number(process.env.TG_GRAM_IDLE_MS) || 45000;
-  return Math.min(120000, Math.max(10000, Math.round(n)));
+  const n = Number(process.env.TG_GRAM_IDLE_MS) || 120000;
+  return Math.min(300000, Math.max(30000, Math.round(n)));
 }
 
 function gramRpcTimeoutSec() {
-  const n = Number(process.env.TG_GRAM_RPC_TIMEOUT_SEC) || 45;
-  return Math.min(90, Math.max(15, Math.round(n)));
+  const n = Number(process.env.TG_GRAM_RPC_TIMEOUT_SEC) || 120;
+  return Math.min(300, Math.max(30, Math.round(n)));
 }
 
 function abortedError(reason) {
@@ -60,10 +63,25 @@ function clearIdleTimer() {
 }
 
 function scheduleIdleDisconnect() {
+  if (activeGramWork > 0) {
+    clearIdleTimer();
+    return;
+  }
   clearIdleTimer();
   idleTimer = setTimeout(() => {
+    if (activeGramWork > 0) return;
     void dropSharedClient("idle");
   }, gramIdleMs());
+}
+
+function beginGramWork() {
+  activeGramWork++;
+  clearIdleTimer();
+}
+
+function endGramWork() {
+  activeGramWork = Math.max(0, activeGramWork - 1);
+  scheduleIdleDisconnect();
 }
 
 async function dropSharedClient(reason) {
@@ -120,7 +138,7 @@ function cancelActiveLowPriority(reason) {
   console.log(`[tg-search:collector] GramJS preempt active low (${reason})`);
   activeLowPriorityAbort.abort();
   activeLowPriorityAbort = null;
-  void dropSharedClient("preempt");
+  /* 不断开连接：避免抢占后 stream 重连竞态导致 TIMEOUT */
 }
 
 /** 搜索等新任务到达时主动打断媒体下载，并清空低优先级排队 */
@@ -264,6 +282,7 @@ async function withGramClient(fn, options = {}) {
   }
 
   let turnGeneration;
+  beginGramWork();
   try {
     turnGeneration = await acquireGramTurn(priority, effectiveSignal);
 
@@ -296,7 +315,7 @@ async function withGramClient(fn, options = {}) {
       activeLowPriorityAbort = null;
     }
     releaseGramTurn();
-    scheduleIdleDisconnect();
+    endGramWork();
   }
 }
 

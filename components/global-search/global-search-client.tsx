@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-media";
 import {
   collectChannelThumbIds,
+  collectChannelVideoIds,
   mergeChannelThumbMap,
   type ChannelThumbMap
 } from "@/lib/channel-media-batch";
@@ -882,7 +883,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       if (!initialMessages.length) {
         setChannelLoadError("频道可读，但当前条件下没有消息");
       } else {
-        void prefetchChannelThumbs(channel.username, initialMessages, abortController);
+        void prefetchChannelThumbs(channel.username, initialMessages, abortController).then(() => {
+          if (!abortController.signal.aborted) {
+            void prefetchChannelVideos(channel.username, initialMessages, abortController);
+          }
+        });
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -939,6 +944,27 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           }
         }
       }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+    }
+  }
+
+  async function prefetchChannelVideos(
+    username: string,
+    initialMessages: ChannelMessageItem[],
+    abortController: AbortController
+  ) {
+    const ids = collectChannelVideoIds(initialMessages);
+    if (!ids.length || abortController.signal.aborted) return;
+
+    const batch = ids.slice(0, 2);
+    try {
+      await fetch(`${API}/media/warm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, messageIds: batch }),
+        signal: abortController.signal
+      });
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
     }
@@ -1152,15 +1178,15 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
             🌐
           </div>
           <h2 className="gs-empty-title">搜索暗网全网频道</h2>
-          <p className="gs-empty-warn">
+          {/* <p className="gs-empty-warn">
           ⚠️⚠️⚠️通过暗网搜索引擎全网搜索，请切勿将其中视频、图片、文字等内容传播、转载至抖音,微信等国内平台
-          </p>
+          </p> */}
           <p className="gs-empty-warn">
-            ⚠️⚠️⚠️使用前请确认您已年满 18 周岁，且自愿浏览可能令人不适的成人向内容。未满 18 岁请立即离开。
+            ⚠️⚠️⚠️通过暗网搜索引擎使用前请确认您已年满 18 周岁，且自愿浏览可能令人不适的成人向内容。未满 18 岁请立即离开。
           </p>
 
           <p className="gs-empty-warn">
-            ⚠️⚠️⚠️搜索结果可能含色情、血腥等敏感内容，请谨慎点击。
+            ⚠️⚠️⚠️搜索结果可能含色情、等其他限制级(具体结果是按照您的关键词来返回的)敏感内容，请谨慎点击。
           </p>
           <ul className="gs-empty-tips">
             {/* <li>支持定位到索引返回的具体帖子</li>

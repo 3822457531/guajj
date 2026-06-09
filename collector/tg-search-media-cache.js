@@ -36,8 +36,16 @@ function buildThumbDownloadOpts(contentType, thumbArg) {
 }
 
 function mediaDownloadTimeoutMs() {
-  const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 12000;
-  return Math.min(45000, Math.max(4000, Math.round(n)));
+  const n = Number(process.env.TG_SEARCH_MEDIA_DOWNLOAD_TIMEOUT_MS) || 90000;
+  return Math.min(300000, Math.max(4000, Math.round(n)));
+}
+
+function videoDownloadTimeoutMs() {
+  const video = Number(process.env.TG_SEARCH_VIDEO_DOWNLOAD_TIMEOUT_MS);
+  if (Number.isFinite(video) && video > 0) {
+    return Math.min(600000, Math.max(10000, Math.round(video)));
+  }
+  return mediaDownloadTimeoutMs();
 }
 
 function mediaDownloadRetries() {
@@ -83,11 +91,39 @@ function localFsPath(subPath) {
   return path.join(process.cwd(), "public", buildObjectKey(subPath));
 }
 
-function publicUrlForKey(settings, key, isR2) {
-  if (isR2) {
-    return `${trimBaseUrl(settings.r2PublicBaseUrl.trim())}/${key}`;
+function localPartPath(subPath) {
+  return `${localFsPath(subPath)}.part`;
+}
+
+function minCachedBytes(subPath) {
+  if (subPath.includes("-thumb.")) return 256;
+  if (/\.mp4$/i.test(subPath)) return 65536;
+  return 512;
+}
+
+function isLikelyValidMediaFile(localPath, subPath) {
+  try {
+    const stat = fs.statSync(localPath);
+    if (!stat.isFile() || stat.size < minCachedBytes(subPath)) return false;
+    if (/\.mp4$/i.test(subPath)) {
+      const fd = fs.openSync(localPath, "r");
+      const head = Buffer.alloc(Math.min(32, stat.size));
+      fs.readSync(fd, head, 0, head.length, 0);
+      fs.closeSync(fd);
+      if (!head.includes(Buffer.from("ftyp"))) return false;
+    }
+    return true;
+  } catch {
+    return false;
   }
-  return `/${key}`;
+}
+
+function removeInvalidLocalCache(localPath) {
+  try {
+    fs.unlinkSync(localPath);
+  } catch {
+    /* ignore */
+  }
 }
 
 /**
@@ -96,8 +132,17 @@ function publicUrlForKey(settings, key, isR2) {
 async function getCachedMediaUrl(subPath) {
   const key = buildObjectKey(subPath);
   const localPath = localFsPath(subPath);
+  const partPath = localPartPath(subPath);
+
+  if (fs.existsSync(partPath)) {
+    return null;
+  }
+
   if (fs.existsSync(localPath)) {
-    return `/${key}`;
+    if (isLikelyValidMediaFile(localPath, subPath)) {
+      return `/${key}`;
+    }
+    removeInvalidLocalCache(localPath);
   }
 
   const settings = await getSiteSettingsCached();
@@ -106,7 +151,17 @@ async function getCachedMediaUrl(subPath) {
   const { client, bucket } = getR2Client(settings);
 
   try {
-    await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    const head = await Promise.race([
+      client.send(new HeadObjectCommand({ Bucket: bucket, Key: key })),
+      sleep(3000).then(() => {
+        const err = new Error("R2 HeadObject timeout");
+        err.code = "R2_HEAD_TIMEOUT";
+        throw err;
+      })
+    ]);
+    if (head?.ContentLength != null && head.ContentLength < minCachedBytes(subPath)) {
+      return null;
+    }
     return publicUrlForKey(settings, key, true);
   } catch {
     return null;
@@ -156,7 +211,8 @@ async function downloadMediaBuffer(
   const { pickContentType } = require("./parse");
   const contentType = pickContentType(msg);
   const downloadOpts = wantThumb ? buildThumbDownloadOpts(contentType, thumbArg) : {};
-  const timeoutMs = mediaDownloadTimeoutMs();
+  const timeoutMs =
+    !wantThumb && contentType === "VIDEO" ? videoDownloadTimeoutMs() : mediaDownloadTimeoutMs();
 
   let timer;
   let onAbort;

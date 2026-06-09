@@ -31,7 +31,22 @@ function resolveSafeUploadPath(segments: string[]): string | null {
   return abs;
 }
 
-export async function GET(_request: Request, context: { params: Promise<{ path?: string[] }> }) {
+function parseRangeHeader(range: string, size: number): { start: number; end: number } | null {
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(range.trim());
+  if (!match) return null;
+
+  let start = match[1] ? Number.parseInt(match[1], 10) : 0;
+  let end = match[2] ? Number.parseInt(match[2], 10) : size - 1;
+
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
+  if (start < 0) start = 0;
+  if (end >= size) end = size - 1;
+  if (start > end || start >= size) return null;
+
+  return { start, end };
+}
+
+export async function GET(request: Request, context: { params: Promise<{ path?: string[] }> }) {
   const { path: segments } = await context.params;
   const abs = resolveSafeUploadPath(segments ?? []);
   if (!abs || !existsSync(abs)) {
@@ -47,14 +62,50 @@ export async function GET(_request: Request, context: { params: Promise<{ path?:
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const size = st.size;
+  const contentType = mimeFor(abs);
+  const baseHeaders = {
+    "Content-Type": contentType,
+    "Accept-Ranges": "bytes",
+    "Cache-Control": "public, max-age=86400"
+  };
+
+  const rangeHeader = request.headers.get("range");
+  if (rangeHeader) {
+    const parsed = parseRangeHeader(rangeHeader, size);
+    if (!parsed) {
+      return new NextResponse(null, {
+        status: 416,
+        headers: {
+          ...baseHeaders,
+          "Content-Range": `bytes */${size}`
+        }
+      });
+    }
+
+    const { start, end } = parsed;
+    const chunkSize = end - start + 1;
+    const stream = createReadStream(abs, { start, end });
+    const webStream = Readable.toWeb(stream) as ReadableStream<Uint8Array>;
+
+    return new NextResponse(webStream, {
+      status: 206,
+      headers: {
+        ...baseHeaders,
+        "Content-Length": String(chunkSize),
+        "Content-Range": `bytes ${start}-${end}/${size}`
+      }
+    });
+  }
+
   const stream = createReadStream(abs);
   const webStream = Readable.toWeb(stream) as ReadableStream<Uint8Array>;
 
   return new NextResponse(webStream, {
     status: 200,
     headers: {
-      "Content-Type": mimeFor(abs),
-      "Cache-Control": "public, max-age=86400"
+      ...baseHeaders,
+      "Content-Length": String(size)
     }
   });
 }

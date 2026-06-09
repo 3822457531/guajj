@@ -22,6 +22,26 @@ function streamVideoUrl(apiBase: string, username: string, messageId: number) {
   return `${apiBase}/media/stream?${params.toString()}`;
 }
 
+function cachedMediaUrl(apiBase: string, username: string, messageId: number) {
+  const params = new URLSearchParams({
+    username,
+    messageId: String(messageId)
+  });
+  return `${apiBase}/media/cached?${params.toString()}`;
+}
+
+function warmMediaUrl(apiBase: string) {
+  return `${apiBase}/media/warm`;
+}
+
+function resolveMediaPlayUrl(url: string): string {
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (typeof window !== "undefined" && url.startsWith("/")) {
+    return `${window.location.origin}${url}`;
+  }
+  return url;
+}
+
 function pickSrc(apiBase: string, item: ChannelMediaItem, username: string, thumb: boolean) {
   if (thumb) return item.thumbUrl || null;
   if (item.fullUrl) return item.fullUrl;
@@ -55,7 +75,7 @@ export function LazyPhotoThumb({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
-  const src = item.thumbUrl || null;
+  const src = item.thumbUrl ? resolveMediaPlayUrl(item.thumbUrl) : null;
 
   useEffect(() => {
     setLoaded(false);
@@ -110,28 +130,86 @@ export function LazyVideoPlayer({
   coverUrl?: string | null;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playingRef = useRef(false);
   const [playing, setPlaying] = useState(false);
+  const [cachedFullUrl, setCachedFullUrl] = useState<string | null>(item.fullUrl || null);
   const [prefetchStarted, setPrefetchStarted] = useState(Boolean(item.fullUrl));
   const [playReady, setPlayReady] = useState(Boolean(item.fullUrl));
   const [warming, setWarming] = useState(false);
   const [buffering, setBuffering] = useState(false);
+  const [streamError, setStreamError] = useState(false);
 
-  const poster = item.thumbUrl || coverUrl || null;
-  const videoSrc = item.fullUrl || streamVideoUrl(apiBase, username, item.id);
+  const poster = item.thumbUrl ? resolveMediaPlayUrl(item.thumbUrl) : coverUrl ? resolveMediaPlayUrl(coverUrl) : null;
+  const videoSrc = cachedFullUrl
+    ? resolveMediaPlayUrl(cachedFullUrl)
+    : streamVideoUrl(apiBase, username, item.id);
+
+  const requestWarm = useCallback(async () => {
+    if (cachedFullUrl || item.contentType !== "VIDEO") return;
+    setWarming(true);
+    try {
+      await fetch(warmMediaUrl(apiBase), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, messageId: item.id })
+      });
+    } catch {
+      /* 预热失败仍可走 stream 播放 */
+    }
+  }, [apiBase, cachedFullUrl, item.contentType, item.id, username]);
 
   const startPrefetch = useCallback(() => {
     if (prefetchStarted) return;
     setPrefetchStarted(true);
-    setWarming(true);
-  }, [prefetchStarted]);
+    void requestWarm();
+  }, [prefetchStarted, requestWarm]);
 
   useEffect(() => {
     if (item.fullUrl) {
+      setCachedFullUrl(item.fullUrl);
       setPrefetchStarted(true);
       setPlayReady(true);
       setWarming(false);
     }
   }, [item.fullUrl]);
+
+  useEffect(() => {
+    playingRef.current = playing;
+  }, [playing]);
+
+  useEffect(() => {
+    if (!prefetchStarted || cachedFullUrl) return;
+
+    let cancelled = false;
+    const pollCached = async () => {
+      for (let attempt = 0; attempt < 45 && !cancelled; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 1500 : 2000));
+        if (cancelled) break;
+        try {
+          const res = await fetch(cachedMediaUrl(apiBase, username, item.id), { cache: "no-store" });
+          const data = (await res.json()) as { ready?: boolean; url?: string | null };
+          if (data.ready && data.url) {
+            setWarming(false);
+            if (!playingRef.current || streamError) {
+              setCachedFullUrl(resolveMediaPlayUrl(data.url));
+              setPlayReady(true);
+              setStreamError(false);
+              setBuffering(false);
+            }
+            break;
+          }
+        } catch {
+          /* 继续轮询 */
+        }
+      }
+      if (!cancelled) setWarming(false);
+    };
+
+    void pollCached();
+    return () => {
+      cancelled = true;
+    };
+  }, [prefetchStarted, cachedFullUrl, apiBase, username, item.id, streamError]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -175,8 +253,9 @@ export function LazyVideoPlayer({
 
   function handlePlayClick() {
     startPrefetch();
+    setWarming(false);
     setPlaying(true);
-    setBuffering(!playReady);
+    setBuffering(true);
     const video = videoRef.current;
     if (video && playReady) {
       void video.play().catch(() => setBuffering(true));
@@ -201,9 +280,9 @@ export function LazyVideoPlayer({
               <MediaSkeleton label="加载封面…" />
             )}
             <span className="gs-media-video-play">
-              {warming && !playReady ? "准备视频…" : "▶ 点击播放"}
+              {warming && !playing ? "后台缓存…" : "▶ 点击播放"}
             </span>
-            {warming && !playReady ? (
+            {warming && !playing ? (
               <span className="gs-media-video-warm-spinner" aria-hidden />
             ) : null}
           </button>
@@ -212,13 +291,17 @@ export function LazyVideoPlayer({
         {prefetchStarted ? (
           <video
             ref={videoRef}
-            key={videoSrc}
+            key={`${item.id}-video`}
             className={`gs-media-video-el${playing ? " is-active" : " is-preload"}`}
             controls={playing}
             playsInline
             preload="auto"
             {...(poster ? { poster } : {})}
             src={videoSrc}
+            onError={() => {
+              setStreamError(true);
+              setBuffering(false);
+            }}
           />
         ) : null}
 
@@ -231,7 +314,7 @@ export function LazyVideoPlayer({
       </div>
       <div className="gs-media-meta">
         #{item.id}
-        {buffering ? " · 缓冲中…" : playing ? " · 播放中" : playReady ? " · 已就绪" : warming ? " · 准备中" : " · 封面已缓存"}
+        {buffering ? " · 缓冲中…" : streamError ? " · 加载失败，重试或稍候" : playing ? " · 播放中" : playReady ? (cachedFullUrl ? " · CDN 就绪" : " · 已就绪") : warming ? " · 后台缓存" : " · 封面已缓存"}
       </div>
     </div>
   );
