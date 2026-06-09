@@ -831,6 +831,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
   async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
     if (!channel.username) return;
+    const username = channel.username;
 
     channelAbortRef.current?.abort();
     const abortController = new AbortController();
@@ -842,7 +843,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
     try {
       const params = new URLSearchParams({
-        username: channel.username,
+        username,
         limit: "20"
       });
       const kw = (inChannelSearch ?? channelSearch).trim();
@@ -883,9 +884,9 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       if (!initialMessages.length) {
         setChannelLoadError("频道可读，但当前条件下没有消息");
       } else {
-        void prefetchChannelThumbs(channel.username, initialMessages, abortController).then(() => {
+        void prefetchChannelThumbs(username, initialMessages, abortController).then(() => {
           if (!abortController.signal.aborted) {
-            void prefetchChannelVideos(channel.username, initialMessages, abortController);
+            void prefetchChannelVideos(username, initialMessages, abortController);
           }
         });
       }
