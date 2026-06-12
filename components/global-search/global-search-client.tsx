@@ -202,7 +202,6 @@ function ChannelMessagesModal({
   channelMeta: {
     entityType?: string;
     broadcast?: boolean | null;
-    note?: string;
     rawCount?: number;
     anchorMessageId?: number | null;
     resourceOnly?: boolean;
@@ -252,16 +251,15 @@ function ChannelMessagesModal({
           </button>
         </div>
 
-        {channelMeta?.note ? <p className="gs-panel-note">{channelMeta.note}</p> : null}
         {channelMeta?.anchorMessageId ? (
           <p className="gs-channel-sheet-meta">已定位到消息 #{channelMeta.anchorMessageId}</p>
         ) : null}
 
         {channelMeta?.resourceOnly ? (
           <div className="gs-channel-sheet-actions">
-            <button type="button" className="gs-inline-search-btn" onClick={() => onLoadFullChannel?.()}>
+            {/* <button type="button" className="gs-inline-search-btn" onClick={() => onLoadFullChannel?.()}>
               查看频道全部消息
-            </button>
+            </button> */}
           </div>
         ) : null}
 
@@ -575,7 +573,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [channelMeta, setChannelMeta] = useState<{
     entityType?: string;
     broadcast?: boolean | null;
-    note?: string;
     rawCount?: number;
     anchorMessageId?: number | null;
     resourceOnly?: boolean;
@@ -943,7 +940,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         error?: string;
         entityType?: string;
         broadcast?: boolean;
-        note?: string;
         rawCount?: number;
         anchorMessageId?: number | null;
         resourceOnly?: boolean;
@@ -957,7 +953,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       setChannelMeta({
         entityType: data.entityType,
         broadcast: data.broadcast,
-        note: data.note,
         rawCount: data.rawCount,
         anchorMessageId: data.anchorMessageId,
         resourceOnly: Boolean(data.resourceOnly)

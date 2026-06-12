@@ -64,7 +64,6 @@ export type ChannelMessagesResult = {
   entityType: string;
   broadcast: boolean | null;
   joinedRequired: boolean;
-  note: string;
   search: string | null;
   anchorMessageId?: number | null;
   /** 极搜 postId 直达：仅返回该消息/相册，不含频道列表 */

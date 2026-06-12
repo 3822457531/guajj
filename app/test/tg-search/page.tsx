@@ -17,7 +17,6 @@ export default function TgSearchTestPage() {
   const [channelMeta, setChannelMeta] = useState<{
     entityType?: string;
     broadcast?: boolean | null;
-    note?: string;
     rawCount?: number;
     anchorMessageId?: number | null;
     resourceOnly?: boolean;
@@ -221,7 +220,6 @@ export default function TgSearchTestPage() {
         error?: string;
         entityType?: string;
         broadcast?: boolean | null;
-        note?: string;
         rawCount?: number;
         anchorMessageId?: number | null;
         resourceOnly?: boolean;
@@ -238,7 +236,6 @@ export default function TgSearchTestPage() {
       setChannelMeta({
         entityType: data.entityType,
         broadcast: data.broadcast,
-        note: data.note,
         rawCount: data.rawCount,
         anchorMessageId: data.anchorMessageId,
         resourceOnly: data.resourceOnly
@@ -435,11 +432,6 @@ export default function TgSearchTestPage() {
                 ) : null}
                 {channelMeta?.rawCount != null ? ` · 原始 ${channelMeta.rawCount} 条 / 展示 ${messages.length} 组` : ""}
               </p>
-              {channelMeta?.note ? (
-                <p style={{ margin: "0 0 12px", fontSize: 12, color: "#666", background: "#f9fafb", padding: 8, borderRadius: 6 }}>
-                  {channelMeta.note}
-                </p>
-              ) : null}
 
               <form
                 onSubmit={(e) => {

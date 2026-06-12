@@ -848,14 +848,6 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       entityType,
       broadcast,
       joinedRequired: false,
-      note:
-        broadcast === true
-          ? anchorMessageId
-            ? includeContext
-              ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。`
-              : `已定位极搜直达资源 #${anchorMessageId}（仅该消息/相册，未加载频道列表）。`
-            : "搜索索引已公开：可直接预览历史。"
-          : "超级群/私有频道：往往需要加入后才能读取",
       search: search || null,
       anchorMessageId,
       resourceOnly: Boolean(anchorMessageId && !includeContext),
