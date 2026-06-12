@@ -37,6 +37,7 @@
     "next": "^16.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-qr-code": "^2.2.0",
     "telegram": "^2.26.22",
     "tesseract.js": "^6.0.1"
   },

@@ -78,10 +78,14 @@ export default function TelegramImportsSection({
           </div>
           <p className="tg-imports-sub">最近采集的频道消息，实时更新</p>
         </div>
+
+{/* 
         <AdminLink className="tg-imports-all-link" href={adminPath("/posts")}>
           查看全部内容
           <span aria-hidden> ›</span>
-        </AdminLink>
+        </AdminLink> */}
+
+
       </header>
 
       <div className="tg-imports-table-wrap">

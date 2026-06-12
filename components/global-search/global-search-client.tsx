@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-media";
 import {
   collectChannelThumbIds,
-  collectChannelVideoIds,
   mergeChannelThumbMap,
   type ChannelThumbMap
 } from "@/lib/channel-media-batch";
@@ -48,6 +47,28 @@ type HistoryKeyword = {
 };
 
 const HISTORY_COLLAPSED = 8;
+
+function IconTrashCan() {
+  return (
+    <svg
+      className="gs-history-clear-icon"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
 
 type SearchSuccessPayload = {
   channels?: JisouChannel[];
@@ -173,7 +194,8 @@ function ChannelMessagesModal({
   loadError,
   onClose,
   onOpenArticle,
-  anchorRef
+  anchorRef,
+  onLoadFullChannel
 }: {
   channel: JisouChannel;
   activeFilterType: string | null;
@@ -183,10 +205,12 @@ function ChannelMessagesModal({
     note?: string;
     rawCount?: number;
     anchorMessageId?: number | null;
+    resourceOnly?: boolean;
   } | null;
   channelSearch: string;
   onChannelSearchChange: (value: string) => void;
   onReload: () => void;
+  onLoadFullChannel?: () => void;
   messages: ChannelMessageItem[];
   channelLoading: boolean;
   loadError: string | null;
@@ -233,7 +257,15 @@ function ChannelMessagesModal({
           <p className="gs-channel-sheet-meta">已定位到消息 #{channelMeta.anchorMessageId}</p>
         ) : null}
 
-        {!channelLoading || messages.length > 0 ? (
+        {channelMeta?.resourceOnly ? (
+          <div className="gs-channel-sheet-actions">
+            <button type="button" className="gs-inline-search-btn" onClick={() => onLoadFullChannel?.()}>
+              查看频道全部消息
+            </button>
+          </div>
+        ) : null}
+
+        {!channelMeta?.resourceOnly && (!channelLoading || messages.length > 0) ? (
           <form
             className="gs-inline-search"
             onSubmit={(e) => {
@@ -419,6 +451,46 @@ function ConfirmModal({
   );
 }
 
+function LandingWarnModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="gs-article-modal gs-landing-warn-modal" role="dialog" aria-modal="true" aria-label="使用前须知">
+      <button type="button" className="gs-article-modal-backdrop" onClick={onClose} aria-label="关闭" />
+      <div className="gs-article-modal-panel gs-landing-warn-panel">
+        <div className="gs-article-modal-head">
+          <h3 className="gs-article-modal-title">使用前须知</h3>
+          <button type="button" className="gs-article-modal-close" onClick={onClose} aria-label="关闭">
+            ✕
+          </button>
+        </div>
+        <div className="gs-article-modal-body">
+          <p className="gs-empty-warn gs-empty-warn--modal">
+            ⚠️⚠️⚠️通过暗网搜索引擎使用前请确认您已年满 18 周岁，且自愿浏览可能令人不适的成人向内容。未满 18 岁请立即离开。
+          </p>
+          <p className="gs-empty-warn gs-empty-warn--modal">
+            ⚠️⚠️⚠️搜索结果可能含色情、等其他限制级（具体结果是按照您的关键词来返回的）敏感内容，请谨慎点击。
+          </p>
+          <button type="button" className="gs-landing-warn-ok" onClick={onClose}>
+            我已知晓
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdBlockedModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
@@ -506,6 +578,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     note?: string;
     rawCount?: number;
     anchorMessageId?: number | null;
+    resourceOnly?: boolean;
   } | null>(null);
   const [messages, setMessages] = useState<ChannelMessageItem[]>([]);
   const [captcha, setCaptcha] = useState<JisouCaptchaChallenge | null>(null);
@@ -525,6 +598,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [activeFilterCallback, setActiveFilterCallback] = useState<string | null>(null);
   const [pendingFilterCallback, setPendingFilterCallback] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [landingWarnOpen, setLandingWarnOpen] = useState(false);
   const anchorRef = useRef<HTMLLIElement>(null);
   const channelAbortRef = useRef<AbortController | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
@@ -829,7 +903,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     abortChannelWork();
   }
 
-  async function loadChannel(channel: JisouChannel, inChannelSearch?: string) {
+  async function loadChannel(
+    channel: JisouChannel,
+    inChannelSearch?: string,
+    opts?: { listOnly?: boolean; includeContext?: boolean }
+  ) {
     if (!channel.username) return;
     const username = channel.username;
 
@@ -849,8 +927,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       const kw = (inChannelSearch ?? channelSearch).trim();
       if (kw) {
         params.set("search", kw);
-      } else if (channel.postId) {
+      } else if (channel.postId && !opts?.listOnly) {
         params.set("messageId", String(channel.postId));
+        if (opts?.includeContext) {
+          params.set("includeContext", "1");
+        }
       }
 
       const res = await fetch(`${API}/channel?${params.toString()}`, {
@@ -865,6 +946,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         note?: string;
         rawCount?: number;
         anchorMessageId?: number | null;
+        resourceOnly?: boolean;
         messages?: ChannelMessageItem[];
       };
 
@@ -877,18 +959,15 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         broadcast: data.broadcast,
         note: data.note,
         rawCount: data.rawCount,
-        anchorMessageId: data.anchorMessageId
+        anchorMessageId: data.anchorMessageId,
+        resourceOnly: Boolean(data.resourceOnly)
       });
       const initialMessages = data.messages || [];
       setMessages(initialMessages);
       if (!initialMessages.length) {
         setChannelLoadError("频道可读，但当前条件下没有消息");
       } else {
-        void prefetchChannelThumbs(username, initialMessages, abortController).then(() => {
-          if (!abortController.signal.aborted) {
-            void prefetchChannelVideos(username, initialMessages, abortController);
-          }
-        });
+        void prefetchChannelThumbs(username, initialMessages, abortController);
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -950,28 +1029,16 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
   }
 
-  async function prefetchChannelVideos(
-    username: string,
-    initialMessages: ChannelMessageItem[],
-    abortController: AbortController
-  ) {
-    const ids = collectChannelVideoIds(initialMessages);
-    if (!ids.length || abortController.signal.aborted) return;
-
-    const batch = ids.slice(0, 2);
-    try {
-      await fetch(`${API}/media/warm`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, messageIds: batch }),
-        signal: abortController.signal
-      });
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-    }
-  }
-
   const hasResults = channels.length > 0 || loading;
+  const isLanding = !hasResults && !captcha && !loading && !activeChannel;
+
+  useEffect(() => {
+    const page = document.querySelector(".global-search-page");
+    if (!page) return;
+    if (isLanding) page.classList.add("is-landing");
+    else page.classList.remove("is-landing");
+    return () => page.classList.remove("is-landing");
+  }, [isLanding]);
   const visibleHistory = historyExpanded ? history : history.slice(0, HISTORY_COLLAPSED);
   const historyHasMore = history.length > HISTORY_COLLAPSED;
 
@@ -1045,11 +1112,11 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   }, [initialQuery]);
 
   return (
-    <div className="global-search-body">
+    <div className={`global-search-body${isLanding ? " is-landing" : ""}`}>
       {/* {quota ? (
-        <section className="gs-quota-bar" aria-label="今日全网搜索额度">
+        <section className="gs-quota-bar" aria-label="今日瓜皮余额">
           <div className="gs-quota-main">
-            <p className="gs-quota-title">今日全网搜索额度</p>
+            <p className="gs-quota-title">今日瓜皮余额</p>
             <p className="gs-quota-numbers">
               {quota.hasIdentity ? (
                 <>
@@ -1062,7 +1129,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
             </p>
             {quota.hasIdentity ? (
               <p className="gs-quota-tip">
-                基础每日 {quota.dailyBaseLimit} 次 + 邀请奖励 {quota.searchBonus} 次 · 新关键词返回结果后扣 1 次 · 已搜过的关键词直接读本地缓存
+                基础每日 {quota.dailyBaseLimit} 瓜皮 + 邀请奖励 {quota.searchBonus} 瓜皮 · 新关键词扣 1 瓜皮 · 已搜关键词走缓存不扣
               </p>
             ) : (
               <p className="gs-quota-tip">
@@ -1109,7 +1176,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
               aria-label="清空历史搜索"
               title="清空历史搜索"
             >
-              🗑
+              <IconTrashCan />
             </button>
           </div>
           <div className="gs-history-tags-row">
@@ -1173,32 +1240,30 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
       {error && !captcha && !activeChannel ? <p className="gs-alert">{error}</p> : null}
 
-      {!hasResults && !captcha && !loading ? (
+      {isLanding ? (
         <section className="gs-empty-intro">
-          <div className="gs-empty-icon" aria-hidden>
-            🌐
+          <div className="gs-empty-center">
+            <div className="gs-empty-hero" aria-hidden>
+              <img
+                className="gs-empty-hero-img"
+                src="/assets/dark-web-hacker.png"
+                alt=""
+                width={480}
+                height={480}
+              />
+            </div>
+            <div className="gs-empty-foot">
+              <h2 className="gs-empty-title">搜索暗网全网频道</h2>
+              <button
+                type="button"
+                className="gs-empty-notice-btn"
+                onClick={() => setLandingWarnOpen(true)}
+              >
+                <span className="gs-empty-notice-pulse" aria-hidden />
+                <span>⚠️ 使用前须知</span>
+              </button>
+            </div>
           </div>
-          <h2 className="gs-empty-title">搜索暗网全网频道</h2>
-          {/* <p className="gs-empty-warn">
-          ⚠️⚠️⚠️通过暗网搜索引擎全网搜索，请切勿将其中视频、图片、文字等内容传播、转载至抖音,微信等国内平台
-          </p> */}
-          <p className="gs-empty-warn">
-            ⚠️⚠️⚠️通过暗网搜索引擎使用前请确认您已年满 18 周岁，且自愿浏览可能令人不适的成人向内容。未满 18 岁请立即离开。
-          </p>
-
-          <p className="gs-empty-warn">
-            ⚠️⚠️⚠️搜索结果可能含色情、等其他限制级(具体结果是按照您的关键词来返回的)敏感内容，请谨慎点击。
-          </p>
-          <ul className="gs-empty-tips">
-            {/* <li>支持定位到索引返回的具体帖子</li>
-            <li>点击图片可查看原图，查看原文可阅读完整内容</li>
-            <li>每日 {quota?.dailyBaseLimit ?? 5} 次额度，邀请好友可增加</li> */}
-            {/* <li>搜索结果可能含色情、血腥等敏感内容，请谨慎点击</li> */}
-          </ul>
-          {/* <p className="gs-empty-disclaimer">
-            <strong>免责声明：</strong>
-            本索引内容仅限通过瓜站访问，仅供个人观看与收藏，不得用于任何商业用途。请切勿将其中视频、图片、文字等内容传播、转载至抖音、微信、微博、小红书等国内平台；因用户自行传播所引发的一切法律责任，由用户本人承担，与本站无关。
-          </p> */}
         </section>
       ) : null}
 
@@ -1292,6 +1357,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           channelSearch={channelSearch}
           onChannelSearchChange={setChannelSearch}
           onReload={() => void loadChannel(activeChannel, channelSearch)}
+          onLoadFullChannel={() => activeChannel && void loadChannel(activeChannel, "", { listOnly: true })}
           messages={messages}
           channelLoading={channelLoading}
           loadError={channelLoadError}
@@ -1303,6 +1369,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
       {article ? <ArticleModal title={article.title} text={article.text} onClose={() => setArticle(null)} /> : null}
       {adBlockedOpen ? <AdBlockedModal onClose={() => setAdBlockedOpen(false)} /> : null}
+      {landingWarnOpen ? <LandingWarnModal onClose={() => setLandingWarnOpen(false)} /> : null}
       {historyClearConfirmOpen ? (
         <ConfirmModal
           title="清空历史搜索"

@@ -1,6 +1,7 @@
 /**
- * 视频流式输出：边从 Telegram 拉取边响应浏览器；缓存由 Worker 后台写入
+ * 视频流式下载迭代器 + R2 后台 warm（仅小视频）
  */
+const bigInt = require("big-integer");
 const { withGramClient } = require("./gram-client");
 const {
   buildMediaSubPath,
@@ -10,9 +11,11 @@ const { saveMediaStream } = require("./save-media");
 const { pickContentType } = require("./parse");
 const { Api } = require("telegram/tl");
 const { PassThrough } = require("stream");
+const { MediaTransferMetrics, extractMediaMeta } = require("./tg-search-media-metrics");
+const { isVideoWarmEnabled, videoWarmMaxBytes } = require("./tg-search-play-route");
 
 function videoStreamChunkKb() {
-  const n = Number(process.env.TG_SEARCH_VIDEO_STREAM_CHUNK_KB) || 512;
+  const n = Number(process.env.TG_SEARCH_VIDEO_STREAM_CHUNK_KB) || 256;
   return Math.min(1024, Math.max(64, Math.round(n)));
 }
 
@@ -24,12 +27,15 @@ function throwIfAborted(signal) {
   }
 }
 
+function resolveVideoMime(msg) {
+  const docMime = msg.media?.document?.mimeType || "";
+  return docMime.startsWith("video/") ? docMime : "video/mp4";
+}
+
 /**
- * @param {import('telegram').Api.Message} msg
- * @param {import('telegram').EntityLike} entity
- * @param {number} chunkBytes
+ * @param {number} [byteOffset]
  */
-function buildVideoDownloadIter(client, msg, entity, chunkBytes) {
+function buildVideoDownloadIter(client, msg, entity, chunkBytes, byteOffset = 0) {
   const media = msg.media;
   const doc =
     media instanceof Api.MessageMediaDocument && media.document instanceof Api.Document
@@ -51,62 +57,13 @@ function buildVideoDownloadIter(client, msg, entity, chunkBytes) {
       fileReference: doc.fileReference,
       thumbSize: ""
     }),
+    offset: bigInt(Math.max(0, Math.floor(Number(byteOffset) || 0))),
     requestSize: chunkBytes,
     chunkSize: chunkBytes,
     fileSize: doc.size,
     dcId: doc.dcId,
     msgData
   });
-}
-
-function resolveVideoMime(msg) {
-  const docMime = msg.media?.document?.mimeType || "";
-  return docMime.startsWith("video/") ? docMime : "video/mp4";
-}
-
-/**
- * iterDownload → multipart 上传 R2/本地（Worker warm 用，无 HTTP 响应）
- */
-async function streamVideoMessageToCache(client, username, msg, entity, opts = {}) {
-  if (pickContentType(msg) !== "VIDEO") {
-    const err = new Error("该消息不是视频");
-    err.code = "NOT_VIDEO";
-    throw err;
-  }
-
-  const mid = Math.floor(Number(msg.id));
-  const subPath = buildMediaSubPath(username, mid, "full", "VIDEO");
-  const cacheMime = resolveVideoMime(msg);
-  const doc = msg.media?.document;
-  const fileSize = doc?.size ? Number(doc.size) : undefined;
-  const chunkBytes = videoStreamChunkKb() * 1024;
-
-  console.log(
-    `[tg-search:collector] video cache stream start ${username}/${mid} chunkKb=${videoStreamChunkKb()} size=${fileSize || "?"}`
-  );
-
-  const cachePass = new PassThrough();
-  const uploadPromise = saveMediaStream(cachePass, subPath, cacheMime);
-  const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes);
-
-  try {
-    for await (const chunk of iter) {
-      throwIfAborted(opts.signal);
-      if (!cachePass.write(chunk)) {
-        await new Promise((resolve) => cachePass.once("drain", resolve));
-      }
-    }
-    cachePass.end();
-    const url = await uploadPromise;
-    console.log(
-      `[tg-search:collector] video cache stream done ${username}/${mid} → ${String(url).slice(0, 80)}`
-    );
-    return { url, subPath, mime: cacheMime, messageId: mid, username };
-  } catch (err) {
-    cachePass.destroy();
-    uploadPromise.catch(() => {});
-    throw err;
-  }
 }
 
 async function getCachedFullMediaUrl(username, messageId) {
@@ -119,90 +76,82 @@ async function getCachedFullMediaUrl(username, messageId) {
   return null;
 }
 
-function enqueueBackgroundCache(username, messageId) {
-  try {
-    const { enqueueVideoWarmJob } = require("./media-worker");
-    void enqueueVideoWarmJob({ username, messageId }).catch(() => {});
-  } catch {
-    /* ignore */
-  }
-}
-
 /**
- * 浏览器播放：仅 TG→HTTP 流式输出，不阻塞 R2；播完后后台 warm 写缓存
+ * 后台 warm：仅当启用 warm 且文件 ≤ TG_SEARCH_VIDEO_WARM_MAX_MB
  */
-async function createVideoStreamResponse(username, messageId, opts = {}) {
-  const mid = Math.floor(Number(messageId));
-  const cached = await getCachedFullMediaUrl(username, mid);
-  if (cached?.contentType === "VIDEO") {
-    return { redirect: cached.url };
+async function streamVideoMessageToCache(client, username, msg, entity, opts = {}) {
+  if (pickContentType(msg) !== "VIDEO") {
+    const err = new Error("该消息不是视频");
+    err.code = "NOT_VIDEO";
+    throw err;
   }
 
+  const mid = Math.floor(Number(msg.id));
+  const meta = extractMediaMeta(msg);
+  const fileSize = meta.fileSize || 0;
+  if (!isVideoWarmEnabled()) {
+    return null;
+  }
+  if (fileSize > videoWarmMaxBytes()) {
+    console.log(
+      `[tg-search:play] skip warm @${username}/#${mid} 大文件 ${fileSize} > ${videoWarmMaxBytes()}`
+    );
+    return null;
+  }
+
+  const subPath = buildMediaSubPath(username, mid, "full", "VIDEO");
+  const cacheMime = resolveVideoMime(msg);
   const chunkBytes = videoStreamChunkKb() * 1024;
-  const { ReadableStream } = require("stream/web");
-  const responseMime = "video/mp4";
-  let cacheEnqueued = false;
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        await withGramClient(async (client) => {
-          throwIfAborted(opts.signal);
-          const entity = await client.getEntity(username);
-          const batch = await client.getMessages(entity, { ids: [mid] });
-          const msg = batch?.[0];
-          if (!msg?.media) {
-            const err = new Error("该消息无媒体");
-            err.code = "NO_MEDIA";
-            throw err;
-          }
-          if (pickContentType(msg) !== "VIDEO") {
-            const err = new Error("该消息不是视频");
-            err.code = "NOT_VIDEO";
-            throw err;
-          }
-
-          const cacheMime = resolveVideoMime(msg);
-          const doc = msg.media?.document;
-          const fileSize = doc?.size ? Number(doc.size) : undefined;
-
-          console.log(
-            `[tg-search:collector] video stream start ${username}/${mid} chunkKb=${videoStreamChunkKb()} size=${fileSize || "?"} mime=${cacheMime}`
-          );
-
-          const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes);
-
-          for await (const chunk of iter) {
-            throwIfAborted(opts.signal);
-            controller.enqueue(new Uint8Array(chunk));
-          }
-
-          controller.close();
-
-          if (!cacheEnqueued) {
-            cacheEnqueued = true;
-            enqueueBackgroundCache(username, mid);
-          }
-        }, { ...opts, priority: "high" });
-      } catch (err) {
-        try {
-          controller.error(err);
-        } catch {
-          /* ignore double close */
-        }
-      }
-    },
-    cancel() {
-      /* client disconnect handled by request.signal */
-    }
+  const metrics = new MediaTransferMetrics({
+    username,
+    messageId: mid,
+    variant: "full",
+    contentType: "VIDEO",
+    fileSize: meta.fileSize,
+    durationSec: meta.durationSec,
+    source: "warm-stream",
+    forceMetrics: opts.metrics === true ? true : opts.metrics === false ? false : undefined
   });
+  metrics.start();
+  metrics.tgDownloadBegin(fileSize);
 
-  return { stream, mime: responseMime };
+  const cachePass = new PassThrough();
+  metrics.r2UploadBegin(fileSize);
+  const uploadPromise = saveMediaStream(cachePass, subPath, cacheMime, {
+    expectedBytes: fileSize,
+    onUploadProgress: (loaded, total) => metrics.r2UploadProgress(loaded, total || fileSize)
+  });
+  const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes, 0);
+
+  let downloaded = 0;
+  try {
+    for await (const chunk of iter) {
+      throwIfAborted(opts.signal);
+      downloaded += chunk.length;
+      metrics.tgDownloadProgress(downloaded, fileSize);
+      if (!cachePass.write(chunk)) {
+        await new Promise((resolve) => cachePass.once("drain", resolve));
+      }
+    }
+    metrics.tgDownloadDone(downloaded);
+    cachePass.end();
+    const url = await uploadPromise;
+    metrics.r2UploadDone(url);
+    console.log(`[tg-search:play] warm 完成 @${username}/#${mid} → R2`);
+    return { url, subPath, mime: cacheMime, messageId: mid, username };
+  } catch (err) {
+    cachePass.destroy();
+    uploadPromise.catch(() => {});
+    metrics.fail("stream", err);
+    throw err;
+  }
 }
 
 module.exports = {
   getCachedFullMediaUrl,
-  createVideoStreamResponse,
   streamVideoMessageToCache,
-  buildVideoDownloadIter
+  buildVideoDownloadIter,
+  resolveVideoMime,
+  videoStreamChunkKb
 };

@@ -8,7 +8,7 @@ import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
   title: "我的 · 吃瓜网",
-  description: "匿名身份、推广与搜索额度"
+  description: "匿名身份、瓜皮额度与推广奖励"
 };
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ function MyPageHeader() {
             </span>
             <span className="h5-brand-title">我的</span>
           </div>
-          <p className="h5-brand-sub">匿名身份 · 推广奖励 · 搜索额度</p>
+          <p className="h5-brand-sub">匿名身份 · 瓜皮额度 · 扫码推广</p>
         </div>
       </div>
     </header>

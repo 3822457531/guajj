@@ -61,7 +61,7 @@ export function HotSearchBoard({
               key={`${item.rank}-${item.label}`}
               href={buildGlobalSearchHref(item.label)}
               prefetch={false}
-              className={tagClassName(item.rank)}
+              className={`${tagClassName(item.rank)} hot-board-tag--alive`}
             >
               {item.rank <= 3 ? (
                 <span className="hot-board-tag-rank" aria-label={`第 ${item.rank} 名`}>

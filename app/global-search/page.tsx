@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GlobalSearchClient } from "@/components/global-search/global-search-client";
-import { SearchModeTabs } from "@/components/search-mode-tabs";
 import { H5SiteBottomNav } from "@/components/h5-site-bottom-nav";
 
 export const metadata: Metadata = {
@@ -35,8 +34,6 @@ export default async function GlobalSearchPage({
             我的身份
           </Link>
         </div>
-
-        <SearchModeTabs active="global" />
       </header>
 
       <div className="h5-container global-search-container">

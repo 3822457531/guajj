@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { HeadObjectCommand } = require("@aws-sdk/client-s3");
 const { saveMediaBytes, getSiteSettingsCached, isR2Ready, buildObjectKey, trimBaseUrl, getR2Client } = require("./save-media");
+const { MediaTransferMetrics, extractMediaMeta } = require("./tg-search-media-metrics");
 
 const inflight = new Map();
 
@@ -172,10 +173,17 @@ async function getCachedMediaUrl(subPath) {
  * @param {Buffer} buffer
  * @param {string} subPath
  * @param {string} contentType
- * @returns {Promise<string>}
+ * @param {import('./tg-search-media-metrics').MediaTransferMetrics} [metrics]
  */
-async function putCachedMedia(buffer, subPath, contentType) {
-  return saveMediaBytes(buffer, subPath, contentType);
+async function putCachedMedia(buffer, subPath, contentType, metrics) {
+  metrics?.r2UploadBegin(buffer.length);
+  const url = await saveMediaBytes(buffer, subPath, contentType, {
+    onUploadProgress: metrics
+      ? (loaded, total) => metrics.r2UploadProgress(loaded, total || buffer.length)
+      : undefined
+  });
+  metrics?.r2UploadDone(url);
+  return url;
 }
 
 /**
@@ -198,6 +206,7 @@ function singleflight(key, fn) {
  * @param {AbortSignal} [signal]
  * @param {number} [retriesLeft]
  * @param {number | string} [thumbArg]
+ * @param {import('./tg-search-media-metrics').MediaTransferMetrics} [metrics]
  */
 async function downloadMediaBuffer(
   client,
@@ -205,7 +214,8 @@ async function downloadMediaBuffer(
   wantThumb,
   signal,
   retriesLeft = mediaDownloadRetries(),
-  thumbArg
+  thumbArg,
+  metrics
 ) {
   throwIfAborted(signal);
   const { pickContentType } = require("./parse");
@@ -213,6 +223,11 @@ async function downloadMediaBuffer(
   const downloadOpts = wantThumb ? buildThumbDownloadOpts(contentType, thumbArg) : {};
   const timeoutMs =
     !wantThumb && contentType === "VIDEO" ? videoDownloadTimeoutMs() : mediaDownloadTimeoutMs();
+
+  if (metrics) {
+    const meta = extractMediaMeta(msg);
+    metrics.tgDownloadBegin(!wantThumb ? meta.fileSize : undefined);
+  }
 
   let timer;
   let onAbort;
@@ -253,7 +268,7 @@ async function downloadMediaBuffer(
     if (retryable) {
       await sleep(600);
       throwIfAborted(signal);
-      return downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft - 1, thumbArg);
+      return downloadMediaBuffer(client, msg, wantThumb, signal, retriesLeft - 1, thumbArg, metrics);
     }
     throw err;
   } finally {
@@ -269,6 +284,8 @@ async function downloadMediaBuffer(
     throw err;
   }
 
+  metrics?.tgDownloadDone(buffer.length);
+
   let mime = "application/octet-stream";
   if (wantThumb) {
     mime = "image/jpeg";
@@ -282,12 +299,12 @@ async function downloadMediaBuffer(
   return { buffer, mime, contentType };
 }
 
-async function downloadVideoThumbBuffer(client, msg, signal) {
+async function downloadVideoThumbBuffer(client, msg, signal, metrics) {
   const candidates = pickDocumentThumbCandidates(msg);
   let lastErr;
   for (const thumbArg of candidates) {
     try {
-      return await downloadMediaBuffer(client, msg, true, signal, mediaDownloadRetries(), thumbArg);
+      return await downloadMediaBuffer(client, msg, true, signal, mediaDownloadRetries(), thumbArg, metrics);
     } catch (err) {
       lastErr = err;
       if (err?.code === "REQUEST_ABORTED") throw err;
@@ -322,7 +339,20 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
   return singleflight(flightKey, async () => {
     throwIfAborted(opts.signal);
     const cachedUrl = await getCachedMediaUrl(subPath);
+    const mediaMeta = extractMediaMeta(msg);
+    const metrics = new MediaTransferMetrics({
+      username,
+      messageId: msg.id,
+      variant,
+      contentType,
+      fileSize: mediaMeta.fileSize,
+      durationSec: mediaMeta.durationSec,
+      source: opts.source || "cache"
+    });
+    metrics.start();
+
     if (cachedUrl) {
+      metrics.markCached(cachedUrl);
       return {
         url: cachedUrl,
         cached: true,
@@ -337,15 +367,16 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
     let mime;
     try {
       if (wantThumb && contentType === "VIDEO") {
-        ({ buffer, mime } = await downloadVideoThumbBuffer(client, msg, opts.signal));
+        ({ buffer, mime } = await downloadVideoThumbBuffer(client, msg, opts.signal, metrics));
       } else {
-        ({ buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal));
+        ({ buffer, mime } = await downloadMediaBuffer(client, msg, wantThumb, opts.signal, mediaDownloadRetries(), undefined, metrics));
       }
     } catch (thumbErr) {
       if (wantThumb && contentType === "PHOTO") {
         const fullSubPath = buildMediaSubPath(username, msg.id, "full", contentType);
         const fullCached = await getCachedMediaUrl(fullSubPath);
         if (fullCached) {
+          metrics.markCached(fullCached);
           return {
             url: fullCached,
             cached: true,
@@ -355,8 +386,8 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
             username
           };
         }
-        ({ buffer, mime } = await downloadMediaBuffer(client, msg, false, opts.signal));
-        const url = await putCachedMedia(buffer, fullSubPath, mime);
+        ({ buffer, mime } = await downloadMediaBuffer(client, msg, false, opts.signal, mediaDownloadRetries(), undefined, metrics));
+        const url = await putCachedMedia(buffer, fullSubPath, mime, metrics);
         console.log(
           `[tg-search:collector] cached media full-as-thumb ${username}/${msg.id} → ${url.slice(0, 80)}`
         );
@@ -371,22 +402,28 @@ async function cacheMessageMediaWithClient(client, username, msg, opts = {}) {
           mime
         };
       }
+      metrics.fail("TG下载", thumbErr);
       throw thumbErr;
     }
-    const url = await putCachedMedia(buffer, subPath, mime);
-    console.log(
-      `[tg-search:collector] cached media ${variant} ${username}/${msg.id} → ${url.slice(0, 80)}`
-    );
-    return {
-      url,
-      cached: false,
-      contentType,
-      variant,
-      messageId: msg.id,
-      username,
-      buffer,
-      mime
-    };
+    try {
+      const url = await putCachedMedia(buffer, subPath, mime, metrics);
+      console.log(
+        `[tg-search:collector] cached media ${variant} ${username}/${msg.id} → ${url.slice(0, 80)}`
+      );
+      return {
+        url,
+        cached: false,
+        contentType,
+        variant,
+        messageId: msg.id,
+        username,
+        buffer,
+        mime
+      };
+    } catch (uploadErr) {
+      metrics.fail("R2上传", uploadErr);
+      throw uploadErr;
+    }
   });
 }
 

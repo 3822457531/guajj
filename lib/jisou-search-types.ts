@@ -67,6 +67,8 @@ export type ChannelMessagesResult = {
   note: string;
   search: string | null;
   anchorMessageId?: number | null;
+  /** 极搜 postId 直达：仅返回该消息/相册，不含频道列表 */
+  resourceOnly?: boolean;
   count: number;
   rawCount: number;
   messages: ChannelMessageItem[];
@@ -109,7 +111,13 @@ export type JisouSearchService = {
   getJisouCaptchaImage: (challengeId: string) => { buffer: Buffer; mime: string } | null;
   fetchChannelMessages: (
     username: string,
-    opts: { limit?: number; search?: string; messageId?: number; signal?: AbortSignal }
+    opts: {
+      limit?: number;
+      search?: string;
+      messageId?: number;
+      includeContext?: boolean;
+      signal?: AbortSignal;
+    }
   ) => Promise<ChannelMessagesResult>;
   resolveMessageMedia: (
     username: string,
@@ -132,12 +140,45 @@ export type JisouSearchService = {
   createVideoStreamResponse: (
     username: string,
     messageId: number,
-    opts?: { signal?: AbortSignal }
+    opts?: { signal?: AbortSignal; rangeHeader?: string | null }
   ) => Promise<
-    | { redirect: string }
-    | { stream: ReadableStream<Uint8Array>; mime: string; fileSize?: number }
+    | { redirect: string; playRoute?: string; playMode?: string; cached?: boolean }
+    | {
+        stream: ReadableStream<Uint8Array>;
+        mime: string;
+        fileSize?: number;
+        playRoute?: string;
+        playMode?: string;
+        status?: number;
+        contentLength?: number | null;
+        contentRange?: string | null;
+        cached?: boolean;
+      }
   >;
-  warmVideoMedia: (username: string, messageId: number) => Promise<ResolvedMedia | null>;
+  resolveVideoPlayInfo: (
+    username: string,
+    messageId: number,
+    opts?: { signal?: AbortSignal }
+  ) => Promise<{
+    username: string;
+    messageId: number;
+    route: string;
+    playMode: string;
+    largeFile: boolean;
+    warmEligible: boolean;
+    cached: boolean;
+    url: string | null;
+    fileSize: number | null;
+    durationSec: number | null;
+    warmMaxMb?: number;
+    warmEnabled?: boolean;
+    mime?: string;
+  }>;
+  warmVideoMedia: (
+    username: string,
+    messageId: number,
+    opts?: { metrics?: boolean }
+  ) => Promise<ResolvedMedia | null>;
   downloadMessageMedia: (
     username: string,
     messageId: number,

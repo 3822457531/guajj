@@ -20,6 +20,7 @@ export default function TgSearchTestPage() {
     note?: string;
     rawCount?: number;
     anchorMessageId?: number | null;
+    resourceOnly?: boolean;
   } | null>(null);
   const [messages, setMessages] = useState<ChannelMessageItem[]>([]);
   const [captcha, setCaptcha] = useState<JisouCaptchaChallenge | null>(null);
@@ -223,6 +224,7 @@ export default function TgSearchTestPage() {
         note?: string;
         rawCount?: number;
         anchorMessageId?: number | null;
+        resourceOnly?: boolean;
         messages?: ChannelMessageItem[];
       };
       try {
@@ -238,7 +240,8 @@ export default function TgSearchTestPage() {
         broadcast: data.broadcast,
         note: data.note,
         rawCount: data.rawCount,
-        anchorMessageId: data.anchorMessageId
+        anchorMessageId: data.anchorMessageId,
+        resourceOnly: data.resourceOnly
       });
       setMessages(data.messages || []);
       if (!data.messages?.length) {
@@ -426,6 +429,9 @@ export default function TgSearchTestPage() {
                 {channelMeta?.broadcast === true ? " · 公开广播频道" : ""}
                 {channelMeta?.anchorMessageId ? (
                   <span style={{ color: "#2563eb", fontWeight: 600 }}> · 极搜定位 #{channelMeta.anchorMessageId}</span>
+                ) : null}
+                {channelMeta?.resourceOnly ? (
+                  <span style={{ color: "#059669", fontWeight: 600 }}> · 仅直达资源</span>
                 ) : null}
                 {channelMeta?.rawCount != null ? ` · 原始 ${channelMeta.rawCount} 条 / 展示 ${messages.length} 组` : ""}
               </p>

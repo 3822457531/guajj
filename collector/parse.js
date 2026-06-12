@@ -87,5 +87,6 @@ module.exports = {
   messageToIndexPayload,
   peerIdToChatId,
   parseContent,
-  pickContentType
+  pickContentType,
+  getDurationSec
 };

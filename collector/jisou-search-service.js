@@ -18,6 +18,7 @@ const {
 const { decodeCallbackData } = require("./jisou-parse");
 const { consumeChallenge, getChallenge } = require("./jisou-captcha-store");
 const { cacheMessageMediaWithClient, mapPool } = require("./tg-search-media-cache");
+const { logChannelLoadSummary } = require("./tg-search-media-metrics");
 
 const BOT_USERNAME = (process.env.JISOU_BOT_USERNAME || "jisou").replace(/^@/, "");
 
@@ -133,7 +134,8 @@ async function enrichDisplayListWithVideoFull(client, username, displayList, msg
       try {
         const result = await cacheMessageMediaWithClient(client, username, msg, {
           thumb: false,
-          signal: opts.signal
+          signal: opts.signal,
+          source: "channel-video-prefetch"
         });
         mi.fullUrl = result.url;
         mi.status = "ready";
@@ -194,7 +196,8 @@ async function enrichDisplayListWithThumbs(client, username, displayList, msgByI
       try {
         const result = await cacheMessageMediaWithClient(client, username, msg, {
           thumb: true,
-          signal: opts.signal
+          signal: opts.signal,
+          source: "channel-thumb-prefetch"
         });
         mi.thumbUrl = result.url;
         mi.status = "thumb_ready";
@@ -627,6 +630,35 @@ function getJisouCaptchaImage(challengeId) {
  * @param {number} anchorId
  * @param {number} limit
  */
+async function fetchAnchorResourceOnly(client, entity, anchorId) {
+  const anchorBatch = await client.getMessages(entity, { ids: [anchorId] });
+  const anchor = anchorBatch?.[0];
+  if (!anchor) {
+    const err = new Error(`消息 #${anchorId} 不存在或无法读取`);
+    err.code = "MESSAGE_NOT_FOUND";
+    throw err;
+  }
+
+  const collected = new Map();
+  collected.set(anchor.id, anchor);
+
+  if (anchor.groupedId != null) {
+    const around = await client.getMessages(entity, {
+      minId: Math.max(1, anchorId - 40),
+      maxId: anchorId + 40
+    });
+    for (const m of around || []) {
+      if (m?.groupedId != null && String(m.groupedId) === String(anchor.groupedId)) {
+        collected.set(m.id, m);
+      }
+    }
+  }
+
+  const messages = Array.from(collected.values()).sort((a, b) => b.id - a.id);
+  return { messages, anchorId };
+}
+
+/** @deprecated 需要频道上下文时用 includeContext；极搜直达资源请用 fetchAnchorResourceOnly */
 async function fetchMessagesAroundAnchor(client, entity, anchorId, limit = 20) {
   const anchorBatch = await client.getMessages(entity, { ids: [anchorId] });
   const anchor = anchorBatch?.[0];
@@ -666,7 +698,7 @@ async function fetchMessagesAroundAnchor(client, entity, anchorId, limit = 20) {
 /**
  * 读取频道消息（默认不 join；公开广播频道通常可直接读）
  * @param {string} usernameOrUrl
- * @param {{ limit?: number, search?: string, messageId?: number, signal?: AbortSignal }} opts
+ * @param {{ limit?: number, search?: string, messageId?: number, includeContext?: boolean, signal?: AbortSignal }} opts
  */
 async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   const signal = opts.signal;
@@ -683,10 +715,16 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   const search = String(opts.search || "").trim();
   const messageId = Number(opts.messageId) || 0;
   const anchorMessageId = !search && messageId > 0 ? messageId : null;
+  const includeContext = Boolean(opts.includeContext);
 
   console.log(
-    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(search || null)} anchor=${anchorMessageId || "none"}`
+    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(search || null)} anchor=${anchorMessageId || "none"} resourceOnly=${Boolean(anchorMessageId && !includeContext)}`
   );
+
+  const channelStarted = Date.now();
+  let gramMessagesMs = 0;
+  let thumbPrefetchMs = 0;
+  let videoPrefetchMs = 0;
 
   return withGramClient(async (client) => {
     throwIfAborted(signal);
@@ -708,12 +746,18 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
     }
 
     let messages;
+    const gramStarted = Date.now();
     try {
       if (search) {
         messages = await client.getMessages(entity, { limit, search });
       } else if (anchorMessageId) {
-        const anchored = await fetchMessagesAroundAnchor(client, entity, anchorMessageId, limit);
-        messages = anchored.messages;
+        if (includeContext) {
+          const anchored = await fetchMessagesAroundAnchor(client, entity, anchorMessageId, limit);
+          messages = anchored.messages;
+        } else {
+          const anchored = await fetchAnchorResourceOnly(client, entity, anchorMessageId);
+          messages = anchored.messages;
+        }
       } else {
         messages = await client.getMessages(entity, { limit });
       }
@@ -723,6 +767,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       e.code = mapped.code;
       throw e;
     }
+    gramMessagesMs = Date.now() - gramStarted;
 
     const rawList = (messages || []).filter(Boolean).map((msg) => {
       msg._contentType = pickContentType(msg);
@@ -746,7 +791,9 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
     // 默认不在频道加载时阻塞预取；缩略图/视频由前端按需走 /api/tg-search/media
     const thumbMax = channelThumbPrefetchMax();
     if (thumbMax > 0) {
+      const thumbStarted = Date.now();
       await enrichDisplayListWithThumbs(client, username, displayList, msgById, { signal });
+      thumbPrefetchMs = Date.now() - thumbStarted;
       throwIfAborted(signal);
     } else {
       for (const item of displayList) {
@@ -761,14 +808,40 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
     }
 
     if (videoPrefetchOnChannelLoad()) {
+      const videoStarted = Date.now();
       await enrichDisplayListWithVideoFull(client, username, displayList, msgById, { signal });
+      videoPrefetchMs = Date.now() - videoStarted;
     }
 
     throwIfAborted(signal);
 
+    const totalMs = Date.now() - channelStarted;
+    const thumbReady = displayList.reduce(
+      (n, item) => n + item.mediaItems.filter((m) => m.status === "thumb_ready" || m.status === "ready").length,
+      0
+    );
+    const videoReady = displayList.reduce(
+      (n, item) => n + item.mediaItems.filter((m) => m.contentType === "VIDEO" && m.fullUrl).length,
+      0
+    );
+
     console.log(
       `[tg-search:collector] fetchChannelMessages ok username=${username} raw=${rawList.length} display=${displayList.length}`
     );
+
+    logChannelLoadSummary(username, {
+      totalMs,
+      gramMessagesMs,
+      thumbPrefetchMs: thumbMax > 0 ? thumbPrefetchMs : 0,
+      videoPrefetchMs: videoPrefetchOnChannelLoad() ? videoPrefetchMs : 0,
+      thumbMax,
+      thumbReady,
+      videoReady,
+      note:
+        thumbMax <= 0
+          ? "封面未预取(TG_SEARCH_CHANNEL_THUMB_MAX=0)，前端需走 /media/batch 或 hover 触发 warm"
+          : undefined
+    });
 
     return {
       username,
@@ -778,11 +851,14 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       note:
         broadcast === true
           ? anchorMessageId
-            ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。`
+            ? includeContext
+              ? `已定位索引结果 #${anchorMessageId}（含相册/上下文）。`
+              : `已定位极搜直达资源 #${anchorMessageId}（仅该消息/相册，未加载频道列表）。`
             : "搜索索引已公开：可直接预览历史。"
           : "超级群/私有频道：往往需要加入后才能读取",
       search: search || null,
       anchorMessageId,
+      resourceOnly: Boolean(anchorMessageId && !includeContext),
       count: displayList.length,
       rawCount: rawList.length,
       messages: displayList,
@@ -929,7 +1005,8 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
           try {
             const result = await cacheMessageMediaWithClient(client, username, msg, {
               thumb: wantThumb,
-              signal: opts.signal
+              signal: opts.signal,
+              source: wantThumb ? "media-batch-thumb" : "media-batch-full"
             });
             media[msg.id] = { url: result.url, cached: result.cached };
           } catch (err) {
@@ -988,20 +1065,25 @@ async function getCachedThumbMediaUrl(usernameOrUrl, messageId) {
 }
 
 async function createVideoStreamResponse(username, messageId, opts = {}) {
-  const { createVideoStreamResponse: createStream } = require("./tg-search-media-stream");
+  const { createVideoStreamResponse: createStream } = require("./tg-search-video-play");
   return createStream(username, messageId, opts);
+}
+
+async function resolveVideoPlayInfo(username, messageId, opts = {}) {
+  const { resolveVideoPlayInfo: resolve } = require("./tg-search-video-play");
+  return resolve(username, messageId, opts);
 }
 
 /**
  * 后台预热视频到 R2（低优先级队列，流式 multipart 上传）
  */
-function warmVideoMedia(usernameOrUrl, messageId) {
+function warmVideoMedia(usernameOrUrl, messageId, opts = {}) {
   const username = normalizeUsername(usernameOrUrl);
   const mid = Math.floor(Number(messageId));
   if (!username || mid <= 0) return Promise.resolve(null);
 
   const { enqueueVideoWarmJob } = require("./media-worker");
-  return enqueueVideoWarmJob({ username, messageId: mid });
+  return enqueueVideoWarmJob({ username, messageId: mid, metrics: Boolean(opts.metrics) });
 }
 
 module.exports = {
@@ -1015,6 +1097,7 @@ module.exports = {
   getCachedFullMediaUrl,
   getCachedThumbMediaUrl,
   createVideoStreamResponse,
+  resolveVideoPlayInfo,
   warmVideoMedia,
   downloadMessageMedia,
   normalizeUsername,

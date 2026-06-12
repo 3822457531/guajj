@@ -9,8 +9,10 @@ const {
   singleflight
 } = require("./tg-search-media-cache");
 const { streamVideoMessageToCache } = require("./tg-search-media-stream");
+const { logMetrics, formatBytes, extractMediaMeta } = require("./tg-search-media-metrics");
+const { pickContentType } = require("./parse");
 
-/** @type {Array<{ key: string, username: string, messageId: number, resolve: (v: unknown) => void, reject: (e: Error) => void }>} */
+/** @type {Array<{ key: string, username: string, messageId: number, metrics?: boolean, resolve: (v: unknown) => void, reject: (e: Error) => void }>} */
 const queue = [];
 
 /** @type {Set<string>} */
@@ -29,9 +31,20 @@ function channelWarmVideoMax() {
   return Math.min(8, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX) || 2));
 }
 
+/** 超过此大小的视频不 warm 全量到 R2，改走 /media/stream 边播边拉 */
+function videoWarmMaxBytes() {
+  const mb = Number(process.env.TG_SEARCH_VIDEO_WARM_MAX_MB);
+  if (Number.isFinite(mb) && mb > 0) return Math.round(mb) * 1024 * 1024;
+  return 80 * 1024 * 1024;
+}
+
+function warmLog(metrics, scope, message, extra) {
+  if (!metrics) return;
+  logMetrics(scope, message, extra);
+}
+
 /**
- * @param {{ username: string, messageId: number }} job
- * @returns {Promise<{ url: string, cached?: boolean, contentType?: string } | null>}
+ * @param {{ username: string, messageId: number, metrics?: boolean }} job
  */
 function enqueueVideoWarmJob(job) {
   const username = String(job.username || "").trim();
@@ -39,6 +52,7 @@ function enqueueVideoWarmJob(job) {
   if (!username || messageId <= 0) return Promise.resolve(null);
 
   const key = `video_full:${username}:${messageId}`;
+  const metrics = Boolean(job.metrics);
 
   if (inflightKeys.has(key) || queuedKeys.has(key)) {
     return Promise.resolve(null);
@@ -50,18 +64,14 @@ function enqueueVideoWarmJob(job) {
   }
 
   return new Promise((resolve, reject) => {
-    queue.push({ key, username, messageId, resolve, reject });
+    queue.push({ key, username, messageId, metrics, resolve, reject });
     queuedKeys.add(key);
+    warmLog(metrics, "WARM", `排队 @${username}/#${messageId}`, { queueLen: queue.length });
     void drainQueue();
   });
 }
 
-/**
- * 频道加载时批量 warm，默认最多 2 条，避免占满 Gram 阻塞用户点击播放
- * @param {string} username
- * @param {number[]} messageIds
- */
-function enqueueChannelVideoWarmBatch(username, messageIds) {
+function enqueueChannelVideoWarmBatch(username, messageIds, opts = {}) {
   const max = channelWarmVideoMax();
   if (max <= 0) return 0;
   const ids = [...new Set(messageIds.map((id) => Math.floor(Number(id))).filter((id) => id > 0))].slice(
@@ -69,7 +79,7 @@ function enqueueChannelVideoWarmBatch(username, messageIds) {
     max
   );
   for (const messageId of ids) {
-    void enqueueVideoWarmJob({ username, messageId });
+    void enqueueVideoWarmJob({ username, messageId, metrics: Boolean(opts.metrics) });
   }
   return ids.length;
 }
@@ -85,7 +95,7 @@ async function drainQueue() {
     inflightKeys.add(job.key);
 
     try {
-      const result = await processVideoWarmJob(job.username, job.messageId);
+      const result = await processVideoWarmJob(job);
       job.resolve(result);
     } catch (err) {
       const code = err?.code;
@@ -113,15 +123,20 @@ async function drainQueue() {
   }
 }
 
-async function processVideoWarmJob(username, messageId) {
+async function processVideoWarmJob(job) {
+  const { username, messageId, metrics } = job;
   const mid = Math.floor(Number(messageId));
+  const started = Date.now();
   const subPath = buildMediaSubPath(username, mid, "full", "VIDEO");
   const cachedUrl = await getCachedMediaUrl(subPath);
   if (cachedUrl) {
+    warmLog(metrics, "WARM", `@${username}/#${mid} 已缓存，跳过 warm`, { ms: Date.now() - started });
     return { url: cachedUrl, cached: true, contentType: "VIDEO" };
   }
 
+  warmLog(metrics, "WARM", `@${username}/#${mid} 开始后台 warm（TG→R2 流式）`);
   const flightKey = `worker:warm:${username}:${mid}`;
+  const maxBytes = videoWarmMaxBytes();
 
   return singleflight(flightKey, () =>
     withGramClient(async (client) => {
@@ -133,8 +148,34 @@ async function processVideoWarmJob(username, messageId) {
         err.code = "NO_MEDIA";
         throw err;
       }
+      if (pickContentType(msg) !== "VIDEO") {
+        const err = new Error("该消息不是视频");
+        err.code = "NOT_VIDEO";
+        throw err;
+      }
 
-      const result = await streamVideoMessageToCache(client, username, msg, entity);
+      const meta = extractMediaMeta(msg);
+      const fileSize = meta.fileSize || 0;
+      if (fileSize > maxBytes) {
+        warmLog(metrics, "WARM", `@${username}/#${mid} 跳过 warm`, {
+          reason: "TOO_LARGE",
+          size: formatBytes(fileSize),
+          max: formatBytes(maxBytes),
+          duration: meta.durationSec ? `${meta.durationSec}s` : undefined,
+          hint: "大视频请走 /media/stream 边播，勿全量缓存 R2"
+        });
+        return { skipped: true, reason: "TOO_LARGE", contentType: "VIDEO" };
+      }
+
+      const result = await streamVideoMessageToCache(client, username, msg, entity, {
+        source: "media-worker",
+        metrics
+      });
+      if (!result) {
+        warmLog(metrics, "WARM", `@${username}/#${mid} 跳过（warm 未启用或文件过大）`);
+        return { skipped: true, reason: "WARM_DISABLED_OR_LARGE", contentType: "VIDEO" };
+      }
+      warmLog(metrics, "WARM", `@${username}/#${mid} warm 完成`, { ms: Date.now() - started });
       return {
         url: result.url,
         cached: false,
@@ -154,5 +195,6 @@ function getMediaWorkerStats() {
 module.exports = {
   enqueueVideoWarmJob,
   enqueueChannelVideoWarmBatch,
-  getMediaWorkerStats
+  getMediaWorkerStats,
+  videoWarmMaxBytes
 };

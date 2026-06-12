@@ -13,6 +13,19 @@ import { tgSearchCaptchaImageUrl } from "@/lib/tg-search-api-paths";
 import { recordSearchLogFromRequest, SearchSource } from "@/lib/search-analytics";
 import { assertGlobalSearchAllowed, getGuestGlobalSearchQuota, type SearchQuotaStatus } from "@/lib/search-quota";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const {
+  runWithTgSearchScopeFromRequest,
+  isProdTgSearchRequest
+} = require("../collector/tg-search-request-context.js") as {
+  runWithTgSearchScopeFromRequest: <T>(request: Request, fn: () => T | Promise<T>) => T | Promise<T>;
+  isProdTgSearchRequest: () => boolean;
+};
+
+function withTgSearchScope<T>(request: Request, fn: () => T | Promise<T>): T | Promise<T> {
+  return runWithTgSearchScopeFromRequest(request, fn);
+}
+
 export { TG_SEARCH_API } from "@/lib/tg-search-api-paths";
 export type { TgSearchApiScope } from "@/lib/tg-search-api-paths";
 
@@ -360,18 +373,22 @@ export async function handleTgSearchActionPost(request: Request, apiBase: string
 }
 
 export async function handleTgChannelGet(request: Request) {
+  return withTgSearchScope(request, async () => {
   const started = Date.now();
   const { searchParams } = new URL(request.url);
   const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
   const search = String(searchParams.get("search") ?? searchParams.get("q") ?? "").trim();
   const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 20));
   const messageId = Number(searchParams.get("messageId") || searchParams.get("mid") || 0);
+  const includeContext =
+    searchParams.get("includeContext") === "1" || searchParams.get("includeContext") === "true";
 
   tgSearchLog("channel-api", "GET channel 收到请求", {
     username,
     search: search || null,
     limit,
-    messageId: messageId > 0 ? messageId : null
+    messageId: messageId > 0 ? messageId : null,
+    includeContext: messageId > 0 ? includeContext : null
   });
 
   if (!username) {
@@ -385,6 +402,7 @@ export async function handleTgChannelGet(request: Request) {
       limit,
       search: search || undefined,
       messageId: messageId > 0 ? messageId : undefined,
+      includeContext: messageId > 0 ? includeContext : undefined,
       signal: request.signal
     });
     const keywords = await getBlockedKeywords();
@@ -413,9 +431,11 @@ export async function handleTgChannelGet(request: Request) {
             : 500;
     return NextResponse.json({ ok: false, error: code, message }, { status });
   }
+  });
 }
 
 export async function handleTgMediaGet(request: Request) {
+  return withTgSearchScope(request, async () => {
   const started = Date.now();
   const { searchParams } = new URL(request.url);
   const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
@@ -507,13 +527,16 @@ export async function handleTgMediaGet(request: Request) {
       { status }
     );
   }
+  });
 }
 
 export async function handleTgMediaStreamGet(request: Request) {
+  return withTgSearchScope(request, async () => {
   const started = Date.now();
   const { searchParams } = new URL(request.url);
   const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
   const messageId = Number(searchParams.get("messageId") ?? searchParams.get("mid") ?? 0);
+  const rangeHeader = request.headers.get("range");
 
   if (!username || messageId <= 0) {
     return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
@@ -523,11 +546,18 @@ export async function handleTgMediaStreamGet(request: Request) {
 
   try {
     const result = await svc.createVideoStreamResponse(username, messageId, {
-      signal: request.signal
+      signal: request.signal,
+      rangeHeader
     });
 
-    if ("redirect" in result) {
-      tgSearchLog("media-api", "视频流缓存命中", { username, messageId, ms: Date.now() - started });
+    if ("redirect" in result && result.redirect) {
+      tgSearchLog("media-api", "视频播放走 R2/CDN", {
+        username,
+        messageId,
+        playRoute: result.playRoute || "R2_CDN",
+        playMode: result.playMode,
+        ms: Date.now() - started
+      });
       return mediaRedirectResponse(
         request,
         result.redirect,
@@ -535,15 +565,39 @@ export async function handleTgMediaStreamGet(request: Request) {
       );
     }
 
-    tgSearchLog("media-api", "视频流开始", { username, messageId, ms: Date.now() - started });
+    if (!("stream" in result) || !result.stream) {
+      return NextResponse.json({ ok: false, error: "empty_stream" }, { status: 500 });
+    }
+
+    const headers: Record<string, string> = {
+      "Content-Type": result.mime || "video/mp4",
+      "Cache-Control": "public, max-age=3600",
+      "Accept-Ranges": "bytes",
+      "X-Accel-Buffering": "no",
+      "X-Tg-Play-Route": result.playRoute || "TG_STREAM",
+      "X-Tg-Play-Mode": encodeURIComponent(result.playMode || "TG直出流")
+    };
+    if (result.contentLength != null) {
+      headers["Content-Length"] = String(result.contentLength);
+    }
+    if (result.contentRange) {
+      headers["Content-Range"] = result.contentRange;
+    }
+
+    tgSearchLog("media-api", "视频播放走 TG 直出流", {
+      username,
+      messageId,
+      playRoute: result.playRoute,
+      playMode: result.playMode,
+      fileSize: result.fileSize,
+      range: rangeHeader || null,
+      status: result.status || 200,
+      ms: Date.now() - started
+    });
 
     return new NextResponse(result.stream, {
-      headers: {
-        "Content-Type": result.mime || "video/mp4",
-        "Cache-Control": "public, max-age=3600",
-        "Accept-Ranges": "none",
-        "X-Accel-Buffering": "no"
-      }
+      status: result.status || 200,
+      headers
     });
   } catch (err: unknown) {
     const mapped = svc.mapGramError(err);
@@ -558,9 +612,11 @@ export async function handleTgMediaStreamGet(request: Request) {
       { status }
     );
   }
+  });
 }
 
 export async function handleTgMediaCachedGet(request: Request) {
+  return withTgSearchScope(request, async () => {
   const { searchParams } = new URL(request.url);
   const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
   const messageId = Number(searchParams.get("messageId") ?? searchParams.get("mid") ?? 0);
@@ -594,6 +650,41 @@ export async function handleTgMediaCachedGet(request: Request) {
       { status: 500 }
     );
   }
+  });
+}
+
+export async function handleTgMediaPlayInfoGet(request: Request) {
+  return withTgSearchScope(request, async () => {
+    const { searchParams } = new URL(request.url);
+    const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
+    const messageId = Number(searchParams.get("messageId") ?? searchParams.get("mid") ?? 0);
+
+    if (!username || messageId <= 0) {
+      return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
+    }
+
+    const svc = loadJisouSearchService<JisouSearchService>();
+
+    try {
+      const info = await svc.resolveVideoPlayInfo(username, messageId, { signal: request.signal });
+      return NextResponse.json(
+        { ok: true, ...info },
+        { headers: { "Cache-Control": "private, no-cache" } }
+      );
+    } catch (err: unknown) {
+      const mapped = svc.mapGramError(err);
+      const code = (err as { code?: string })?.code || mapped.code;
+      if (code === "REQUEST_ABORTED") {
+        return new NextResponse(null, { status: 499 });
+      }
+      const status =
+        code === "NO_MEDIA" || code === "NOT_VIDEO" || code === "INVALID_PARAMS" ? 404 : 500;
+      return NextResponse.json(
+        { ok: false, error: code, message: (err as Error)?.message || mapped.message },
+        { status }
+      );
+    }
+  });
 }
 
 function videoWarmMaxIds() {
@@ -605,6 +696,7 @@ function channelWarmVideoMax() {
 }
 
 export async function handleTgMediaWarmPost(request: Request) {
+  return withTgSearchScope(request, async () => {
   let body: { username?: string; messageId?: number; messageIds?: number[] };
   try {
     body = (await request.json()) as typeof body;
@@ -630,7 +722,7 @@ export async function handleTgMediaWarmPost(request: Request) {
   const list = [...ids].slice(0, max);
 
   for (const messageId of list) {
-    void svc.warmVideoMedia(username, messageId).catch((err: unknown) => {
+    void svc.warmVideoMedia(username, messageId, { metrics: isProdTgSearchRequest() }).catch((err: unknown) => {
       tgSearchLog("media-api", "视频预热失败", {
         username,
         messageId,
@@ -642,9 +734,11 @@ export async function handleTgMediaWarmPost(request: Request) {
   tgSearchLog("media-api", "视频预热排队", { username, count: list.length, messageIds: list });
 
   return NextResponse.json({ ok: true, queued: list.length, messageIds: list }, { status: 202 });
+  });
 }
 
 export async function handleTgMediaBatchPost(request: Request) {
+  return withTgSearchScope(request, async () => {
   const started = Date.now();
   let body: { username?: string; messageIds?: number[]; thumb?: boolean };
   try {
@@ -701,6 +795,7 @@ export async function handleTgMediaBatchPost(request: Request) {
       { status: 500 }
     );
   }
+  });
 }
 
 export async function handleTgCaptchaImageGet(challengeId: string) {

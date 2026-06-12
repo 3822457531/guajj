@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { HotSearchBoard } from "@/components/hot-search-board";
-import { SearchModeTabs } from "@/components/search-mode-tabs";
 import { H5SiteBottomNav } from "@/components/h5-site-bottom-nav";
 import { getLatestHotSearchBoard } from "@/lib/jisou-hot-search-board";
 
@@ -44,7 +43,6 @@ export default async function HotSearchPage({
             我的身份
           </Link>
         </div>
-        <SearchModeTabs active="hot" />
       </header>
 
       <div className="h5-container hot-board-container">

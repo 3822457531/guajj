@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { GuapiHelpButton, GuapiInfoModal } from "@/components/guapi-info-modal";
+import { ReferralQrShare } from "@/components/referral-qr-share";
 import {
   buildAbsoluteReferralLink,
   buildReferralLink,
@@ -48,6 +50,7 @@ export function MyPageClient(props: MyPageClientProps) {
   const [recoverMsg, setRecoverMsg] = useState("");
   const [recovering, setRecovering] = useState(false);
   const [secretKey, setSecretKey] = useState<string | null>(null);
+  const [guapiInfoOpen, setGuapiInfoOpen] = useState(false);
 
   useEffect(() => {
     const backup = readGuestIdentityBackup();
@@ -114,13 +117,17 @@ export function MyPageClient(props: MyPageClientProps) {
         </div>
       </section>
 
-      <section className="my-quota-card" aria-label="今日全网搜索额度">
+      <section className="my-quota-card" aria-label="今日瓜皮余额">
         <div className="my-quota-head">
           <div>
-            <p className="my-quota-title">今日全网搜索</p>
+            <p className="my-quota-title">今日瓜皮余额</p>
             <p className="my-quota-numbers">
               剩余 <strong>{props.remaining}</strong>
-              <span> / {props.limit} 次</span>
+              <span> / {props.limit}</span>
+              <span className="my-quota-unit">
+                瓜皮
+                <GuapiHelpButton onClick={() => setGuapiInfoOpen(true)} />
+              </span>
             </p>
           </div>
           <div className="my-quota-ring" style={{ "--my-quota-pct": `${quotaPercent}%` } as CSSProperties}>
@@ -132,11 +139,11 @@ export function MyPageClient(props: MyPageClientProps) {
         </div>
         <p className="my-quota-tip">
           {props.remaining <= 0
-            ? `次数已用完。邀请好友每位 +${props.referralBonusPerInvite} 次（基础 ${props.dailyBaseLimit} 次/日），已搜关键词可走缓存。`
-            : `基础 ${props.dailyBaseLimit} 次/日 + 邀请奖励 ${props.searchBonus} 次 · 重复关键词不扣次`}
+            ? `瓜皮已用完。邀请好友每位 +${props.referralBonusPerInvite} 瓜皮（基础 ${props.dailyBaseLimit}/日），已搜关键词可走缓存不扣瓜皮。`
+            : `基础 ${props.dailyBaseLimit} 瓜皮/日 + 邀请奖励 ${props.searchBonus} 瓜皮 · 重复关键词不扣瓜皮`}
         </p>
         <Link href="/global-search" prefetch={false} className="my-quota-link">
-          去全网搜索 →
+          去吃瓜搜索 →
         </Link>
       </section>
 
@@ -166,12 +173,12 @@ export function MyPageClient(props: MyPageClientProps) {
         </div>
       </section>
 
-      <section className="my-panel" aria-label="推广奖励">
+      <section className="my-panel my-panel--promo" aria-label="推广奖励">
         <h2 className="my-panel-title">推广奖励</h2>
         <div className="my-stats-grid">
           <div className="my-stat">
             <span className="my-stat-value">+{props.searchBonus}</span>
-            <span className="my-stat-label">邀请奖励次数</span>
+            <span className="my-stat-label">邀请奖励瓜皮</span>
           </div>
           <div className="my-stat">
             <span className="my-stat-value">{props.referralCount}</span>
@@ -182,19 +189,13 @@ export function MyPageClient(props: MyPageClientProps) {
             <span className="my-stat-inline">{props.referrerPublicId ?? "无（直接访问）"}</span>
           </div>
         </div>
-        <div className="my-field my-field--link">
-          <span className="my-field-label">推广链接</span>
-          <div className="my-field-row">
-            <code className="my-field-value my-field-value--link">{referralLink}</code>
-            <CopyIconButton
-              label="复制推广链接"
-              text={referralLink}
-              copied={copiedField === "link"}
-              onCopy={() => void copyText("link", buildAbsoluteReferralLink(props.publicId))}
-            />
-          </div>
-          <p className="my-field-hint">好友通过链接注册后，你将获得额外搜索次数</p>
-        </div>
+
+        <ReferralQrShare
+          publicId={props.publicId}
+          referralPath={referralLink}
+          copied={copiedField === "link"}
+          onCopyLink={() => void copyText("link", buildAbsoluteReferralLink(props.publicId))}
+        />
       </section>
 
       <section className="my-panel my-panel--recover">
@@ -239,6 +240,8 @@ export function MyPageClient(props: MyPageClientProps) {
           <p className="my-recover-collapsed">丢失密钥？点此展开恢复</p>
         )}
       </section>
+
+      <GuapiInfoModal open={guapiInfoOpen} onClose={() => setGuapiInfoOpen(false)} />
     </div>
   );
 }

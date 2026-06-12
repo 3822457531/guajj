@@ -32,12 +32,12 @@ export function SearchQuotaBlocked({ quota, variant = "home" }: SearchQuotaBlock
             </>
           ) : (
             <>
-              <h2 className="search-quota-blocked-title">今日全网搜索次数已用完</h2>
+              <h2 className="search-quota-blocked-title">今日瓜皮已用完</h2>
               <p className="search-quota-blocked-desc">
-                已使用 {quota.used} / {quota.limit} 次。分享推广链接给好友，每成功邀请一位自动增加全网搜索次数。
+                已使用 {quota.used} / {quota.limit} 瓜皮。分享推广链接或二维码给好友，每成功邀请一位自动增加瓜皮（可继续吃瓜搜索、获取暗网手机号）。
               </p>
               <Link href="/my" className="search-quota-blocked-link">
-                前往「我的」复制推广链接 →
+                前往「我的」扫码分享 →
               </Link>
               <p className="search-quota-blocked-ref">推广路径示例：{referralHint}</p>
             </>

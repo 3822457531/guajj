@@ -103,11 +103,13 @@ function r2MultipartQueueSize() {
 /**
  * 流式写入 R2（multipart）或本地文件，适合大视频边下边传
  * @param {import('stream').Readable} readable
+ * @param {{ onUploadProgress?: (loaded: number, total?: number) => void, expectedBytes?: number }} [opts]
  * @returns {Promise<string>}
  */
-async function saveMediaStream(readable, subPath, contentType) {
+async function saveMediaStream(readable, subPath, contentType, opts = {}) {
   const settings = await getSiteSettingsCached();
   const key = buildObjectKey(subPath);
+  const { onUploadProgress, expectedBytes } = opts;
 
   if (isR2Ready(settings)) {
     const { client, bucket } = getR2Client(settings);
@@ -124,6 +126,11 @@ async function saveMediaStream(readable, subPath, contentType) {
         partSize: r2MultipartPartSize(),
         leavePartsOnError: false
       });
+      if (onUploadProgress) {
+        upload.on("httpUploadProgress", (progress) => {
+          onUploadProgress(Number(progress.loaded) || 0, Number(progress.total) || expectedBytes || undefined);
+        });
+      }
       await upload.done();
       const base = trimBaseUrl(settings.r2PublicBaseUrl.trim());
       return `${base}/${key}`;
@@ -136,7 +143,23 @@ async function saveMediaStream(readable, subPath, contentType) {
   const partPath = `${fsPath}.part`;
   fs.mkdirSync(path.dirname(fsPath), { recursive: true });
   try {
-    await pipeline(readable, fs.createWriteStream(partPath));
+    let written = 0;
+    const { Transform } = require("stream");
+    const counter =
+      onUploadProgress &&
+      new Transform({
+        transform(chunk, _enc, cb) {
+          written += chunk.length;
+          onUploadProgress(written, expectedBytes || undefined);
+          cb(null, chunk);
+        }
+      });
+    const sink = fs.createWriteStream(partPath);
+    if (counter) {
+      await pipeline(readable, counter, sink);
+    } else {
+      await pipeline(readable, sink);
+    }
     if (fs.existsSync(fsPath)) fs.unlinkSync(fsPath);
     fs.renameSync(partPath, fsPath);
     return `/${key}`;
@@ -175,9 +198,14 @@ async function saveMediaFromChunkIter(chunkIter, subPath, contentType) {
   return uploadPromise;
 }
 
-async function saveMediaBytes(buffer, subPath, contentType) {
+/**
+ * @param {{ onUploadProgress?: (loaded: number, total?: number) => void }} [opts]
+ */
+async function saveMediaBytes(buffer, subPath, contentType, opts = {}) {
   const settings = await getSiteSettingsCached();
   const key = buildObjectKey(subPath);
+  const total = buffer?.length || 0;
+  opts.onUploadProgress?.(0, total);
 
   if (isR2Ready(settings)) {
     const { client, bucket } = getR2Client(settings);
@@ -190,6 +218,7 @@ async function saveMediaBytes(buffer, subPath, contentType) {
           ContentType: contentType || "application/octet-stream"
         })
       );
+      opts.onUploadProgress?.(total, total);
       const base = trimBaseUrl(settings.r2PublicBaseUrl.trim());
       return `${base}/${key}`;
     } catch (e) {
@@ -200,6 +229,7 @@ async function saveMediaBytes(buffer, subPath, contentType) {
   const fsPath = path.join(process.cwd(), "public", key);
   fs.mkdirSync(path.dirname(fsPath), { recursive: true });
   fs.writeFileSync(fsPath, buffer);
+  opts.onUploadProgress?.(total, total);
   return `/${key}`;
 }
 
