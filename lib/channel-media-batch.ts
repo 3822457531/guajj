@@ -2,6 +2,30 @@ import type { ChannelMediaItem, ChannelMessageItem } from "@/lib/jisou-search-ty
 
 export type ChannelThumbMap = Record<string, { url: string; cached?: boolean }>;
 
+/** 客户端并发池：用于 play-info / cached 探测 */
+export async function runAsyncPool<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>,
+  signal?: AbortSignal
+): Promise<R[]> {
+  if (!items.length) return [];
+  const results: R[] = new Array(items.length);
+  let cursor = 0;
+  const workers = Math.min(Math.max(1, concurrency), items.length);
+
+  async function worker() {
+    while (cursor < items.length) {
+      if (signal?.aborted) break;
+      const index = cursor++;
+      results[index] = await fn(items[index]);
+    }
+  }
+
+  await Promise.all(Array.from({ length: workers }, () => worker()));
+  return results;
+}
+
 export function collectChannelVideoIds(messages: ChannelMessageItem[]): number[] {
   const ids = new Set<number>();
   for (const msg of messages) {
@@ -74,6 +98,22 @@ function lookupThumbUrl(media: ChannelThumbMap, id: number): string | null {
   const key = String(id);
   const hit = media[key] ?? (media as Record<number, { url?: string }>)[id];
   return hit?.url ?? null;
+}
+
+export function mergeChannelFullUrlMap(
+  messages: ChannelMessageItem[],
+  updates: Record<number, { url: string }>
+): ChannelMessageItem[] {
+  if (!Object.keys(updates).length) return messages;
+
+  return messages.map((msg) => {
+    const mediaItems = (msg.mediaItems || []).map((mi) => {
+      const hit = updates[mi.id];
+      if (!hit?.url || mi.contentType !== "VIDEO") return mi;
+      return { ...mi, fullUrl: hit.url, status: "ready" as const };
+    });
+    return { ...msg, mediaItems };
+  });
 }
 
 function applyThumbToItem(

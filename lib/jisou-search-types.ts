@@ -178,6 +178,11 @@ export type JisouSearchService = {
     messageId: number,
     opts?: { metrics?: boolean }
   ) => Promise<ResolvedMedia | null>;
+  warmVideoMediaBatch?: (
+    username: string,
+    messageIds: number[],
+    opts?: { metrics?: boolean }
+  ) => number;
   downloadMessageMedia: (
     username: string,
     messageId: number,

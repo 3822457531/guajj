@@ -5,7 +5,7 @@ import { H5SiteBottomNav } from "@/components/h5-site-bottom-nav";
 
 export const metadata: Metadata = {
   title: "全网搜索 · 吃瓜网",
-  description: "暗网索引 · 检索全网公开频道与消息预览"
+  description: "暗网索引 · 检索全网视频、图片与文字资源"
 };
 
 export default async function GlobalSearchPage({
@@ -27,7 +27,7 @@ export default async function GlobalSearchPage({
               </span>
               <span className="h5-brand-title">全网搜索</span>
             </div>
-            <p className="h5-brand-sub">暗网索引 · 频道与消息预览</p>
+            <p className="h5-brand-sub">暗网索引 · 视频与资源预览</p>
           </div>
           <Link href="/my" prefetch={false} className="vip-member-pill">
             <span aria-hidden>👑</span>

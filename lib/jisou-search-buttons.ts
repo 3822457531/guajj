@@ -10,8 +10,11 @@ export type JisouSearchButtons = {
   actions: JisouButtonItem[];
 };
 
-/** 本站启用的极搜结果筛选类型 */
-export const SUPPORTED_JISOU_FILTER_TYPES = new Set(["channel", "Video", "Photo", "Audio", "GText"]);
+/** 本站启用的极搜结果筛选类型（不含频道、音频） */
+export const SUPPORTED_JISOU_FILTER_TYPES = new Set(["Video", "Photo", "GText"]);
+
+/** 新搜索默认筛选：视频资源 */
+export const DEFAULT_JISOU_RESOURCE_FILTER_TYPE = "Video";
 
 const FILTER_TYPE_ICONS: Record<string, string> = {
   channel: "📢",
@@ -79,6 +82,17 @@ export function jisouFilterIconForCallback(callback: string | null | undefined, 
 
 export function pickSupportedJisouFilterButtons(filters: JisouButtonItem[]): JisouButtonItem[] {
   return filters.filter((btn) => isSupportedJisouFilterCallback(btn.callback));
+}
+
+export function findJisouFilterButtonByType(
+  filters: JisouButtonItem[],
+  type: string
+): JisouButtonItem | null {
+  return (
+    pickSupportedJisouFilterButtons(filters).find(
+      (btn) => parseJisouCallbackFilterType(btn.callback) === type
+    ) ?? null
+  );
 }
 
 /** 极搜结果行首可能出现的类型图标（与 collector/jisou-parse.js 保持一致） */

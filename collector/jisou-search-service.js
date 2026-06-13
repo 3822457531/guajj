@@ -67,8 +67,8 @@ function mapGramError(err) {
 }
 
 function thumbPrefetchConcurrency() {
-  const maxCap = Math.min(8, Math.max(2, Number(process.env.TG_SEARCH_THUMB_MAX) || 6));
-  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 2;
+  const maxCap = Math.min(12, Math.max(2, Number(process.env.TG_SEARCH_THUMB_MAX) || 8));
+  const n = Number(process.env.TG_SEARCH_THUMB_CONCURRENCY) || 6;
   return Math.min(maxCap, Math.max(1, Math.round(n)));
 }
 
@@ -93,7 +93,7 @@ function throwIfAborted(signal) {
 }
 
 function videoPrefetchConcurrency() {
-  return Math.min(4, Math.max(1, Number(process.env.TG_SEARCH_VIDEO_PREFETCH_CONCURRENCY) || 2));
+  return Math.min(6, Math.max(1, Number(process.env.TG_SEARCH_VIDEO_PREFETCH_CONCURRENCY) || 4));
 }
 
 /**
@@ -1078,6 +1078,13 @@ function warmVideoMedia(usernameOrUrl, messageId, opts = {}) {
   return enqueueVideoWarmJob({ username, messageId: mid, metrics: Boolean(opts.metrics) });
 }
 
+function warmVideoMediaBatch(usernameOrUrl, messageIds, opts = {}) {
+  const username = normalizeUsername(usernameOrUrl);
+  if (!username) return 0;
+  const { enqueueChannelVideoWarmBatch } = require("./media-worker");
+  return enqueueChannelVideoWarmBatch(username, messageIds, opts);
+}
+
 module.exports = {
   searchJisouChannels,
   solveJisouCaptchaAndSearch,
@@ -1091,6 +1098,7 @@ module.exports = {
   createVideoStreamResponse,
   resolveVideoPlayInfo,
   warmVideoMedia,
+  warmVideoMediaBatch,
   downloadMessageMedia,
   normalizeUsername,
   mapGramError,

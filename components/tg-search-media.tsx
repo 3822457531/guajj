@@ -118,12 +118,14 @@ export function LazyVideoPlayer({
   apiBase,
   username,
   item,
-  coverUrl
+  coverUrl,
+  eagerPrefetch = false
 }: {
   apiBase: string;
   username: string;
   item: ChannelMediaItem;
   coverUrl?: string | null;
+  eagerPrefetch?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -183,6 +185,12 @@ export function LazyVideoPlayer({
       setPlayRoute("R2_CDN");
     }
   }, [item.fullUrl]);
+
+  useEffect(() => {
+    if (eagerPrefetch && !item.fullUrl) {
+      void startPrefetch();
+    }
+  }, [eagerPrefetch, item.fullUrl, startPrefetch]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -294,7 +302,8 @@ export function LazyVideoPlayer({
 export function MessageMediaGallery({
   apiBase = TG_SEARCH_API.prod,
   username,
-  msg
+  msg,
+  eagerPrefetch = false
 }: {
   apiBase?: string;
   username: string;
@@ -306,6 +315,7 @@ export function MessageMediaGallery({
     coverUrl?: string | null;
     mediaStatus?: string | null;
   };
+  eagerPrefetch?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
@@ -341,6 +351,7 @@ export function MessageMediaGallery({
                 username={username}
                 item={item}
                 coverUrl={msg.coverUrl}
+                eagerPrefetch={eagerPrefetch}
               />
             ) : (
               <LazyPhotoThumb

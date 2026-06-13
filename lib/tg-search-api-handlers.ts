@@ -688,11 +688,11 @@ export async function handleTgMediaPlayInfoGet(request: Request) {
 }
 
 function videoWarmMaxIds() {
-  return Math.min(16, Math.max(1, Number(process.env.TG_SEARCH_VIDEO_WARM_MAX) || 8));
+  return Math.min(16, Math.max(1, Number(process.env.TG_SEARCH_VIDEO_WARM_MAX) || 12));
 }
 
 function channelWarmVideoMax() {
-  return Math.min(8, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX) || 2));
+  return Math.min(12, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX) || 6));
 }
 
 export async function handleTgMediaWarmPost(request: Request) {
@@ -720,6 +720,12 @@ export async function handleTgMediaWarmPost(request: Request) {
   const isChannelBatch = ids.size > 3;
   const max = isChannelBatch ? channelWarmVideoMax() : videoWarmMaxIds();
   const list = [...ids].slice(0, max);
+
+  if (isChannelBatch && typeof svc.warmVideoMediaBatch === "function") {
+    const queued = svc.warmVideoMediaBatch(username, list, { metrics: isProdTgSearchRequest() });
+    tgSearchLog("media-api", "视频预热排队", { username, count: queued, messageIds: list });
+    return NextResponse.json({ ok: true, queued, messageIds: list }, { status: 202 });
+  }
 
   for (const messageId of list) {
     void svc.warmVideoMedia(username, messageId, { metrics: isProdTgSearchRequest() }).catch((err: unknown) => {

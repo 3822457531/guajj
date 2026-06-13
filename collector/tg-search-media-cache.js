@@ -54,12 +54,12 @@ function mediaDownloadRetries() {
 }
 
 function mediaBatchBudgetMs() {
-  const n = Number(process.env.TG_SEARCH_MEDIA_BATCH_BUDGET_MS) || 12000;
-  return Math.min(30000, Math.max(5000, Math.round(n)));
+  const n = Number(process.env.TG_SEARCH_MEDIA_BATCH_BUDGET_MS) || 18000;
+  return Math.min(45000, Math.max(5000, Math.round(n)));
 }
 
 function mediaBatchMaxIds() {
-  return Math.min(24, Math.max(1, Number(process.env.TG_SEARCH_MEDIA_BATCH_MAX) || 8));
+  return Math.min(24, Math.max(1, Number(process.env.TG_SEARCH_MEDIA_BATCH_MAX) || 12));
 }
 
 function throwIfAborted(signal) {

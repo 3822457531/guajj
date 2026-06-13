@@ -28,7 +28,7 @@ function mediaWorkerMaxQueue() {
 }
 
 function channelWarmVideoMax() {
-  return Math.min(8, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX) || 2));
+  return Math.min(12, Math.max(0, Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX) || 6));
 }
 
 /** 超过此大小的视频不 warm 全量到 R2，改走 /media/stream 边播边拉 */
