@@ -36,7 +36,7 @@ export default async function HotSearchPage({
               </span>
               <span className="h5-brand-title">热搜榜</span>
             </div>
-            <p className="h5-brand-sub">极搜热词 · 一键全网搜</p>
+            <p className="h5-brand-sub">暗网热搜 · 一键全网搜</p>
           </div>
           <Link href="/my" prefetch={false} className="vip-member-pill">
             <span aria-hidden>👑</span>
