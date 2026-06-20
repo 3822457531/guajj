@@ -29,6 +29,20 @@ function throwIfAborted(signal) {
   }
 }
 
+function mergeAbortSignals(...signals) {
+  const controller = new AbortController();
+  const onAbort = (signal) => {
+    if (!signal) return;
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      return;
+    }
+    signal.addEventListener("abort", () => controller.abort(signal.reason), { once: true });
+  };
+  for (const s of signals) onAbort(s);
+  return controller.signal;
+}
+
 async function fetchVideoMessageMeta(client, username, messageId) {
   const mid = Math.floor(Number(messageId));
   const uname = String(username || "").trim();
@@ -171,14 +185,16 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
 
   const chunkBytes = videoStreamChunkKb() * 1024;
   const { ReadableStream } = require("stream/web");
+  const streamAbort = new AbortController();
+  const streamSignal = mergeAbortSignals(opts.signal, streamAbort.signal);
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
         await withGramClient(
           async (client) => {
-            throwIfAborted(opts.signal);
-            const live = await fetchVideoMessageMeta(client, uname, mid);
+            throwIfAborted(streamSignal);
+            const live = head;
 
             const metrics = new MediaTransferMetrics({
               username: uname,
@@ -199,7 +215,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             const maxEmit = rangeLen != null ? rangeLen : Infinity;
 
             for await (const chunk of iter) {
-              throwIfAborted(opts.signal);
+              throwIfAborted(streamSignal);
               if (!firstChunkAt) {
                 firstChunkAt = Date.now();
                 console.log(
@@ -225,9 +241,12 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             metrics.finish({ mode: "http-stream", range: Boolean(parsedRange) });
             controller.close();
           },
-          { ...opts, priority: "high" }
+          { signal: streamSignal, priority: "low" }
         );
       } catch (err) {
+        if (err?.code === "REQUEST_ABORTED") {
+          console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消`);
+        }
         try {
           controller.error(err);
         } catch {
@@ -236,7 +255,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
       }
     },
     cancel() {
-      /* request.signal */
+      streamAbort.abort("stream_cancel");
     }
   });
 

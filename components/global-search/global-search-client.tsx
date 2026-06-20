@@ -575,6 +575,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setMessages([]);
     setChannelMeta(null);
     setChannelLoadError(null);
+    setChannelLoading(false);
   }
 
   function beginSearchSession() {
@@ -961,6 +962,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
 
     const username = channel.username;
+    const loadTimeout = window.setTimeout(() => abortController.abort(), 60000);
 
     try {
       const params = new URLSearchParams({
@@ -1005,10 +1007,14 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
+        if (channelAbortRef.current === abortController) {
+          setChannelLoadError("加载超时，请重试");
+        }
         return;
       }
       setChannelLoadError(err instanceof Error ? err.message : "读取资源失败");
     } finally {
+      window.clearTimeout(loadTimeout);
       setChannelLoading(false);
     }
   }

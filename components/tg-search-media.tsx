@@ -135,9 +135,10 @@ export function LazyVideoPlayer({
   eagerPrefetch?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const probingRef = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [cachedFullUrl, setCachedFullUrl] = useState<string | null>(item.fullUrl || null);
-  const [prefetchStarted, setPrefetchStarted] = useState(Boolean(item.fullUrl));
+  const [playInfoReady, setPlayInfoReady] = useState(Boolean(item.fullUrl));
   const [playReady, setPlayReady] = useState(Boolean(item.fullUrl));
   const [probing, setProbing] = useState(false);
   const [buffering, setBuffering] = useState(false);
@@ -150,16 +151,17 @@ export function LazyVideoPlayer({
     : streamVideoUrl(apiBase, username, item.id);
 
   const startPrefetch = useCallback(async () => {
-    if (prefetchStarted) return;
-    setPrefetchStarted(true);
+    if (playInfoReady || probingRef.current) return;
 
     if (item.fullUrl) {
       setCachedFullUrl(resolveMediaPlayUrl(item.fullUrl));
       setPlayRoute("R2_CDN");
       setPlayReady(true);
+      setPlayInfoReady(true);
       return;
     }
 
+    probingRef.current = true;
     setProbing(true);
     try {
       const res = await fetch(playInfoUrl(apiBase, username, item.id), { cache: "no-store" });
@@ -179,15 +181,17 @@ export function LazyVideoPlayer({
     } catch {
       /* 探测失败仍走 stream */
     } finally {
+      probingRef.current = false;
       setProbing(false);
+      setPlayInfoReady(true);
       setPlayReady(true);
     }
-  }, [apiBase, item.fullUrl, item.id, prefetchStarted, username]);
+  }, [apiBase, item.fullUrl, item.id, playInfoReady, username]);
 
   useEffect(() => {
     if (item.fullUrl) {
       setCachedFullUrl(item.fullUrl);
-      setPrefetchStarted(true);
+      setPlayInfoReady(true);
       setPlayReady(true);
       setPlayRoute("R2_CDN");
     }
@@ -201,7 +205,7 @@ export function LazyVideoPlayer({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !prefetchStarted) return;
+    if (!video || !playing) return;
 
     const markReady = () => {
       setPlayReady(true);
@@ -228,16 +232,12 @@ export function LazyVideoPlayer({
       video.removeEventListener("waiting", onWaiting);
       video.removeEventListener("playing", onPlaying);
     };
-  }, [prefetchStarted, playing, videoSrc]);
+  }, [playing, videoSrc]);
 
-  function handlePlayClick() {
-    void startPrefetch();
+  async function handlePlayClick() {
+    await startPrefetch();
     setPlaying(true);
     setBuffering(true);
-    const video = videoRef.current;
-    if (video && playReady) {
-      void video.play().catch(() => setBuffering(true));
-    }
   }
 
   function routeLabel() {
@@ -246,8 +246,8 @@ export function LazyVideoPlayer({
     if (playing) return " · 播放中";
     if (probing) return " · 探测线路…";
     if (playRoute === "R2_CDN") return " · R2/CDN";
-    if (playRoute === "TG_STREAM_LARGE") return " · 大文件直出";
-    if (playRoute === "TG_STREAM") return " · TG直出流";
+    if (playRoute === "TG_STREAM_LARGE") return " · 暗网直出流（大文件）";
+    if (playRoute === "TG_STREAM") return " · 暗网直出流";
     if (playReady) return " · 已就绪";
     return " · 封面已缓存";
   }
@@ -274,12 +274,12 @@ export function LazyVideoPlayer({
           </button>
         ) : null}
 
-        {prefetchStarted ? (
+        {playing ? (
           <video
             ref={videoRef}
             key={`${item.id}-${cachedFullUrl ? "cdn" : "stream"}`}
-            className={`gs-media-video-el${playing ? " is-active" : " is-preload"}`}
-            controls={playing}
+            className="gs-media-video-el is-active"
+            controls
             playsInline
             preload="auto"
             {...(poster ? { poster } : {})}
