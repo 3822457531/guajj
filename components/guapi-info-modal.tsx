@@ -54,7 +54,7 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
               <span className="my-guapi-use-icon" aria-hidden>📱</span>
               <div>
                 <strong>暗网手机号</strong>
-                <p>获取专用号码，后续将支持接收短信验证码</p>
+                <p>临时匿名号码，用于各平台注册/登录时收短信验证码，与搜索共用今日瓜皮</p>
               </div>
             </li>
           </ul>

@@ -114,6 +114,14 @@ function IconUsers() {
   );
 }
 
+function IconSms() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+
 function IconGuestUser() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -144,6 +152,7 @@ export default function AdminSidebar({ username }: { username: string }) {
       { href: path("/comments"), label: "评论", icon: <IconChat /> },
       // { href: path("/social-users"), label: "登录用户", icon: <IconUsers /> },
       { href: path("/users"), label: "用户", icon: <IconGuestUser /> },
+      { href: path("/sms"), label: "接码", icon: <IconSms /> },
       { href: path("/media"), label: "媒体", icon: <IconImage /> },
       { href: path("/storage"), label: "存储监控", icon: <IconStorage /> },
       { href: path("/taxonomy"), label: "分类标签", icon: <IconTags /> },

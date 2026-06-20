@@ -33,22 +33,45 @@ export async function countTodaySearchesForGuest(guestUserId: string, source?: S
 
 async function loadGuestQuotaBase(guestUserId: string | null) {
   if (!guestUserId) {
-    return { guest: null, usedGlobal: 0 };
+    return { guest: null, usedGuapi: 0 };
   }
 
-  const [guest, usedGlobal] = await Promise.all([
+  const [guest, usedGuapi] = await Promise.all([
     findGuestById(guestUserId),
-    countTodaySearchesForGuest(guestUserId, SearchSource.GLOBAL)
+    countTodayGuapiUsedForGuest(guestUserId)
   ]);
 
-  return { guest, usedGlobal };
+  return { guest, usedGuapi };
 }
 
-/** 全网搜索（暗网索引）每日配额 */
+/** 今日已消耗瓜皮 = 全网搜索次数 + 接码消费 */
+export async function countTodayGuapiUsedForGuest(guestUserId: string) {
+  const todayStart = startOfDayUtc(new Date());
+  const [searchCount, smsAgg] = await Promise.all([
+    prisma.searchLog.count({
+      where: {
+        guestUserId,
+        source: SearchSource.GLOBAL,
+        createdAt: { gte: todayStart }
+      }
+    }),
+    prisma.smsGuapiLog.aggregate({
+      where: {
+        guestUserId,
+        createdAt: { gte: todayStart },
+        amount: { lt: 0 }
+      },
+      _sum: { amount: true }
+    })
+  ]);
+  return searchCount + Math.abs(smsAgg._sum.amount ?? 0);
+}
+
+/** 全网搜索 + 接码共用每日瓜皮配额 */
 export async function getGuestGlobalSearchQuota(guestUserId: string | null): Promise<SearchQuotaStatus> {
   const settings = await getSiteSettings();
   const baseLimit = Math.max(0, settings.globalDailySearchLimit ?? 5);
-  const { guest, usedGlobal } = await loadGuestQuotaBase(guestUserId);
+  const { guest, usedGuapi } = await loadGuestQuotaBase(guestUserId);
 
   if (!guest) {
     return {
@@ -64,17 +87,17 @@ export async function getGuestGlobalSearchQuota(guestUserId: string | null): Pro
   }
 
   const limit = baseLimit + Math.max(0, guest.searchBonus);
-  const remaining = Math.max(0, limit - usedGlobal);
+  const remaining = Math.max(0, limit - usedGuapi);
 
   return {
     guestUserId: guest.id,
     publicId: guest.publicId,
-    used: usedGlobal,
+    used: usedGuapi,
     limit,
     remaining,
     searchBonus: guest.searchBonus,
     hasIdentity: true,
-    exceeded: usedGlobal >= limit
+    exceeded: usedGuapi >= limit
   };
 }
 

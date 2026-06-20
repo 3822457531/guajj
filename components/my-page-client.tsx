@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { GuapiHelpButton, GuapiInfoModal } from "@/components/guapi-info-modal";
+import { SmsPurposeModal, SmsPurposeTipButton } from "@/components/sms/sms-purpose-modal";
 import { ReferralQrShare } from "@/components/referral-qr-share";
 import {
   buildAbsoluteReferralLink,
@@ -51,6 +52,7 @@ export function MyPageClient(props: MyPageClientProps) {
   const [recovering, setRecovering] = useState(false);
   const [secretKey, setSecretKey] = useState<string | null>(null);
   const [guapiInfoOpen, setGuapiInfoOpen] = useState(false);
+  const [smsPurposeOpen, setSmsPurposeOpen] = useState(false);
 
   useEffect(() => {
     const backup = readGuestIdentityBackup();
@@ -140,10 +142,26 @@ export function MyPageClient(props: MyPageClientProps) {
         <p className="my-quota-tip">
           {props.remaining <= 0
             ? `瓜皮已用完。邀请好友每位 +${props.referralBonusPerInvite} 瓜皮（基础 ${props.dailyBaseLimit}/日），已搜关键词可走缓存不扣瓜皮。`
-            : `基础 ${props.dailyBaseLimit} 瓜皮/日 + 邀请奖励 ${props.searchBonus} 瓜皮 · 重复关键词不扣瓜皮`}
+            : `基础 ${props.dailyBaseLimit} 瓜皮/日 + 邀请奖励 ${props.searchBonus} 瓜皮 · 搜索与暗网手机号共用 · 重复关键词不扣瓜皮`}
         </p>
-        <Link href="/global-search" prefetch={false} className="my-quota-link">
-          去吃瓜搜索 →
+        <div className="my-quota-links">
+          <Link href="/global-search" prefetch={false} className="my-quota-link">
+            去吃瓜搜索 →
+          </Link>
+          <Link href="/sms" prefetch={false} className="my-quota-link">
+            进入暗网手机号 →
+          </Link>
+        </div>
+      </section>
+
+      <section className="my-panel my-panel--sms" aria-label="暗网手机号">
+        <h2 className="my-panel-title my-panel-title--with-tip">
+          暗网手机号
+          <SmsPurposeTipButton onClick={() => setSmsPurposeOpen(true)} />
+        </h2>
+        <p className="my-field-hint">临时匿名号码，用于各平台收短信验证码，与吃瓜搜索共用今日瓜皮。</p>
+        <Link href="/sms" prefetch={false} className="my-quota-link">
+          进入暗网手机号 →
         </Link>
       </section>
 
@@ -242,6 +260,7 @@ export function MyPageClient(props: MyPageClientProps) {
       </section>
 
       <GuapiInfoModal open={guapiInfoOpen} onClose={() => setGuapiInfoOpen(false)} />
+      <SmsPurposeModal open={smsPurposeOpen} onClose={() => setSmsPurposeOpen(false)} />
     </div>
   );
 }

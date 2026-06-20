@@ -3,7 +3,7 @@ import { H5SiteBottomNav } from "@/components/h5-site-bottom-nav";
 import { MyPageClient } from "@/components/my-page-client";
 import { getGuestSessionPayload } from "@/lib/guest-auth";
 import { countGuestReferrals, findGuestById } from "@/lib/guest-user";
-import { countTodaySearchesForGuest, SearchSource } from "@/lib/search-quota";
+import { getGuestGlobalSearchQuota } from "@/lib/search-quota";
 import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
@@ -69,13 +69,10 @@ export default async function MyPage() {
     );
   }
 
-  const [usedToday, referralCount] = await Promise.all([
-    countTodaySearchesForGuest(user.id, SearchSource.GLOBAL),
+  const [quota, referralCount] = await Promise.all([
+    getGuestGlobalSearchQuota(user.id),
     countGuestReferrals(user.id)
   ]);
-
-  const limit = Math.max(0, settings.globalDailySearchLimit ?? 5) + Math.max(0, user.searchBonus);
-  const remaining = Math.max(0, limit - usedToday);
 
   return (
     <main className="site-shell h5-home my-page">
@@ -85,9 +82,9 @@ export default async function MyPage() {
         <MyPageClient
           publicId={user.publicId}
           referrerPublicId={user.referrer?.publicId ?? null}
-          usedToday={usedToday}
-          limit={limit}
-          remaining={remaining}
+          usedToday={quota.used}
+          limit={quota.limit}
+          remaining={quota.remaining}
           searchBonus={user.searchBonus}
           referralCount={referralCount}
           dailyBaseLimit={settings.globalDailySearchLimit ?? 5}

@@ -71,6 +71,8 @@ model GuestUser {
   referrals       GuestUser[] @relation("GuestReferral")
   /** 邀请奖励累计获得的额外搜索次数 */
   searchBonus     Int         @default(0)
+  /** 接码消费用瓜皮余额（整数） */
+  guapiBalance    Int         @default(0)
   /** 注册时的客户端 IP */
   registerIp      String?     @db.VarChar(45)
   /** 最近一次登录/恢复会话时的 IP */
@@ -79,12 +81,77 @@ model GuestUser {
   lastLoginAt     DateTime?
   searchLogs         SearchLog[]
   globalSearchCaches GlobalSearchCache[]
+  smsGuapiLogs       SmsGuapiLog[]
+  smsLogs            SmsLog[]
+  smsUserRecords     SmsUserRecord[]
+  smsNumberRecords   SmsNumberRecord[]
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 
   @@index([referrerId])
   @@index([createdAt])
   @@index([lastLoginAt])
+}
+
+/** 接码平台配置（key-value） */
+model SmsConfig {
+  key   String @id @db.VarChar(64)
+  value String @db.Text
+}
+
+/** 用户瓜皮消费/充值记录（接码） */
+model SmsGuapiLog {
+  id          String    @id @default(cuid()) @db.VarChar(30)
+  guestUserId String    @db.VarChar(30)
+  guestUser   GuestUser @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  amount      Int
+  type        String    @db.VarChar(32)
+  description String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now())
+
+  @@index([guestUserId, createdAt])
+}
+
+/** 接码 API 操作日志（管理端） */
+model SmsLog {
+  id          String     @id @default(cuid()) @db.VarChar(30)
+  guestUserId String?    @db.VarChar(30)
+  guestUser   GuestUser? @relation(fields: [guestUserId], references: [id], onDelete: SetNull)
+  action      String     @db.VarChar(32)
+  phone       String?    @db.VarChar(32)
+  keyword     String?    @db.VarChar(128)
+  message     String?    @db.Text
+  rawResponse String?    @db.Text
+  createdAt   DateTime   @default(now())
+
+  @@index([guestUserId, createdAt])
+  @@index([createdAt])
+}
+
+/** 用户收到的短信记录 */
+model SmsUserRecord {
+  id          String    @id @default(cuid()) @db.VarChar(30)
+  guestUserId String    @db.VarChar(30)
+  guestUser   GuestUser @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  phone       String?   @db.VarChar(32)
+  message     String?   @db.Text
+  keyword     String?   @db.VarChar(128)
+  provider    String?   @db.VarChar(64)
+  createdAt   DateTime  @default(now())
+
+  @@index([guestUserId, createdAt])
+}
+
+/** 用户请求号码记录 */
+model SmsNumberRecord {
+  id          String    @id @default(cuid()) @db.VarChar(30)
+  guestUserId String    @db.VarChar(30)
+  guestUser   GuestUser @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  phone       String    @db.VarChar(32)
+  createdAt   DateTime  @default(now())
+  releasedAt  DateTime?
+
+  @@index([guestUserId, createdAt])
 }
 
 model Category {

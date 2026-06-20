@@ -29,6 +29,31 @@ export type SiteSettings = $Result.DefaultSelection<Prisma.$SiteSettingsPayload>
  */
 export type GuestUser = $Result.DefaultSelection<Prisma.$GuestUserPayload>
 /**
+ * Model SmsConfig
+ * * 接码平台配置（key-value）
+ */
+export type SmsConfig = $Result.DefaultSelection<Prisma.$SmsConfigPayload>
+/**
+ * Model SmsGuapiLog
+ * * 用户瓜皮消费/充值记录（接码）
+ */
+export type SmsGuapiLog = $Result.DefaultSelection<Prisma.$SmsGuapiLogPayload>
+/**
+ * Model SmsLog
+ * * 接码 API 操作日志（管理端）
+ */
+export type SmsLog = $Result.DefaultSelection<Prisma.$SmsLogPayload>
+/**
+ * Model SmsUserRecord
+ * * 用户收到的短信记录
+ */
+export type SmsUserRecord = $Result.DefaultSelection<Prisma.$SmsUserRecordPayload>
+/**
+ * Model SmsNumberRecord
+ * * 用户请求号码记录
+ */
+export type SmsNumberRecord = $Result.DefaultSelection<Prisma.$SmsNumberRecordPayload>
+/**
  * Model Category
  * 
  */
@@ -332,6 +357,56 @@ export class PrismaClient<
     * ```
     */
   get guestUser(): Prisma.GuestUserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smsConfig`: Exposes CRUD operations for the **SmsConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmsConfigs
+    * const smsConfigs = await prisma.smsConfig.findMany()
+    * ```
+    */
+  get smsConfig(): Prisma.SmsConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smsGuapiLog`: Exposes CRUD operations for the **SmsGuapiLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmsGuapiLogs
+    * const smsGuapiLogs = await prisma.smsGuapiLog.findMany()
+    * ```
+    */
+  get smsGuapiLog(): Prisma.SmsGuapiLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smsLog`: Exposes CRUD operations for the **SmsLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmsLogs
+    * const smsLogs = await prisma.smsLog.findMany()
+    * ```
+    */
+  get smsLog(): Prisma.SmsLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smsUserRecord`: Exposes CRUD operations for the **SmsUserRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmsUserRecords
+    * const smsUserRecords = await prisma.smsUserRecord.findMany()
+    * ```
+    */
+  get smsUserRecord(): Prisma.SmsUserRecordDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.smsNumberRecord`: Exposes CRUD operations for the **SmsNumberRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SmsNumberRecords
+    * const smsNumberRecords = await prisma.smsNumberRecord.findMany()
+    * ```
+    */
+  get smsNumberRecord(): Prisma.SmsNumberRecordDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.category`: Exposes CRUD operations for the **Category** model.
@@ -946,6 +1021,11 @@ export namespace Prisma {
     AdminUser: 'AdminUser',
     SiteSettings: 'SiteSettings',
     GuestUser: 'GuestUser',
+    SmsConfig: 'SmsConfig',
+    SmsGuapiLog: 'SmsGuapiLog',
+    SmsLog: 'SmsLog',
+    SmsUserRecord: 'SmsUserRecord',
+    SmsNumberRecord: 'SmsNumberRecord',
     Category: 'Category',
     Tag: 'Tag',
     PostTag: 'PostTag',
@@ -981,7 +1061,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "adminUser" | "siteSettings" | "guestUser" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
+      modelProps: "adminUser" | "siteSettings" | "guestUser" | "smsConfig" | "smsGuapiLog" | "smsLog" | "smsUserRecord" | "smsNumberRecord" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1180,6 +1260,336 @@ export namespace Prisma {
           count: {
             args: Prisma.GuestUserCountArgs<ExtArgs>
             result: $Utils.Optional<GuestUserCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmsConfig: {
+        payload: Prisma.$SmsConfigPayload<ExtArgs>
+        fields: Prisma.SmsConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmsConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmsConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.SmsConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmsConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>
+          }
+          findMany: {
+            args: Prisma.SmsConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>[]
+          }
+          create: {
+            args: Prisma.SmsConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>
+          }
+          createMany: {
+            args: Prisma.SmsConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SmsConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>
+          }
+          update: {
+            args: Prisma.SmsConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmsConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmsConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmsConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.SmsConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmsConfig>
+          }
+          groupBy: {
+            args: Prisma.SmsConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmsConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmsConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<SmsConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmsGuapiLog: {
+        payload: Prisma.$SmsGuapiLogPayload<ExtArgs>
+        fields: Prisma.SmsGuapiLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmsGuapiLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmsGuapiLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>
+          }
+          findFirst: {
+            args: Prisma.SmsGuapiLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmsGuapiLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>
+          }
+          findMany: {
+            args: Prisma.SmsGuapiLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>[]
+          }
+          create: {
+            args: Prisma.SmsGuapiLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>
+          }
+          createMany: {
+            args: Prisma.SmsGuapiLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SmsGuapiLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>
+          }
+          update: {
+            args: Prisma.SmsGuapiLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmsGuapiLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmsGuapiLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmsGuapiLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsGuapiLogPayload>
+          }
+          aggregate: {
+            args: Prisma.SmsGuapiLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmsGuapiLog>
+          }
+          groupBy: {
+            args: Prisma.SmsGuapiLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmsGuapiLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmsGuapiLogCountArgs<ExtArgs>
+            result: $Utils.Optional<SmsGuapiLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmsLog: {
+        payload: Prisma.$SmsLogPayload<ExtArgs>
+        fields: Prisma.SmsLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmsLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmsLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>
+          }
+          findFirst: {
+            args: Prisma.SmsLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmsLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>
+          }
+          findMany: {
+            args: Prisma.SmsLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>[]
+          }
+          create: {
+            args: Prisma.SmsLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>
+          }
+          createMany: {
+            args: Prisma.SmsLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SmsLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>
+          }
+          update: {
+            args: Prisma.SmsLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmsLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmsLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmsLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsLogPayload>
+          }
+          aggregate: {
+            args: Prisma.SmsLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmsLog>
+          }
+          groupBy: {
+            args: Prisma.SmsLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmsLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmsLogCountArgs<ExtArgs>
+            result: $Utils.Optional<SmsLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmsUserRecord: {
+        payload: Prisma.$SmsUserRecordPayload<ExtArgs>
+        fields: Prisma.SmsUserRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmsUserRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmsUserRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.SmsUserRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmsUserRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>
+          }
+          findMany: {
+            args: Prisma.SmsUserRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>[]
+          }
+          create: {
+            args: Prisma.SmsUserRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>
+          }
+          createMany: {
+            args: Prisma.SmsUserRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SmsUserRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>
+          }
+          update: {
+            args: Prisma.SmsUserRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmsUserRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmsUserRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmsUserRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsUserRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.SmsUserRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmsUserRecord>
+          }
+          groupBy: {
+            args: Prisma.SmsUserRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmsUserRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmsUserRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<SmsUserRecordCountAggregateOutputType> | number
+          }
+        }
+      }
+      SmsNumberRecord: {
+        payload: Prisma.$SmsNumberRecordPayload<ExtArgs>
+        fields: Prisma.SmsNumberRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SmsNumberRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SmsNumberRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.SmsNumberRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SmsNumberRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>
+          }
+          findMany: {
+            args: Prisma.SmsNumberRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>[]
+          }
+          create: {
+            args: Prisma.SmsNumberRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>
+          }
+          createMany: {
+            args: Prisma.SmsNumberRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SmsNumberRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>
+          }
+          update: {
+            args: Prisma.SmsNumberRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.SmsNumberRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SmsNumberRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SmsNumberRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SmsNumberRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.SmsNumberRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSmsNumberRecord>
+          }
+          groupBy: {
+            args: Prisma.SmsNumberRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SmsNumberRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SmsNumberRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<SmsNumberRecordCountAggregateOutputType> | number
           }
         }
       }
@@ -2404,6 +2814,11 @@ export namespace Prisma {
     adminUser?: AdminUserOmit
     siteSettings?: SiteSettingsOmit
     guestUser?: GuestUserOmit
+    smsConfig?: SmsConfigOmit
+    smsGuapiLog?: SmsGuapiLogOmit
+    smsLog?: SmsLogOmit
+    smsUserRecord?: SmsUserRecordOmit
+    smsNumberRecord?: SmsNumberRecordOmit
     category?: CategoryOmit
     tag?: TagOmit
     postTag?: PostTagOmit
@@ -2504,12 +2919,20 @@ export namespace Prisma {
     referrals: number
     searchLogs: number
     globalSearchCaches: number
+    smsGuapiLogs: number
+    smsLogs: number
+    smsUserRecords: number
+    smsNumberRecords: number
   }
 
   export type GuestUserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referrals?: boolean | GuestUserCountOutputTypeCountReferralsArgs
     searchLogs?: boolean | GuestUserCountOutputTypeCountSearchLogsArgs
     globalSearchCaches?: boolean | GuestUserCountOutputTypeCountGlobalSearchCachesArgs
+    smsGuapiLogs?: boolean | GuestUserCountOutputTypeCountSmsGuapiLogsArgs
+    smsLogs?: boolean | GuestUserCountOutputTypeCountSmsLogsArgs
+    smsUserRecords?: boolean | GuestUserCountOutputTypeCountSmsUserRecordsArgs
+    smsNumberRecords?: boolean | GuestUserCountOutputTypeCountSmsNumberRecordsArgs
   }
 
   // Custom InputTypes
@@ -2542,6 +2965,34 @@ export namespace Prisma {
    */
   export type GuestUserCountOutputTypeCountGlobalSearchCachesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: GlobalSearchCacheWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountSmsGuapiLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsGuapiLogWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountSmsLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsLogWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountSmsUserRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsUserRecordWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountSmsNumberRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsNumberRecordWhereInput
   }
 
 
@@ -4686,10 +5137,12 @@ export namespace Prisma {
 
   export type GuestUserAvgAggregateOutputType = {
     searchBonus: number | null
+    guapiBalance: number | null
   }
 
   export type GuestUserSumAggregateOutputType = {
     searchBonus: number | null
+    guapiBalance: number | null
   }
 
   export type GuestUserMinAggregateOutputType = {
@@ -4698,6 +5151,7 @@ export namespace Prisma {
     secretKeyHash: string | null
     referrerId: string | null
     searchBonus: number | null
+    guapiBalance: number | null
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
@@ -4711,6 +5165,7 @@ export namespace Prisma {
     secretKeyHash: string | null
     referrerId: string | null
     searchBonus: number | null
+    guapiBalance: number | null
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
@@ -4724,6 +5179,7 @@ export namespace Prisma {
     secretKeyHash: number
     referrerId: number
     searchBonus: number
+    guapiBalance: number
     registerIp: number
     lastLoginIp: number
     lastLoginAt: number
@@ -4735,10 +5191,12 @@ export namespace Prisma {
 
   export type GuestUserAvgAggregateInputType = {
     searchBonus?: true
+    guapiBalance?: true
   }
 
   export type GuestUserSumAggregateInputType = {
     searchBonus?: true
+    guapiBalance?: true
   }
 
   export type GuestUserMinAggregateInputType = {
@@ -4747,6 +5205,7 @@ export namespace Prisma {
     secretKeyHash?: true
     referrerId?: true
     searchBonus?: true
+    guapiBalance?: true
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
@@ -4760,6 +5219,7 @@ export namespace Prisma {
     secretKeyHash?: true
     referrerId?: true
     searchBonus?: true
+    guapiBalance?: true
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
@@ -4773,6 +5233,7 @@ export namespace Prisma {
     secretKeyHash?: true
     referrerId?: true
     searchBonus?: true
+    guapiBalance?: true
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
@@ -4873,6 +5334,7 @@ export namespace Prisma {
     secretKeyHash: string
     referrerId: string | null
     searchBonus: number
+    guapiBalance: number
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
@@ -4905,6 +5367,7 @@ export namespace Prisma {
     secretKeyHash?: boolean
     referrerId?: boolean
     searchBonus?: boolean
+    guapiBalance?: boolean
     registerIp?: boolean
     lastLoginIp?: boolean
     lastLoginAt?: boolean
@@ -4914,6 +5377,10 @@ export namespace Prisma {
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
     searchLogs?: boolean | GuestUser$searchLogsArgs<ExtArgs>
     globalSearchCaches?: boolean | GuestUser$globalSearchCachesArgs<ExtArgs>
+    smsGuapiLogs?: boolean | GuestUser$smsGuapiLogsArgs<ExtArgs>
+    smsLogs?: boolean | GuestUser$smsLogsArgs<ExtArgs>
+    smsUserRecords?: boolean | GuestUser$smsUserRecordsArgs<ExtArgs>
+    smsNumberRecords?: boolean | GuestUser$smsNumberRecordsArgs<ExtArgs>
     _count?: boolean | GuestUserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["guestUser"]>
 
@@ -4925,6 +5392,7 @@ export namespace Prisma {
     secretKeyHash?: boolean
     referrerId?: boolean
     searchBonus?: boolean
+    guapiBalance?: boolean
     registerIp?: boolean
     lastLoginIp?: boolean
     lastLoginAt?: boolean
@@ -4932,12 +5400,16 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type GuestUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicId" | "secretKeyHash" | "referrerId" | "searchBonus" | "registerIp" | "lastLoginIp" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["guestUser"]>
+  export type GuestUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicId" | "secretKeyHash" | "referrerId" | "searchBonus" | "guapiBalance" | "registerIp" | "lastLoginIp" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["guestUser"]>
   export type GuestUserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referrer?: boolean | GuestUser$referrerArgs<ExtArgs>
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
     searchLogs?: boolean | GuestUser$searchLogsArgs<ExtArgs>
     globalSearchCaches?: boolean | GuestUser$globalSearchCachesArgs<ExtArgs>
+    smsGuapiLogs?: boolean | GuestUser$smsGuapiLogsArgs<ExtArgs>
+    smsLogs?: boolean | GuestUser$smsLogsArgs<ExtArgs>
+    smsUserRecords?: boolean | GuestUser$smsUserRecordsArgs<ExtArgs>
+    smsNumberRecords?: boolean | GuestUser$smsNumberRecordsArgs<ExtArgs>
     _count?: boolean | GuestUserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -4948,6 +5420,10 @@ export namespace Prisma {
       referrals: Prisma.$GuestUserPayload<ExtArgs>[]
       searchLogs: Prisma.$SearchLogPayload<ExtArgs>[]
       globalSearchCaches: Prisma.$GlobalSearchCachePayload<ExtArgs>[]
+      smsGuapiLogs: Prisma.$SmsGuapiLogPayload<ExtArgs>[]
+      smsLogs: Prisma.$SmsLogPayload<ExtArgs>[]
+      smsUserRecords: Prisma.$SmsUserRecordPayload<ExtArgs>[]
+      smsNumberRecords: Prisma.$SmsNumberRecordPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4958,6 +5434,10 @@ export namespace Prisma {
        * * 邀请奖励累计获得的额外搜索次数
        */
       searchBonus: number
+      /**
+       * * 接码消费用瓜皮余额（整数）
+       */
+      guapiBalance: number
       /**
        * * 注册时的客户端 IP
        */
@@ -5316,6 +5796,10 @@ export namespace Prisma {
     referrals<T extends GuestUser$referralsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$referralsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     searchLogs<T extends GuestUser$searchLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$searchLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SearchLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     globalSearchCaches<T extends GuestUser$globalSearchCachesArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$globalSearchCachesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    smsGuapiLogs<T extends GuestUser$smsGuapiLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsGuapiLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    smsLogs<T extends GuestUser$smsLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    smsUserRecords<T extends GuestUser$smsUserRecordsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsUserRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    smsNumberRecords<T extends GuestUser$smsNumberRecordsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsNumberRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5350,6 +5834,7 @@ export namespace Prisma {
     readonly secretKeyHash: FieldRef<"GuestUser", 'String'>
     readonly referrerId: FieldRef<"GuestUser", 'String'>
     readonly searchBonus: FieldRef<"GuestUser", 'Int'>
+    readonly guapiBalance: FieldRef<"GuestUser", 'Int'>
     readonly registerIp: FieldRef<"GuestUser", 'String'>
     readonly lastLoginIp: FieldRef<"GuestUser", 'String'>
     readonly lastLoginAt: FieldRef<"GuestUser", 'DateTime'>
@@ -5789,6 +6274,102 @@ export namespace Prisma {
   }
 
   /**
+   * GuestUser.smsGuapiLogs
+   */
+  export type GuestUser$smsGuapiLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    where?: SmsGuapiLogWhereInput
+    orderBy?: SmsGuapiLogOrderByWithRelationInput | SmsGuapiLogOrderByWithRelationInput[]
+    cursor?: SmsGuapiLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmsGuapiLogScalarFieldEnum | SmsGuapiLogScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.smsLogs
+   */
+  export type GuestUser$smsLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    where?: SmsLogWhereInput
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    cursor?: SmsLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.smsUserRecords
+   */
+  export type GuestUser$smsUserRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    where?: SmsUserRecordWhereInput
+    orderBy?: SmsUserRecordOrderByWithRelationInput | SmsUserRecordOrderByWithRelationInput[]
+    cursor?: SmsUserRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmsUserRecordScalarFieldEnum | SmsUserRecordScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.smsNumberRecords
+   */
+  export type GuestUser$smsNumberRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    where?: SmsNumberRecordWhereInput
+    orderBy?: SmsNumberRecordOrderByWithRelationInput | SmsNumberRecordOrderByWithRelationInput[]
+    cursor?: SmsNumberRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SmsNumberRecordScalarFieldEnum | SmsNumberRecordScalarFieldEnum[]
+  }
+
+  /**
    * GuestUser without action
    */
   export type GuestUserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5804,6 +6385,4690 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: GuestUserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmsConfig
+   */
+
+  export type AggregateSmsConfig = {
+    _count: SmsConfigCountAggregateOutputType | null
+    _min: SmsConfigMinAggregateOutputType | null
+    _max: SmsConfigMaxAggregateOutputType | null
+  }
+
+  export type SmsConfigMinAggregateOutputType = {
+    key: string | null
+    value: string | null
+  }
+
+  export type SmsConfigMaxAggregateOutputType = {
+    key: string | null
+    value: string | null
+  }
+
+  export type SmsConfigCountAggregateOutputType = {
+    key: number
+    value: number
+    _all: number
+  }
+
+
+  export type SmsConfigMinAggregateInputType = {
+    key?: true
+    value?: true
+  }
+
+  export type SmsConfigMaxAggregateInputType = {
+    key?: true
+    value?: true
+  }
+
+  export type SmsConfigCountAggregateInputType = {
+    key?: true
+    value?: true
+    _all?: true
+  }
+
+  export type SmsConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsConfig to aggregate.
+     */
+    where?: SmsConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsConfigs to fetch.
+     */
+    orderBy?: SmsConfigOrderByWithRelationInput | SmsConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmsConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmsConfigs
+    **/
+    _count?: true | SmsConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmsConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmsConfigMaxAggregateInputType
+  }
+
+  export type GetSmsConfigAggregateType<T extends SmsConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmsConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmsConfig[P]>
+      : GetScalarType<T[P], AggregateSmsConfig[P]>
+  }
+
+
+
+
+  export type SmsConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsConfigWhereInput
+    orderBy?: SmsConfigOrderByWithAggregationInput | SmsConfigOrderByWithAggregationInput[]
+    by: SmsConfigScalarFieldEnum[] | SmsConfigScalarFieldEnum
+    having?: SmsConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmsConfigCountAggregateInputType | true
+    _min?: SmsConfigMinAggregateInputType
+    _max?: SmsConfigMaxAggregateInputType
+  }
+
+  export type SmsConfigGroupByOutputType = {
+    key: string
+    value: string
+    _count: SmsConfigCountAggregateOutputType | null
+    _min: SmsConfigMinAggregateOutputType | null
+    _max: SmsConfigMaxAggregateOutputType | null
+  }
+
+  type GetSmsConfigGroupByPayload<T extends SmsConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmsConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmsConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmsConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], SmsConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmsConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+  }, ExtArgs["result"]["smsConfig"]>
+
+
+
+  export type SmsConfigSelectScalar = {
+    key?: boolean
+    value?: boolean
+  }
+
+  export type SmsConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "value", ExtArgs["result"]["smsConfig"]>
+
+  export type $SmsConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmsConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      value: string
+    }, ExtArgs["result"]["smsConfig"]>
+    composites: {}
+  }
+
+  type SmsConfigGetPayload<S extends boolean | null | undefined | SmsConfigDefaultArgs> = $Result.GetResult<Prisma.$SmsConfigPayload, S>
+
+  type SmsConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmsConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmsConfigCountAggregateInputType | true
+    }
+
+  export interface SmsConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmsConfig'], meta: { name: 'SmsConfig' } }
+    /**
+     * Find zero or one SmsConfig that matches the filter.
+     * @param {SmsConfigFindUniqueArgs} args - Arguments to find a SmsConfig
+     * @example
+     * // Get one SmsConfig
+     * const smsConfig = await prisma.smsConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmsConfigFindUniqueArgs>(args: SelectSubset<T, SmsConfigFindUniqueArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmsConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmsConfigFindUniqueOrThrowArgs} args - Arguments to find a SmsConfig
+     * @example
+     * // Get one SmsConfig
+     * const smsConfig = await prisma.smsConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmsConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, SmsConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigFindFirstArgs} args - Arguments to find a SmsConfig
+     * @example
+     * // Get one SmsConfig
+     * const smsConfig = await prisma.smsConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmsConfigFindFirstArgs>(args?: SelectSubset<T, SmsConfigFindFirstArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigFindFirstOrThrowArgs} args - Arguments to find a SmsConfig
+     * @example
+     * // Get one SmsConfig
+     * const smsConfig = await prisma.smsConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmsConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, SmsConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmsConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmsConfigs
+     * const smsConfigs = await prisma.smsConfig.findMany()
+     * 
+     * // Get first 10 SmsConfigs
+     * const smsConfigs = await prisma.smsConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const smsConfigWithKeyOnly = await prisma.smsConfig.findMany({ select: { key: true } })
+     * 
+     */
+    findMany<T extends SmsConfigFindManyArgs>(args?: SelectSubset<T, SmsConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmsConfig.
+     * @param {SmsConfigCreateArgs} args - Arguments to create a SmsConfig.
+     * @example
+     * // Create one SmsConfig
+     * const SmsConfig = await prisma.smsConfig.create({
+     *   data: {
+     *     // ... data to create a SmsConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmsConfigCreateArgs>(args: SelectSubset<T, SmsConfigCreateArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmsConfigs.
+     * @param {SmsConfigCreateManyArgs} args - Arguments to create many SmsConfigs.
+     * @example
+     * // Create many SmsConfigs
+     * const smsConfig = await prisma.smsConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmsConfigCreateManyArgs>(args?: SelectSubset<T, SmsConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SmsConfig.
+     * @param {SmsConfigDeleteArgs} args - Arguments to delete one SmsConfig.
+     * @example
+     * // Delete one SmsConfig
+     * const SmsConfig = await prisma.smsConfig.delete({
+     *   where: {
+     *     // ... filter to delete one SmsConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmsConfigDeleteArgs>(args: SelectSubset<T, SmsConfigDeleteArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmsConfig.
+     * @param {SmsConfigUpdateArgs} args - Arguments to update one SmsConfig.
+     * @example
+     * // Update one SmsConfig
+     * const smsConfig = await prisma.smsConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmsConfigUpdateArgs>(args: SelectSubset<T, SmsConfigUpdateArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmsConfigs.
+     * @param {SmsConfigDeleteManyArgs} args - Arguments to filter SmsConfigs to delete.
+     * @example
+     * // Delete a few SmsConfigs
+     * const { count } = await prisma.smsConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmsConfigDeleteManyArgs>(args?: SelectSubset<T, SmsConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmsConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmsConfigs
+     * const smsConfig = await prisma.smsConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmsConfigUpdateManyArgs>(args: SelectSubset<T, SmsConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmsConfig.
+     * @param {SmsConfigUpsertArgs} args - Arguments to update or create a SmsConfig.
+     * @example
+     * // Update or create a SmsConfig
+     * const smsConfig = await prisma.smsConfig.upsert({
+     *   create: {
+     *     // ... data to create a SmsConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmsConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmsConfigUpsertArgs>(args: SelectSubset<T, SmsConfigUpsertArgs<ExtArgs>>): Prisma__SmsConfigClient<$Result.GetResult<Prisma.$SmsConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmsConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigCountArgs} args - Arguments to filter SmsConfigs to count.
+     * @example
+     * // Count the number of SmsConfigs
+     * const count = await prisma.smsConfig.count({
+     *   where: {
+     *     // ... the filter for the SmsConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmsConfigCountArgs>(
+      args?: Subset<T, SmsConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmsConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmsConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmsConfigAggregateArgs>(args: Subset<T, SmsConfigAggregateArgs>): Prisma.PrismaPromise<GetSmsConfigAggregateType<T>>
+
+    /**
+     * Group by SmsConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmsConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmsConfigGroupByArgs['orderBy'] }
+        : { orderBy?: SmsConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmsConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmsConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmsConfig model
+   */
+  readonly fields: SmsConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmsConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmsConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmsConfig model
+   */
+  interface SmsConfigFieldRefs {
+    readonly key: FieldRef<"SmsConfig", 'String'>
+    readonly value: FieldRef<"SmsConfig", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmsConfig findUnique
+   */
+  export type SmsConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SmsConfig to fetch.
+     */
+    where: SmsConfigWhereUniqueInput
+  }
+
+  /**
+   * SmsConfig findUniqueOrThrow
+   */
+  export type SmsConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SmsConfig to fetch.
+     */
+    where: SmsConfigWhereUniqueInput
+  }
+
+  /**
+   * SmsConfig findFirst
+   */
+  export type SmsConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SmsConfig to fetch.
+     */
+    where?: SmsConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsConfigs to fetch.
+     */
+    orderBy?: SmsConfigOrderByWithRelationInput | SmsConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsConfigs.
+     */
+    cursor?: SmsConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsConfigs.
+     */
+    distinct?: SmsConfigScalarFieldEnum | SmsConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SmsConfig findFirstOrThrow
+   */
+  export type SmsConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SmsConfig to fetch.
+     */
+    where?: SmsConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsConfigs to fetch.
+     */
+    orderBy?: SmsConfigOrderByWithRelationInput | SmsConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsConfigs.
+     */
+    cursor?: SmsConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsConfigs.
+     */
+    distinct?: SmsConfigScalarFieldEnum | SmsConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SmsConfig findMany
+   */
+  export type SmsConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SmsConfigs to fetch.
+     */
+    where?: SmsConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsConfigs to fetch.
+     */
+    orderBy?: SmsConfigOrderByWithRelationInput | SmsConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmsConfigs.
+     */
+    cursor?: SmsConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsConfigs.
+     */
+    skip?: number
+    distinct?: SmsConfigScalarFieldEnum | SmsConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SmsConfig create
+   */
+  export type SmsConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SmsConfig.
+     */
+    data: XOR<SmsConfigCreateInput, SmsConfigUncheckedCreateInput>
+  }
+
+  /**
+   * SmsConfig createMany
+   */
+  export type SmsConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmsConfigs.
+     */
+    data: SmsConfigCreateManyInput | SmsConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SmsConfig update
+   */
+  export type SmsConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SmsConfig.
+     */
+    data: XOR<SmsConfigUpdateInput, SmsConfigUncheckedUpdateInput>
+    /**
+     * Choose, which SmsConfig to update.
+     */
+    where: SmsConfigWhereUniqueInput
+  }
+
+  /**
+   * SmsConfig updateMany
+   */
+  export type SmsConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmsConfigs.
+     */
+    data: XOR<SmsConfigUpdateManyMutationInput, SmsConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which SmsConfigs to update
+     */
+    where?: SmsConfigWhereInput
+    /**
+     * Limit how many SmsConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsConfig upsert
+   */
+  export type SmsConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SmsConfig to update in case it exists.
+     */
+    where: SmsConfigWhereUniqueInput
+    /**
+     * In case the SmsConfig found by the `where` argument doesn't exist, create a new SmsConfig with this data.
+     */
+    create: XOR<SmsConfigCreateInput, SmsConfigUncheckedCreateInput>
+    /**
+     * In case the SmsConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmsConfigUpdateInput, SmsConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * SmsConfig delete
+   */
+  export type SmsConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+    /**
+     * Filter which SmsConfig to delete.
+     */
+    where: SmsConfigWhereUniqueInput
+  }
+
+  /**
+   * SmsConfig deleteMany
+   */
+  export type SmsConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsConfigs to delete
+     */
+    where?: SmsConfigWhereInput
+    /**
+     * Limit how many SmsConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsConfig without action
+   */
+  export type SmsConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsConfig
+     */
+    select?: SmsConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsConfig
+     */
+    omit?: SmsConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmsGuapiLog
+   */
+
+  export type AggregateSmsGuapiLog = {
+    _count: SmsGuapiLogCountAggregateOutputType | null
+    _avg: SmsGuapiLogAvgAggregateOutputType | null
+    _sum: SmsGuapiLogSumAggregateOutputType | null
+    _min: SmsGuapiLogMinAggregateOutputType | null
+    _max: SmsGuapiLogMaxAggregateOutputType | null
+  }
+
+  export type SmsGuapiLogAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type SmsGuapiLogSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type SmsGuapiLogMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    amount: number | null
+    type: string | null
+    description: string | null
+    createdAt: Date | null
+  }
+
+  export type SmsGuapiLogMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    amount: number | null
+    type: string | null
+    description: string | null
+    createdAt: Date | null
+  }
+
+  export type SmsGuapiLogCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    amount: number
+    type: number
+    description: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type SmsGuapiLogAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type SmsGuapiLogSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type SmsGuapiLogMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    amount?: true
+    type?: true
+    description?: true
+    createdAt?: true
+  }
+
+  export type SmsGuapiLogMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    amount?: true
+    type?: true
+    description?: true
+    createdAt?: true
+  }
+
+  export type SmsGuapiLogCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    amount?: true
+    type?: true
+    description?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type SmsGuapiLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsGuapiLog to aggregate.
+     */
+    where?: SmsGuapiLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsGuapiLogs to fetch.
+     */
+    orderBy?: SmsGuapiLogOrderByWithRelationInput | SmsGuapiLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmsGuapiLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsGuapiLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsGuapiLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmsGuapiLogs
+    **/
+    _count?: true | SmsGuapiLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SmsGuapiLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SmsGuapiLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmsGuapiLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmsGuapiLogMaxAggregateInputType
+  }
+
+  export type GetSmsGuapiLogAggregateType<T extends SmsGuapiLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmsGuapiLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmsGuapiLog[P]>
+      : GetScalarType<T[P], AggregateSmsGuapiLog[P]>
+  }
+
+
+
+
+  export type SmsGuapiLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsGuapiLogWhereInput
+    orderBy?: SmsGuapiLogOrderByWithAggregationInput | SmsGuapiLogOrderByWithAggregationInput[]
+    by: SmsGuapiLogScalarFieldEnum[] | SmsGuapiLogScalarFieldEnum
+    having?: SmsGuapiLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmsGuapiLogCountAggregateInputType | true
+    _avg?: SmsGuapiLogAvgAggregateInputType
+    _sum?: SmsGuapiLogSumAggregateInputType
+    _min?: SmsGuapiLogMinAggregateInputType
+    _max?: SmsGuapiLogMaxAggregateInputType
+  }
+
+  export type SmsGuapiLogGroupByOutputType = {
+    id: string
+    guestUserId: string
+    amount: number
+    type: string
+    description: string | null
+    createdAt: Date
+    _count: SmsGuapiLogCountAggregateOutputType | null
+    _avg: SmsGuapiLogAvgAggregateOutputType | null
+    _sum: SmsGuapiLogSumAggregateOutputType | null
+    _min: SmsGuapiLogMinAggregateOutputType | null
+    _max: SmsGuapiLogMaxAggregateOutputType | null
+  }
+
+  type GetSmsGuapiLogGroupByPayload<T extends SmsGuapiLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmsGuapiLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmsGuapiLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmsGuapiLogGroupByOutputType[P]>
+            : GetScalarType<T[P], SmsGuapiLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmsGuapiLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    amount?: boolean
+    type?: boolean
+    description?: boolean
+    createdAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["smsGuapiLog"]>
+
+
+
+  export type SmsGuapiLogSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    amount?: boolean
+    type?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }
+
+  export type SmsGuapiLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "amount" | "type" | "description" | "createdAt", ExtArgs["result"]["smsGuapiLog"]>
+  export type SmsGuapiLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $SmsGuapiLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmsGuapiLog"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      amount: number
+      type: string
+      description: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["smsGuapiLog"]>
+    composites: {}
+  }
+
+  type SmsGuapiLogGetPayload<S extends boolean | null | undefined | SmsGuapiLogDefaultArgs> = $Result.GetResult<Prisma.$SmsGuapiLogPayload, S>
+
+  type SmsGuapiLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmsGuapiLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmsGuapiLogCountAggregateInputType | true
+    }
+
+  export interface SmsGuapiLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmsGuapiLog'], meta: { name: 'SmsGuapiLog' } }
+    /**
+     * Find zero or one SmsGuapiLog that matches the filter.
+     * @param {SmsGuapiLogFindUniqueArgs} args - Arguments to find a SmsGuapiLog
+     * @example
+     * // Get one SmsGuapiLog
+     * const smsGuapiLog = await prisma.smsGuapiLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmsGuapiLogFindUniqueArgs>(args: SelectSubset<T, SmsGuapiLogFindUniqueArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmsGuapiLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmsGuapiLogFindUniqueOrThrowArgs} args - Arguments to find a SmsGuapiLog
+     * @example
+     * // Get one SmsGuapiLog
+     * const smsGuapiLog = await prisma.smsGuapiLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmsGuapiLogFindUniqueOrThrowArgs>(args: SelectSubset<T, SmsGuapiLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsGuapiLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogFindFirstArgs} args - Arguments to find a SmsGuapiLog
+     * @example
+     * // Get one SmsGuapiLog
+     * const smsGuapiLog = await prisma.smsGuapiLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmsGuapiLogFindFirstArgs>(args?: SelectSubset<T, SmsGuapiLogFindFirstArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsGuapiLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogFindFirstOrThrowArgs} args - Arguments to find a SmsGuapiLog
+     * @example
+     * // Get one SmsGuapiLog
+     * const smsGuapiLog = await prisma.smsGuapiLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmsGuapiLogFindFirstOrThrowArgs>(args?: SelectSubset<T, SmsGuapiLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmsGuapiLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmsGuapiLogs
+     * const smsGuapiLogs = await prisma.smsGuapiLog.findMany()
+     * 
+     * // Get first 10 SmsGuapiLogs
+     * const smsGuapiLogs = await prisma.smsGuapiLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const smsGuapiLogWithIdOnly = await prisma.smsGuapiLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SmsGuapiLogFindManyArgs>(args?: SelectSubset<T, SmsGuapiLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmsGuapiLog.
+     * @param {SmsGuapiLogCreateArgs} args - Arguments to create a SmsGuapiLog.
+     * @example
+     * // Create one SmsGuapiLog
+     * const SmsGuapiLog = await prisma.smsGuapiLog.create({
+     *   data: {
+     *     // ... data to create a SmsGuapiLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmsGuapiLogCreateArgs>(args: SelectSubset<T, SmsGuapiLogCreateArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmsGuapiLogs.
+     * @param {SmsGuapiLogCreateManyArgs} args - Arguments to create many SmsGuapiLogs.
+     * @example
+     * // Create many SmsGuapiLogs
+     * const smsGuapiLog = await prisma.smsGuapiLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmsGuapiLogCreateManyArgs>(args?: SelectSubset<T, SmsGuapiLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SmsGuapiLog.
+     * @param {SmsGuapiLogDeleteArgs} args - Arguments to delete one SmsGuapiLog.
+     * @example
+     * // Delete one SmsGuapiLog
+     * const SmsGuapiLog = await prisma.smsGuapiLog.delete({
+     *   where: {
+     *     // ... filter to delete one SmsGuapiLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmsGuapiLogDeleteArgs>(args: SelectSubset<T, SmsGuapiLogDeleteArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmsGuapiLog.
+     * @param {SmsGuapiLogUpdateArgs} args - Arguments to update one SmsGuapiLog.
+     * @example
+     * // Update one SmsGuapiLog
+     * const smsGuapiLog = await prisma.smsGuapiLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmsGuapiLogUpdateArgs>(args: SelectSubset<T, SmsGuapiLogUpdateArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmsGuapiLogs.
+     * @param {SmsGuapiLogDeleteManyArgs} args - Arguments to filter SmsGuapiLogs to delete.
+     * @example
+     * // Delete a few SmsGuapiLogs
+     * const { count } = await prisma.smsGuapiLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmsGuapiLogDeleteManyArgs>(args?: SelectSubset<T, SmsGuapiLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmsGuapiLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmsGuapiLogs
+     * const smsGuapiLog = await prisma.smsGuapiLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmsGuapiLogUpdateManyArgs>(args: SelectSubset<T, SmsGuapiLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmsGuapiLog.
+     * @param {SmsGuapiLogUpsertArgs} args - Arguments to update or create a SmsGuapiLog.
+     * @example
+     * // Update or create a SmsGuapiLog
+     * const smsGuapiLog = await prisma.smsGuapiLog.upsert({
+     *   create: {
+     *     // ... data to create a SmsGuapiLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmsGuapiLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmsGuapiLogUpsertArgs>(args: SelectSubset<T, SmsGuapiLogUpsertArgs<ExtArgs>>): Prisma__SmsGuapiLogClient<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmsGuapiLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogCountArgs} args - Arguments to filter SmsGuapiLogs to count.
+     * @example
+     * // Count the number of SmsGuapiLogs
+     * const count = await prisma.smsGuapiLog.count({
+     *   where: {
+     *     // ... the filter for the SmsGuapiLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmsGuapiLogCountArgs>(
+      args?: Subset<T, SmsGuapiLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmsGuapiLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmsGuapiLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmsGuapiLogAggregateArgs>(args: Subset<T, SmsGuapiLogAggregateArgs>): Prisma.PrismaPromise<GetSmsGuapiLogAggregateType<T>>
+
+    /**
+     * Group by SmsGuapiLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsGuapiLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmsGuapiLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmsGuapiLogGroupByArgs['orderBy'] }
+        : { orderBy?: SmsGuapiLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmsGuapiLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmsGuapiLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmsGuapiLog model
+   */
+  readonly fields: SmsGuapiLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmsGuapiLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmsGuapiLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmsGuapiLog model
+   */
+  interface SmsGuapiLogFieldRefs {
+    readonly id: FieldRef<"SmsGuapiLog", 'String'>
+    readonly guestUserId: FieldRef<"SmsGuapiLog", 'String'>
+    readonly amount: FieldRef<"SmsGuapiLog", 'Int'>
+    readonly type: FieldRef<"SmsGuapiLog", 'String'>
+    readonly description: FieldRef<"SmsGuapiLog", 'String'>
+    readonly createdAt: FieldRef<"SmsGuapiLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmsGuapiLog findUnique
+   */
+  export type SmsGuapiLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsGuapiLog to fetch.
+     */
+    where: SmsGuapiLogWhereUniqueInput
+  }
+
+  /**
+   * SmsGuapiLog findUniqueOrThrow
+   */
+  export type SmsGuapiLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsGuapiLog to fetch.
+     */
+    where: SmsGuapiLogWhereUniqueInput
+  }
+
+  /**
+   * SmsGuapiLog findFirst
+   */
+  export type SmsGuapiLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsGuapiLog to fetch.
+     */
+    where?: SmsGuapiLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsGuapiLogs to fetch.
+     */
+    orderBy?: SmsGuapiLogOrderByWithRelationInput | SmsGuapiLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsGuapiLogs.
+     */
+    cursor?: SmsGuapiLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsGuapiLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsGuapiLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsGuapiLogs.
+     */
+    distinct?: SmsGuapiLogScalarFieldEnum | SmsGuapiLogScalarFieldEnum[]
+  }
+
+  /**
+   * SmsGuapiLog findFirstOrThrow
+   */
+  export type SmsGuapiLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsGuapiLog to fetch.
+     */
+    where?: SmsGuapiLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsGuapiLogs to fetch.
+     */
+    orderBy?: SmsGuapiLogOrderByWithRelationInput | SmsGuapiLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsGuapiLogs.
+     */
+    cursor?: SmsGuapiLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsGuapiLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsGuapiLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsGuapiLogs.
+     */
+    distinct?: SmsGuapiLogScalarFieldEnum | SmsGuapiLogScalarFieldEnum[]
+  }
+
+  /**
+   * SmsGuapiLog findMany
+   */
+  export type SmsGuapiLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsGuapiLogs to fetch.
+     */
+    where?: SmsGuapiLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsGuapiLogs to fetch.
+     */
+    orderBy?: SmsGuapiLogOrderByWithRelationInput | SmsGuapiLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmsGuapiLogs.
+     */
+    cursor?: SmsGuapiLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsGuapiLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsGuapiLogs.
+     */
+    skip?: number
+    distinct?: SmsGuapiLogScalarFieldEnum | SmsGuapiLogScalarFieldEnum[]
+  }
+
+  /**
+   * SmsGuapiLog create
+   */
+  export type SmsGuapiLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SmsGuapiLog.
+     */
+    data: XOR<SmsGuapiLogCreateInput, SmsGuapiLogUncheckedCreateInput>
+  }
+
+  /**
+   * SmsGuapiLog createMany
+   */
+  export type SmsGuapiLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmsGuapiLogs.
+     */
+    data: SmsGuapiLogCreateManyInput | SmsGuapiLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SmsGuapiLog update
+   */
+  export type SmsGuapiLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SmsGuapiLog.
+     */
+    data: XOR<SmsGuapiLogUpdateInput, SmsGuapiLogUncheckedUpdateInput>
+    /**
+     * Choose, which SmsGuapiLog to update.
+     */
+    where: SmsGuapiLogWhereUniqueInput
+  }
+
+  /**
+   * SmsGuapiLog updateMany
+   */
+  export type SmsGuapiLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmsGuapiLogs.
+     */
+    data: XOR<SmsGuapiLogUpdateManyMutationInput, SmsGuapiLogUncheckedUpdateManyInput>
+    /**
+     * Filter which SmsGuapiLogs to update
+     */
+    where?: SmsGuapiLogWhereInput
+    /**
+     * Limit how many SmsGuapiLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsGuapiLog upsert
+   */
+  export type SmsGuapiLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SmsGuapiLog to update in case it exists.
+     */
+    where: SmsGuapiLogWhereUniqueInput
+    /**
+     * In case the SmsGuapiLog found by the `where` argument doesn't exist, create a new SmsGuapiLog with this data.
+     */
+    create: XOR<SmsGuapiLogCreateInput, SmsGuapiLogUncheckedCreateInput>
+    /**
+     * In case the SmsGuapiLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmsGuapiLogUpdateInput, SmsGuapiLogUncheckedUpdateInput>
+  }
+
+  /**
+   * SmsGuapiLog delete
+   */
+  export type SmsGuapiLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+    /**
+     * Filter which SmsGuapiLog to delete.
+     */
+    where: SmsGuapiLogWhereUniqueInput
+  }
+
+  /**
+   * SmsGuapiLog deleteMany
+   */
+  export type SmsGuapiLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsGuapiLogs to delete
+     */
+    where?: SmsGuapiLogWhereInput
+    /**
+     * Limit how many SmsGuapiLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsGuapiLog without action
+   */
+  export type SmsGuapiLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsGuapiLog
+     */
+    select?: SmsGuapiLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsGuapiLog
+     */
+    omit?: SmsGuapiLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsGuapiLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmsLog
+   */
+
+  export type AggregateSmsLog = {
+    _count: SmsLogCountAggregateOutputType | null
+    _min: SmsLogMinAggregateOutputType | null
+    _max: SmsLogMaxAggregateOutputType | null
+  }
+
+  export type SmsLogMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    action: string | null
+    phone: string | null
+    keyword: string | null
+    message: string | null
+    rawResponse: string | null
+    createdAt: Date | null
+  }
+
+  export type SmsLogMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    action: string | null
+    phone: string | null
+    keyword: string | null
+    message: string | null
+    rawResponse: string | null
+    createdAt: Date | null
+  }
+
+  export type SmsLogCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    action: number
+    phone: number
+    keyword: number
+    message: number
+    rawResponse: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type SmsLogMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    action?: true
+    phone?: true
+    keyword?: true
+    message?: true
+    rawResponse?: true
+    createdAt?: true
+  }
+
+  export type SmsLogMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    action?: true
+    phone?: true
+    keyword?: true
+    message?: true
+    rawResponse?: true
+    createdAt?: true
+  }
+
+  export type SmsLogCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    action?: true
+    phone?: true
+    keyword?: true
+    message?: true
+    rawResponse?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type SmsLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsLog to aggregate.
+     */
+    where?: SmsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsLogs to fetch.
+     */
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmsLogs
+    **/
+    _count?: true | SmsLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmsLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmsLogMaxAggregateInputType
+  }
+
+  export type GetSmsLogAggregateType<T extends SmsLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmsLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmsLog[P]>
+      : GetScalarType<T[P], AggregateSmsLog[P]>
+  }
+
+
+
+
+  export type SmsLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsLogWhereInput
+    orderBy?: SmsLogOrderByWithAggregationInput | SmsLogOrderByWithAggregationInput[]
+    by: SmsLogScalarFieldEnum[] | SmsLogScalarFieldEnum
+    having?: SmsLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmsLogCountAggregateInputType | true
+    _min?: SmsLogMinAggregateInputType
+    _max?: SmsLogMaxAggregateInputType
+  }
+
+  export type SmsLogGroupByOutputType = {
+    id: string
+    guestUserId: string | null
+    action: string
+    phone: string | null
+    keyword: string | null
+    message: string | null
+    rawResponse: string | null
+    createdAt: Date
+    _count: SmsLogCountAggregateOutputType | null
+    _min: SmsLogMinAggregateOutputType | null
+    _max: SmsLogMaxAggregateOutputType | null
+  }
+
+  type GetSmsLogGroupByPayload<T extends SmsLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmsLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmsLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmsLogGroupByOutputType[P]>
+            : GetScalarType<T[P], SmsLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmsLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    action?: boolean
+    phone?: boolean
+    keyword?: boolean
+    message?: boolean
+    rawResponse?: boolean
+    createdAt?: boolean
+    guestUser?: boolean | SmsLog$guestUserArgs<ExtArgs>
+  }, ExtArgs["result"]["smsLog"]>
+
+
+
+  export type SmsLogSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    action?: boolean
+    phone?: boolean
+    keyword?: boolean
+    message?: boolean
+    rawResponse?: boolean
+    createdAt?: boolean
+  }
+
+  export type SmsLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "action" | "phone" | "keyword" | "message" | "rawResponse" | "createdAt", ExtArgs["result"]["smsLog"]>
+  export type SmsLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | SmsLog$guestUserArgs<ExtArgs>
+  }
+
+  export type $SmsLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmsLog"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string | null
+      action: string
+      phone: string | null
+      keyword: string | null
+      message: string | null
+      rawResponse: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["smsLog"]>
+    composites: {}
+  }
+
+  type SmsLogGetPayload<S extends boolean | null | undefined | SmsLogDefaultArgs> = $Result.GetResult<Prisma.$SmsLogPayload, S>
+
+  type SmsLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmsLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmsLogCountAggregateInputType | true
+    }
+
+  export interface SmsLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmsLog'], meta: { name: 'SmsLog' } }
+    /**
+     * Find zero or one SmsLog that matches the filter.
+     * @param {SmsLogFindUniqueArgs} args - Arguments to find a SmsLog
+     * @example
+     * // Get one SmsLog
+     * const smsLog = await prisma.smsLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmsLogFindUniqueArgs>(args: SelectSubset<T, SmsLogFindUniqueArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmsLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmsLogFindUniqueOrThrowArgs} args - Arguments to find a SmsLog
+     * @example
+     * // Get one SmsLog
+     * const smsLog = await prisma.smsLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmsLogFindUniqueOrThrowArgs>(args: SelectSubset<T, SmsLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogFindFirstArgs} args - Arguments to find a SmsLog
+     * @example
+     * // Get one SmsLog
+     * const smsLog = await prisma.smsLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmsLogFindFirstArgs>(args?: SelectSubset<T, SmsLogFindFirstArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogFindFirstOrThrowArgs} args - Arguments to find a SmsLog
+     * @example
+     * // Get one SmsLog
+     * const smsLog = await prisma.smsLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmsLogFindFirstOrThrowArgs>(args?: SelectSubset<T, SmsLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmsLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmsLogs
+     * const smsLogs = await prisma.smsLog.findMany()
+     * 
+     * // Get first 10 SmsLogs
+     * const smsLogs = await prisma.smsLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const smsLogWithIdOnly = await prisma.smsLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SmsLogFindManyArgs>(args?: SelectSubset<T, SmsLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmsLog.
+     * @param {SmsLogCreateArgs} args - Arguments to create a SmsLog.
+     * @example
+     * // Create one SmsLog
+     * const SmsLog = await prisma.smsLog.create({
+     *   data: {
+     *     // ... data to create a SmsLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmsLogCreateArgs>(args: SelectSubset<T, SmsLogCreateArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmsLogs.
+     * @param {SmsLogCreateManyArgs} args - Arguments to create many SmsLogs.
+     * @example
+     * // Create many SmsLogs
+     * const smsLog = await prisma.smsLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmsLogCreateManyArgs>(args?: SelectSubset<T, SmsLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SmsLog.
+     * @param {SmsLogDeleteArgs} args - Arguments to delete one SmsLog.
+     * @example
+     * // Delete one SmsLog
+     * const SmsLog = await prisma.smsLog.delete({
+     *   where: {
+     *     // ... filter to delete one SmsLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmsLogDeleteArgs>(args: SelectSubset<T, SmsLogDeleteArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmsLog.
+     * @param {SmsLogUpdateArgs} args - Arguments to update one SmsLog.
+     * @example
+     * // Update one SmsLog
+     * const smsLog = await prisma.smsLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmsLogUpdateArgs>(args: SelectSubset<T, SmsLogUpdateArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmsLogs.
+     * @param {SmsLogDeleteManyArgs} args - Arguments to filter SmsLogs to delete.
+     * @example
+     * // Delete a few SmsLogs
+     * const { count } = await prisma.smsLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmsLogDeleteManyArgs>(args?: SelectSubset<T, SmsLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmsLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmsLogs
+     * const smsLog = await prisma.smsLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmsLogUpdateManyArgs>(args: SelectSubset<T, SmsLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmsLog.
+     * @param {SmsLogUpsertArgs} args - Arguments to update or create a SmsLog.
+     * @example
+     * // Update or create a SmsLog
+     * const smsLog = await prisma.smsLog.upsert({
+     *   create: {
+     *     // ... data to create a SmsLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmsLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmsLogUpsertArgs>(args: SelectSubset<T, SmsLogUpsertArgs<ExtArgs>>): Prisma__SmsLogClient<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmsLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogCountArgs} args - Arguments to filter SmsLogs to count.
+     * @example
+     * // Count the number of SmsLogs
+     * const count = await prisma.smsLog.count({
+     *   where: {
+     *     // ... the filter for the SmsLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmsLogCountArgs>(
+      args?: Subset<T, SmsLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmsLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmsLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmsLogAggregateArgs>(args: Subset<T, SmsLogAggregateArgs>): Prisma.PrismaPromise<GetSmsLogAggregateType<T>>
+
+    /**
+     * Group by SmsLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmsLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmsLogGroupByArgs['orderBy'] }
+        : { orderBy?: SmsLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmsLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmsLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmsLog model
+   */
+  readonly fields: SmsLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmsLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmsLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends SmsLog$guestUserArgs<ExtArgs> = {}>(args?: Subset<T, SmsLog$guestUserArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmsLog model
+   */
+  interface SmsLogFieldRefs {
+    readonly id: FieldRef<"SmsLog", 'String'>
+    readonly guestUserId: FieldRef<"SmsLog", 'String'>
+    readonly action: FieldRef<"SmsLog", 'String'>
+    readonly phone: FieldRef<"SmsLog", 'String'>
+    readonly keyword: FieldRef<"SmsLog", 'String'>
+    readonly message: FieldRef<"SmsLog", 'String'>
+    readonly rawResponse: FieldRef<"SmsLog", 'String'>
+    readonly createdAt: FieldRef<"SmsLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmsLog findUnique
+   */
+  export type SmsLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsLog to fetch.
+     */
+    where: SmsLogWhereUniqueInput
+  }
+
+  /**
+   * SmsLog findUniqueOrThrow
+   */
+  export type SmsLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsLog to fetch.
+     */
+    where: SmsLogWhereUniqueInput
+  }
+
+  /**
+   * SmsLog findFirst
+   */
+  export type SmsLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsLog to fetch.
+     */
+    where?: SmsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsLogs to fetch.
+     */
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsLogs.
+     */
+    cursor?: SmsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsLogs.
+     */
+    distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * SmsLog findFirstOrThrow
+   */
+  export type SmsLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsLog to fetch.
+     */
+    where?: SmsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsLogs to fetch.
+     */
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsLogs.
+     */
+    cursor?: SmsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsLogs.
+     */
+    distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * SmsLog findMany
+   */
+  export type SmsLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsLogs to fetch.
+     */
+    where?: SmsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsLogs to fetch.
+     */
+    orderBy?: SmsLogOrderByWithRelationInput | SmsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmsLogs.
+     */
+    cursor?: SmsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsLogs.
+     */
+    skip?: number
+    distinct?: SmsLogScalarFieldEnum | SmsLogScalarFieldEnum[]
+  }
+
+  /**
+   * SmsLog create
+   */
+  export type SmsLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SmsLog.
+     */
+    data: XOR<SmsLogCreateInput, SmsLogUncheckedCreateInput>
+  }
+
+  /**
+   * SmsLog createMany
+   */
+  export type SmsLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmsLogs.
+     */
+    data: SmsLogCreateManyInput | SmsLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SmsLog update
+   */
+  export type SmsLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SmsLog.
+     */
+    data: XOR<SmsLogUpdateInput, SmsLogUncheckedUpdateInput>
+    /**
+     * Choose, which SmsLog to update.
+     */
+    where: SmsLogWhereUniqueInput
+  }
+
+  /**
+   * SmsLog updateMany
+   */
+  export type SmsLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmsLogs.
+     */
+    data: XOR<SmsLogUpdateManyMutationInput, SmsLogUncheckedUpdateManyInput>
+    /**
+     * Filter which SmsLogs to update
+     */
+    where?: SmsLogWhereInput
+    /**
+     * Limit how many SmsLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsLog upsert
+   */
+  export type SmsLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SmsLog to update in case it exists.
+     */
+    where: SmsLogWhereUniqueInput
+    /**
+     * In case the SmsLog found by the `where` argument doesn't exist, create a new SmsLog with this data.
+     */
+    create: XOR<SmsLogCreateInput, SmsLogUncheckedCreateInput>
+    /**
+     * In case the SmsLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmsLogUpdateInput, SmsLogUncheckedUpdateInput>
+  }
+
+  /**
+   * SmsLog delete
+   */
+  export type SmsLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+    /**
+     * Filter which SmsLog to delete.
+     */
+    where: SmsLogWhereUniqueInput
+  }
+
+  /**
+   * SmsLog deleteMany
+   */
+  export type SmsLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsLogs to delete
+     */
+    where?: SmsLogWhereInput
+    /**
+     * Limit how many SmsLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsLog.guestUser
+   */
+  export type SmsLog$guestUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuestUser
+     */
+    select?: GuestUserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuestUser
+     */
+    omit?: GuestUserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuestUserInclude<ExtArgs> | null
+    where?: GuestUserWhereInput
+  }
+
+  /**
+   * SmsLog without action
+   */
+  export type SmsLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsLog
+     */
+    select?: SmsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsLog
+     */
+    omit?: SmsLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmsUserRecord
+   */
+
+  export type AggregateSmsUserRecord = {
+    _count: SmsUserRecordCountAggregateOutputType | null
+    _min: SmsUserRecordMinAggregateOutputType | null
+    _max: SmsUserRecordMaxAggregateOutputType | null
+  }
+
+  export type SmsUserRecordMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    phone: string | null
+    message: string | null
+    keyword: string | null
+    provider: string | null
+    createdAt: Date | null
+  }
+
+  export type SmsUserRecordMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    phone: string | null
+    message: string | null
+    keyword: string | null
+    provider: string | null
+    createdAt: Date | null
+  }
+
+  export type SmsUserRecordCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    phone: number
+    message: number
+    keyword: number
+    provider: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type SmsUserRecordMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    phone?: true
+    message?: true
+    keyword?: true
+    provider?: true
+    createdAt?: true
+  }
+
+  export type SmsUserRecordMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    phone?: true
+    message?: true
+    keyword?: true
+    provider?: true
+    createdAt?: true
+  }
+
+  export type SmsUserRecordCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    phone?: true
+    message?: true
+    keyword?: true
+    provider?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type SmsUserRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsUserRecord to aggregate.
+     */
+    where?: SmsUserRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsUserRecords to fetch.
+     */
+    orderBy?: SmsUserRecordOrderByWithRelationInput | SmsUserRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmsUserRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsUserRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsUserRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmsUserRecords
+    **/
+    _count?: true | SmsUserRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmsUserRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmsUserRecordMaxAggregateInputType
+  }
+
+  export type GetSmsUserRecordAggregateType<T extends SmsUserRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmsUserRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmsUserRecord[P]>
+      : GetScalarType<T[P], AggregateSmsUserRecord[P]>
+  }
+
+
+
+
+  export type SmsUserRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsUserRecordWhereInput
+    orderBy?: SmsUserRecordOrderByWithAggregationInput | SmsUserRecordOrderByWithAggregationInput[]
+    by: SmsUserRecordScalarFieldEnum[] | SmsUserRecordScalarFieldEnum
+    having?: SmsUserRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmsUserRecordCountAggregateInputType | true
+    _min?: SmsUserRecordMinAggregateInputType
+    _max?: SmsUserRecordMaxAggregateInputType
+  }
+
+  export type SmsUserRecordGroupByOutputType = {
+    id: string
+    guestUserId: string
+    phone: string | null
+    message: string | null
+    keyword: string | null
+    provider: string | null
+    createdAt: Date
+    _count: SmsUserRecordCountAggregateOutputType | null
+    _min: SmsUserRecordMinAggregateOutputType | null
+    _max: SmsUserRecordMaxAggregateOutputType | null
+  }
+
+  type GetSmsUserRecordGroupByPayload<T extends SmsUserRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmsUserRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmsUserRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmsUserRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], SmsUserRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmsUserRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    phone?: boolean
+    message?: boolean
+    keyword?: boolean
+    provider?: boolean
+    createdAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["smsUserRecord"]>
+
+
+
+  export type SmsUserRecordSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    phone?: boolean
+    message?: boolean
+    keyword?: boolean
+    provider?: boolean
+    createdAt?: boolean
+  }
+
+  export type SmsUserRecordOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "phone" | "message" | "keyword" | "provider" | "createdAt", ExtArgs["result"]["smsUserRecord"]>
+  export type SmsUserRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $SmsUserRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmsUserRecord"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      phone: string | null
+      message: string | null
+      keyword: string | null
+      provider: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["smsUserRecord"]>
+    composites: {}
+  }
+
+  type SmsUserRecordGetPayload<S extends boolean | null | undefined | SmsUserRecordDefaultArgs> = $Result.GetResult<Prisma.$SmsUserRecordPayload, S>
+
+  type SmsUserRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmsUserRecordFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmsUserRecordCountAggregateInputType | true
+    }
+
+  export interface SmsUserRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmsUserRecord'], meta: { name: 'SmsUserRecord' } }
+    /**
+     * Find zero or one SmsUserRecord that matches the filter.
+     * @param {SmsUserRecordFindUniqueArgs} args - Arguments to find a SmsUserRecord
+     * @example
+     * // Get one SmsUserRecord
+     * const smsUserRecord = await prisma.smsUserRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmsUserRecordFindUniqueArgs>(args: SelectSubset<T, SmsUserRecordFindUniqueArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmsUserRecord that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmsUserRecordFindUniqueOrThrowArgs} args - Arguments to find a SmsUserRecord
+     * @example
+     * // Get one SmsUserRecord
+     * const smsUserRecord = await prisma.smsUserRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmsUserRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, SmsUserRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsUserRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordFindFirstArgs} args - Arguments to find a SmsUserRecord
+     * @example
+     * // Get one SmsUserRecord
+     * const smsUserRecord = await prisma.smsUserRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmsUserRecordFindFirstArgs>(args?: SelectSubset<T, SmsUserRecordFindFirstArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsUserRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordFindFirstOrThrowArgs} args - Arguments to find a SmsUserRecord
+     * @example
+     * // Get one SmsUserRecord
+     * const smsUserRecord = await prisma.smsUserRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmsUserRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, SmsUserRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmsUserRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmsUserRecords
+     * const smsUserRecords = await prisma.smsUserRecord.findMany()
+     * 
+     * // Get first 10 SmsUserRecords
+     * const smsUserRecords = await prisma.smsUserRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const smsUserRecordWithIdOnly = await prisma.smsUserRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SmsUserRecordFindManyArgs>(args?: SelectSubset<T, SmsUserRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmsUserRecord.
+     * @param {SmsUserRecordCreateArgs} args - Arguments to create a SmsUserRecord.
+     * @example
+     * // Create one SmsUserRecord
+     * const SmsUserRecord = await prisma.smsUserRecord.create({
+     *   data: {
+     *     // ... data to create a SmsUserRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmsUserRecordCreateArgs>(args: SelectSubset<T, SmsUserRecordCreateArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmsUserRecords.
+     * @param {SmsUserRecordCreateManyArgs} args - Arguments to create many SmsUserRecords.
+     * @example
+     * // Create many SmsUserRecords
+     * const smsUserRecord = await prisma.smsUserRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmsUserRecordCreateManyArgs>(args?: SelectSubset<T, SmsUserRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SmsUserRecord.
+     * @param {SmsUserRecordDeleteArgs} args - Arguments to delete one SmsUserRecord.
+     * @example
+     * // Delete one SmsUserRecord
+     * const SmsUserRecord = await prisma.smsUserRecord.delete({
+     *   where: {
+     *     // ... filter to delete one SmsUserRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmsUserRecordDeleteArgs>(args: SelectSubset<T, SmsUserRecordDeleteArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmsUserRecord.
+     * @param {SmsUserRecordUpdateArgs} args - Arguments to update one SmsUserRecord.
+     * @example
+     * // Update one SmsUserRecord
+     * const smsUserRecord = await prisma.smsUserRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmsUserRecordUpdateArgs>(args: SelectSubset<T, SmsUserRecordUpdateArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmsUserRecords.
+     * @param {SmsUserRecordDeleteManyArgs} args - Arguments to filter SmsUserRecords to delete.
+     * @example
+     * // Delete a few SmsUserRecords
+     * const { count } = await prisma.smsUserRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmsUserRecordDeleteManyArgs>(args?: SelectSubset<T, SmsUserRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmsUserRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmsUserRecords
+     * const smsUserRecord = await prisma.smsUserRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmsUserRecordUpdateManyArgs>(args: SelectSubset<T, SmsUserRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmsUserRecord.
+     * @param {SmsUserRecordUpsertArgs} args - Arguments to update or create a SmsUserRecord.
+     * @example
+     * // Update or create a SmsUserRecord
+     * const smsUserRecord = await prisma.smsUserRecord.upsert({
+     *   create: {
+     *     // ... data to create a SmsUserRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmsUserRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmsUserRecordUpsertArgs>(args: SelectSubset<T, SmsUserRecordUpsertArgs<ExtArgs>>): Prisma__SmsUserRecordClient<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmsUserRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordCountArgs} args - Arguments to filter SmsUserRecords to count.
+     * @example
+     * // Count the number of SmsUserRecords
+     * const count = await prisma.smsUserRecord.count({
+     *   where: {
+     *     // ... the filter for the SmsUserRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmsUserRecordCountArgs>(
+      args?: Subset<T, SmsUserRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmsUserRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmsUserRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmsUserRecordAggregateArgs>(args: Subset<T, SmsUserRecordAggregateArgs>): Prisma.PrismaPromise<GetSmsUserRecordAggregateType<T>>
+
+    /**
+     * Group by SmsUserRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsUserRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmsUserRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmsUserRecordGroupByArgs['orderBy'] }
+        : { orderBy?: SmsUserRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmsUserRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmsUserRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmsUserRecord model
+   */
+  readonly fields: SmsUserRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmsUserRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmsUserRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmsUserRecord model
+   */
+  interface SmsUserRecordFieldRefs {
+    readonly id: FieldRef<"SmsUserRecord", 'String'>
+    readonly guestUserId: FieldRef<"SmsUserRecord", 'String'>
+    readonly phone: FieldRef<"SmsUserRecord", 'String'>
+    readonly message: FieldRef<"SmsUserRecord", 'String'>
+    readonly keyword: FieldRef<"SmsUserRecord", 'String'>
+    readonly provider: FieldRef<"SmsUserRecord", 'String'>
+    readonly createdAt: FieldRef<"SmsUserRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmsUserRecord findUnique
+   */
+  export type SmsUserRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsUserRecord to fetch.
+     */
+    where: SmsUserRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsUserRecord findUniqueOrThrow
+   */
+  export type SmsUserRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsUserRecord to fetch.
+     */
+    where: SmsUserRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsUserRecord findFirst
+   */
+  export type SmsUserRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsUserRecord to fetch.
+     */
+    where?: SmsUserRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsUserRecords to fetch.
+     */
+    orderBy?: SmsUserRecordOrderByWithRelationInput | SmsUserRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsUserRecords.
+     */
+    cursor?: SmsUserRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsUserRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsUserRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsUserRecords.
+     */
+    distinct?: SmsUserRecordScalarFieldEnum | SmsUserRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SmsUserRecord findFirstOrThrow
+   */
+  export type SmsUserRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsUserRecord to fetch.
+     */
+    where?: SmsUserRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsUserRecords to fetch.
+     */
+    orderBy?: SmsUserRecordOrderByWithRelationInput | SmsUserRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsUserRecords.
+     */
+    cursor?: SmsUserRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsUserRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsUserRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsUserRecords.
+     */
+    distinct?: SmsUserRecordScalarFieldEnum | SmsUserRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SmsUserRecord findMany
+   */
+  export type SmsUserRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsUserRecords to fetch.
+     */
+    where?: SmsUserRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsUserRecords to fetch.
+     */
+    orderBy?: SmsUserRecordOrderByWithRelationInput | SmsUserRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmsUserRecords.
+     */
+    cursor?: SmsUserRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsUserRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsUserRecords.
+     */
+    skip?: number
+    distinct?: SmsUserRecordScalarFieldEnum | SmsUserRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SmsUserRecord create
+   */
+  export type SmsUserRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SmsUserRecord.
+     */
+    data: XOR<SmsUserRecordCreateInput, SmsUserRecordUncheckedCreateInput>
+  }
+
+  /**
+   * SmsUserRecord createMany
+   */
+  export type SmsUserRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmsUserRecords.
+     */
+    data: SmsUserRecordCreateManyInput | SmsUserRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SmsUserRecord update
+   */
+  export type SmsUserRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SmsUserRecord.
+     */
+    data: XOR<SmsUserRecordUpdateInput, SmsUserRecordUncheckedUpdateInput>
+    /**
+     * Choose, which SmsUserRecord to update.
+     */
+    where: SmsUserRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsUserRecord updateMany
+   */
+  export type SmsUserRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmsUserRecords.
+     */
+    data: XOR<SmsUserRecordUpdateManyMutationInput, SmsUserRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which SmsUserRecords to update
+     */
+    where?: SmsUserRecordWhereInput
+    /**
+     * Limit how many SmsUserRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsUserRecord upsert
+   */
+  export type SmsUserRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SmsUserRecord to update in case it exists.
+     */
+    where: SmsUserRecordWhereUniqueInput
+    /**
+     * In case the SmsUserRecord found by the `where` argument doesn't exist, create a new SmsUserRecord with this data.
+     */
+    create: XOR<SmsUserRecordCreateInput, SmsUserRecordUncheckedCreateInput>
+    /**
+     * In case the SmsUserRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmsUserRecordUpdateInput, SmsUserRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * SmsUserRecord delete
+   */
+  export type SmsUserRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+    /**
+     * Filter which SmsUserRecord to delete.
+     */
+    where: SmsUserRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsUserRecord deleteMany
+   */
+  export type SmsUserRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsUserRecords to delete
+     */
+    where?: SmsUserRecordWhereInput
+    /**
+     * Limit how many SmsUserRecords to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsUserRecord without action
+   */
+  export type SmsUserRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsUserRecord
+     */
+    select?: SmsUserRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsUserRecord
+     */
+    omit?: SmsUserRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsUserRecordInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SmsNumberRecord
+   */
+
+  export type AggregateSmsNumberRecord = {
+    _count: SmsNumberRecordCountAggregateOutputType | null
+    _min: SmsNumberRecordMinAggregateOutputType | null
+    _max: SmsNumberRecordMaxAggregateOutputType | null
+  }
+
+  export type SmsNumberRecordMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    phone: string | null
+    createdAt: Date | null
+    releasedAt: Date | null
+  }
+
+  export type SmsNumberRecordMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    phone: string | null
+    createdAt: Date | null
+    releasedAt: Date | null
+  }
+
+  export type SmsNumberRecordCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    phone: number
+    createdAt: number
+    releasedAt: number
+    _all: number
+  }
+
+
+  export type SmsNumberRecordMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    phone?: true
+    createdAt?: true
+    releasedAt?: true
+  }
+
+  export type SmsNumberRecordMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    phone?: true
+    createdAt?: true
+    releasedAt?: true
+  }
+
+  export type SmsNumberRecordCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    phone?: true
+    createdAt?: true
+    releasedAt?: true
+    _all?: true
+  }
+
+  export type SmsNumberRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsNumberRecord to aggregate.
+     */
+    where?: SmsNumberRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsNumberRecords to fetch.
+     */
+    orderBy?: SmsNumberRecordOrderByWithRelationInput | SmsNumberRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SmsNumberRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsNumberRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsNumberRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SmsNumberRecords
+    **/
+    _count?: true | SmsNumberRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SmsNumberRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SmsNumberRecordMaxAggregateInputType
+  }
+
+  export type GetSmsNumberRecordAggregateType<T extends SmsNumberRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateSmsNumberRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSmsNumberRecord[P]>
+      : GetScalarType<T[P], AggregateSmsNumberRecord[P]>
+  }
+
+
+
+
+  export type SmsNumberRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SmsNumberRecordWhereInput
+    orderBy?: SmsNumberRecordOrderByWithAggregationInput | SmsNumberRecordOrderByWithAggregationInput[]
+    by: SmsNumberRecordScalarFieldEnum[] | SmsNumberRecordScalarFieldEnum
+    having?: SmsNumberRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SmsNumberRecordCountAggregateInputType | true
+    _min?: SmsNumberRecordMinAggregateInputType
+    _max?: SmsNumberRecordMaxAggregateInputType
+  }
+
+  export type SmsNumberRecordGroupByOutputType = {
+    id: string
+    guestUserId: string
+    phone: string
+    createdAt: Date
+    releasedAt: Date | null
+    _count: SmsNumberRecordCountAggregateOutputType | null
+    _min: SmsNumberRecordMinAggregateOutputType | null
+    _max: SmsNumberRecordMaxAggregateOutputType | null
+  }
+
+  type GetSmsNumberRecordGroupByPayload<T extends SmsNumberRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SmsNumberRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SmsNumberRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SmsNumberRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], SmsNumberRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SmsNumberRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    phone?: boolean
+    createdAt?: boolean
+    releasedAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["smsNumberRecord"]>
+
+
+
+  export type SmsNumberRecordSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    phone?: boolean
+    createdAt?: boolean
+    releasedAt?: boolean
+  }
+
+  export type SmsNumberRecordOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "phone" | "createdAt" | "releasedAt", ExtArgs["result"]["smsNumberRecord"]>
+  export type SmsNumberRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $SmsNumberRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SmsNumberRecord"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      phone: string
+      createdAt: Date
+      releasedAt: Date | null
+    }, ExtArgs["result"]["smsNumberRecord"]>
+    composites: {}
+  }
+
+  type SmsNumberRecordGetPayload<S extends boolean | null | undefined | SmsNumberRecordDefaultArgs> = $Result.GetResult<Prisma.$SmsNumberRecordPayload, S>
+
+  type SmsNumberRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SmsNumberRecordFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SmsNumberRecordCountAggregateInputType | true
+    }
+
+  export interface SmsNumberRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SmsNumberRecord'], meta: { name: 'SmsNumberRecord' } }
+    /**
+     * Find zero or one SmsNumberRecord that matches the filter.
+     * @param {SmsNumberRecordFindUniqueArgs} args - Arguments to find a SmsNumberRecord
+     * @example
+     * // Get one SmsNumberRecord
+     * const smsNumberRecord = await prisma.smsNumberRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SmsNumberRecordFindUniqueArgs>(args: SelectSubset<T, SmsNumberRecordFindUniqueArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SmsNumberRecord that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SmsNumberRecordFindUniqueOrThrowArgs} args - Arguments to find a SmsNumberRecord
+     * @example
+     * // Get one SmsNumberRecord
+     * const smsNumberRecord = await prisma.smsNumberRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SmsNumberRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, SmsNumberRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsNumberRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordFindFirstArgs} args - Arguments to find a SmsNumberRecord
+     * @example
+     * // Get one SmsNumberRecord
+     * const smsNumberRecord = await prisma.smsNumberRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SmsNumberRecordFindFirstArgs>(args?: SelectSubset<T, SmsNumberRecordFindFirstArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SmsNumberRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordFindFirstOrThrowArgs} args - Arguments to find a SmsNumberRecord
+     * @example
+     * // Get one SmsNumberRecord
+     * const smsNumberRecord = await prisma.smsNumberRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SmsNumberRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, SmsNumberRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SmsNumberRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SmsNumberRecords
+     * const smsNumberRecords = await prisma.smsNumberRecord.findMany()
+     * 
+     * // Get first 10 SmsNumberRecords
+     * const smsNumberRecords = await prisma.smsNumberRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const smsNumberRecordWithIdOnly = await prisma.smsNumberRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SmsNumberRecordFindManyArgs>(args?: SelectSubset<T, SmsNumberRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SmsNumberRecord.
+     * @param {SmsNumberRecordCreateArgs} args - Arguments to create a SmsNumberRecord.
+     * @example
+     * // Create one SmsNumberRecord
+     * const SmsNumberRecord = await prisma.smsNumberRecord.create({
+     *   data: {
+     *     // ... data to create a SmsNumberRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends SmsNumberRecordCreateArgs>(args: SelectSubset<T, SmsNumberRecordCreateArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SmsNumberRecords.
+     * @param {SmsNumberRecordCreateManyArgs} args - Arguments to create many SmsNumberRecords.
+     * @example
+     * // Create many SmsNumberRecords
+     * const smsNumberRecord = await prisma.smsNumberRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SmsNumberRecordCreateManyArgs>(args?: SelectSubset<T, SmsNumberRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SmsNumberRecord.
+     * @param {SmsNumberRecordDeleteArgs} args - Arguments to delete one SmsNumberRecord.
+     * @example
+     * // Delete one SmsNumberRecord
+     * const SmsNumberRecord = await prisma.smsNumberRecord.delete({
+     *   where: {
+     *     // ... filter to delete one SmsNumberRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SmsNumberRecordDeleteArgs>(args: SelectSubset<T, SmsNumberRecordDeleteArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SmsNumberRecord.
+     * @param {SmsNumberRecordUpdateArgs} args - Arguments to update one SmsNumberRecord.
+     * @example
+     * // Update one SmsNumberRecord
+     * const smsNumberRecord = await prisma.smsNumberRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SmsNumberRecordUpdateArgs>(args: SelectSubset<T, SmsNumberRecordUpdateArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SmsNumberRecords.
+     * @param {SmsNumberRecordDeleteManyArgs} args - Arguments to filter SmsNumberRecords to delete.
+     * @example
+     * // Delete a few SmsNumberRecords
+     * const { count } = await prisma.smsNumberRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SmsNumberRecordDeleteManyArgs>(args?: SelectSubset<T, SmsNumberRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SmsNumberRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SmsNumberRecords
+     * const smsNumberRecord = await prisma.smsNumberRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SmsNumberRecordUpdateManyArgs>(args: SelectSubset<T, SmsNumberRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SmsNumberRecord.
+     * @param {SmsNumberRecordUpsertArgs} args - Arguments to update or create a SmsNumberRecord.
+     * @example
+     * // Update or create a SmsNumberRecord
+     * const smsNumberRecord = await prisma.smsNumberRecord.upsert({
+     *   create: {
+     *     // ... data to create a SmsNumberRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SmsNumberRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SmsNumberRecordUpsertArgs>(args: SelectSubset<T, SmsNumberRecordUpsertArgs<ExtArgs>>): Prisma__SmsNumberRecordClient<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SmsNumberRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordCountArgs} args - Arguments to filter SmsNumberRecords to count.
+     * @example
+     * // Count the number of SmsNumberRecords
+     * const count = await prisma.smsNumberRecord.count({
+     *   where: {
+     *     // ... the filter for the SmsNumberRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends SmsNumberRecordCountArgs>(
+      args?: Subset<T, SmsNumberRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SmsNumberRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SmsNumberRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SmsNumberRecordAggregateArgs>(args: Subset<T, SmsNumberRecordAggregateArgs>): Prisma.PrismaPromise<GetSmsNumberRecordAggregateType<T>>
+
+    /**
+     * Group by SmsNumberRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SmsNumberRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SmsNumberRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SmsNumberRecordGroupByArgs['orderBy'] }
+        : { orderBy?: SmsNumberRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SmsNumberRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSmsNumberRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SmsNumberRecord model
+   */
+  readonly fields: SmsNumberRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SmsNumberRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SmsNumberRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SmsNumberRecord model
+   */
+  interface SmsNumberRecordFieldRefs {
+    readonly id: FieldRef<"SmsNumberRecord", 'String'>
+    readonly guestUserId: FieldRef<"SmsNumberRecord", 'String'>
+    readonly phone: FieldRef<"SmsNumberRecord", 'String'>
+    readonly createdAt: FieldRef<"SmsNumberRecord", 'DateTime'>
+    readonly releasedAt: FieldRef<"SmsNumberRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SmsNumberRecord findUnique
+   */
+  export type SmsNumberRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsNumberRecord to fetch.
+     */
+    where: SmsNumberRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsNumberRecord findUniqueOrThrow
+   */
+  export type SmsNumberRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsNumberRecord to fetch.
+     */
+    where: SmsNumberRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsNumberRecord findFirst
+   */
+  export type SmsNumberRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsNumberRecord to fetch.
+     */
+    where?: SmsNumberRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsNumberRecords to fetch.
+     */
+    orderBy?: SmsNumberRecordOrderByWithRelationInput | SmsNumberRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsNumberRecords.
+     */
+    cursor?: SmsNumberRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsNumberRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsNumberRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsNumberRecords.
+     */
+    distinct?: SmsNumberRecordScalarFieldEnum | SmsNumberRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SmsNumberRecord findFirstOrThrow
+   */
+  export type SmsNumberRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsNumberRecord to fetch.
+     */
+    where?: SmsNumberRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsNumberRecords to fetch.
+     */
+    orderBy?: SmsNumberRecordOrderByWithRelationInput | SmsNumberRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SmsNumberRecords.
+     */
+    cursor?: SmsNumberRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsNumberRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsNumberRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SmsNumberRecords.
+     */
+    distinct?: SmsNumberRecordScalarFieldEnum | SmsNumberRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SmsNumberRecord findMany
+   */
+  export type SmsNumberRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SmsNumberRecords to fetch.
+     */
+    where?: SmsNumberRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SmsNumberRecords to fetch.
+     */
+    orderBy?: SmsNumberRecordOrderByWithRelationInput | SmsNumberRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SmsNumberRecords.
+     */
+    cursor?: SmsNumberRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SmsNumberRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SmsNumberRecords.
+     */
+    skip?: number
+    distinct?: SmsNumberRecordScalarFieldEnum | SmsNumberRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SmsNumberRecord create
+   */
+  export type SmsNumberRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SmsNumberRecord.
+     */
+    data: XOR<SmsNumberRecordCreateInput, SmsNumberRecordUncheckedCreateInput>
+  }
+
+  /**
+   * SmsNumberRecord createMany
+   */
+  export type SmsNumberRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SmsNumberRecords.
+     */
+    data: SmsNumberRecordCreateManyInput | SmsNumberRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SmsNumberRecord update
+   */
+  export type SmsNumberRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SmsNumberRecord.
+     */
+    data: XOR<SmsNumberRecordUpdateInput, SmsNumberRecordUncheckedUpdateInput>
+    /**
+     * Choose, which SmsNumberRecord to update.
+     */
+    where: SmsNumberRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsNumberRecord updateMany
+   */
+  export type SmsNumberRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SmsNumberRecords.
+     */
+    data: XOR<SmsNumberRecordUpdateManyMutationInput, SmsNumberRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which SmsNumberRecords to update
+     */
+    where?: SmsNumberRecordWhereInput
+    /**
+     * Limit how many SmsNumberRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsNumberRecord upsert
+   */
+  export type SmsNumberRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SmsNumberRecord to update in case it exists.
+     */
+    where: SmsNumberRecordWhereUniqueInput
+    /**
+     * In case the SmsNumberRecord found by the `where` argument doesn't exist, create a new SmsNumberRecord with this data.
+     */
+    create: XOR<SmsNumberRecordCreateInput, SmsNumberRecordUncheckedCreateInput>
+    /**
+     * In case the SmsNumberRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SmsNumberRecordUpdateInput, SmsNumberRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * SmsNumberRecord delete
+   */
+  export type SmsNumberRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
+    /**
+     * Filter which SmsNumberRecord to delete.
+     */
+    where: SmsNumberRecordWhereUniqueInput
+  }
+
+  /**
+   * SmsNumberRecord deleteMany
+   */
+  export type SmsNumberRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SmsNumberRecords to delete
+     */
+    where?: SmsNumberRecordWhereInput
+    /**
+     * Limit how many SmsNumberRecords to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SmsNumberRecord without action
+   */
+  export type SmsNumberRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SmsNumberRecord
+     */
+    select?: SmsNumberRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SmsNumberRecord
+     */
+    omit?: SmsNumberRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SmsNumberRecordInclude<ExtArgs> | null
   }
 
 
@@ -22775,6 +28040,7 @@ export namespace Prisma {
     secretKeyHash: 'secretKeyHash',
     referrerId: 'referrerId',
     searchBonus: 'searchBonus',
+    guapiBalance: 'guapiBalance',
     registerIp: 'registerIp',
     lastLoginIp: 'lastLoginIp',
     lastLoginAt: 'lastLoginAt',
@@ -22783,6 +28049,64 @@ export namespace Prisma {
   };
 
   export type GuestUserScalarFieldEnum = (typeof GuestUserScalarFieldEnum)[keyof typeof GuestUserScalarFieldEnum]
+
+
+  export const SmsConfigScalarFieldEnum: {
+    key: 'key',
+    value: 'value'
+  };
+
+  export type SmsConfigScalarFieldEnum = (typeof SmsConfigScalarFieldEnum)[keyof typeof SmsConfigScalarFieldEnum]
+
+
+  export const SmsGuapiLogScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    amount: 'amount',
+    type: 'type',
+    description: 'description',
+    createdAt: 'createdAt'
+  };
+
+  export type SmsGuapiLogScalarFieldEnum = (typeof SmsGuapiLogScalarFieldEnum)[keyof typeof SmsGuapiLogScalarFieldEnum]
+
+
+  export const SmsLogScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    action: 'action',
+    phone: 'phone',
+    keyword: 'keyword',
+    message: 'message',
+    rawResponse: 'rawResponse',
+    createdAt: 'createdAt'
+  };
+
+  export type SmsLogScalarFieldEnum = (typeof SmsLogScalarFieldEnum)[keyof typeof SmsLogScalarFieldEnum]
+
+
+  export const SmsUserRecordScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    phone: 'phone',
+    message: 'message',
+    keyword: 'keyword',
+    provider: 'provider',
+    createdAt: 'createdAt'
+  };
+
+  export type SmsUserRecordScalarFieldEnum = (typeof SmsUserRecordScalarFieldEnum)[keyof typeof SmsUserRecordScalarFieldEnum]
+
+
+  export const SmsNumberRecordScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    phone: 'phone',
+    createdAt: 'createdAt',
+    releasedAt: 'releasedAt'
+  };
+
+  export type SmsNumberRecordScalarFieldEnum = (typeof SmsNumberRecordScalarFieldEnum)[keyof typeof SmsNumberRecordScalarFieldEnum]
 
 
   export const CategoryScalarFieldEnum: {
@@ -23092,6 +28416,58 @@ export namespace Prisma {
   };
 
   export type GuestUserOrderByRelevanceFieldEnum = (typeof GuestUserOrderByRelevanceFieldEnum)[keyof typeof GuestUserOrderByRelevanceFieldEnum]
+
+
+  export const SmsConfigOrderByRelevanceFieldEnum: {
+    key: 'key',
+    value: 'value'
+  };
+
+  export type SmsConfigOrderByRelevanceFieldEnum = (typeof SmsConfigOrderByRelevanceFieldEnum)[keyof typeof SmsConfigOrderByRelevanceFieldEnum]
+
+
+  export const SmsGuapiLogOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    type: 'type',
+    description: 'description'
+  };
+
+  export type SmsGuapiLogOrderByRelevanceFieldEnum = (typeof SmsGuapiLogOrderByRelevanceFieldEnum)[keyof typeof SmsGuapiLogOrderByRelevanceFieldEnum]
+
+
+  export const SmsLogOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    action: 'action',
+    phone: 'phone',
+    keyword: 'keyword',
+    message: 'message',
+    rawResponse: 'rawResponse'
+  };
+
+  export type SmsLogOrderByRelevanceFieldEnum = (typeof SmsLogOrderByRelevanceFieldEnum)[keyof typeof SmsLogOrderByRelevanceFieldEnum]
+
+
+  export const SmsUserRecordOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    phone: 'phone',
+    message: 'message',
+    keyword: 'keyword',
+    provider: 'provider'
+  };
+
+  export type SmsUserRecordOrderByRelevanceFieldEnum = (typeof SmsUserRecordOrderByRelevanceFieldEnum)[keyof typeof SmsUserRecordOrderByRelevanceFieldEnum]
+
+
+  export const SmsNumberRecordOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    phone: 'phone'
+  };
+
+  export type SmsNumberRecordOrderByRelevanceFieldEnum = (typeof SmsNumberRecordOrderByRelevanceFieldEnum)[keyof typeof SmsNumberRecordOrderByRelevanceFieldEnum]
 
 
   export const CategoryOrderByRelevanceFieldEnum: {
@@ -23554,6 +28930,7 @@ export namespace Prisma {
     secretKeyHash?: StringFilter<"GuestUser"> | string
     referrerId?: StringNullableFilter<"GuestUser"> | string | null
     searchBonus?: IntFilter<"GuestUser"> | number
+    guapiBalance?: IntFilter<"GuestUser"> | number
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
@@ -23563,6 +28940,10 @@ export namespace Prisma {
     referrals?: GuestUserListRelationFilter
     searchLogs?: SearchLogListRelationFilter
     globalSearchCaches?: GlobalSearchCacheListRelationFilter
+    smsGuapiLogs?: SmsGuapiLogListRelationFilter
+    smsLogs?: SmsLogListRelationFilter
+    smsUserRecords?: SmsUserRecordListRelationFilter
+    smsNumberRecords?: SmsNumberRecordListRelationFilter
   }
 
   export type GuestUserOrderByWithRelationInput = {
@@ -23571,6 +28952,7 @@ export namespace Prisma {
     secretKeyHash?: SortOrder
     referrerId?: SortOrderInput | SortOrder
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
     registerIp?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
@@ -23580,6 +28962,10 @@ export namespace Prisma {
     referrals?: GuestUserOrderByRelationAggregateInput
     searchLogs?: SearchLogOrderByRelationAggregateInput
     globalSearchCaches?: GlobalSearchCacheOrderByRelationAggregateInput
+    smsGuapiLogs?: SmsGuapiLogOrderByRelationAggregateInput
+    smsLogs?: SmsLogOrderByRelationAggregateInput
+    smsUserRecords?: SmsUserRecordOrderByRelationAggregateInput
+    smsNumberRecords?: SmsNumberRecordOrderByRelationAggregateInput
     _relevance?: GuestUserOrderByRelevanceInput
   }
 
@@ -23592,6 +28978,7 @@ export namespace Prisma {
     secretKeyHash?: StringFilter<"GuestUser"> | string
     referrerId?: StringNullableFilter<"GuestUser"> | string | null
     searchBonus?: IntFilter<"GuestUser"> | number
+    guapiBalance?: IntFilter<"GuestUser"> | number
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
@@ -23601,6 +28988,10 @@ export namespace Prisma {
     referrals?: GuestUserListRelationFilter
     searchLogs?: SearchLogListRelationFilter
     globalSearchCaches?: GlobalSearchCacheListRelationFilter
+    smsGuapiLogs?: SmsGuapiLogListRelationFilter
+    smsLogs?: SmsLogListRelationFilter
+    smsUserRecords?: SmsUserRecordListRelationFilter
+    smsNumberRecords?: SmsNumberRecordListRelationFilter
   }, "id" | "publicId">
 
   export type GuestUserOrderByWithAggregationInput = {
@@ -23609,6 +29000,7 @@ export namespace Prisma {
     secretKeyHash?: SortOrder
     referrerId?: SortOrderInput | SortOrder
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
     registerIp?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
@@ -23630,11 +29022,306 @@ export namespace Prisma {
     secretKeyHash?: StringWithAggregatesFilter<"GuestUser"> | string
     referrerId?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     searchBonus?: IntWithAggregatesFilter<"GuestUser"> | number
+    guapiBalance?: IntWithAggregatesFilter<"GuestUser"> | number
     registerIp?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"GuestUser"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"GuestUser"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"GuestUser"> | Date | string
+  }
+
+  export type SmsConfigWhereInput = {
+    AND?: SmsConfigWhereInput | SmsConfigWhereInput[]
+    OR?: SmsConfigWhereInput[]
+    NOT?: SmsConfigWhereInput | SmsConfigWhereInput[]
+    key?: StringFilter<"SmsConfig"> | string
+    value?: StringFilter<"SmsConfig"> | string
+  }
+
+  export type SmsConfigOrderByWithRelationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    _relevance?: SmsConfigOrderByRelevanceInput
+  }
+
+  export type SmsConfigWhereUniqueInput = Prisma.AtLeast<{
+    key?: string
+    AND?: SmsConfigWhereInput | SmsConfigWhereInput[]
+    OR?: SmsConfigWhereInput[]
+    NOT?: SmsConfigWhereInput | SmsConfigWhereInput[]
+    value?: StringFilter<"SmsConfig"> | string
+  }, "key">
+
+  export type SmsConfigOrderByWithAggregationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    _count?: SmsConfigCountOrderByAggregateInput
+    _max?: SmsConfigMaxOrderByAggregateInput
+    _min?: SmsConfigMinOrderByAggregateInput
+  }
+
+  export type SmsConfigScalarWhereWithAggregatesInput = {
+    AND?: SmsConfigScalarWhereWithAggregatesInput | SmsConfigScalarWhereWithAggregatesInput[]
+    OR?: SmsConfigScalarWhereWithAggregatesInput[]
+    NOT?: SmsConfigScalarWhereWithAggregatesInput | SmsConfigScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"SmsConfig"> | string
+    value?: StringWithAggregatesFilter<"SmsConfig"> | string
+  }
+
+  export type SmsGuapiLogWhereInput = {
+    AND?: SmsGuapiLogWhereInput | SmsGuapiLogWhereInput[]
+    OR?: SmsGuapiLogWhereInput[]
+    NOT?: SmsGuapiLogWhereInput | SmsGuapiLogWhereInput[]
+    id?: StringFilter<"SmsGuapiLog"> | string
+    guestUserId?: StringFilter<"SmsGuapiLog"> | string
+    amount?: IntFilter<"SmsGuapiLog"> | number
+    type?: StringFilter<"SmsGuapiLog"> | string
+    description?: StringNullableFilter<"SmsGuapiLog"> | string | null
+    createdAt?: DateTimeFilter<"SmsGuapiLog"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type SmsGuapiLogOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: SmsGuapiLogOrderByRelevanceInput
+  }
+
+  export type SmsGuapiLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SmsGuapiLogWhereInput | SmsGuapiLogWhereInput[]
+    OR?: SmsGuapiLogWhereInput[]
+    NOT?: SmsGuapiLogWhereInput | SmsGuapiLogWhereInput[]
+    guestUserId?: StringFilter<"SmsGuapiLog"> | string
+    amount?: IntFilter<"SmsGuapiLog"> | number
+    type?: StringFilter<"SmsGuapiLog"> | string
+    description?: StringNullableFilter<"SmsGuapiLog"> | string | null
+    createdAt?: DateTimeFilter<"SmsGuapiLog"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id">
+
+  export type SmsGuapiLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: SmsGuapiLogCountOrderByAggregateInput
+    _avg?: SmsGuapiLogAvgOrderByAggregateInput
+    _max?: SmsGuapiLogMaxOrderByAggregateInput
+    _min?: SmsGuapiLogMinOrderByAggregateInput
+    _sum?: SmsGuapiLogSumOrderByAggregateInput
+  }
+
+  export type SmsGuapiLogScalarWhereWithAggregatesInput = {
+    AND?: SmsGuapiLogScalarWhereWithAggregatesInput | SmsGuapiLogScalarWhereWithAggregatesInput[]
+    OR?: SmsGuapiLogScalarWhereWithAggregatesInput[]
+    NOT?: SmsGuapiLogScalarWhereWithAggregatesInput | SmsGuapiLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SmsGuapiLog"> | string
+    guestUserId?: StringWithAggregatesFilter<"SmsGuapiLog"> | string
+    amount?: IntWithAggregatesFilter<"SmsGuapiLog"> | number
+    type?: StringWithAggregatesFilter<"SmsGuapiLog"> | string
+    description?: StringNullableWithAggregatesFilter<"SmsGuapiLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SmsGuapiLog"> | Date | string
+  }
+
+  export type SmsLogWhereInput = {
+    AND?: SmsLogWhereInput | SmsLogWhereInput[]
+    OR?: SmsLogWhereInput[]
+    NOT?: SmsLogWhereInput | SmsLogWhereInput[]
+    id?: StringFilter<"SmsLog"> | string
+    guestUserId?: StringNullableFilter<"SmsLog"> | string | null
+    action?: StringFilter<"SmsLog"> | string
+    phone?: StringNullableFilter<"SmsLog"> | string | null
+    keyword?: StringNullableFilter<"SmsLog"> | string | null
+    message?: StringNullableFilter<"SmsLog"> | string | null
+    rawResponse?: StringNullableFilter<"SmsLog"> | string | null
+    createdAt?: DateTimeFilter<"SmsLog"> | Date | string
+    guestUser?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
+  }
+
+  export type SmsLogOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrderInput | SortOrder
+    action?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    keyword?: SortOrderInput | SortOrder
+    message?: SortOrderInput | SortOrder
+    rawResponse?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: SmsLogOrderByRelevanceInput
+  }
+
+  export type SmsLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SmsLogWhereInput | SmsLogWhereInput[]
+    OR?: SmsLogWhereInput[]
+    NOT?: SmsLogWhereInput | SmsLogWhereInput[]
+    guestUserId?: StringNullableFilter<"SmsLog"> | string | null
+    action?: StringFilter<"SmsLog"> | string
+    phone?: StringNullableFilter<"SmsLog"> | string | null
+    keyword?: StringNullableFilter<"SmsLog"> | string | null
+    message?: StringNullableFilter<"SmsLog"> | string | null
+    rawResponse?: StringNullableFilter<"SmsLog"> | string | null
+    createdAt?: DateTimeFilter<"SmsLog"> | Date | string
+    guestUser?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
+  }, "id">
+
+  export type SmsLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrderInput | SortOrder
+    action?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    keyword?: SortOrderInput | SortOrder
+    message?: SortOrderInput | SortOrder
+    rawResponse?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: SmsLogCountOrderByAggregateInput
+    _max?: SmsLogMaxOrderByAggregateInput
+    _min?: SmsLogMinOrderByAggregateInput
+  }
+
+  export type SmsLogScalarWhereWithAggregatesInput = {
+    AND?: SmsLogScalarWhereWithAggregatesInput | SmsLogScalarWhereWithAggregatesInput[]
+    OR?: SmsLogScalarWhereWithAggregatesInput[]
+    NOT?: SmsLogScalarWhereWithAggregatesInput | SmsLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SmsLog"> | string
+    guestUserId?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    action?: StringWithAggregatesFilter<"SmsLog"> | string
+    phone?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    keyword?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    message?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    rawResponse?: StringNullableWithAggregatesFilter<"SmsLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SmsLog"> | Date | string
+  }
+
+  export type SmsUserRecordWhereInput = {
+    AND?: SmsUserRecordWhereInput | SmsUserRecordWhereInput[]
+    OR?: SmsUserRecordWhereInput[]
+    NOT?: SmsUserRecordWhereInput | SmsUserRecordWhereInput[]
+    id?: StringFilter<"SmsUserRecord"> | string
+    guestUserId?: StringFilter<"SmsUserRecord"> | string
+    phone?: StringNullableFilter<"SmsUserRecord"> | string | null
+    message?: StringNullableFilter<"SmsUserRecord"> | string | null
+    keyword?: StringNullableFilter<"SmsUserRecord"> | string | null
+    provider?: StringNullableFilter<"SmsUserRecord"> | string | null
+    createdAt?: DateTimeFilter<"SmsUserRecord"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type SmsUserRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    message?: SortOrderInput | SortOrder
+    keyword?: SortOrderInput | SortOrder
+    provider?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: SmsUserRecordOrderByRelevanceInput
+  }
+
+  export type SmsUserRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SmsUserRecordWhereInput | SmsUserRecordWhereInput[]
+    OR?: SmsUserRecordWhereInput[]
+    NOT?: SmsUserRecordWhereInput | SmsUserRecordWhereInput[]
+    guestUserId?: StringFilter<"SmsUserRecord"> | string
+    phone?: StringNullableFilter<"SmsUserRecord"> | string | null
+    message?: StringNullableFilter<"SmsUserRecord"> | string | null
+    keyword?: StringNullableFilter<"SmsUserRecord"> | string | null
+    provider?: StringNullableFilter<"SmsUserRecord"> | string | null
+    createdAt?: DateTimeFilter<"SmsUserRecord"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id">
+
+  export type SmsUserRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    message?: SortOrderInput | SortOrder
+    keyword?: SortOrderInput | SortOrder
+    provider?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: SmsUserRecordCountOrderByAggregateInput
+    _max?: SmsUserRecordMaxOrderByAggregateInput
+    _min?: SmsUserRecordMinOrderByAggregateInput
+  }
+
+  export type SmsUserRecordScalarWhereWithAggregatesInput = {
+    AND?: SmsUserRecordScalarWhereWithAggregatesInput | SmsUserRecordScalarWhereWithAggregatesInput[]
+    OR?: SmsUserRecordScalarWhereWithAggregatesInput[]
+    NOT?: SmsUserRecordScalarWhereWithAggregatesInput | SmsUserRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SmsUserRecord"> | string
+    guestUserId?: StringWithAggregatesFilter<"SmsUserRecord"> | string
+    phone?: StringNullableWithAggregatesFilter<"SmsUserRecord"> | string | null
+    message?: StringNullableWithAggregatesFilter<"SmsUserRecord"> | string | null
+    keyword?: StringNullableWithAggregatesFilter<"SmsUserRecord"> | string | null
+    provider?: StringNullableWithAggregatesFilter<"SmsUserRecord"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SmsUserRecord"> | Date | string
+  }
+
+  export type SmsNumberRecordWhereInput = {
+    AND?: SmsNumberRecordWhereInput | SmsNumberRecordWhereInput[]
+    OR?: SmsNumberRecordWhereInput[]
+    NOT?: SmsNumberRecordWhereInput | SmsNumberRecordWhereInput[]
+    id?: StringFilter<"SmsNumberRecord"> | string
+    guestUserId?: StringFilter<"SmsNumberRecord"> | string
+    phone?: StringFilter<"SmsNumberRecord"> | string
+    createdAt?: DateTimeFilter<"SmsNumberRecord"> | Date | string
+    releasedAt?: DateTimeNullableFilter<"SmsNumberRecord"> | Date | string | null
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type SmsNumberRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    createdAt?: SortOrder
+    releasedAt?: SortOrderInput | SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: SmsNumberRecordOrderByRelevanceInput
+  }
+
+  export type SmsNumberRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SmsNumberRecordWhereInput | SmsNumberRecordWhereInput[]
+    OR?: SmsNumberRecordWhereInput[]
+    NOT?: SmsNumberRecordWhereInput | SmsNumberRecordWhereInput[]
+    guestUserId?: StringFilter<"SmsNumberRecord"> | string
+    phone?: StringFilter<"SmsNumberRecord"> | string
+    createdAt?: DateTimeFilter<"SmsNumberRecord"> | Date | string
+    releasedAt?: DateTimeNullableFilter<"SmsNumberRecord"> | Date | string | null
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id">
+
+  export type SmsNumberRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    createdAt?: SortOrder
+    releasedAt?: SortOrderInput | SortOrder
+    _count?: SmsNumberRecordCountOrderByAggregateInput
+    _max?: SmsNumberRecordMaxOrderByAggregateInput
+    _min?: SmsNumberRecordMinOrderByAggregateInput
+  }
+
+  export type SmsNumberRecordScalarWhereWithAggregatesInput = {
+    AND?: SmsNumberRecordScalarWhereWithAggregatesInput | SmsNumberRecordScalarWhereWithAggregatesInput[]
+    OR?: SmsNumberRecordScalarWhereWithAggregatesInput[]
+    NOT?: SmsNumberRecordScalarWhereWithAggregatesInput | SmsNumberRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SmsNumberRecord"> | string
+    guestUserId?: StringWithAggregatesFilter<"SmsNumberRecord"> | string
+    phone?: StringWithAggregatesFilter<"SmsNumberRecord"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"SmsNumberRecord"> | Date | string
+    releasedAt?: DateTimeNullableWithAggregatesFilter<"SmsNumberRecord"> | Date | string | null
   }
 
   export type CategoryWhereInput = {
@@ -25118,6 +30805,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -25127,6 +30815,10 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateInput = {
@@ -25135,6 +30827,7 @@ export namespace Prisma {
     secretKeyHash: string
     referrerId?: string | null
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -25143,6 +30836,10 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUpdateInput = {
@@ -25150,6 +30847,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25159,6 +30857,10 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateInput = {
@@ -25167,6 +30869,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25175,6 +30878,10 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateManyInput = {
@@ -25183,6 +30890,7 @@ export namespace Prisma {
     secretKeyHash: string
     referrerId?: string | null
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -25195,6 +30903,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -25208,11 +30917,309 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsConfigCreateInput = {
+    key: string
+    value: string
+  }
+
+  export type SmsConfigUncheckedCreateInput = {
+    key: string
+    value: string
+  }
+
+  export type SmsConfigUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SmsConfigUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SmsConfigCreateManyInput = {
+    key: string
+    value: string
+  }
+
+  export type SmsConfigUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SmsConfigUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SmsGuapiLogCreateInput = {
+    id?: string
+    amount: number
+    type: string
+    description?: string | null
+    createdAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutSmsGuapiLogsInput
+  }
+
+  export type SmsGuapiLogUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    amount: number
+    type: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsGuapiLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutSmsGuapiLogsNestedInput
+  }
+
+  export type SmsGuapiLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsGuapiLogCreateManyInput = {
+    id?: string
+    guestUserId: string
+    amount: number
+    type: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsGuapiLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsGuapiLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogCreateInput = {
+    id?: string
+    action: string
+    phone?: string | null
+    keyword?: string | null
+    message?: string | null
+    rawResponse?: string | null
+    createdAt?: Date | string
+    guestUser?: GuestUserCreateNestedOneWithoutSmsLogsInput
+  }
+
+  export type SmsLogUncheckedCreateInput = {
+    id?: string
+    guestUserId?: string | null
+    action: string
+    phone?: string | null
+    keyword?: string | null
+    message?: string | null
+    rawResponse?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneWithoutSmsLogsNestedInput
+  }
+
+  export type SmsLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogCreateManyInput = {
+    id?: string
+    guestUserId?: string | null
+    action: string
+    phone?: string | null
+    keyword?: string | null
+    message?: string | null
+    rawResponse?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsUserRecordCreateInput = {
+    id?: string
+    phone?: string | null
+    message?: string | null
+    keyword?: string | null
+    provider?: string | null
+    createdAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutSmsUserRecordsInput
+  }
+
+  export type SmsUserRecordUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    phone?: string | null
+    message?: string | null
+    keyword?: string | null
+    provider?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsUserRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutSmsUserRecordsNestedInput
+  }
+
+  export type SmsUserRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsUserRecordCreateManyInput = {
+    id?: string
+    guestUserId: string
+    phone?: string | null
+    message?: string | null
+    keyword?: string | null
+    provider?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsUserRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsUserRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsNumberRecordCreateInput = {
+    id?: string
+    phone: string
+    createdAt?: Date | string
+    releasedAt?: Date | string | null
+    guestUser: GuestUserCreateNestedOneWithoutSmsNumberRecordsInput
+  }
+
+  export type SmsNumberRecordUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    phone: string
+    createdAt?: Date | string
+    releasedAt?: Date | string | null
+  }
+
+  export type SmsNumberRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    guestUser?: GuestUserUpdateOneRequiredWithoutSmsNumberRecordsNestedInput
+  }
+
+  export type SmsNumberRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SmsNumberRecordCreateManyInput = {
+    id?: string
+    guestUserId: string
+    phone: string
+    createdAt?: Date | string
+    releasedAt?: Date | string | null
+  }
+
+  export type SmsNumberRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SmsNumberRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CategoryCreateInput = {
@@ -26903,6 +32910,30 @@ export namespace Prisma {
     none?: GlobalSearchCacheWhereInput
   }
 
+  export type SmsGuapiLogListRelationFilter = {
+    every?: SmsGuapiLogWhereInput
+    some?: SmsGuapiLogWhereInput
+    none?: SmsGuapiLogWhereInput
+  }
+
+  export type SmsLogListRelationFilter = {
+    every?: SmsLogWhereInput
+    some?: SmsLogWhereInput
+    none?: SmsLogWhereInput
+  }
+
+  export type SmsUserRecordListRelationFilter = {
+    every?: SmsUserRecordWhereInput
+    some?: SmsUserRecordWhereInput
+    none?: SmsUserRecordWhereInput
+  }
+
+  export type SmsNumberRecordListRelationFilter = {
+    every?: SmsNumberRecordWhereInput
+    some?: SmsNumberRecordWhereInput
+    none?: SmsNumberRecordWhereInput
+  }
+
   export type GuestUserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -26912,6 +32943,22 @@ export namespace Prisma {
   }
 
   export type GlobalSearchCacheOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SmsGuapiLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SmsLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SmsUserRecordOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SmsNumberRecordOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26927,6 +32974,7 @@ export namespace Prisma {
     secretKeyHash?: SortOrder
     referrerId?: SortOrder
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
@@ -26936,6 +32984,7 @@ export namespace Prisma {
 
   export type GuestUserAvgOrderByAggregateInput = {
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
   }
 
   export type GuestUserMaxOrderByAggregateInput = {
@@ -26944,6 +32993,7 @@ export namespace Prisma {
     secretKeyHash?: SortOrder
     referrerId?: SortOrder
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
@@ -26957,6 +33007,7 @@ export namespace Prisma {
     secretKeyHash?: SortOrder
     referrerId?: SortOrder
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
@@ -26966,6 +33017,7 @@ export namespace Prisma {
 
   export type GuestUserSumOrderByAggregateInput = {
     searchBonus?: SortOrder
+    guapiBalance?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -26980,6 +33032,178 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type SmsConfigOrderByRelevanceInput = {
+    fields: SmsConfigOrderByRelevanceFieldEnum | SmsConfigOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type SmsConfigCountOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type SmsConfigMaxOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type SmsConfigMinOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type GuestUserScalarRelationFilter = {
+    is?: GuestUserWhereInput
+    isNot?: GuestUserWhereInput
+  }
+
+  export type SmsGuapiLogOrderByRelevanceInput = {
+    fields: SmsGuapiLogOrderByRelevanceFieldEnum | SmsGuapiLogOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type SmsGuapiLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsGuapiLogAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type SmsGuapiLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsGuapiLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsGuapiLogSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type SmsLogOrderByRelevanceInput = {
+    fields: SmsLogOrderByRelevanceFieldEnum | SmsLogOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type SmsLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    action?: SortOrder
+    phone?: SortOrder
+    keyword?: SortOrder
+    message?: SortOrder
+    rawResponse?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    action?: SortOrder
+    phone?: SortOrder
+    keyword?: SortOrder
+    message?: SortOrder
+    rawResponse?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    action?: SortOrder
+    phone?: SortOrder
+    keyword?: SortOrder
+    message?: SortOrder
+    rawResponse?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsUserRecordOrderByRelevanceInput = {
+    fields: SmsUserRecordOrderByRelevanceFieldEnum | SmsUserRecordOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type SmsUserRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    message?: SortOrder
+    keyword?: SortOrder
+    provider?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsUserRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    message?: SortOrder
+    keyword?: SortOrder
+    provider?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsUserRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    message?: SortOrder
+    keyword?: SortOrder
+    provider?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SmsNumberRecordOrderByRelevanceInput = {
+    fields: SmsNumberRecordOrderByRelevanceFieldEnum | SmsNumberRecordOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type SmsNumberRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    createdAt?: SortOrder
+    releasedAt?: SortOrder
+  }
+
+  export type SmsNumberRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    createdAt?: SortOrder
+    releasedAt?: SortOrder
+  }
+
+  export type SmsNumberRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    phone?: SortOrder
+    createdAt?: SortOrder
+    releasedAt?: SortOrder
   }
 
   export type PostListRelationFilter = {
@@ -27882,11 +34106,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type GuestUserScalarRelationFilter = {
-    is?: GuestUserWhereInput
-    isNot?: GuestUserWhereInput
-  }
-
   export type GlobalSearchCacheOrderByRelevanceInput = {
     fields: GlobalSearchCacheOrderByRelevanceFieldEnum | GlobalSearchCacheOrderByRelevanceFieldEnum[]
     sort: SortOrder
@@ -28098,6 +34317,34 @@ export namespace Prisma {
     connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
   }
 
+  export type SmsGuapiLogCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput> | SmsGuapiLogCreateWithoutGuestUserInput[] | SmsGuapiLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsGuapiLogCreateOrConnectWithoutGuestUserInput | SmsGuapiLogCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsGuapiLogCreateManyGuestUserInputEnvelope
+    connect?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+  }
+
+  export type SmsLogCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsLogCreateWithoutGuestUserInput, SmsLogUncheckedCreateWithoutGuestUserInput> | SmsLogCreateWithoutGuestUserInput[] | SmsLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutGuestUserInput | SmsLogCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsLogCreateManyGuestUserInputEnvelope
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type SmsUserRecordCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsUserRecordCreateWithoutGuestUserInput, SmsUserRecordUncheckedCreateWithoutGuestUserInput> | SmsUserRecordCreateWithoutGuestUserInput[] | SmsUserRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsUserRecordCreateOrConnectWithoutGuestUserInput | SmsUserRecordCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsUserRecordCreateManyGuestUserInputEnvelope
+    connect?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+  }
+
+  export type SmsNumberRecordCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsNumberRecordCreateWithoutGuestUserInput, SmsNumberRecordUncheckedCreateWithoutGuestUserInput> | SmsNumberRecordCreateWithoutGuestUserInput[] | SmsNumberRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsNumberRecordCreateOrConnectWithoutGuestUserInput | SmsNumberRecordCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsNumberRecordCreateManyGuestUserInputEnvelope
+    connect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+  }
+
   export type GuestUserUncheckedCreateNestedManyWithoutReferrerInput = {
     create?: XOR<GuestUserCreateWithoutReferrerInput, GuestUserUncheckedCreateWithoutReferrerInput> | GuestUserCreateWithoutReferrerInput[] | GuestUserUncheckedCreateWithoutReferrerInput[]
     connectOrCreate?: GuestUserCreateOrConnectWithoutReferrerInput | GuestUserCreateOrConnectWithoutReferrerInput[]
@@ -28117,6 +34364,34 @@ export namespace Prisma {
     connectOrCreate?: GlobalSearchCacheCreateOrConnectWithoutGuestUserInput | GlobalSearchCacheCreateOrConnectWithoutGuestUserInput[]
     createMany?: GlobalSearchCacheCreateManyGuestUserInputEnvelope
     connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+  }
+
+  export type SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput> | SmsGuapiLogCreateWithoutGuestUserInput[] | SmsGuapiLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsGuapiLogCreateOrConnectWithoutGuestUserInput | SmsGuapiLogCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsGuapiLogCreateManyGuestUserInputEnvelope
+    connect?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+  }
+
+  export type SmsLogUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsLogCreateWithoutGuestUserInput, SmsLogUncheckedCreateWithoutGuestUserInput> | SmsLogCreateWithoutGuestUserInput[] | SmsLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutGuestUserInput | SmsLogCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsLogCreateManyGuestUserInputEnvelope
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+  }
+
+  export type SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsUserRecordCreateWithoutGuestUserInput, SmsUserRecordUncheckedCreateWithoutGuestUserInput> | SmsUserRecordCreateWithoutGuestUserInput[] | SmsUserRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsUserRecordCreateOrConnectWithoutGuestUserInput | SmsUserRecordCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsUserRecordCreateManyGuestUserInputEnvelope
+    connect?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+  }
+
+  export type SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<SmsNumberRecordCreateWithoutGuestUserInput, SmsNumberRecordUncheckedCreateWithoutGuestUserInput> | SmsNumberRecordCreateWithoutGuestUserInput[] | SmsNumberRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsNumberRecordCreateOrConnectWithoutGuestUserInput | SmsNumberRecordCreateOrConnectWithoutGuestUserInput[]
+    createMany?: SmsNumberRecordCreateManyGuestUserInputEnvelope
+    connect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -28175,6 +34450,62 @@ export namespace Prisma {
     deleteMany?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
   }
 
+  export type SmsGuapiLogUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput> | SmsGuapiLogCreateWithoutGuestUserInput[] | SmsGuapiLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsGuapiLogCreateOrConnectWithoutGuestUserInput | SmsGuapiLogCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsGuapiLogUpsertWithWhereUniqueWithoutGuestUserInput | SmsGuapiLogUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsGuapiLogCreateManyGuestUserInputEnvelope
+    set?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    disconnect?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    delete?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    connect?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    update?: SmsGuapiLogUpdateWithWhereUniqueWithoutGuestUserInput | SmsGuapiLogUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsGuapiLogUpdateManyWithWhereWithoutGuestUserInput | SmsGuapiLogUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsGuapiLogScalarWhereInput | SmsGuapiLogScalarWhereInput[]
+  }
+
+  export type SmsLogUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsLogCreateWithoutGuestUserInput, SmsLogUncheckedCreateWithoutGuestUserInput> | SmsLogCreateWithoutGuestUserInput[] | SmsLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutGuestUserInput | SmsLogCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsLogUpsertWithWhereUniqueWithoutGuestUserInput | SmsLogUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsLogCreateManyGuestUserInputEnvelope
+    set?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    disconnect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    delete?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    update?: SmsLogUpdateWithWhereUniqueWithoutGuestUserInput | SmsLogUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsLogUpdateManyWithWhereWithoutGuestUserInput | SmsLogUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type SmsUserRecordUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsUserRecordCreateWithoutGuestUserInput, SmsUserRecordUncheckedCreateWithoutGuestUserInput> | SmsUserRecordCreateWithoutGuestUserInput[] | SmsUserRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsUserRecordCreateOrConnectWithoutGuestUserInput | SmsUserRecordCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsUserRecordUpsertWithWhereUniqueWithoutGuestUserInput | SmsUserRecordUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsUserRecordCreateManyGuestUserInputEnvelope
+    set?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    disconnect?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    delete?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    connect?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    update?: SmsUserRecordUpdateWithWhereUniqueWithoutGuestUserInput | SmsUserRecordUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsUserRecordUpdateManyWithWhereWithoutGuestUserInput | SmsUserRecordUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsUserRecordScalarWhereInput | SmsUserRecordScalarWhereInput[]
+  }
+
+  export type SmsNumberRecordUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsNumberRecordCreateWithoutGuestUserInput, SmsNumberRecordUncheckedCreateWithoutGuestUserInput> | SmsNumberRecordCreateWithoutGuestUserInput[] | SmsNumberRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsNumberRecordCreateOrConnectWithoutGuestUserInput | SmsNumberRecordCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsNumberRecordUpsertWithWhereUniqueWithoutGuestUserInput | SmsNumberRecordUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsNumberRecordCreateManyGuestUserInputEnvelope
+    set?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    disconnect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    delete?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    connect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    update?: SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput | SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput | SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsNumberRecordScalarWhereInput | SmsNumberRecordScalarWhereInput[]
+  }
+
   export type GuestUserUncheckedUpdateManyWithoutReferrerNestedInput = {
     create?: XOR<GuestUserCreateWithoutReferrerInput, GuestUserUncheckedCreateWithoutReferrerInput> | GuestUserCreateWithoutReferrerInput[] | GuestUserUncheckedCreateWithoutReferrerInput[]
     connectOrCreate?: GuestUserCreateOrConnectWithoutReferrerInput | GuestUserCreateOrConnectWithoutReferrerInput[]
@@ -28215,6 +34546,120 @@ export namespace Prisma {
     update?: GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput[]
     updateMany?: GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput | GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput[]
     deleteMany?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
+  }
+
+  export type SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput> | SmsGuapiLogCreateWithoutGuestUserInput[] | SmsGuapiLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsGuapiLogCreateOrConnectWithoutGuestUserInput | SmsGuapiLogCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsGuapiLogUpsertWithWhereUniqueWithoutGuestUserInput | SmsGuapiLogUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsGuapiLogCreateManyGuestUserInputEnvelope
+    set?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    disconnect?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    delete?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    connect?: SmsGuapiLogWhereUniqueInput | SmsGuapiLogWhereUniqueInput[]
+    update?: SmsGuapiLogUpdateWithWhereUniqueWithoutGuestUserInput | SmsGuapiLogUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsGuapiLogUpdateManyWithWhereWithoutGuestUserInput | SmsGuapiLogUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsGuapiLogScalarWhereInput | SmsGuapiLogScalarWhereInput[]
+  }
+
+  export type SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsLogCreateWithoutGuestUserInput, SmsLogUncheckedCreateWithoutGuestUserInput> | SmsLogCreateWithoutGuestUserInput[] | SmsLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsLogCreateOrConnectWithoutGuestUserInput | SmsLogCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsLogUpsertWithWhereUniqueWithoutGuestUserInput | SmsLogUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsLogCreateManyGuestUserInputEnvelope
+    set?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    disconnect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    delete?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    connect?: SmsLogWhereUniqueInput | SmsLogWhereUniqueInput[]
+    update?: SmsLogUpdateWithWhereUniqueWithoutGuestUserInput | SmsLogUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsLogUpdateManyWithWhereWithoutGuestUserInput | SmsLogUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+  }
+
+  export type SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsUserRecordCreateWithoutGuestUserInput, SmsUserRecordUncheckedCreateWithoutGuestUserInput> | SmsUserRecordCreateWithoutGuestUserInput[] | SmsUserRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsUserRecordCreateOrConnectWithoutGuestUserInput | SmsUserRecordCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsUserRecordUpsertWithWhereUniqueWithoutGuestUserInput | SmsUserRecordUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsUserRecordCreateManyGuestUserInputEnvelope
+    set?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    disconnect?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    delete?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    connect?: SmsUserRecordWhereUniqueInput | SmsUserRecordWhereUniqueInput[]
+    update?: SmsUserRecordUpdateWithWhereUniqueWithoutGuestUserInput | SmsUserRecordUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsUserRecordUpdateManyWithWhereWithoutGuestUserInput | SmsUserRecordUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsUserRecordScalarWhereInput | SmsUserRecordScalarWhereInput[]
+  }
+
+  export type SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<SmsNumberRecordCreateWithoutGuestUserInput, SmsNumberRecordUncheckedCreateWithoutGuestUserInput> | SmsNumberRecordCreateWithoutGuestUserInput[] | SmsNumberRecordUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: SmsNumberRecordCreateOrConnectWithoutGuestUserInput | SmsNumberRecordCreateOrConnectWithoutGuestUserInput[]
+    upsert?: SmsNumberRecordUpsertWithWhereUniqueWithoutGuestUserInput | SmsNumberRecordUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: SmsNumberRecordCreateManyGuestUserInputEnvelope
+    set?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    disconnect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    delete?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    connect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
+    update?: SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput | SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput | SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: SmsNumberRecordScalarWhereInput | SmsNumberRecordScalarWhereInput[]
+  }
+
+  export type GuestUserCreateNestedOneWithoutSmsGuapiLogsInput = {
+    create?: XOR<GuestUserCreateWithoutSmsGuapiLogsInput, GuestUserUncheckedCreateWithoutSmsGuapiLogsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsGuapiLogsInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutSmsGuapiLogsNestedInput = {
+    create?: XOR<GuestUserCreateWithoutSmsGuapiLogsInput, GuestUserUncheckedCreateWithoutSmsGuapiLogsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsGuapiLogsInput
+    upsert?: GuestUserUpsertWithoutSmsGuapiLogsInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutSmsGuapiLogsInput, GuestUserUpdateWithoutSmsGuapiLogsInput>, GuestUserUncheckedUpdateWithoutSmsGuapiLogsInput>
+  }
+
+  export type GuestUserCreateNestedOneWithoutSmsLogsInput = {
+    create?: XOR<GuestUserCreateWithoutSmsLogsInput, GuestUserUncheckedCreateWithoutSmsLogsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsLogsInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserUpdateOneWithoutSmsLogsNestedInput = {
+    create?: XOR<GuestUserCreateWithoutSmsLogsInput, GuestUserUncheckedCreateWithoutSmsLogsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsLogsInput
+    upsert?: GuestUserUpsertWithoutSmsLogsInput
+    disconnect?: GuestUserWhereInput | boolean
+    delete?: GuestUserWhereInput | boolean
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutSmsLogsInput, GuestUserUpdateWithoutSmsLogsInput>, GuestUserUncheckedUpdateWithoutSmsLogsInput>
+  }
+
+  export type GuestUserCreateNestedOneWithoutSmsUserRecordsInput = {
+    create?: XOR<GuestUserCreateWithoutSmsUserRecordsInput, GuestUserUncheckedCreateWithoutSmsUserRecordsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsUserRecordsInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutSmsUserRecordsNestedInput = {
+    create?: XOR<GuestUserCreateWithoutSmsUserRecordsInput, GuestUserUncheckedCreateWithoutSmsUserRecordsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsUserRecordsInput
+    upsert?: GuestUserUpsertWithoutSmsUserRecordsInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutSmsUserRecordsInput, GuestUserUpdateWithoutSmsUserRecordsInput>, GuestUserUncheckedUpdateWithoutSmsUserRecordsInput>
+  }
+
+  export type GuestUserCreateNestedOneWithoutSmsNumberRecordsInput = {
+    create?: XOR<GuestUserCreateWithoutSmsNumberRecordsInput, GuestUserUncheckedCreateWithoutSmsNumberRecordsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsNumberRecordsInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutSmsNumberRecordsNestedInput = {
+    create?: XOR<GuestUserCreateWithoutSmsNumberRecordsInput, GuestUserUncheckedCreateWithoutSmsNumberRecordsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutSmsNumberRecordsInput
+    upsert?: GuestUserUpsertWithoutSmsNumberRecordsInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutSmsNumberRecordsInput, GuestUserUpdateWithoutSmsNumberRecordsInput>, GuestUserUncheckedUpdateWithoutSmsNumberRecordsInput>
   }
 
   export type PostCreateNestedManyWithoutCategoryInput = {
@@ -29105,6 +35550,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -29113,6 +35559,10 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutReferralsInput = {
@@ -29121,6 +35571,7 @@ export namespace Prisma {
     secretKeyHash: string
     referrerId?: string | null
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -29128,6 +35579,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutReferralsInput = {
@@ -29140,6 +35595,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -29148,6 +35604,10 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutReferrerInput = {
@@ -29155,6 +35615,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -29163,6 +35624,10 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutReferrerInput = {
@@ -29243,6 +35708,114 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SmsGuapiLogCreateWithoutGuestUserInput = {
+    id?: string
+    amount: number
+    type: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsGuapiLogUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    amount: number
+    type: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsGuapiLogCreateOrConnectWithoutGuestUserInput = {
+    where: SmsGuapiLogWhereUniqueInput
+    create: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsGuapiLogCreateManyGuestUserInputEnvelope = {
+    data: SmsGuapiLogCreateManyGuestUserInput | SmsGuapiLogCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SmsLogCreateWithoutGuestUserInput = {
+    id?: string
+    action: string
+    phone?: string | null
+    keyword?: string | null
+    message?: string | null
+    rawResponse?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsLogUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    action: string
+    phone?: string | null
+    keyword?: string | null
+    message?: string | null
+    rawResponse?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsLogCreateOrConnectWithoutGuestUserInput = {
+    where: SmsLogWhereUniqueInput
+    create: XOR<SmsLogCreateWithoutGuestUserInput, SmsLogUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsLogCreateManyGuestUserInputEnvelope = {
+    data: SmsLogCreateManyGuestUserInput | SmsLogCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SmsUserRecordCreateWithoutGuestUserInput = {
+    id?: string
+    phone?: string | null
+    message?: string | null
+    keyword?: string | null
+    provider?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsUserRecordUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    phone?: string | null
+    message?: string | null
+    keyword?: string | null
+    provider?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsUserRecordCreateOrConnectWithoutGuestUserInput = {
+    where: SmsUserRecordWhereUniqueInput
+    create: XOR<SmsUserRecordCreateWithoutGuestUserInput, SmsUserRecordUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsUserRecordCreateManyGuestUserInputEnvelope = {
+    data: SmsUserRecordCreateManyGuestUserInput | SmsUserRecordCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SmsNumberRecordCreateWithoutGuestUserInput = {
+    id?: string
+    phone: string
+    createdAt?: Date | string
+    releasedAt?: Date | string | null
+  }
+
+  export type SmsNumberRecordUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    phone: string
+    createdAt?: Date | string
+    releasedAt?: Date | string | null
+  }
+
+  export type SmsNumberRecordCreateOrConnectWithoutGuestUserInput = {
+    where: SmsNumberRecordWhereUniqueInput
+    create: XOR<SmsNumberRecordCreateWithoutGuestUserInput, SmsNumberRecordUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsNumberRecordCreateManyGuestUserInputEnvelope = {
+    data: SmsNumberRecordCreateManyGuestUserInput | SmsNumberRecordCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type GuestUserUpsertWithoutReferralsInput = {
     update: XOR<GuestUserUpdateWithoutReferralsInput, GuestUserUncheckedUpdateWithoutReferralsInput>
     create: XOR<GuestUserCreateWithoutReferralsInput, GuestUserUncheckedCreateWithoutReferralsInput>
@@ -29259,6 +35832,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29267,6 +35841,10 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutReferralsInput = {
@@ -29275,6 +35853,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29282,6 +35861,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUpsertWithWhereUniqueWithoutReferrerInput = {
@@ -29309,6 +35892,7 @@ export namespace Prisma {
     secretKeyHash?: StringFilter<"GuestUser"> | string
     referrerId?: StringNullableFilter<"GuestUser"> | string | null
     searchBonus?: IntFilter<"GuestUser"> | number
+    guapiBalance?: IntFilter<"GuestUser"> | number
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
@@ -29378,6 +35962,504 @@ export namespace Prisma {
     userHiddenAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
     createdAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
     updatedAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+  }
+
+  export type SmsGuapiLogUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsGuapiLogWhereUniqueInput
+    update: XOR<SmsGuapiLogUpdateWithoutGuestUserInput, SmsGuapiLogUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsGuapiLogUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsGuapiLogWhereUniqueInput
+    data: XOR<SmsGuapiLogUpdateWithoutGuestUserInput, SmsGuapiLogUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type SmsGuapiLogUpdateManyWithWhereWithoutGuestUserInput = {
+    where: SmsGuapiLogScalarWhereInput
+    data: XOR<SmsGuapiLogUpdateManyMutationInput, SmsGuapiLogUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type SmsGuapiLogScalarWhereInput = {
+    AND?: SmsGuapiLogScalarWhereInput | SmsGuapiLogScalarWhereInput[]
+    OR?: SmsGuapiLogScalarWhereInput[]
+    NOT?: SmsGuapiLogScalarWhereInput | SmsGuapiLogScalarWhereInput[]
+    id?: StringFilter<"SmsGuapiLog"> | string
+    guestUserId?: StringFilter<"SmsGuapiLog"> | string
+    amount?: IntFilter<"SmsGuapiLog"> | number
+    type?: StringFilter<"SmsGuapiLog"> | string
+    description?: StringNullableFilter<"SmsGuapiLog"> | string | null
+    createdAt?: DateTimeFilter<"SmsGuapiLog"> | Date | string
+  }
+
+  export type SmsLogUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsLogWhereUniqueInput
+    update: XOR<SmsLogUpdateWithoutGuestUserInput, SmsLogUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<SmsLogCreateWithoutGuestUserInput, SmsLogUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsLogUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsLogWhereUniqueInput
+    data: XOR<SmsLogUpdateWithoutGuestUserInput, SmsLogUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type SmsLogUpdateManyWithWhereWithoutGuestUserInput = {
+    where: SmsLogScalarWhereInput
+    data: XOR<SmsLogUpdateManyMutationInput, SmsLogUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type SmsLogScalarWhereInput = {
+    AND?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+    OR?: SmsLogScalarWhereInput[]
+    NOT?: SmsLogScalarWhereInput | SmsLogScalarWhereInput[]
+    id?: StringFilter<"SmsLog"> | string
+    guestUserId?: StringNullableFilter<"SmsLog"> | string | null
+    action?: StringFilter<"SmsLog"> | string
+    phone?: StringNullableFilter<"SmsLog"> | string | null
+    keyword?: StringNullableFilter<"SmsLog"> | string | null
+    message?: StringNullableFilter<"SmsLog"> | string | null
+    rawResponse?: StringNullableFilter<"SmsLog"> | string | null
+    createdAt?: DateTimeFilter<"SmsLog"> | Date | string
+  }
+
+  export type SmsUserRecordUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsUserRecordWhereUniqueInput
+    update: XOR<SmsUserRecordUpdateWithoutGuestUserInput, SmsUserRecordUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<SmsUserRecordCreateWithoutGuestUserInput, SmsUserRecordUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsUserRecordUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsUserRecordWhereUniqueInput
+    data: XOR<SmsUserRecordUpdateWithoutGuestUserInput, SmsUserRecordUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type SmsUserRecordUpdateManyWithWhereWithoutGuestUserInput = {
+    where: SmsUserRecordScalarWhereInput
+    data: XOR<SmsUserRecordUpdateManyMutationInput, SmsUserRecordUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type SmsUserRecordScalarWhereInput = {
+    AND?: SmsUserRecordScalarWhereInput | SmsUserRecordScalarWhereInput[]
+    OR?: SmsUserRecordScalarWhereInput[]
+    NOT?: SmsUserRecordScalarWhereInput | SmsUserRecordScalarWhereInput[]
+    id?: StringFilter<"SmsUserRecord"> | string
+    guestUserId?: StringFilter<"SmsUserRecord"> | string
+    phone?: StringNullableFilter<"SmsUserRecord"> | string | null
+    message?: StringNullableFilter<"SmsUserRecord"> | string | null
+    keyword?: StringNullableFilter<"SmsUserRecord"> | string | null
+    provider?: StringNullableFilter<"SmsUserRecord"> | string | null
+    createdAt?: DateTimeFilter<"SmsUserRecord"> | Date | string
+  }
+
+  export type SmsNumberRecordUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsNumberRecordWhereUniqueInput
+    update: XOR<SmsNumberRecordUpdateWithoutGuestUserInput, SmsNumberRecordUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<SmsNumberRecordCreateWithoutGuestUserInput, SmsNumberRecordUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: SmsNumberRecordWhereUniqueInput
+    data: XOR<SmsNumberRecordUpdateWithoutGuestUserInput, SmsNumberRecordUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput = {
+    where: SmsNumberRecordScalarWhereInput
+    data: XOR<SmsNumberRecordUpdateManyMutationInput, SmsNumberRecordUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type SmsNumberRecordScalarWhereInput = {
+    AND?: SmsNumberRecordScalarWhereInput | SmsNumberRecordScalarWhereInput[]
+    OR?: SmsNumberRecordScalarWhereInput[]
+    NOT?: SmsNumberRecordScalarWhereInput | SmsNumberRecordScalarWhereInput[]
+    id?: StringFilter<"SmsNumberRecord"> | string
+    guestUserId?: StringFilter<"SmsNumberRecord"> | string
+    phone?: StringFilter<"SmsNumberRecord"> | string
+    createdAt?: DateTimeFilter<"SmsNumberRecord"> | Date | string
+    releasedAt?: DateTimeNullableFilter<"SmsNumberRecord"> | Date | string | null
+  }
+
+  export type GuestUserCreateWithoutSmsGuapiLogsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutSmsGuapiLogsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutSmsGuapiLogsInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutSmsGuapiLogsInput, GuestUserUncheckedCreateWithoutSmsGuapiLogsInput>
+  }
+
+  export type GuestUserUpsertWithoutSmsGuapiLogsInput = {
+    update: XOR<GuestUserUpdateWithoutSmsGuapiLogsInput, GuestUserUncheckedUpdateWithoutSmsGuapiLogsInput>
+    create: XOR<GuestUserCreateWithoutSmsGuapiLogsInput, GuestUserUncheckedCreateWithoutSmsGuapiLogsInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutSmsGuapiLogsInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutSmsGuapiLogsInput, GuestUserUncheckedUpdateWithoutSmsGuapiLogsInput>
+  }
+
+  export type GuestUserUpdateWithoutSmsGuapiLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutSmsGuapiLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserCreateWithoutSmsLogsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutSmsLogsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutSmsLogsInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutSmsLogsInput, GuestUserUncheckedCreateWithoutSmsLogsInput>
+  }
+
+  export type GuestUserUpsertWithoutSmsLogsInput = {
+    update: XOR<GuestUserUpdateWithoutSmsLogsInput, GuestUserUncheckedUpdateWithoutSmsLogsInput>
+    create: XOR<GuestUserCreateWithoutSmsLogsInput, GuestUserUncheckedCreateWithoutSmsLogsInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutSmsLogsInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutSmsLogsInput, GuestUserUncheckedUpdateWithoutSmsLogsInput>
+  }
+
+  export type GuestUserUpdateWithoutSmsLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutSmsLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserCreateWithoutSmsUserRecordsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutSmsUserRecordsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutSmsUserRecordsInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutSmsUserRecordsInput, GuestUserUncheckedCreateWithoutSmsUserRecordsInput>
+  }
+
+  export type GuestUserUpsertWithoutSmsUserRecordsInput = {
+    update: XOR<GuestUserUpdateWithoutSmsUserRecordsInput, GuestUserUncheckedUpdateWithoutSmsUserRecordsInput>
+    create: XOR<GuestUserCreateWithoutSmsUserRecordsInput, GuestUserUncheckedCreateWithoutSmsUserRecordsInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutSmsUserRecordsInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutSmsUserRecordsInput, GuestUserUncheckedUpdateWithoutSmsUserRecordsInput>
+  }
+
+  export type GuestUserUpdateWithoutSmsUserRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutSmsUserRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserCreateWithoutSmsNumberRecordsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutSmsNumberRecordsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutSmsNumberRecordsInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutSmsNumberRecordsInput, GuestUserUncheckedCreateWithoutSmsNumberRecordsInput>
+  }
+
+  export type GuestUserUpsertWithoutSmsNumberRecordsInput = {
+    update: XOR<GuestUserUpdateWithoutSmsNumberRecordsInput, GuestUserUncheckedUpdateWithoutSmsNumberRecordsInput>
+    create: XOR<GuestUserCreateWithoutSmsNumberRecordsInput, GuestUserUncheckedCreateWithoutSmsNumberRecordsInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutSmsNumberRecordsInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutSmsNumberRecordsInput, GuestUserUncheckedUpdateWithoutSmsNumberRecordsInput>
+  }
+
+  export type GuestUserUpdateWithoutSmsNumberRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutSmsNumberRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type PostCreateWithoutCategoryInput = {
@@ -30536,6 +37618,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -30544,6 +37627,10 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSearchLogsInput = {
@@ -30552,6 +37639,7 @@ export namespace Prisma {
     secretKeyHash: string
     referrerId?: string | null
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -30559,6 +37647,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSearchLogsInput = {
@@ -30623,6 +37715,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30631,6 +37724,10 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSearchLogsInput = {
@@ -30639,6 +37736,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30646,6 +37744,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateWithoutGlobalSearchCachesInput = {
@@ -30653,6 +37755,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -30661,6 +37764,10 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutGlobalSearchCachesInput = {
@@ -30669,6 +37776,7 @@ export namespace Prisma {
     secretKeyHash: string
     referrerId?: string | null
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -30676,6 +37784,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutGlobalSearchCachesInput = {
@@ -30699,6 +37811,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30707,6 +37820,10 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutGlobalSearchCachesInput = {
@@ -30715,6 +37832,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30722,6 +37840,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateManyReferrerInput = {
@@ -30729,6 +37851,7 @@ export namespace Prisma {
     publicId: string
     secretKeyHash: string
     searchBonus?: number
+    guapiBalance?: number
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -30760,11 +37883,46 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type SmsGuapiLogCreateManyGuestUserInput = {
+    id?: string
+    amount: number
+    type: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsLogCreateManyGuestUserInput = {
+    id?: string
+    action: string
+    phone?: string | null
+    keyword?: string | null
+    message?: string | null
+    rawResponse?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsUserRecordCreateManyGuestUserInput = {
+    id?: string
+    phone?: string | null
+    message?: string | null
+    keyword?: string | null
+    provider?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SmsNumberRecordCreateManyGuestUserInput = {
+    id?: string
+    phone: string
+    createdAt?: Date | string
+    releasedAt?: Date | string | null
+  }
+
   export type GuestUserUpdateWithoutReferrerInput = {
     id?: StringFieldUpdateOperationsInput | string
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30773,6 +37931,10 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutReferrerInput = {
@@ -30780,6 +37942,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30788,6 +37951,10 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateManyWithoutReferrerInput = {
@@ -30795,6 +37962,7 @@ export namespace Prisma {
     publicId?: StringFieldUpdateOperationsInput | string
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30872,6 +38040,108 @@ export namespace Prisma {
     userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsGuapiLogUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsGuapiLogUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsGuapiLogUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsLogUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    rawResponse?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsUserRecordUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsUserRecordUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsUserRecordUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    keyword?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SmsNumberRecordUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SmsNumberRecordUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SmsNumberRecordUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PostCreateManyCategoryInput = {
