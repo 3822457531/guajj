@@ -52,6 +52,31 @@ export function collectChannelThumbIds(messages: ChannelMessageItem[]): number[]
   return Array.from(ids);
 }
 
+/** 定位资源及其相册缩略图优先，减少首屏 skeleton 时间 */
+export function collectChannelThumbIdsPrioritized(messages: ChannelMessageItem[]): number[] {
+  const anchorIds: number[] = [];
+  const restIds: number[] = [];
+  const seen = new Set<number>();
+
+  function push(id: number, anchor: boolean) {
+    if (seen.has(id)) return;
+    seen.add(id);
+    (anchor ? anchorIds : restIds).push(id);
+  }
+
+  for (const msg of messages) {
+    if (msg.sensitiveBlocked) continue;
+    const anchor = Boolean(msg.isAnchor);
+    for (const mi of msg.mediaItems || []) {
+      if ((mi.contentType === "PHOTO" || mi.contentType === "VIDEO") && !mi.thumbUrl) {
+        push(mi.id, anchor);
+      }
+    }
+  }
+
+  return [...anchorIds, ...restIds];
+}
+
 export function mergeChannelThumbMap(
   messages: ChannelMessageItem[],
   media: ChannelThumbMap

@@ -159,7 +159,7 @@ async function enrichDisplayListWithVideoFull(client, username, displayList, msg
  * @param {string} username
  * @param {object[]} displayList
  * @param {Map<number, import('telegram').Api.Message>} msgById
- * @param {{ signal?: AbortSignal }} [opts]
+ * @param {{ signal?: AbortSignal, maxJobs?: number }} [opts]
  */
 async function enrichDisplayListWithThumbs(client, username, displayList, msgById, opts = {}) {
   const thumbJobs = [];
@@ -182,7 +182,7 @@ async function enrichDisplayListWithThumbs(client, username, displayList, msgByI
     }
   }
 
-  const maxJobs = channelThumbPrefetchMax();
+  const maxJobs = Math.max(0, Number(opts.maxJobs ?? channelThumbPrefetchMax()));
   const jobsToRun = maxJobs > 0 ? thumbJobs.slice(0, maxJobs) : [];
   const concurrency = thumbPrefetchConcurrency();
   console.log(
@@ -788,11 +788,15 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       if (msg?.id) msgById.set(msg.id, msg);
     }
 
-    // 默认不在频道加载时阻塞预取；缩略图/视频由前端按需走 /api/tg-search/media
-    const thumbMax = channelThumbPrefetchMax();
+    // 极搜直达资源：响应前预取全部可见缩略图，避免前端 skeleton；普通频道浏览仍可按 env 关闭
+    const resourceOnly = Boolean(anchorMessageId && !includeContext);
+    const thumbMax = resourceOnly ? Math.max(channelThumbPrefetchMax(), 24) : channelThumbPrefetchMax();
     if (thumbMax > 0) {
       const thumbStarted = Date.now();
-      await enrichDisplayListWithThumbs(client, username, displayList, msgById, { signal });
+      await enrichDisplayListWithThumbs(client, username, displayList, msgById, {
+        signal,
+        maxJobs: thumbMax
+      });
       thumbPrefetchMs = Date.now() - thumbStarted;
       throwIfAborted(signal);
     } else {

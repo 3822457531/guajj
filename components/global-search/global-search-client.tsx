@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery } from "@/components/tg-search-media";
 import {
-  collectChannelThumbIds,
+  collectChannelThumbIdsPrioritized,
   collectChannelVideoIds,
   mergeChannelFullUrlMap,
   mergeChannelThumbMap,
@@ -1018,10 +1018,10 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     initialMessages: ChannelMessageItem[],
     abortController: AbortController
   ) {
-    const batchSize = 12;
-    const waveConcurrency = 3;
-    const maxRounds = 3;
-    let pending = new Set(collectChannelThumbIds(initialMessages));
+    const batchSize = 24;
+    const waveConcurrency = 4;
+    const maxRounds = 4;
+    let pending = new Set<number>(collectChannelThumbIdsPrioritized(initialMessages));
 
     async function runWave(waveIds: number[]): Promise<ChannelThumbMap | null> {
       if (!waveIds.length) return null;

@@ -59,19 +59,25 @@ export function LazyPhotoThumb({
   apiBase,
   username,
   item,
+  coverUrl,
   size = 120,
   onOpen
 }: {
   apiBase: string;
   username: string;
   item: ChannelMediaItem;
+  coverUrl?: string | null;
   size?: number;
   onOpen?: () => void;
 }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
-  const src = item.thumbUrl ? resolveMediaPlayUrl(item.thumbUrl) : null;
+  const src = item.thumbUrl
+    ? resolveMediaPlayUrl(item.thumbUrl)
+    : coverUrl
+      ? resolveMediaPlayUrl(coverUrl)
+      : null;
 
   useEffect(() => {
     setLoaded(false);
@@ -96,6 +102,7 @@ export function LazyPhotoThumb({
                 alt=""
                 loading="eager"
                 decoding="async"
+                fetchPriority="high"
                 onLoad={() => setLoaded(true)}
                 onError={() => setError(true)}
                 className="gs-media-img"
@@ -317,7 +324,6 @@ export function MessageMediaGallery({
   };
   eagerPrefetch?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
 
   const visualItems = msg.mediaItems.filter((m) => m.contentType === "PHOTO" || m.contentType === "VIDEO");
@@ -329,10 +335,6 @@ export function MessageMediaGallery({
     full: pickSrc(apiBase, item, username, false) || ""
   }));
 
-  const isAlbum = msg.kind === "album" && visualItems.length > 1;
-  const showItems = isAlbum && !expanded ? visualItems.slice(0, 1) : visualItems;
-  const hiddenCount = isAlbum ? visualItems.length - 1 : 0;
-
   function openPhoto(item: ChannelMediaItem) {
     const photoIndex = photoItems.findIndex((p) => p.id === item.id);
     if (photoIndex < 0) return;
@@ -343,7 +345,7 @@ export function MessageMediaGallery({
     <>
       <div className="gs-media-gallery">
         <div className="gs-media-row">
-          {showItems.map((item) =>
+          {visualItems.map((item, index) =>
             item.contentType === "VIDEO" ? (
               <LazyVideoPlayer
                 key={`${item.id}-${item.thumbUrl || msg.coverUrl || "pending"}`}
@@ -359,16 +361,11 @@ export function MessageMediaGallery({
                 apiBase={apiBase}
                 username={username}
                 item={item}
+                coverUrl={index === 0 ? msg.coverUrl : undefined}
                 onOpen={() => openPhoto(item)}
               />
             )
           )}
-          {isAlbum && !expanded && hiddenCount > 0 ? (
-            <button type="button" className="gs-media-album-more" onClick={() => setExpanded(true)}>
-              +{hiddenCount}
-              <span>展开相册</span>
-            </button>
-          ) : null}
         </div>
       </div>
 
