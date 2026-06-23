@@ -1,5 +1,5 @@
 /**
- * 媒体后台队列：warm / 视频全量缓存与 HTTP 请求解耦，串行消费（单 Gram session）
+ * 媒体后台队列：warm / 视频全量缓存与 HTTP 请求解耦，串行消费（media session / back.txt）
  * 用户点击播放（高优先级 stream）时会抢占当前 warm 任务
  */
 const { withGramClient } = require("./gram-client");
@@ -181,7 +181,7 @@ async function processVideoWarmJob(job) {
         cached: false,
         contentType: "VIDEO"
       };
-    }, { priority: "low" })
+    }, { priority: "low", role: "media", task: "video-warm" })
   );
 }
 

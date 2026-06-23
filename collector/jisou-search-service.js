@@ -3,6 +3,7 @@
  */
 const { Api } = require("telegram/tl");
 const { withGramClient, sleep, preemptLowPriorityWork } = require("./gram-client");
+const { sessionsAreSplit } = require("./config");
 const { parseJisouSearchMessage, parseJisouReplyMarkup } = require("./jisou-parse");
 const { pickContentType } = require("./parse");
 const { mapRawMessage, groupMessagesForDisplay } = require("./message-display");
@@ -488,7 +489,7 @@ async function clickJisouSearchButton(opts = {}) {
     const result = buildJisouSearchResult(query, outcome.msg);
     console.log(`[tg-search:collector] button ok channels=${result.channels?.length ?? 0} msgId=${outcome.msg.id}`);
     return result;
-  }, { priority: "high" });
+  }, { priority: "high", task: "jisou-action" });
 }
 /**
  * 向 @jisou 发关键词；若遇人机验证则自动/等待/web 交给前端
@@ -540,7 +541,7 @@ async function searchJisouChannels(query, opts = {}) {
     const err = new Error("极搜搜索在验证后仍未返回结果，请稍后重试");
     err.code = "JISOU_SEARCH_FAILED";
     throw err;
-  }, { priority: "high", signal: opts.signal });
+  }, { priority: "high", signal: opts.signal, task: "jisou-search" });
 }
 
 /**
@@ -617,7 +618,7 @@ async function solveJisouCaptchaAndSearch(challengeId, answer) {
       `[tg-search:collector] captcha solved (late), search ok channels=${result.channels?.length ?? 0} replyId=${reply.id}`
     );
     return result;
-  }, { priority: "high" });
+  }, { priority: "high", task: "jisou-captcha-solve" });
 }
 
 /**
@@ -731,6 +732,8 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   let gramMessagesMs = 0;
   let thumbPrefetchMs = 0;
   let videoPrefetchMs = 0;
+  /** 双 session 时频道详情走 search，避免 back.txt 长视频流占 mutex 导致他人进不了详情 */
+  const channelGramRole = sessionsAreSplit() ? "search" : "media";
 
   return withGramClient(async (client) => {
     throwIfAborted(signal);
@@ -817,7 +820,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       }
     }
 
-    if (videoPrefetchOnChannelLoad()) {
+    if (videoPrefetchOnChannelLoad() && !sessionsAreSplit()) {
       const videoStarted = Date.now();
       await enrichDisplayListWithVideoFull(client, username, displayList, msgById, { signal });
       videoPrefetchMs = Date.now() - videoStarted;
@@ -843,14 +846,17 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       totalMs,
       gramMessagesMs,
       thumbPrefetchMs: thumbMax > 0 ? thumbPrefetchMs : 0,
-      videoPrefetchMs: videoPrefetchOnChannelLoad() ? videoPrefetchMs : 0,
+      videoPrefetchMs: videoPrefetchOnChannelLoad() && !sessionsAreSplit() ? videoPrefetchMs : 0,
       thumbMax,
       thumbReady,
       videoReady,
+      channelGramRole,
       note:
-        thumbMax <= 0
-          ? "封面未预取(TG_SEARCH_CHANNEL_THUMB_MAX=0)，前端需走 /media/batch 或 hover 触发 warm"
-          : undefined
+        channelGramRole === "search"
+          ? "双session：频道详情走 search，与 back.txt 视频流并行"
+          : thumbMax <= 0
+            ? "封面未预取(TG_SEARCH_CHANNEL_THUMB_MAX=0)，前端需走 /media/batch 或 hover 触发 warm"
+            : undefined
     });
 
     return {
@@ -866,7 +872,7 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
       messages: displayList,
       fetchedAt: new Date().toISOString()
     };
-  }, { signal, priority: "high" });
+  }, { signal, priority: "high", role: channelGramRole, task: "channel-messages" });
 }
 
 async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
@@ -923,7 +929,7 @@ async function resolveMessageMedia(usernameOrUrl, messageId, opts = {}) {
         thumb: wantThumb,
         buffer: result.buffer || null
       };
-    }, { priority: "low", signal: opts.signal })
+    }, { priority: "low", signal: opts.signal, role: "media", task: "media-resolve" })
   );
 }
 
@@ -1036,7 +1042,7 @@ async function resolveMessageMediaBatch(usernameOrUrl, messageIds, opts = {}) {
       );
 
       return { username, media, partial };
-    }, { signal: opts.signal, priority: "high" })
+    }, { signal: opts.signal, priority: "high", role: "media", task: "media-batch" })
   );
 }
 

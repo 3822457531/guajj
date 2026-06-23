@@ -2,17 +2,21 @@
  * 首次登录采集账号，生成 session 文件。
  *
  * 用法:
- *   npm run collector:login              使用已有 session.txt（若有效则直接连上）
- *   npm run collector:login -- --fresh     忽略旧 session，强制重新验证码登录（化解 AUTH_KEY_DUPLICATED）
+ *   npm run collector:login              搜索号 → session.txt
+ *   npm run collector:login:media        媒体号 → back.txt（缩略图/warm/batch）
+ *   npm run collector:login:stream       视频流号 → stream.txt（多人并发播放，可选第三号）
+ *   npm run collector:login -- --fresh     忽略旧 session，强制重新验证码登录
  */
 const fs = require("fs");
 const input = require("input");
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
-const { requireEnv, readSession, writeSession } = require("./config");
+const { requireEnv, requireGramCredentials, readSession, writeSession } = require("./config");
 
 const args = new Set(process.argv.slice(2));
 const fresh = args.has("--fresh");
+const forMedia = args.has("--media");
+const forStream = args.has("--stream");
 
 function backupSessionFile(sessionFile) {
   if (!fs.existsSync(sessionFile)) return null;
@@ -28,46 +32,63 @@ function printDuplicateHelp(sessionFile) {
   AUTH_KEY_DUPLICATED：这份 session 正被别的进程占用
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-常见占用来源：
-  1. 服务器 pm2 / next 仍在跑（有人访问过全网搜索）
-  2. 本地 npm run dev 也在用同一份 session.txt
-  3. collector:run / backfill 等采集脚本未停
+双 / 三 session 说明：
+  session.txt — 极搜 + 频道详情（双 session 时）
+  back.txt    — 缩略图 batch / warm
+  stream.txt  — 视频直出流（可选第三号，多人同时播放）
 
-化解步骤（在服务器上执行）：
-
-  pm2 stop all
-  ps aux | grep node          # 确认无残留 collector/next 进程
-
-  npm run collector:login -- --fresh
-
---fresh 会备份旧 session 并用新验证码登录，生成全新 auth key。
-
-注意：服务器与本地请各用各的 session，不要互相拷贝 session.txt。
+注意：服务器与本地请各用各的 session，不要互相拷贝。
 `);
   console.error(`当前 session 路径: ${sessionFile}`);
 }
 
+function resolveLoginTarget() {
+  const { sessionFile, mediaSessionFile, streamSessionFile } = requireEnv();
+  if (forStream) {
+    return {
+      targetFile: streamSessionFile,
+      credsRole: "stream",
+      roleLabel: "视频流（stream.txt）"
+    };
+  }
+  if (forMedia) {
+    return {
+      targetFile: mediaSessionFile,
+      credsRole: "media",
+      roleLabel: "媒体（back.txt）"
+    };
+  }
+  return {
+    targetFile: sessionFile,
+    credsRole: "search",
+    roleLabel: "搜索（session.txt）"
+  };
+}
+
 async function main() {
-  const { apiId, apiHash, phone, sessionFile } = requireEnv();
+  const { targetFile, credsRole, roleLabel } = resolveLoginTarget();
+  const creds = requireGramCredentials(credsRole);
+
+  console.log(`登录目标：${roleLabel} · apiId=${creds.apiId}`);
 
   if (fresh) {
-    backupSessionFile(sessionFile);
+    backupSessionFile(targetFile);
     console.log("(--fresh) 将使用空 session 重新登录，请准备接收 Telegram 验证码");
   }
 
-  const saved = fresh ? "" : readSession(sessionFile);
+  const saved = fresh ? "" : readSession(targetFile);
   if (saved && !fresh) {
-    console.log(`读取已有 session: ${sessionFile}`);
+    console.log(`读取已有 session: ${targetFile}`);
   }
 
-  const client = new TelegramClient(new StringSession(saved), apiId, apiHash, {
+  const client = new TelegramClient(new StringSession(saved), creds.apiId, creds.apiHash, {
     connectionRetries: 5
   });
 
   console.log("正在连接 Telegram…");
   try {
     await client.start({
-      phoneNumber: async () => phone || (await input.text("手机号（含国家码 +86…）: ")),
+      phoneNumber: async () => creds.phone || (await input.text("手机号（含国家码 +86…）: ")),
       phoneCode: async () => await input.text("请输入 Telegram 里收到的验证码: "),
       password: async () => await input.text("若开启了两步验证，请输入云密码（没有则回车）: "),
       onError: (err) => console.error(err)
@@ -75,7 +96,7 @@ async function main() {
   } catch (err) {
     const msg = String(err?.errorMessage || err?.message || err);
     if (/AUTH_KEY_DUPLICATED/i.test(msg)) {
-      printDuplicateHelp(sessionFile);
+      printDuplicateHelp(targetFile);
       process.exit(1);
     }
     throw err;
@@ -83,7 +104,7 @@ async function main() {
 
   const me = await client.getMe();
   console.log(`登录成功: ${me.firstName || ""} (@${me.username || "无用户名"}) id=${me.id}`);
-  writeSession(sessionFile, client.session.save());
+  writeSession(targetFile, client.session.save());
   await client.disconnect();
   console.log("已断开连接。可重新启动 pm2 / next。");
 }
@@ -92,8 +113,7 @@ main().catch((err) => {
   const msg = String(err?.errorMessage || err?.message || err);
   if (/AUTH_KEY_DUPLICATED/i.test(msg)) {
     try {
-      const { sessionFile } = requireEnv();
-      printDuplicateHelp(sessionFile);
+      printDuplicateHelp(resolveLoginTarget().targetFile);
     } catch {
       /* ignore */
     }

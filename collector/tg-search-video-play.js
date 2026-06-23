@@ -130,7 +130,7 @@ async function resolveVideoPlayInfo(username, messageId, opts = {}) {
       logVideoPlayRoute({ ...info, ms: Date.now() - started });
       return info;
     },
-    { ...opts, priority: "high" }
+    { ...opts, priority: "high", role: "media", task: "video-play-info" }
   );
 }
 
@@ -165,7 +165,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
       throwIfAborted(opts.signal);
       return fetchVideoMessageMeta(client, uname, mid);
     },
-    { ...opts, priority: "high" }
+    { ...opts, priority: "high", role: "stream", task: "video-stream-meta" }
   );
 
   const parsedRange = parseHttpRange(rangeHeader, head.fileSize);
@@ -248,7 +248,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             metrics.finish({ mode: "http-stream", range: Boolean(parsedRange) });
             controller.close();
           },
-          { signal: streamSignal, priority: "high" }
+          { signal: streamSignal, priority: "high", role: "stream", task: "video-stream" }
         );
       } catch (err) {
         if (err?.code === "REQUEST_ABORTED") {
