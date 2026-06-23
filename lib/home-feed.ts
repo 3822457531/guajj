@@ -8,11 +8,18 @@ import {
   indexCoverUrl
 } from "@/lib/home-index-media";
 import { getIndexChannelFilterOptions, parseIndexChatFilter } from "@/lib/index-message-admin";
-import { getPublishedPosts, searchPublishedPosts } from "@/lib/posts";
+import { getPublishedPosts, listPublishedPostsLatestPage, listPublishedPostsPinned, searchPublishedPosts } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/site-settings";
 import { stripRepostAttributionFromText } from "@/lib/strip-repost-attribution";
-import { listIndexedMessagesForHome, searchIndexedMessagesForHome } from "@/lib/tg-index-search";
+import {
+  listIndexedMessagesForHome,
+  listIndexedMessagesLatestPage,
+  listIndexedMessagesPinnedForHome,
+  searchIndexedMessagesForHome
+} from "@/lib/tg-index-search";
+
+export const HOME_FEED_PAGE_SIZE = 20;
 
 export type HomeFeedMode = "manual" | "auto";
 
@@ -35,6 +42,32 @@ export type HomeFeedItem = {
   coverUrl: string;
   tiles: HomeListTile[];
 };
+
+export type HomeFeedItemJson = Omit<HomeFeedItem, "publishedAt"> & { publishedAt: string | null };
+
+export type HomeFeedPageResult = {
+  items: HomeFeedItem[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+export type HomeFeedPageJson = {
+  items: HomeFeedItemJson[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+export function homeFeedItemToJson(item: HomeFeedItem): HomeFeedItemJson {
+  return { ...item, publishedAt: item.publishedAt?.toISOString() ?? null };
+}
+
+export function homeFeedPageToJson(page: HomeFeedPageResult): HomeFeedPageJson {
+  return {
+    items: page.items.map(homeFeedItemToJson),
+    nextCursor: page.nextCursor,
+    hasMore: page.hasMore
+  };
+}
 
 export async function getHomeFeedMode(): Promise<HomeFeedMode> {
   const settings = await getSiteSettings();
@@ -96,6 +129,30 @@ export async function getHomeChannelFilterOptions(): Promise<HomeChannelOption[]
       count: countById.get(c.id) ?? 0
     }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "zh-CN"));
+}
+
+export async function getHomeFeedPinnedItems(channelIds: string[] = [], limit = 3): Promise<HomeFeedItem[]> {
+  const mode = await getHomeFeedMode();
+  if (mode === "auto") {
+    const rows = await listIndexedMessagesPinnedForHome(limit, channelIds);
+    return rows.map(mapIndex);
+  }
+  const posts = await listPublishedPostsPinned(limit, channelIds);
+  return posts.map(mapPost);
+}
+
+export async function getHomeFeedLatestPage(
+  options: { channelIds?: string[]; cursor?: string | null; limit?: number } = {}
+): Promise<HomeFeedPageResult> {
+  const limit = options.limit ?? HOME_FEED_PAGE_SIZE;
+  const channelIds = options.channelIds ?? [];
+  const mode = await getHomeFeedMode();
+  if (mode === "auto") {
+    const page = await listIndexedMessagesLatestPage({ chatIds: channelIds, cursor: options.cursor, limit });
+    return { items: page.items.map(mapIndex), nextCursor: page.nextCursor, hasMore: page.hasMore };
+  }
+  const page = await listPublishedPostsLatestPage({ categoryIds: channelIds, cursor: options.cursor, limit });
+  return { items: page.items.map(mapPost), nextCursor: page.nextCursor, hasMore: page.hasMore };
 }
 
 export async function getHomeFeedItems(channelIds: string[] = []): Promise<HomeFeedItem[]> {

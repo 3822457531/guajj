@@ -145,7 +145,7 @@ export function MyPageClient(props: MyPageClientProps) {
             : `基础 ${props.dailyBaseLimit} 瓜皮/日 + 邀请奖励 ${props.searchBonus} 瓜皮 · 搜索与暗网手机号共用 · 重复关键词不扣瓜皮`}
         </p>
         <div className="my-quota-links">
-          <Link href="/global-search" prefetch={false} className="my-quota-link">
+          <Link href="/vip?tab=search" prefetch={false} className="my-quota-link">
             去吃瓜搜索 →
           </Link>
           <Link href="/sms" prefetch={false} className="my-quota-link">

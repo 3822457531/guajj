@@ -10,7 +10,7 @@ export type SmsPricing = {
 };
 
 const DEFAULT_PRICING: SmsPricing = {
-  get_number: 1,
+  get_number: 0,
   get_sms: 1,
   send_sms: 2
 };

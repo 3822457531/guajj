@@ -11,9 +11,11 @@ function videoWarmMaxBytes() {
 }
 
 function isVideoWarmEnabled() {
-  const max = Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX);
+  const channelMax = Number(process.env.TG_SEARCH_CHANNEL_WARM_MAX);
   const warmMax = Number(process.env.TG_SEARCH_VIDEO_WARM_MAX);
-  return (Number.isFinite(max) && max > 0) || (Number.isFinite(warmMax) && warmMax > 0);
+  const effectiveChannel = Number.isFinite(channelMax) ? channelMax : 6;
+  const effectiveWarm = Number.isFinite(warmMax) ? warmMax : 12;
+  return effectiveChannel > 0 || effectiveWarm > 0;
 }
 
 /**

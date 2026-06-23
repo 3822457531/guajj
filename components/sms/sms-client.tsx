@@ -1,44 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { GuapiHelpButton, GuapiInfoModal } from "@/components/guapi-info-modal";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  extractSmsVerificationCode,
+  formatSmsHistoryTime,
+  highlightSmsMessage
+} from "@/lib/sms-message-display";
+import {
+  clearSmsGuideSession,
+  readSmsGuideSession,
+  writeSmsGuideSession,
+  type SmsGuideStep
+} from "@/lib/sms-guide-session";
 
 type SmsPricing = { get_number: number; get_sms: number; send_sms: number };
+type HistoryItem = { time: string; phone: string | null; message: string | null };
+type SmsNumberMode = "random" | "real";
 
-type HistoryItem = { time: string; phone: string | null; message: string | null; provider?: string | null };
-type GuapiLogItem = {
-  id: string;
-  amount: number;
-  type: string;
-  description: string | null;
-  createdAt: string;
-};
+const HISTORY_PAGE_SIZE = 15;
+const DEFAULT_SMS_KEYWORD = "验证码";
 
-const PAGE_SIZE = 20;
+const GUIDE_STEPS: { id: SmsGuideStep; label: string }[] = [
+  { id: 1, label: "取号" },
+  { id: 2, label: "填号" },
+  { id: 3, label: "收码" }
+];
 
 async function readJson<T>(res: Response): Promise<T> {
   return (await res.json()) as T;
-}
-
-function CopyButton({
-  label,
-  text,
-  copied,
-  onCopy,
-  className = ""
-}: {
-  label: string;
-  text: string;
-  copied: boolean;
-  onCopy: () => void;
-  className?: string;
-}) {
-  return (
-    <button type="button" className={`sms-copy-btn ${className}`.trim()} aria-label={label} title={label} onClick={onCopy}>
-      {copied ? "已复制" : "复制"}
-    </button>
-  );
 }
 
 function formatPhoneDisplay(phone: string) {
@@ -49,95 +39,133 @@ function formatPhoneDisplay(phone: string) {
   return phone;
 }
 
-export function SmsClient({
-  publicId,
-  guestReady,
-  initialRemaining,
-  initialLimit,
-  initialUsed,
-  searchBonus,
-  dailyBaseLimit
+function SmsPhoneHero({
+  phone,
+  copied,
+  onCopy
 }: {
-  publicId: string | null;
-  guestReady: boolean;
-  initialRemaining: number;
-  initialLimit: number;
-  initialUsed: number;
-  searchBonus: number;
-  dailyBaseLimit: number;
+  phone: string;
+  copied: boolean;
+  onCopy: () => void;
 }) {
-  const [guapiInfoOpen, setGuapiInfoOpen] = useState(false);
-  const [remaining, setRemaining] = useState(initialRemaining);
-  const [limit, setLimit] = useState(initialLimit);
-  const [used, setUsed] = useState(initialUsed);
+  const hasPhone = Boolean(phone.trim());
+
+  return (
+    <section className="sms-phone-hero" aria-label="当前暗网手机号">
+      <div className="sms-phone-hero-glow" aria-hidden />
+      <p className="sms-phone-hero-label">你的临时号码</p>
+      <div className="sms-phone-hero-row">
+        {hasPhone ? (
+          <>
+            <button type="button" className="sms-phone-number" onClick={onCopy} title="点击复制">
+              {formatPhoneDisplay(phone)}
+            </button>
+            <button type="button" className="sms-copy-btn" onClick={onCopy}>
+              {copied ? "已复制" : "复制"}
+            </button>
+          </>
+        ) : (
+          <p className="sms-phone-number sms-phone-number--pending">获取号码后显示</p>
+        )}
+      </div>
+      <p className="sms-phone-hero-hint">
+        {hasPhone ? "点击号码或「复制」，粘贴到如百度等 / App / 网站注册页" : "在下方完成取号，号码将显示在此处"}
+      </p>
+    </section>
+  );
+}
+
+function initialSmsGuideState() {
+  const saved = readSmsGuideSession();
+  if (!saved) {
+    return {
+      guideStep: 1 as SmsGuideStep,
+      currentPhone: "",
+      phoneInput: "",
+      keyword: DEFAULT_SMS_KEYWORD,
+      smsResult: ""
+    };
+  }
+  return {
+    ...saved,
+    keyword: saved.keyword.trim() || DEFAULT_SMS_KEYWORD
+  };
+}
+
+export function SmsClient({ guestReady }: { guestReady: boolean }) {
+  const [hydrated, setHydrated] = useState(false);
+  const [guideStep, setGuideStep] = useState<SmsGuideStep>(1);
   const [pricing, setPricing] = useState<SmsPricing | null>(null);
-  const quotaPercent = limit > 0 ? Math.min(100, Math.round((remaining / limit) * 100)) : 0;
 
   const [phoneInput, setPhoneInput] = useState("");
+  const [numberMode, setNumberMode] = useState<SmsNumberMode>("random");
   const [currentPhone, setCurrentPhone] = useState("");
   const [loadingNum, setLoadingNum] = useState(false);
   const [numErr, setNumErr] = useState("");
 
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(DEFAULT_SMS_KEYWORD);
   const [smsResult, setSmsResult] = useState("");
   const [smsErr, setSmsErr] = useState("");
   const [loadingSms, setLoadingSms] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const [releasePhone, setReleasePhone] = useState("");
-  const [releaseOpen, setReleaseOpen] = useState(false);
-  const [releaseMsg, setReleaseMsg] = useState("");
+  const [insufficientOpen, setInsufficientOpen] = useState(false);
+  const [insufficient, setInsufficient] = useState({ balance: 0, required: 0 });
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
-  const [guapiLog, setGuapiLog] = useState<GuapiLogItem[]>([]);
-  const [guapiLogPage, setGuapiLogPage] = useState(1);
-  const [guapiLogLoading, setGuapiLogLoading] = useState(false);
-  const [guapiLogLoaded, setGuapiLogLoaded] = useState(false);
-
-  const [recordTab, setRecordTab] = useState<"sms" | "guapi">("sms");
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  const [insufficientOpen, setInsufficientOpen] = useState(false);
-  const [insufficient, setInsufficient] = useState({ balance: 0, required: 0 });
-
   const pricingBootstrapped = useRef(false);
-  const guestBootstrapped = useRef(false);
+  const historyBootstrapped = useRef(false);
+
+  const loadHistory = useCallback(async (page = 1) => {
+    setHistoryLoading(true);
+    setHistoryLoaded(true);
+    try {
+      const res = await fetch(`/api/sms/history?page=${page}&size=${HISTORY_PAGE_SIZE}`, { cache: "no-store" });
+      const data = await readJson<{ code?: number; list?: HistoryItem[]; msg?: HistoryItem[] }>(res);
+      if (data.code === 0) {
+        const list = Array.isArray(data.list) ? data.list : Array.isArray(data.msg) ? data.msg : [];
+        setHistory(list);
+        setHistoryPage(page);
+      } else {
+        setHistory([]);
+      }
+    } catch {
+      setHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const saved = initialSmsGuideState();
+    setGuideStep(saved.guideStep);
+    setCurrentPhone(saved.currentPhone);
+    setPhoneInput(saved.phoneInput);
+    setKeyword(saved.keyword);
+    setSmsResult(saved.smsResult);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || !guestReady) return;
+    writeSmsGuideSession({ guideStep, currentPhone, phoneInput, keyword, smsResult });
+  }, [hydrated, guestReady, guideStep, currentPhone, phoneInput, keyword, smsResult]);
+
+  useEffect(() => {
+    if (!hydrated || !guestReady || historyBootstrapped.current) return;
+    historyBootstrapped.current = true;
+    void loadHistory(1);
+  }, [hydrated, guestReady, loadHistory]);
 
   const copyText = useCallback(async (field: string, text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const loadGuapi = useCallback(async () => {
-    try {
-      const res = await fetch("/api/sms/balance", { cache: "no-store" });
-      const data = await readJson<{
-        code?: number;
-        data?: { remaining?: number; limit?: number; used?: number; balance?: number };
-      }>(res);
-      if (data.code === 0 && data.data) {
-        setRemaining(data.data.remaining ?? data.data.balance ?? 0);
-        if (typeof data.data.limit === "number") setLimit(data.data.limit);
-        if (typeof data.data.used === "number") setUsed(data.data.used);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const loadPricing = useCallback(async () => {
-    try {
-      const res = await fetch("/api/sms/pricing", { cache: "no-store" });
-      const data = await readJson<{ code?: number; data?: SmsPricing }>(res);
-      if (data.code === 0 && data.data) setPricing(data.data);
     } catch {
       /* ignore */
     }
@@ -154,6 +182,7 @@ export function SmsClient({
     try {
       const params = new URLSearchParams();
       if (phoneInput.trim()) params.set("phone", phoneInput.trim());
+      if (!phoneInput.trim() && numberMode === "real") params.set("real", "1");
       const res = await fetch(`/api/sms/number?${params.toString()}`, { cache: "no-store" });
       const data = await readJson<{ code?: number; msg?: string; phone?: string; data?: { balance?: number; required?: number; code?: string } }>(res);
       if (res.status === 402 && data.data?.code === "INSUFFICIENT_GUAPI") {
@@ -163,8 +192,10 @@ export function SmsClient({
       }
       if (data.code === 0 && data.phone) {
         setCurrentPhone(data.phone);
-        setReleasePhone(data.phone);
-        void loadGuapi();
+        setSmsResult("");
+        setSmsErr("");
+        setKeyword(DEFAULT_SMS_KEYWORD);
+        setGuideStep(2);
       } else {
         setNumErr(data.msg || "请求失败");
       }
@@ -176,20 +207,19 @@ export function SmsClient({
   }
 
   async function fetchSms() {
-    const phone = currentPhone || releasePhone;
-    if (!phone) {
+    if (!currentPhone) {
       setSmsErr("请先获取号码");
       return;
     }
     if (!keyword.trim()) {
-      setSmsErr("请输入关键词");
+      setSmsErr("请输入关键词，如平台名称");
       return;
     }
     setSmsErr("");
     setSmsResult("");
     setLoadingSms(true);
     try {
-      const params = new URLSearchParams({ phone, keyword: keyword.trim() });
+      const params = new URLSearchParams({ phone: currentPhone, keyword: keyword.trim() });
       const res = await fetch(`/api/sms/sms?${params.toString()}`, { cache: "no-store" });
       const data = await readJson<{ code?: number; msg?: string; data?: { balance?: number; required?: number; code?: string } }>(res);
       if (res.status === 402 && data.data?.code === "INSUFFICIENT_GUAPI") {
@@ -198,11 +228,11 @@ export function SmsClient({
         return;
       }
       if (data.code === 0) {
-        setSmsResult(String(data.msg || "(无内容)"));
-        void loadGuapi();
-        void loadHistory(historyPage);
+        const message = String(data.msg || "(无内容)");
+        setSmsResult(message);
+        void loadHistory(1);
       } else {
-        setSmsErr(data.msg || "未收到短信");
+        setSmsErr(data.msg || "未收到短信，请稍后再试");
       }
     } catch (e) {
       setSmsErr(e instanceof Error ? e.message : "获取失败");
@@ -211,82 +241,30 @@ export function SmsClient({
     }
   }
 
-  async function releaseNumber() {
-    const phone = releasePhone.trim();
-    if (!phone) return;
-    setReleaseMsg("");
-    try {
-      const res = await fetch("/api/sms/number/release", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone })
-      });
-      const data = await readJson<{ code?: number; msg?: string }>(res);
-      if (data.code === 0) {
-        setReleaseMsg("已释放");
-        if (currentPhone === phone) setCurrentPhone("");
-        setReleaseOpen(false);
-      } else {
-        setReleaseMsg(data.msg || "释放失败");
-      }
-    } catch (e) {
-      setReleaseMsg(e instanceof Error ? e.message : "释放失败");
-    }
-  }
-
-  const loadHistory = useCallback(async (page = 1) => {
-    setHistoryLoading(true);
-    setHistoryLoaded(true);
-    try {
-      const res = await fetch(`/api/sms/history?page=${page}&size=${PAGE_SIZE}`, { cache: "no-store" });
-      const data = await readJson<{ code?: number; list?: HistoryItem[]; msg?: HistoryItem[] }>(res);
-      if (data.code === 0) {
-        const list = Array.isArray(data.list) ? data.list : Array.isArray(data.msg) ? data.msg : [];
-        setHistory(list);
-        setHistoryPage(page);
-      } else {
-        setHistory([]);
-      }
-    } catch {
-      setHistory([]);
-    } finally {
-      setHistoryLoading(false);
-    }
-  }, []);
-
-  const loadGuapiLog = useCallback(async (page = 1) => {
-    setGuapiLogLoading(true);
-    setGuapiLogLoaded(true);
-    try {
-      const res = await fetch(`/api/sms/balance-log?page=${page}&size=${PAGE_SIZE}`, { cache: "no-store" });
-      const data = await readJson<{ code?: number; data?: { list?: GuapiLogItem[]; page?: number } }>(res);
-      if (data.code === 0) {
-        setGuapiLog(data.data?.list || []);
-        setGuapiLogPage(data.data?.page ?? page);
-      }
-    } catch {
-      setGuapiLog([]);
-    } finally {
-      setGuapiLogLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     if (!pricingBootstrapped.current) {
       pricingBootstrapped.current = true;
-      void loadPricing();
+      void fetch("/api/sms/pricing", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((d: { code?: number; data?: SmsPricing }) => {
+          if (d.code === 0 && d.data) setPricing(d.data);
+        })
+        .catch(() => undefined);
     }
-  }, [loadPricing]);
+  }, []);
 
-  useEffect(() => {
-    if (!guestReady || guestBootstrapped.current) return;
-    guestBootstrapped.current = true;
-    void loadGuapi();
-    void loadHistory(1);
-    void loadGuapiLog(1);
-  }, [guestReady, loadGuapi, loadHistory, loadGuapiLog]);
+  const verificationCode = smsResult ? extractSmsVerificationCode(smsResult) : null;
 
-  const activePhone = currentPhone || releasePhone;
+  function restartFlow() {
+    clearSmsGuideSession();
+    setGuideStep(1);
+    setCurrentPhone("");
+    setPhoneInput("");
+    setKeyword(DEFAULT_SMS_KEYWORD);
+    setSmsResult("");
+    setSmsErr("");
+    setNumErr("");
+  }
 
   if (!guestReady) {
     return (
@@ -303,254 +281,206 @@ export function SmsClient({
     );
   }
 
-  return (
-    <div className="sms-layout">
-      <section className="sms-quota-strip" aria-label="今日瓜皮余额">
-        <div className="sms-quota-strip-main">
-          <div className="sms-quota-strip-top">
-            <span className="sms-quota-strip-label">
-              今日瓜皮
-              <GuapiHelpButton onClick={() => setGuapiInfoOpen(true)} />
-            </span>
-            {publicId ? <code className="sms-quota-strip-id">{publicId}</code> : null}
-          </div>
-          <p className="sms-quota-strip-numbers">
-            <strong>{remaining}</strong>
-            <span className="sms-quota-strip-sep">/</span>
-            <span>{limit}</span>
-          </p>
-          <p className="sms-quota-strip-tip">
-            基础 {dailyBaseLimit}/日 + 奖励 {searchBonus} · 已用 {used}
-          </p>
-        </div>
-        <div className="sms-quota-strip-ring" style={{ "--my-quota-pct": `${quotaPercent}%` } as CSSProperties}>
-          <span>{quotaPercent}%</span>
-        </div>
-      </section>
+  if (!hydrated) {
+    return <div className="sms-layout sms-guide sms-guide--hydrating" aria-busy="true" />;
+  }
 
-      {activePhone ? (
-        <section className="sms-phone-hero" aria-label="当前暗网手机号">
-          <div className="sms-phone-hero-glow" aria-hidden />
-          <p className="sms-phone-hero-label">当前暗网手机号</p>
-          <div className="sms-phone-hero-row">
-            <button
-              type="button"
-              className="sms-phone-number"
-              onClick={() => void copyText("phone", activePhone)}
-              title="点击复制号码"
-            >
-              {formatPhoneDisplay(activePhone)}
-            </button>
-            <CopyButton
-              label="复制号码"
-              text={activePhone}
-              copied={copiedField === "phone"}
-              onCopy={() => void copyText("phone", activePhone)}
-            />
+  return (
+    <div className="sms-layout sms-guide">
+      <nav className="sms-guide-progress" aria-label="接码步骤">
+        {GUIDE_STEPS.map((item, index) => (
+          <div key={item.id} className={`sms-guide-progress-item${guideStep >= item.id ? " is-done" : ""}${guideStep === item.id ? " is-active" : ""}`}>
+            <span className="sms-guide-progress-dot">{item.id}</span>
+            <span className="sms-guide-progress-label">{item.label}</span>
+            {index < GUIDE_STEPS.length - 1 ? <span className="sms-guide-progress-line" aria-hidden /> : null}
           </div>
-          <p className="sms-phone-hero-hint">点击号码可复制，去目标 App / 网站注册或登录时填写</p>
+        ))}
+      </nav>
+
+      {guideStep <= 3 ? (
+        <SmsPhoneHero
+          phone={currentPhone}
+          copied={copiedField === "phone"}
+          onCopy={() => void copyText("phone", currentPhone)}
+        />
+      ) : null}
+
+      {guideStep === 1 ? (
+        <section className="sms-flow-card sms-guide-panel">
+          <div className="sms-step">
+            <div className="sms-step-head">
+              <span className="sms-step-badge">1</span>
+              <div className="sms-step-head-text">
+                <h2 className="sms-step-title">获取暗网手机号</h2>
+              </div>
+            </div>
+            <div className="sms-tabs sms-number-mode-tabs" role="tablist" aria-label="取号模式">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={numberMode === "random"}
+                className={`sms-tab${numberMode === "random" ? " is-active" : ""}`}
+                disabled={loadingNum}
+                onClick={() => setNumberMode("random")}
+              >
+                随机号码
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={numberMode === "real"}
+                className={`sms-tab${numberMode === "real" ? " is-active" : ""}`}
+                disabled={loadingNum}
+                onClick={() => setNumberMode("real")}
+              >
+                高质号码
+              </button>
+            </div>
+            <p className="sms-hint">
+              {phoneInput.trim()
+                ? "将尝试获取指定号码"
+                : numberMode === "real"
+                  ? "随机分配真实号段（13 / 15 / 18 等）"
+                  : "随机分配任意可用号码"}
+            </p>
+            <input
+              className="sms-input"
+              value={phoneInput}
+              onChange={(e) => setPhoneInput(e.target.value)}
+              placeholder="指定号码（可选）"
+              inputMode="tel"
+            />
+            <button type="button" className="sms-btn sms-btn--primary sms-btn--block" disabled={loadingNum} onClick={() => void requestNumber()}>
+              {loadingNum ? "获取中…" : "获取号码"}
+            </button>
+            {numErr ? <p className="sms-error">{numErr}</p> : null}
+          </div>
         </section>
       ) : null}
 
-      <section className="sms-flow-card">
-        <div className="sms-step">
-          <div className="sms-step-head">
-            <span className="sms-step-badge">1</span>
-            <div className="sms-step-head-text">
-              <h2 className="sms-step-title">获取暗网手机号</h2>
-              {pricing ? <span className="sms-step-chip">-{pricing.get_number} 瓜皮</span> : null}
-            </div>
-          </div>
-          <p className="sms-hint">不填则随机分配；填已有号码可继续收短信。</p>
-          <input
-            className="sms-input"
-            value={phoneInput}
-            onChange={(e) => setPhoneInput(e.target.value)}
-            placeholder="指定号码（可选）"
-            inputMode="tel"
-          />
-          <button type="button" className="sms-btn sms-btn--primary sms-btn--block" disabled={loadingNum} onClick={() => void requestNumber()}>
-            {loadingNum ? "获取中…" : activePhone ? "重新获取" : "获取号码"}
-          </button>
-          {numErr ? <p className="sms-error">{numErr}</p> : null}
-        </div>
-
-        <div className="sms-step-divider" aria-hidden />
-
-        <div className="sms-step">
+      {guideStep === 2 ? (
+        <section className="sms-guide-panel sms-guide-panel--copy">
           <div className="sms-step-head">
             <span className="sms-step-badge">2</span>
             <div className="sms-step-head-text">
-              <h2 className="sms-step-title">接收验证码</h2>
-              {pricing ? <span className="sms-step-chip">-{pricing.get_sms} 瓜皮</span> : null}
+              <h2 className="sms-step-title">复制号码到目标平台</h2>
             </div>
           </div>
-          <p className="sms-hint">
-            {activePhone
-              ? "目标平台发码后，输入短信关键词（如平台名）拉取验证码。"
-              : "请先完成步骤 1 获取号码。"}
-          </p>
-          <input
-            className="sms-input"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="短信关键词，如：百度"
-            disabled={!activePhone}
-          />
+
+          <ol className="sms-guide-tips">
+            <li>打开目标平台注册或登录页</li>
+            <li>将上方号码粘贴到「手机号」输入框</li>
+            <li>在目标平台点击「获取验证码」</li>
+          </ol>
+
           <button
             type="button"
             className="sms-btn sms-btn--primary sms-btn--block"
-            disabled={loadingSms || !activePhone}
-            onClick={() => void fetchSms()}
+            onClick={() => {
+              setKeyword((value) => value.trim() || DEFAULT_SMS_KEYWORD);
+              setGuideStep(3);
+            }}
           >
-            {loadingSms ? "拉取中…" : "拉取验证码"}
+            我已在其它平台点击了获取验证码
           </button>
-          {smsResult ? (
-            <div className="sms-code-box">
-              <div className="sms-code-box-head">
-                <span>验证码内容</span>
-                <CopyButton
-                  label="复制验证码"
-                  text={smsResult}
-                  copied={copiedField === "sms"}
-                  onCopy={() => void copyText("sms", smsResult)}
-                  className="sms-copy-btn--ghost"
-                />
+          <button type="button" className="sms-guide-back" onClick={() => {
+            setCurrentPhone("");
+            setGuideStep(1);
+          }}>
+            ← 重新取号
+          </button>
+        </section>
+      ) : null}
+
+      {guideStep === 3 ? (
+        <section className="sms-flow-card sms-guide-panel">
+          <div className="sms-step">
+            <div className="sms-step-head">
+              <span className="sms-step-badge">3</span>
+              <div className="sms-step-head-text">
+                <h2 className="sms-step-title">收取验证码</h2>
+                {pricing ? <span className="sms-step-chip">-{pricing.get_sms} 瓜皮</span> : null}
               </div>
-              <pre className="sms-sms-result">{smsResult}</pre>
             </div>
-          ) : null}
-          {smsErr ? <p className="sms-error">{smsErr}</p> : null}
-        </div>
-
-        {activePhone ? (
-          <>
-            <div className="sms-step-divider" aria-hidden />
-            <div className="sms-step sms-step--release">
-              {!releaseOpen ? (
-                <button type="button" className="sms-release-toggle" onClick={() => setReleaseOpen(true)}>
-                  不再使用此号码？释放 →
-                </button>
-              ) : (
-                <div className="sms-release-panel">
-                  <p className="sms-hint">释放后可换号，当前号码将不再保留。</p>
-                  <input
-                    className="sms-input"
-                    value={releasePhone}
-                    onChange={(e) => setReleasePhone(e.target.value)}
-                    placeholder="要释放的手机号"
-                    inputMode="tel"
-                  />
-                  <div className="sms-release-actions">
-                    <button type="button" className="sms-btn sms-btn--secondary" onClick={() => setReleaseOpen(false)}>
-                      取消
-                    </button>
-                    <button type="button" className="sms-btn sms-btn--danger" onClick={() => void releaseNumber()}>
-                      确认释放
-                    </button>
-                  </div>
-                  {releaseMsg ? <p className={releaseMsg === "已释放" ? "sms-success" : "sms-error"}>{releaseMsg}</p> : null}
+            <p className="sms-hint">平台发码后，点击下方按钮拉取验证码（默认关键词「验证码」，可按需修改）。</p>
+            <input
+              className="sms-input"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="验证码"
+            />
+            <button type="button" className="sms-btn sms-btn--primary sms-btn--block" disabled={loadingSms} onClick={() => void fetchSms()}>
+              {loadingSms ? "拉取中…" : "我已发送验证码，拉取短信"}
+            </button>
+            {smsResult ? (
+              <div className="sms-code-box">
+                <div className="sms-code-box-head">
+                  <span>短信内容</span>
+                  <button
+                    type="button"
+                    className="sms-copy-btn sms-copy-btn--ghost"
+                    onClick={() => void copyText("sms", verificationCode || smsResult)}
+                  >
+                    {copiedField === "sms" ? "已复制" : verificationCode ? "复制验证码" : "复制全文"}
+                  </button>
                 </div>
-              )}
+                {verificationCode ? (
+                  <p className="sms-code-digits" aria-label="验证码">
+                    {verificationCode}
+                  </p>
+                ) : null}
+                <p className="sms-msg-full">{highlightSmsMessage(smsResult, verificationCode)}</p>
+              </div>
+            ) : null}
+            {smsErr ? <p className="sms-error">{smsErr}</p> : null}
+            <div className="sms-guide-panel-actions">
+              <button type="button" className="sms-guide-back" onClick={() => setGuideStep(2)}>
+                ← 上一步
+              </button>
+              <button type="button" className="sms-guide-back" onClick={restartFlow}>
+                重新取号
+              </button>
             </div>
-          </>
-        ) : null}
-      </section>
+          </div>
+        </section>
+      ) : null}
 
-      <section className="sms-records-card">
-        <div className="sms-tabs" role="tablist" aria-label="记录">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={recordTab === "sms"}
-            className={`sms-tab${recordTab === "sms" ? " is-active" : ""}`}
-            onClick={() => setRecordTab("sms")}
-          >
-            短信记录
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={recordTab === "guapi"}
-            className={`sms-tab${recordTab === "guapi" ? " is-active" : ""}`}
-            onClick={() => setRecordTab("guapi")}
-          >
-            瓜皮记录
+      <section className="sms-records-card" aria-label="短信记录">
+        <div className="sms-records-head">
+          <h2 className="sms-records-title">短信记录</h2>
+          <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={historyLoading} onClick={() => void loadHistory(historyPage)}>
+            刷新
           </button>
         </div>
-
-        {recordTab === "sms" ? (
-          <>
-            <div className="sms-toolbar">
-              <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={historyLoading} onClick={() => void loadHistory(historyPage)}>
-                刷新
-              </button>
-              <span className="sms-page-info">第 {historyPage} 页</span>
-            </div>
-            {history.length ? (
-              <ul className="sms-history-list">
-                {history.map((item) => (
-                  <li key={`${item.time}-${item.phone}`} className="sms-history-item">
-                    <div className="sms-history-meta">
-                      <time>{new Date(item.time).toLocaleString("zh-CN")}</time>
-                      {item.phone ? (
-                        <button type="button" className="sms-history-phone" onClick={() => void copyText(`hist-${item.time}`, item.phone!)}>
-                          {item.phone}
-                        </button>
-                      ) : null}
-                    </div>
-                    <p className="sms-history-msg">{item.message}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : historyLoaded && !historyLoading ? (
-              <p className="sms-muted">暂无短信记录</p>
-            ) : null}
-            {historyLoading ? <p className="sms-muted">加载中…</p> : null}
-            <div className="sms-pagination">
-              <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={historyPage <= 1 || historyLoading} onClick={() => void loadHistory(historyPage - 1)}>
-                上一页
-              </button>
-              <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={historyLoading} onClick={() => void loadHistory(historyPage + 1)}>
-                下一页
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="sms-toolbar">
-              <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={guapiLogLoading} onClick={() => void loadGuapiLog(guapiLogPage)}>
-                刷新
-              </button>
-              <span className="sms-page-info">第 {guapiLogPage} 页</span>
-            </div>
-            {guapiLog.length ? (
-              <ul className="sms-guapi-log">
-                {guapiLog.map((item) => (
-                  <li key={item.id} className="sms-guapi-log-item">
-                    <time>{new Date(item.createdAt).toLocaleString("zh-CN")}</time>
-                    <span className="sms-guapi-log-desc">{item.description || item.type}</span>
-                    <span className={item.amount > 0 ? "sms-amount sms-amount--plus" : "sms-amount sms-amount--minus"}>
-                      {item.amount > 0 ? "+" : ""}
-                      {item.amount}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : guapiLogLoaded && !guapiLogLoading ? (
-              <p className="sms-muted">暂无瓜皮记录</p>
-            ) : null}
-            {guapiLogLoading ? <p className="sms-muted">加载中…</p> : null}
-            <div className="sms-pagination">
-              <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={guapiLogPage <= 1 || guapiLogLoading} onClick={() => void loadGuapiLog(guapiLogPage - 1)}>
-                上一页
-              </button>
-              <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={guapiLogLoading} onClick={() => void loadGuapiLog(guapiLogPage + 1)}>
-                下一页
-              </button>
-            </div>
-          </>
-        )}
+        {history.length ? (
+          <ul className="sms-history-list">
+            {history.map((item) => {
+              const message = item.message?.trim() || "";
+              const code = message ? extractSmsVerificationCode(message) : null;
+              return (
+                <li key={`${item.time}-${item.phone}-${message.slice(0, 24)}`} className="sms-history-item">
+                  <div className="sms-history-meta">
+                    <time>{formatSmsHistoryTime(item.time)}</time>
+                    {item.phone ? <span className="sms-history-phone-static">{formatPhoneDisplay(item.phone)}</span> : null}
+                  </div>
+                  {message ? <p className="sms-history-msg">{highlightSmsMessage(message, code)}</p> : null}
+                </li>
+              );
+            })}
+          </ul>
+        ) : historyLoaded && !historyLoading ? (
+          <p className="sms-muted">暂无短信记录</p>
+        ) : null}
+        {historyLoading ? <p className="sms-muted">加载中…</p> : null}
+        <div className="sms-pagination">
+          <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={historyPage <= 1 || historyLoading} onClick={() => void loadHistory(historyPage - 1)}>
+            上一页
+          </button>
+          <span className="sms-page-info">第 {historyPage} 页</span>
+          <button type="button" className="sms-btn sms-btn--secondary sms-btn--sm" disabled={historyLoading || history.length < HISTORY_PAGE_SIZE} onClick={() => void loadHistory(historyPage + 1)}>
+            下一页
+          </button>
+        </div>
       </section>
 
       {insufficientOpen ? (
@@ -571,8 +501,6 @@ export function SmsClient({
           </div>
         </div>
       ) : null}
-
-      <GuapiInfoModal open={guapiInfoOpen} onClose={() => setGuapiInfoOpen(false)} />
     </div>
   );
 }

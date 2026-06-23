@@ -6,6 +6,7 @@ import {
   indexedMessageIsBlocked,
   mergePrismaWhere
 } from "@/lib/blocked-keywords";
+import { encodeHomeFeedCursor, parseHomeFeedCursor } from "@/lib/home-feed-cursor";
 import { prisma } from "@/lib/prisma";
 import { buildIndexMessagesListWhere } from "@/lib/index-message-admin";
 import { itemMatchesVipSearchTab, type VipSearchTab } from "@/lib/vip-result-display";
@@ -243,6 +244,62 @@ export async function getPublicIndexedMessage(id: string) {
 }
 
 const homeListOrderBy = [{ isPinned: "desc" as const }, { messageDate: "desc" as const }, { id: "desc" as const }];
+const latestIndexFeedOrderBy = [{ messageDate: "desc" as const }, { id: "desc" as const }];
+
+export type IndexedMessagesPageResult = {
+  items: Awaited<ReturnType<typeof listIndexedMessagesForHome>>;
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+/** 自动模式首页轮播：置顶索引条目 */
+export async function listIndexedMessagesPinnedForHome(limit: number, chatIds: string[] = []) {
+  const blocked = await getBlockedKeywords();
+  const where = mergePrismaWhere(
+    { ...buildIndexMessagesListWhere("", chatIds), isPinned: true },
+    buildIndexedMessageBlockedExcludeWhere(blocked)
+  );
+  return prisma.tgIndexedMessage.findMany({
+    where,
+    orderBy: homeListOrderBy,
+    take: limit
+  });
+}
+
+/** 自动模式首页「最新吃瓜」分页（不含置顶） */
+export async function listIndexedMessagesLatestPage(options: {
+  chatIds?: string[];
+  cursor?: string | null;
+  limit?: number;
+}): Promise<IndexedMessagesPageResult> {
+  const limit = options.limit ?? 20;
+  const chatIds = options.chatIds ?? [];
+  const blocked = await getBlockedKeywords();
+  const cursor = parseHomeFeedCursor(options.cursor);
+  const cursorWhere: PrismaTypes.TgIndexedMessageWhereInput = cursor
+    ? {
+        OR: [{ messageDate: { lt: cursor.date } }, { AND: [{ messageDate: cursor.date }, { id: { lt: cursor.id } }] }]
+      }
+    : {};
+  const where = mergePrismaWhere(
+    {
+      ...buildIndexMessagesListWhere("", chatIds),
+      isPinned: false,
+      ...cursorWhere
+    } as PrismaTypes.TgIndexedMessageWhereInput,
+    buildIndexedMessageBlockedExcludeWhere(blocked)
+  );
+  const rows = await prisma.tgIndexedMessage.findMany({
+    where,
+    orderBy: latestIndexFeedOrderBy,
+    take: limit + 1
+  });
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  const last = items[items.length - 1];
+  const nextCursor = hasMore && last ? encodeHomeFeedCursor(last.messageDate, last.id) : null;
+  return { items, nextCursor, hasMore };
+}
 
 /** 自动模式首页：全部索引条目（可按频道 chatId 筛选） */
 export async function listIndexedMessagesForHome(limit = 200, chatIds: string[] = []) {

@@ -7,6 +7,18 @@ import {
   getGuestGuapiRemaining,
   logSmsAction
 } from "@/lib/sms-guapi";
+import { isRealMobileNumber, SMS_REAL_NUMBER_MAX_RETRIES } from "@/lib/sms-phone-segment";
+
+const SMS_LOG_PREFIX = "[sms:getNumber]";
+
+function smsLog(message: string, extra?: Record<string, unknown>) {
+  const ts = new Date().toISOString();
+  if (extra) {
+    console.log(`${SMS_LOG_PREFIX} ${ts} ${message}`, extra);
+  } else {
+    console.log(`${SMS_LOG_PREFIX} ${ts} ${message}`);
+  }
+}
 
 function insufficientGuapi(remaining: number, required: number) {
   return {
@@ -45,32 +57,86 @@ export async function smsGetBalanceLog(guestUserId: string, page: number, size: 
   return { ok: true, data: { list, total, page, size } };
 }
 
-export async function smsRequestNumber(guestUserId: string, phone: string, cardType: string) {
+export async function smsRequestNumber(
+  guestUserId: string,
+  phone: string,
+  cardType: string,
+  realOnly = false
+) {
   const apikey = await getLubanApikey();
   if (!apikey) {
     return { ok: false, code: 500, message: "系统未配置 LubanSMS API Key，请联系管理员" };
   }
 
-  const pricing = await getSmsPricing();
-  const quota = await getGuestGuapiRemaining(guestUserId);
-  const price = pricing.get_number;
-  if (quota.remaining < price) return insufficientGuapi(quota.remaining, price);
+  const specifiedPhone = phone.trim();
+  const shouldFilterReal = realOnly && !specifiedPhone;
+  const maxAttempts = shouldFilterReal ? SMS_REAL_NUMBER_MAX_RETRIES : 1;
 
-  const data = await luban.getKeywordNumber(apikey, phone, cardType);
-  if (data.code !== 0) return data;
-
-  await deductGuestGuapi(guestUserId, price, "consume_get_number", `请求号码 ${data.phone}`);
-  await prisma.smsNumberRecord.create({
-    data: { guestUserId, phone: String(data.phone || "") }
-  });
-  await logSmsAction({
+  smsLog("start", {
     guestUserId,
-    action: "getNumber",
-    phone: String(data.phone || ""),
-    rawResponse: data
+    specifiedPhone: specifiedPhone || null,
+    cardType: cardType || null,
+    realOnly,
+    shouldFilterReal,
+    maxAttempts
   });
 
-  return data;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const attemptNo = attempt + 1;
+    if (shouldFilterReal) {
+      smsLog(`real-only attempt ${attemptNo}/${maxAttempts}`);
+    }
+
+    const data = await luban.getKeywordNumber(apikey, specifiedPhone, cardType);
+    if (data.code !== 0) {
+      smsLog("provider error", { attempt: attemptNo, code: data.code, msg: data.msg });
+      return data;
+    }
+
+    const assignedPhone = String(data.phone || "");
+    const realSegment = isRealMobileNumber(assignedPhone);
+    if (shouldFilterReal && !realSegment) {
+      smsLog("non-real segment, releasing and retrying", {
+        attempt: attemptNo,
+        phone: assignedPhone,
+        prefix: assignedPhone.slice(0, 3),
+        realSegment
+      });
+      await luban.delKeywordNumber(apikey, assignedPhone);
+      await logSmsAction({
+        guestUserId,
+        action: "releaseNumber",
+        phone: assignedPhone,
+        rawResponse: { ...data, filtered: true, reason: "non_real_segment" }
+      });
+      smsLog("released", { attempt: attemptNo, phone: assignedPhone });
+      continue;
+    }
+
+    await prisma.smsNumberRecord.create({
+      data: { guestUserId, phone: assignedPhone }
+    });
+    await logSmsAction({
+      guestUserId,
+      action: "getNumber",
+      phone: assignedPhone,
+      rawResponse: data
+    });
+
+    smsLog("success", {
+      phone: assignedPhone,
+      attempt: attemptNo,
+      realOnly: shouldFilterReal
+    });
+
+    return data;
+  }
+
+  smsLog("real-only exhausted", { guestUserId, maxAttempts });
+  return {
+    code: -1,
+    msg: "暂无符合条件的高质量号码，请稍后再试或切换随机模式"
+  };
 }
 
 export async function smsFetchSms(guestUserId: string, phone: string, keyword: string) {
@@ -86,12 +152,17 @@ export async function smsFetchSms(guestUserId: string, phone: string, keyword: s
   const data = await luban.getKeywordSms(apikey, phone, keyword);
   if (data.code !== 0) return data;
 
+  const message = String(data.msg || "").trim();
+  if (!message) {
+    return { code: -1, msg: "暂未收到短信，请稍后再试" };
+  }
+
   await deductGuestGuapi(guestUserId, price, "consume_get_sms", `获取短信 ${keyword}`);
   await prisma.smsUserRecord.create({
     data: {
       guestUserId,
       phone,
-      message: String(data.msg || ""),
+      message,
       keyword
     }
   });
@@ -100,11 +171,11 @@ export async function smsFetchSms(guestUserId: string, phone: string, keyword: s
     action: "getSms",
     phone,
     keyword,
-    message: String(data.msg || ""),
+    message,
     rawResponse: data
   });
 
-  return data;
+  return { ...data, msg: message };
 }
 
 export async function smsReleaseNumber(guestUserId: string, phone: string) {

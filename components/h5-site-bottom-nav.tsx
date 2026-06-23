@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { TabIconHome, TabIconMy } from "@/components/h5-tab-icons";
 
-/** 全站统一底部导航：首页 + 热搜榜 + 全网搜索 + 我的 */
+/** 全站统一底部导航：首页 + 吃瓜搜 + 暗网手机号 + 我的 */
 export function H5SiteBottomNav({
   active,
   variant = "light"
 }: {
-  active: "home" | "hot" | "global" | "my";
+  active: "home" | "discover" | "sms" | "my";
   variant?: "light" | "dark";
 }) {
   return (
@@ -20,21 +20,17 @@ export function H5SiteBottomNav({
         </span>
         首页
       </Link>
-      <Link href="/vip" prefetch={false} className={`h5-bottom-tab${active === "hot" ? " is-active" : ""}`}>
+      <Link href="/vip?tab=hot" prefetch={false} className={`h5-bottom-tab${active === "discover" ? " is-active" : ""}`}>
         <span className="h5-tab-icon h5-tab-icon--emoji" aria-hidden>
           🔥
         </span>
-        热搜榜
+        吃瓜搜
       </Link>
-      <Link
-        href="/global-search"
-        prefetch={false}
-        className={`h5-bottom-tab${active === "global" ? " is-active" : ""}`}
-      >
+      <Link href="/sms" prefetch={false} className={`h5-bottom-tab${active === "sms" ? " is-active" : ""}`}>
         <span className="h5-tab-icon h5-tab-icon--emoji" aria-hidden>
-          🌐
+          📱
         </span>
-        全网搜索
+        暗网手机号
       </Link>
       <Link href="/my" prefetch={false} className={`h5-bottom-tab${active === "my" ? " is-active" : ""}`}>
         <span className="h5-tab-icon" aria-hidden>

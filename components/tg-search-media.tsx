@@ -137,6 +137,7 @@ export function LazyVideoPlayer({
   const videoRef = useRef<HTMLVideoElement>(null);
   const probingRef = useRef(false);
   const [playing, setPlaying] = useState(false);
+  const [playAttempt, setPlayAttempt] = useState(0);
   const [cachedFullUrl, setCachedFullUrl] = useState<string | null>(item.fullUrl || null);
   const [playInfoReady, setPlayInfoReady] = useState(Boolean(item.fullUrl));
   const [playReady, setPlayReady] = useState(Boolean(item.fullUrl));
@@ -234,10 +235,30 @@ export function LazyVideoPlayer({
     };
   }, [playing, videoSrc]);
 
+  useEffect(() => {
+    if (!playing || !buffering || streamError || cachedFullUrl) return;
+    const timer = window.setTimeout(() => {
+      setStreamError(true);
+      setBuffering(false);
+    }, 90000);
+    return () => window.clearTimeout(timer);
+  }, [playing, buffering, streamError, cachedFullUrl, playAttempt]);
+
   async function handlePlayClick() {
+    setStreamError(false);
     await startPrefetch();
     setPlaying(true);
     setBuffering(true);
+  }
+
+  function handleRetryPlay() {
+    setStreamError(false);
+    setPlaying(false);
+    setBuffering(false);
+    setPlayAttempt((n) => n + 1);
+    window.setTimeout(() => {
+      void handlePlayClick();
+    }, 0);
   }
 
   function routeLabel() {
@@ -277,7 +298,7 @@ export function LazyVideoPlayer({
         {playing ? (
           <video
             ref={videoRef}
-            key={`${item.id}-${cachedFullUrl ? "cdn" : "stream"}`}
+            key={`${item.id}-${cachedFullUrl ? "cdn" : "stream"}-${playAttempt}`}
             className="gs-media-video-el is-active"
             controls
             playsInline
@@ -291,7 +312,16 @@ export function LazyVideoPlayer({
           />
         ) : null}
 
-        {playing && buffering ? (
+        {playing && streamError ? (
+          <div className="gs-media-video-buffering" aria-live="polite">
+            <span>视频加载超时，请重试</span>
+            <button type="button" className="gs-media-video-play" onClick={handleRetryPlay}>
+              重新播放
+            </button>
+          </div>
+        ) : null}
+
+        {playing && buffering && !streamError ? (
           <div className="gs-media-video-buffering" aria-live="polite">
             <span className="gs-media-video-warm-spinner" aria-hidden />
             <span>缓冲中…</span>

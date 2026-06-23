@@ -60,6 +60,12 @@ function mapGramError(err) {
     const sec = Number(msg.match(/FLOOD_WAIT_(\d+)/i)?.[1] || 0);
     return { code: "FLOOD_WAIT", message: `请求过快，请 ${sec || "?"} 秒后重试`, retryAfterSec: sec };
   }
+  if (/TIMEOUT/i.test(msg) || code === "DOWNLOAD_TIMEOUT") {
+    return {
+      code: "GRAM_TIMEOUT",
+      message: "Telegram 媒体拉取超时，请稍后重试（大视频可走 CDN 预热或加大 TG_GRAM_RPC_TIMEOUT_SEC）"
+    };
+  }
   if (String(code).startsWith("JISOU_CAPTCHA") || /JISOU_CAPTCHA|人机验证/i.test(msg)) {
     return { code: code || "JISOU_CAPTCHA_REQUIRED", message: msg || "极搜人机验证未通过" };
   }

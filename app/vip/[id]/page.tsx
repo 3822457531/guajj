@@ -118,7 +118,7 @@ export default async function VipDetailPage({
         </div>
       </article>
 
-      <VipBottomNav active="hot" />
+      <VipBottomNav active="discover" />
     </main>
   );
 }

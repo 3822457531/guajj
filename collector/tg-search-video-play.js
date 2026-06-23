@@ -15,10 +15,10 @@ const {
   videoWarmMaxBytes
 } = require("./tg-search-play-route");
 const {
-  buildVideoDownloadIter,
   getCachedFullMediaUrl,
   resolveVideoMime,
-  videoStreamChunkKb
+  videoStreamChunkKb,
+  iterVideoDownloadWithRetry
 } = require("./tg-search-media-stream");
 
 function throwIfAborted(signal) {
@@ -209,7 +209,14 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             metrics.start();
             metrics.tgDownloadBegin(live.fileSize);
 
-            const iter = buildVideoDownloadIter(client, live.msg, live.entity, chunkBytes, rangeStart);
+            const iter = iterVideoDownloadWithRetry(
+              client,
+              live.msg,
+              live.entity,
+              chunkBytes,
+              rangeStart,
+              streamSignal
+            );
             let emitted = 0;
             let firstChunkAt = 0;
             const maxEmit = rangeLen != null ? rangeLen : Infinity;
@@ -241,11 +248,13 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             metrics.finish({ mode: "http-stream", range: Boolean(parsedRange) });
             controller.close();
           },
-          { signal: streamSignal, priority: "low" }
+          { signal: streamSignal, priority: "high" }
         );
       } catch (err) {
         if (err?.code === "REQUEST_ABORTED") {
           console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消`);
+        } else if (/TIMEOUT/i.test(String(err?.message || err))) {
+          console.warn(`[tg-search:play] @${uname}/#${mid} stream TIMEOUT`);
         }
         try {
           controller.error(err);

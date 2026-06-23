@@ -11,9 +11,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const phone = (searchParams.get("phone") || "").trim();
   const cardType = (searchParams.get("cardType") || "").trim();
+  const realOnly =
+    searchParams.get("real") === "1" ||
+    searchParams.get("realOnly") === "1" ||
+    searchParams.get("mode") === "real";
 
   try {
-    const result = await smsRequestNumber(auth.guestUserId!, phone, cardType);
+    const result = await smsRequestNumber(auth.guestUserId!, phone, cardType, realOnly);
     if ("code" in result && result.code === 402) {
       return NextResponse.json(result, { status: 402 });
     }

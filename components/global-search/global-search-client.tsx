@@ -1176,8 +1176,10 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
 
   useEffect(() => {
     const page = document.querySelector(".global-search-page");
+    const panel = document.querySelector(".discover-panel--search");
     if (!page) return;
-    if (isLanding) page.classList.add("is-landing");
+    const searchVisible = panel instanceof HTMLElement && !panel.hidden;
+    if (isLanding && searchVisible) page.classList.add("is-landing");
     else page.classList.remove("is-landing");
     return () => page.classList.remove("is-landing");
   }, [isLanding]);

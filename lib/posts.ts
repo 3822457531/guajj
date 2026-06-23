@@ -1,6 +1,7 @@
 import type { Prisma } from "@/lib/generated/prisma";
 import { PostStatus } from "@/lib/generated/prisma";
 import { buildPostBlockedExcludeWhere, getBlockedKeywords, mergePrismaWhere, postIsBlocked } from "@/lib/blocked-keywords";
+import { encodeHomeFeedCursor, parseHomeFeedCursor } from "@/lib/home-feed-cursor";
 import { prisma } from "@/lib/prisma";
 
 export const postInclude = {
@@ -10,6 +11,64 @@ export const postInclude = {
 
 /** 首页「最新吃瓜」等同台数据：置顶优先，其余按入库时间新→旧（比 id 字串更可靠）。 */
 const publishedListOrderBy = [{ isPinned: "desc" as const }, { createdAt: "desc" as const }, { id: "desc" as const }];
+const latestFeedOrderBy = [{ createdAt: "desc" as const }, { id: "desc" as const }];
+
+export type PublishedPostsPageResult = {
+  items: Awaited<ReturnType<typeof getPublishedPosts>>;
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+/** 首页轮播：置顶稿件，最多 limit 条 */
+export async function listPublishedPostsPinned(limit: number, categoryIds: string[] = []) {
+  const blocked = await getBlockedKeywords();
+  const categoryWhere: Prisma.PostWhereInput =
+    categoryIds.length > 0 ? { categoryId: { in: categoryIds } } : {};
+  const where = mergePrismaWhere(
+    { status: PostStatus.PUBLISHED, isPinned: true, ...categoryWhere },
+    buildPostBlockedExcludeWhere(blocked)
+  );
+  return prisma.post.findMany({
+    where,
+    include: postInclude,
+    orderBy: publishedListOrderBy,
+    take: limit
+  });
+}
+
+/** 首页「最新吃瓜」分页（不含置顶） */
+export async function listPublishedPostsLatestPage(options: {
+  categoryIds?: string[];
+  cursor?: string | null;
+  limit?: number;
+}): Promise<PublishedPostsPageResult> {
+  const limit = options.limit ?? 20;
+  const blocked = await getBlockedKeywords();
+  const categoryIds = options.categoryIds ?? [];
+  const categoryWhere: Prisma.PostWhereInput =
+    categoryIds.length > 0 ? { categoryId: { in: categoryIds } } : {};
+  const cursor = parseHomeFeedCursor(options.cursor);
+  const cursorWhere: Prisma.PostWhereInput = cursor
+    ? {
+        OR: [{ createdAt: { lt: cursor.date } }, { AND: [{ createdAt: cursor.date }, { id: { lt: cursor.id } }] }]
+      }
+    : {};
+  const where = mergePrismaWhere(
+    { status: PostStatus.PUBLISHED, isPinned: false, ...categoryWhere, ...cursorWhere },
+    buildPostBlockedExcludeWhere(blocked)
+  );
+  const rows = await prisma.post.findMany({
+    where,
+    include: postInclude,
+    orderBy: latestFeedOrderBy,
+    take: limit + 1
+  });
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  const last = items[items.length - 1];
+  const nextCursor = hasMore && last ? encodeHomeFeedCursor(last.createdAt, last.id) : null;
+  return { items, nextCursor, hasMore };
+}
 
 export async function getPublishedPosts(categoryIds: string[] = []) {
   const blocked = await getBlockedKeywords();

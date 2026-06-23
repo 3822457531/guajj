@@ -1,20 +1,8 @@
 import Link from "next/link";
+import { H5HomeLatestFeed } from "@/components/h5-home-latest-feed";
 import { H5HomeShell } from "@/components/h5-home-shell";
 import { H5HeroCarousel } from "@/components/h5-hero-carousel";
-import { H5StoryListCard } from "@/components/h5-story-list-card";
-import { getHomeFeedItems } from "@/lib/home-feed";
-
-function formatDate(date?: Date | null) {
-  if (!date) return "刚刚";
-  return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(date);
-}
-
-function tagToneClass(name: string): string {
-  const n = name.length % 3;
-  if (n === 0) return "h5-rank-tag--a";
-  if (n === 1) return "h5-rank-tag--b";
-  return "h5-rank-tag--c";
-}
+import { getHomeFeedLatestPage, getHomeFeedPinnedItems, homeFeedItemToJson } from "@/lib/home-feed";
 
 export default async function HomePage({
   searchParams
@@ -22,10 +10,9 @@ export default async function HomePage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const params = await searchParams;
-  const items = await getHomeFeedItems();
+  const [pinnedItems, latestPage] = await Promise.all([getHomeFeedPinnedItems([], 3), getHomeFeedLatestPage()]);
 
-  const pinnedForCarousel = items.filter((p) => p.isPinned).slice(0, 3);
-  const carouselSlides = pinnedForCarousel.map((p) => ({
+  const carouselSlides = pinnedItems.map((p) => ({
     id: p.id,
     href: p.href,
     title: p.title,
@@ -35,7 +22,7 @@ export default async function HomePage({
     tiles: p.tiles
   }));
 
-  const latest = items.filter((p) => !p.isPinned);
+  const initialLatest = latestPage.items.map(homeFeedItemToJson);
 
   return (
     <main className="site-shell h5-home">
@@ -72,21 +59,11 @@ export default async function HomePage({
               </h2>
               <span className="h5-chip-sub">图文 · 图集 · 时间线</span>
             </div>
-            <div className="h5-story-grid">
-              {latest.map((item) => (
-                <H5StoryListCard
-                  key={item.id}
-                  postId={item.id}
-                  href={item.href}
-                  title={item.title}
-                  summary={item.summary}
-                  categoryName={item.categoryName}
-                  timeLabel={formatDate(item.publishedAt)}
-                  tiles={item.tiles}
-                  tagToneClass={tagToneClass(item.categoryName)}
-                />
-              ))}
-            </div>
+            <H5HomeLatestFeed
+              initialItems={initialLatest}
+              initialNextCursor={latestPage.nextCursor}
+              initialHasMore={latestPage.hasMore}
+            />
           </section>
         }
       />

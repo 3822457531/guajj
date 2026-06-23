@@ -19,6 +19,51 @@ function videoStreamChunkKb() {
   return Math.min(1024, Math.max(64, Math.round(n)));
 }
 
+function videoStreamRetries() {
+  return Math.min(3, Math.max(0, Number(process.env.TG_SEARCH_VIDEO_STREAM_RETRIES) || 2));
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function isStreamTimeoutError(err) {
+  return /TIMEOUT/i.test(String(err?.message || err?.errorMessage || err));
+}
+
+/**
+ * iterDownload 遇 GramJS TIMEOUT 时从当前 offset 续传重试
+ */
+async function* iterVideoDownloadWithRetry(client, msg, entity, chunkBytes, byteOffset, signal) {
+  let offset = Math.max(0, Math.floor(Number(byteOffset) || 0));
+  let retriesLeft = videoStreamRetries();
+
+  while (true) {
+    try {
+      const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes, offset);
+      for await (const chunk of iter) {
+        throwIfAborted(signal);
+        yield chunk;
+        offset += chunk.length;
+        retriesLeft = videoStreamRetries();
+      }
+      return;
+    } catch (err) {
+      throwIfAborted(signal);
+      if (err?.code === "REQUEST_ABORTED") throw err;
+      if (retriesLeft > 0 && isStreamTimeoutError(err)) {
+        retriesLeft--;
+        console.warn(
+          `[tg-search:play] iterDownload TIMEOUT @ offset ${offset}, retry (${retriesLeft} left)`
+        );
+        await sleep(700);
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 function throwIfAborted(signal) {
   if (signal?.aborted) {
     const err = new Error("请求已取消");
@@ -122,7 +167,7 @@ async function streamVideoMessageToCache(client, username, msg, entity, opts = {
     expectedBytes: fileSize,
     onUploadProgress: (loaded, total) => metrics.r2UploadProgress(loaded, total || fileSize)
   });
-  const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes, 0);
+  const iter = iterVideoDownloadWithRetry(client, msg, entity, chunkBytes, 0, opts.signal);
 
   let downloaded = 0;
   try {
@@ -152,6 +197,7 @@ module.exports = {
   getCachedFullMediaUrl,
   streamVideoMessageToCache,
   buildVideoDownloadIter,
+  iterVideoDownloadWithRetry,
   resolveVideoMime,
   videoStreamChunkKb
 };

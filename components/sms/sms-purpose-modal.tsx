@@ -13,8 +13,8 @@ export function SmsPurposeTipButton({ onClick }: { onClick: () => void }) {
       type="button"
       className="sms-purpose-tip-btn"
       onClick={onClick}
-      aria-label="暗网手机号是做什么的？"
-      title="暗网手机号是做什么的？"
+      aria-label="使用说明与平台限制"
+      title="使用说明与平台限制"
     >
       <span aria-hidden>i</span>
     </button>
@@ -75,7 +75,17 @@ export function SmsPurposeModal({ open, onClose }: SmsPurposeModalProps) {
               <span>回到这里输入关键词，拉取短信里的验证码</span>
             </li>
           </ol>
-          <p className="my-guapi-modal-foot">与吃瓜搜索共用今日瓜皮，取号、收码按次扣费。</p>
+          <p className="my-guapi-modal-foot">与吃瓜搜索共用今日瓜皮，获取到短信验证码后扣费。</p>
+          <div className="sms-platform-notice sms-platform-notice--modal">
+            <p className="sms-platform-notice-title">特别注意</p>
+            <p className="sms-platform-notice-text">
+              <span className="sms-platform-notice-label">不可使用：</span>
+              <strong className="sms-platform-notice-blocked">抖音</strong>、
+              {/* <strong className="sms-platform-notice-blocked">微信</strong>、 */}
+              <strong className="sms-platform-notice-blocked">支付宝</strong>
+            </p>
+            <p className="sms-platform-notice-ok">其它平台均可正常使用</p>
+          </div>
         </div>
         <button type="button" className="my-guapi-modal-ok" onClick={onClose}>
           知道了
