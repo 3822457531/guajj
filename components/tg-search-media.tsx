@@ -98,6 +98,13 @@ function formatTrafficPair(bufferedBytes: number, totalBytes: number): string {
   return `${formatTrafficBytes(bufferedBytes)}/${formatTrafficBytes(totalBytes)}`;
 }
 
+function formatTrafficPairDisplay(bufferedBytes: number, totalBytes: number, loading = false): string {
+  if (loading && bufferedBytes <= 0 && totalBytes > 0) {
+    return `···/${formatTrafficBytes(totalBytes)}`;
+  }
+  return formatTrafficPair(bufferedBytes, totalBytes);
+}
+
 function formatStreamSpeed(bytesPerSec: number): string {
   const bps = Math.max(0, Number(bytesPerSec) || 0);
   if (bps <= 0) return "—";
@@ -362,6 +369,12 @@ export function LazyVideoPlayer({
       ? Math.min(100, Math.round((trafficBufferedBytes / trafficTotalBytes) * 100))
       : bufferStats?.pct ?? 0;
   const tgStreamPlayback = isTgStreamRoute(playRoute, cachedFullUrl);
+  const trafficLoading = Boolean(playing && isActivePlayback && buffering && showStreamProgress);
+  const trafficPairLabel = formatTrafficPairDisplay(
+    trafficBufferedBytes,
+    trafficTotalBytes,
+    trafficLoading
+  );
 
   useEffect(() => {
     playMetaRef.current = playMeta;
@@ -639,12 +652,22 @@ export function LazyVideoPlayer({
       markReady();
       if (playing) void video.play().catch(() => setBuffering(true));
     };
+    const onCanPlayThrough = () => {
+      markReady();
+    };
+    const onLoadedMetadata = () => {
+      if (video.readyState >= 1 && video.duration > 0) {
+        setPlayReady(true);
+      }
+    };
     const onWaiting = () => {
       if (playing) setBuffering(true);
     };
     const onPlaying = () => setBuffering(false);
 
     video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("canplaythrough", onCanPlayThrough);
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
     video.addEventListener("waiting", onWaiting);
     video.addEventListener("playing", onPlaying);
 
@@ -652,6 +675,8 @@ export function LazyVideoPlayer({
 
     return () => {
       video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("canplaythrough", onCanPlayThrough);
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
       video.removeEventListener("waiting", onWaiting);
       video.removeEventListener("playing", onPlaying);
     };
@@ -790,9 +815,7 @@ export function LazyVideoPlayer({
                   style={{ width: `${Math.max(trafficBufferPct, trafficBufferedBytes > 0 ? 2 : 0)}%` }}
                 />
               </div>
-              <span className="gs-media-video-progress-strip-size">
-                {formatTrafficPair(trafficBufferedBytes, trafficTotalBytes)}
-              </span>
+              <span className="gs-media-video-progress-strip-size">{trafficPairLabel}</span>
             </div>
           </div>
         ) : null}
@@ -803,7 +826,7 @@ export function LazyVideoPlayer({
         {showStreamProgress && trafficTotalBytes > 0 && playing && isActivePlayback ? (
           <span className="gs-media-meta-progress">
             {" "}
-            · {formatTrafficPair(trafficBufferedBytes, trafficTotalBytes)} ({trafficBufferPct}%)
+            · {trafficPairLabel} ({trafficBufferPct}%)
           </span>
         ) : null}
       </div>

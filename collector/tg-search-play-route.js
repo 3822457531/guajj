@@ -65,6 +65,7 @@ function logVideoPlayRoute(info) {
   if (info.durationSec) parts.push(`时长 ${formatDurationSec(Number(info.durationSec))}`);
 
   if (info.range) parts.push(`Range ${info.range}`);
+  if (info.forcedInitial) parts.push("首段206");
 
   if (info.largeFile === true) parts.push("策略: 禁止全量 warm");
   else if (info.warmEligible) parts.push("策略: 可后台 warm");
@@ -98,10 +99,43 @@ function parseHttpRange(rangeHeader, fileSize) {
   };
 }
 
+/** 无 Range 请求时的首段大小（206），避免浏览器反复全量拉取 moov 在尾的 MP4 */
+function videoStreamInitialBytes() {
+  const mb = Number(process.env.TG_SEARCH_VIDEO_INITIAL_MB);
+  const bytes = Number.isFinite(mb) && mb > 0 ? Math.round(mb * 1024 * 1024) : 2 * 1024 * 1024;
+  return Math.min(8 * 1024 * 1024, Math.max(256 * 1024, bytes));
+}
+
+/**
+ * 解析 Range；无 Range 且文件较大时只返回首段（206），交给浏览器按 Range 续拉
+ * @returns {{ parsed: ReturnType<typeof parseHttpRange>, forcedInitial: boolean }}
+ */
+function resolveStreamRange(rangeHeader, fileSize) {
+  const parsed = parseHttpRange(rangeHeader, fileSize);
+  if (parsed) return { parsed, forcedInitial: false };
+  if (!fileSize || fileSize <= 0) return { parsed: null, forcedInitial: false };
+
+  const chunk = videoStreamInitialBytes();
+  if (fileSize <= chunk) return { parsed: null, forcedInitial: false };
+
+  const end = chunk - 1;
+  return {
+    parsed: {
+      start: 0,
+      end,
+      length: chunk,
+      header: `bytes 0-${end}/${fileSize}`
+    },
+    forcedInitial: true
+  };
+}
+
 module.exports = {
   videoWarmMaxBytes,
   isVideoWarmEnabled,
   classifyVideoPlayRoute,
   logVideoPlayRoute,
-  parseHttpRange
+  parseHttpRange,
+  resolveStreamRange,
+  videoStreamInitialBytes
 };

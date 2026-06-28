@@ -11,7 +11,7 @@ const {
 const {
   classifyVideoPlayRoute,
   logVideoPlayRoute,
-  parseHttpRange,
+  resolveStreamRange,
   isVideoWarmEnabled,
   videoWarmMaxBytes
 } = require("./tg-search-play-route");
@@ -206,7 +206,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
     console.log(`[tg-search:play] @${uname}/#${mid} stream meta 命中缓存`);
   }
 
-  const parsedRange = parseHttpRange(rangeHeader, head.fileSize);
+  const { parsed: parsedRange, forcedInitial } = resolveStreamRange(rangeHeader, head.fileSize);
   const rangeStart = parsedRange?.start ?? 0;
   const rangeEnd = parsedRange?.end ?? (head.fileSize > 0 ? head.fileSize - 1 : null);
   const rangeLen = parsedRange?.length ?? (head.fileSize > 0 ? head.fileSize : null);
@@ -218,7 +218,8 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
     cached: false,
     fileSize: head.mediaMeta.fileSize,
     durationSec: head.mediaMeta.durationSec,
-    range: parsedRange ? parsedRange.header : "full"
+    range: parsedRange ? parsedRange.header : "full",
+    forcedInitial: forcedInitial || undefined
   });
 
   const chunkBytes = videoStreamChunkKb() * 1024;
@@ -369,6 +370,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
     playRoute: head.classified.route,
     playMode: head.classified.playMode,
     status: parsedRange ? 206 : 200,
+    forcedInitial: forcedInitial || false,
     contentLength: rangeLen,
     contentRange: parsedRange?.header ?? null,
     cached: false
