@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { MessageMediaGallery } from "@/components/tg-search-media";
+import { MessageMediaGallery, stopVideosInRoot } from "@/components/tg-search-media";
 import {
   collectChannelThumbIdsPrioritized,
   collectChannelVideoIds,
@@ -194,7 +194,10 @@ function ResourceDetailModal({
   messages,
   channelLoading,
   loadError,
-  onClose,
+  onRequestClose,
+  onForceClose,
+  minimized = false,
+  onRestore,
   onOpenArticle,
   anchorRef,
   onChannelPlaybackActive
@@ -211,7 +214,10 @@ function ResourceDetailModal({
   messages: ChannelMessageItem[];
   channelLoading: boolean;
   loadError: string | null;
-  onClose: () => void;
+  onRequestClose: () => void;
+  onForceClose: () => void;
+  minimized?: boolean;
+  onRestore: () => void;
   onOpenArticle: (payload: { title: string; text: string }) => void;
   anchorRef: React.RefObject<HTMLLIElement | null>;
   onChannelPlaybackActive?: (active: boolean) => void;
@@ -221,20 +227,34 @@ function ResourceDetailModal({
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (!minimized) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = prevOverflow || "";
+    }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        if (minimized) onForceClose();
+        else onRequestClose();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKey);
     };
-  }, [onClose]);
+  }, [minimized, onForceClose, onRequestClose]);
 
   return (
-    <div className="gs-channel-sheet" role="dialog" aria-modal="true" aria-label="资源详情">
-      <button type="button" className="gs-channel-sheet-backdrop" onClick={onClose} aria-label="关闭" />
+    <div
+      className={`gs-channel-sheet${minimized ? " is-minimized" : ""}`}
+      role="dialog"
+      aria-modal={minimized ? "false" : "true"}
+      aria-label={minimized ? "视频小窗播放" : "资源详情"}
+    >
+      {!minimized ? (
+        <button type="button" className="gs-channel-sheet-backdrop" onClick={onRequestClose} aria-label="关闭" />
+      ) : null}
       <div className="gs-channel-sheet-panel">
         <div className="gs-channel-sheet-head">
           <h3 className="gs-channel-sheet-title">
@@ -245,9 +265,21 @@ function ResourceDetailModal({
             ) : null}
             {headerTitle || channel.title}
           </h3>
-          <button type="button" className="gs-channel-sheet-close" onClick={onClose} aria-label="关闭">
-            ✕
-          </button>
+          <div className="gs-channel-sheet-head-actions">
+            {minimized ? (
+              <button type="button" className="gs-channel-sheet-restore" onClick={onRestore}>
+                展开
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="gs-channel-sheet-close"
+              onClick={minimized ? onForceClose : onRequestClose}
+              aria-label={minimized ? "停止播放" : "关闭"}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {channelMeta?.anchorMessageId ? (
@@ -575,6 +607,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const anchorRef = useRef<HTMLLIElement>(null);
   const channelAbortRef = useRef<AbortController | null>(null);
   const channelVideoPlayingRef = useRef(false);
+  const [channelMinimized, setChannelMinimized] = useState(false);
   const searchAbortRef = useRef<AbortController | null>(null);
 
   function abortChannelWork() {
@@ -585,10 +618,26 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setChannelMeta(null);
     setChannelLoadError(null);
     setChannelLoading(false);
+    setChannelMinimized(false);
+    channelVideoPlayingRef.current = false;
+  }
+
+  function forceCloseChannelModal() {
+    stopVideosInRoot(document.querySelector(".gs-channel-sheet"));
+    channelVideoPlayingRef.current = false;
+    abortChannelWork();
+  }
+
+  function requestCloseChannelModal() {
+    if (channelVideoPlayingRef.current) {
+      setChannelMinimized(true);
+      return;
+    }
+    forceCloseChannelModal();
   }
 
   function beginSearchSession() {
-    abortChannelWork();
+    forceCloseChannelModal();
     searchAbortRef.current?.abort();
     const controller = new AbortController();
     searchAbortRef.current = controller;
@@ -947,12 +996,12 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     void loadResource(channel);
   }
 
-  function closeChannelModal() {
-    abortChannelWork();
-  }
-
   async function loadResource(channel: JisouChannel) {
     if (!channel.username) return;
+
+    if (activeChannel && channel.url !== activeChannel.url) {
+      forceCloseChannelModal();
+    }
 
     channelAbortRef.current?.abort();
     const abortController = new AbortController();
@@ -1466,7 +1515,10 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           messages={messages}
           channelLoading={channelLoading}
           loadError={channelLoadError}
-          onClose={closeChannelModal}
+          onRequestClose={requestCloseChannelModal}
+          onForceClose={forceCloseChannelModal}
+          minimized={channelMinimized}
+          onRestore={() => setChannelMinimized(false)}
           onOpenArticle={setArticle}
           anchorRef={anchorRef}
           onChannelPlaybackActive={(active) => {

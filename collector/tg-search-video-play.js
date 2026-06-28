@@ -16,7 +16,6 @@ const {
   videoWarmMaxBytes
 } = require("./tg-search-play-route");
 const {
-  getCachedFullMediaUrl,
   resolveVideoMime,
   videoStreamChunkKb,
   iterVideoDownloadWithRetry
@@ -118,27 +117,6 @@ async function resolveVideoPlayInfo(username, messageId, opts = {}) {
     throw err;
   }
 
-  const cached = await getCachedFullMediaUrl(uname, mid);
-  if (cached?.contentType === "VIDEO" && cached.url) {
-    const classified = classifyVideoPlayRoute({ cached: true });
-    const info = {
-      username: uname,
-      messageId: mid,
-      route: classified.route,
-      playMode: classified.playMode,
-      largeFile: classified.largeFile,
-      warmEligible: classified.warmEligible,
-      cached: true,
-      url: cached.url,
-      fileSize: null,
-      durationSec: null,
-      warmMaxMb: Math.round(videoWarmMaxBytes() / (1024 * 1024)),
-      warmEnabled: isVideoWarmEnabled()
-    };
-    logVideoPlayRoute({ ...info, ms: Date.now() - started });
-    return info;
-  }
-
   return withGramClient(
     async (client) => {
       throwIfAborted(opts.signal);
@@ -172,24 +150,6 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
   const mid = Math.floor(Number(messageId));
   const uname = String(username || "").trim();
   const rangeHeader = opts.rangeHeader || null;
-
-  const cached = await getCachedFullMediaUrl(uname, mid);
-  if (cached?.contentType === "VIDEO" && cached.url) {
-    const classified = classifyVideoPlayRoute({ cached: true });
-    logVideoPlayRoute({
-      username: uname,
-      messageId: mid,
-      ...classified,
-      cached: true,
-      range: rangeHeader || "full"
-    });
-    return {
-      redirect: cached.url,
-      playRoute: classified.route,
-      playMode: classified.playMode,
-      cached: true
-    };
-  }
 
   let head = getCachedStreamHead(uname, mid);
   if (!head) {

@@ -6983,6 +6983,83 @@ button.h5-detail-img-cell:active {
   overflow: visible;
 }
 
+.gs-channel-sheet-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.gs-channel-sheet-restore {
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 112, 67, 0.25);
+  cursor: pointer;
+}
+
+.gs-channel-sheet.is-minimized {
+  pointer-events: none;
+  z-index: 900;
+  inset: auto;
+  left: 0;
+  right: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0));
+  top: auto;
+  height: auto;
+}
+
+.gs-channel-sheet.is-minimized .gs-channel-sheet-panel {
+  pointer-events: auto;
+  height: auto;
+  max-height: min(240px, 38dvh);
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gs-channel-sheet.is-minimized .gs-channel-sheet-head {
+  padding: 10px 12px 8px;
+}
+
+.gs-channel-sheet.is-minimized .gs-channel-sheet-title {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gs-channel-sheet.is-minimized .gs-channel-sheet-meta {
+  display: none;
+}
+
+.gs-channel-sheet.is-minimized .gs-channel-sheet-body {
+  padding: 0 12px 10px;
+  overflow: hidden;
+  max-height: 180px;
+}
+
+.gs-channel-sheet.is-minimized .gs-message-card:not(:has(.gs-media-video-el.is-active)) {
+  display: none;
+}
+
+.gs-channel-sheet.is-minimized .gs-message-card:has(.gs-media-video-el.is-active) .gs-message-head,
+.gs-channel-sheet.is-minimized .gs-message-card:has(.gs-media-video-el.is-active) .gs-message-text,
+.gs-channel-sheet.is-minimized .gs-message-card:has(.gs-media-video-el.is-active) .gs-message-time {
+  display: none;
+}
+
+.gs-channel-sheet.is-minimized .gs-media-video-stage {
+  max-height: 140px;
+}
+
+.gs-channel-sheet.is-minimized .gs-media-video-el {
+  max-height: 140px;
+}
+
 .gs-resources-loading {
   flex: 1;
   min-height: min(68dvh, 640px);
