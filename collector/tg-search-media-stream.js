@@ -39,15 +39,16 @@ async function* iterVideoDownloadWithRetry(client, msg, entity, chunkBytes, byte
   let retriesLeft = videoStreamRetries();
 
   while (true) {
+    const rawIter = buildVideoDownloadIter(client, msg, entity, chunkBytes, offset);
+    const iter = toAsyncIterator(rawIter);
     try {
-      const iter = buildVideoDownloadIter(client, msg, entity, chunkBytes, offset);
-      for await (const chunk of iter) {
-        throwIfAborted(signal);
+      while (true) {
+        const { done, value: chunk } = await iterNextWithAbort(iter, signal);
+        if (done) return;
         yield chunk;
         offset += chunk.length;
         retriesLeft = videoStreamRetries();
       }
-      return;
     } catch (err) {
       throwIfAborted(signal);
       if (err?.code === "REQUEST_ABORTED") throw err;
@@ -60,6 +61,8 @@ async function* iterVideoDownloadWithRetry(client, msg, entity, chunkBytes, byte
         continue;
       }
       throw err;
+    } finally {
+      await closeAsyncIter(iter);
     }
   }
 }
@@ -69,6 +72,56 @@ function throwIfAborted(signal) {
     const err = new Error("请求已取消");
     err.code = "REQUEST_ABORTED";
     throw err;
+  }
+}
+
+function abortedError() {
+  const err = new Error("请求已取消");
+  err.code = "REQUEST_ABORTED";
+  return err;
+}
+
+/** GramJS iterDownload 返回 AsyncIterable，for-await 可用但无 .next() */
+function toAsyncIterator(source) {
+  if (source && typeof source.next === "function") return source;
+  if (source && typeof source[Symbol.asyncIterator] === "function") {
+    return source[Symbol.asyncIterator]();
+  }
+  const err = new TypeError("iterDownload 返回值不可迭代");
+  err.code = "INVALID_ITER";
+  throw err;
+}
+
+async function iterNextWithAbort(iter, signal) {
+  throwIfAborted(signal);
+  const nextPromise = iter.next();
+  if (!signal) return nextPromise;
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(abortedError());
+      return;
+    }
+    const onAbort = () => reject(abortedError());
+    signal.addEventListener("abort", onAbort, { once: true });
+    nextPromise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(err);
+      }
+    );
+  });
+}
+
+async function closeAsyncIter(iter) {
+  if (typeof iter?.return !== "function") return;
+  try {
+    await iter.return();
+  } catch {
+    /* ignore */
   }
 }
 

@@ -7306,6 +7306,126 @@ button.h5-detail-img-cell:active {
   font-size: 13px;
   font-weight: 700;
   pointer-events: none;
+  padding: 12px;
+  text-align: center;
+}
+
+.gs-media-video-buffering--progress {
+  gap: 8px;
+}
+
+.gs-media-video-progress-panel {
+  width: min(100%, 280px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gs-media-video-progress-tag {
+  align-self: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffb199;
+  background: rgba(255, 112, 67, 0.15);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.gs-media-video-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.gs-media-video-progress-track--strip {
+  height: 4px;
+}
+
+.gs-media-video-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff7043, #ffb199);
+  transition: width 0.35s ease;
+}
+
+.gs-media-video-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.gs-media-video-progress-row--bar {
+  gap: 10px;
+}
+
+.gs-media-video-progress-row--bar .gs-media-video-progress-track {
+  flex: 1;
+  min-width: 0;
+}
+
+.gs-media-video-progress-size,
+.gs-media-video-progress-strip-size {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.gs-media-video-progress-row--sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.gs-media-video-progress-hint {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.gs-media-video-progress-detail {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.gs-media-video-progress-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  pointer-events: none;
+  padding: 6px 8px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+}
+
+.gs-media-video-progress-strip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gs-media-video-progress-strip-row .gs-media-video-progress-track--strip {
+  flex: 1;
+  min-width: 0;
+}
+
+.gs-media-meta-progress {
+  color: #ff7043;
 }
 
 .gs-media-meta {

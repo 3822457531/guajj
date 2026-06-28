@@ -30,12 +30,136 @@ function playInfoUrl(apiBase: string, username: string, messageId: number) {
   return `${apiBase}/media/play-info?${params.toString()}`;
 }
 
+/** 断开 video 对 /media/stream 的 HTTP 连接，避免关闭弹窗后仍从 TG 拉流 */
+function stopVideoPlayback(video: HTMLVideoElement | null) {
+  if (!video) return;
+  try {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  } catch {
+    /* ignore */
+  }
+}
+
 function resolveMediaPlayUrl(url: string): string {
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
   if (typeof window !== "undefined" && url.startsWith("/")) {
     return `${window.location.origin}${url}`;
   }
   return url;
+}
+
+type VideoPlayMeta = {
+  fileSize: number | null;
+  durationSec: number | null;
+  route: string | null;
+  playMode: string | null;
+  largeFile: boolean;
+};
+
+type StreamBufferStats = {
+  pct: number;
+  bufferedBytes: number;
+  totalBytes: number;
+  remainBytes: number;
+  speedBps: number;
+  etaSec: number | null;
+  hasBuffer: boolean;
+};
+
+function formatMediaBytes(n: number): string {
+  const bytes = Math.max(0, Math.floor(Number(n) || 0));
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+/** 紧凑流量展示，如 70m / 600m */
+function formatTrafficBytes(n: number): string {
+  const bytes = Math.max(0, Math.floor(Number(n) || 0));
+  if (bytes < 1024) return `${bytes}b`;
+  if (bytes < 1024 * 1024) {
+    const kb = bytes / 1024;
+    return kb >= 100 ? `${Math.round(kb)}k` : `${kb.toFixed(kb >= 10 ? 0 : 1)}k`;
+  }
+  if (bytes < 1024 * 1024 * 1024) {
+    const mb = bytes / (1024 * 1024);
+    if (mb >= 100) return `${Math.round(mb)}m`;
+    if (mb >= 10) return `${Math.round(mb)}m`;
+    return `${mb.toFixed(mb >= 1 ? 0 : 1)}m`;
+  }
+  const gb = bytes / (1024 * 1024 * 1024);
+  return `${gb >= 10 ? gb.toFixed(1) : gb.toFixed(2)}g`;
+}
+
+function formatTrafficPair(bufferedBytes: number, totalBytes: number): string {
+  return `${formatTrafficBytes(bufferedBytes)}/${formatTrafficBytes(totalBytes)}`;
+}
+
+function formatStreamSpeed(bytesPerSec: number): string {
+  const bps = Math.max(0, Number(bytesPerSec) || 0);
+  if (bps <= 0) return "—";
+  const mbps = (bps * 8) / (1024 * 1024);
+  if (mbps >= 1) return `${mbps.toFixed(2)} Mbps`;
+  return `${Math.round((bps * 8) / 1024)} Kbps`;
+}
+
+function formatEta(sec: number | null): string {
+  if (sec == null || !Number.isFinite(sec) || sec <= 0) return "";
+  const s = Math.ceil(sec);
+  if (s < 60) return `约 ${s} 秒`;
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return r > 0 ? `约 ${m} 分 ${r} 秒` : `约 ${m} 分钟`;
+}
+
+function sumBufferedSeconds(video: HTMLVideoElement): number {
+  let bufferedSec = 0;
+  for (let i = 0; i < video.buffered.length; i++) {
+    bufferedSec += Math.max(0, video.buffered.end(i) - video.buffered.start(i));
+  }
+  return bufferedSec;
+}
+
+/** 按已缓冲数据量（非播放进度）估算字节与百分比 */
+function readVideoBufferStats(
+  video: HTMLVideoElement,
+  fileSize: number | null,
+  durationHint: number | null
+): StreamBufferStats {
+  const duration =
+    Number.isFinite(video.duration) && video.duration > 0 ? video.duration : durationHint || 0;
+  const bufferedSec = sumBufferedSeconds(video);
+  const totalBytes = fileSize && fileSize > 0 ? fileSize : 0;
+  let bufferedBytes = 0;
+  let pct = 0;
+
+  if (duration > 0 && totalBytes > 0) {
+    const ratio = Math.min(1, bufferedSec / duration);
+    bufferedBytes = Math.round(ratio * totalBytes);
+    pct = Math.min(100, Math.round((bufferedBytes / totalBytes) * 100));
+  } else if (duration > 0) {
+    pct = Math.min(100, Math.round((bufferedSec / duration) * 100));
+  }
+
+  const remainBytes = totalBytes > 0 ? Math.max(0, totalBytes - bufferedBytes) : 0;
+
+  return {
+    pct,
+    bufferedBytes,
+    totalBytes,
+    remainBytes,
+    speedBps: 0,
+    etaSec: null,
+    hasBuffer: bufferedSec > 0.05 || video.readyState >= 3
+  };
+}
+
+function isTgStreamRoute(route: string | null, cachedFullUrl: string | null) {
+  if (cachedFullUrl) return false;
+  return route === "TG_STREAM" || route === "TG_STREAM_LARGE" || !route;
 }
 
 function pickSrc(apiBase: string, item: ChannelMediaItem, username: string, thumb: boolean) {
@@ -135,6 +259,8 @@ export function LazyVideoPlayer({
   eagerPrefetch?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const prefetchAbortRef = useRef<AbortController | null>(null);
+  const prefetchPromiseRef = useRef<Promise<VideoPlayMeta | null> | null>(null);
   const probingRef = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [playAttempt, setPlayAttempt] = useState(0);
@@ -145,49 +271,115 @@ export function LazyVideoPlayer({
   const [buffering, setBuffering] = useState(false);
   const [streamError, setStreamError] = useState(false);
   const [playRoute, setPlayRoute] = useState<string | null>(item.fullUrl ? "R2_CDN" : null);
+  const [playMeta, setPlayMeta] = useState<VideoPlayMeta | null>(
+    item.fullUrl ? { fileSize: null, durationSec: null, route: "R2_CDN", playMode: null, largeFile: false } : null
+  );
+  const playMetaRef = useRef<VideoPlayMeta | null>(playMeta);
+  const [bufferStats, setBufferStats] = useState<StreamBufferStats | null>(null);
+  const speedSampleRef = useRef<{ at: number; bytes: number } | null>(null);
 
   const poster = item.thumbUrl ? resolveMediaPlayUrl(item.thumbUrl) : coverUrl ? resolveMediaPlayUrl(coverUrl) : null;
   const videoSrc = cachedFullUrl
     ? resolveMediaPlayUrl(cachedFullUrl)
     : streamVideoUrl(apiBase, username, item.id);
+  const showStreamProgress = playing && isTgStreamRoute(playRoute, cachedFullUrl) && !streamError;
+  const trafficTotalBytes = bufferStats?.totalBytes || playMeta?.fileSize || 0;
+  const trafficBufferedBytes = bufferStats?.bufferedBytes ?? 0;
+  const trafficBufferPct =
+    trafficTotalBytes > 0
+      ? Math.min(100, Math.round((trafficBufferedBytes / trafficTotalBytes) * 100))
+      : bufferStats?.pct ?? 0;
 
-  const startPrefetch = useCallback(async () => {
-    if (playInfoReady || probingRef.current) return;
+  useEffect(() => {
+    playMetaRef.current = playMeta;
+  }, [playMeta]);
 
-    if (item.fullUrl) {
-      setCachedFullUrl(resolveMediaPlayUrl(item.fullUrl));
-      setPlayRoute("R2_CDN");
-      setPlayReady(true);
-      setPlayInfoReady(true);
-      return;
-    }
+  const startPrefetch = useCallback(
+    async (opts?: { force?: boolean }): Promise<VideoPlayMeta | null> => {
+      if (item.fullUrl) {
+        const meta: VideoPlayMeta = {
+          fileSize: null,
+          durationSec: null,
+          route: "R2_CDN",
+          playMode: "R2/CDN 缓存",
+          largeFile: false
+        };
+        setCachedFullUrl(resolveMediaPlayUrl(item.fullUrl));
+        setPlayRoute("R2_CDN");
+        setPlayMeta(meta);
+        setPlayReady(true);
+        setPlayInfoReady(true);
+        return meta;
+      }
 
-    probingRef.current = true;
-    setProbing(true);
-    try {
-      const res = await fetch(playInfoUrl(apiBase, username, item.id), { cache: "no-store" });
-      const data = (await res.json()) as {
-        ok?: boolean;
-        route?: string;
-        playMode?: string;
-        url?: string | null;
-        cached?: boolean;
-      };
-      if (res.ok && data.ok) {
-        setPlayRoute(data.route || null);
-        if (data.cached && data.url) {
-          setCachedFullUrl(resolveMediaPlayUrl(data.url));
+      if (!opts?.force && playInfoReady && playMetaRef.current?.fileSize) {
+        return playMetaRef.current;
+      }
+
+      if (prefetchPromiseRef.current) {
+        return prefetchPromiseRef.current;
+      }
+
+      prefetchAbortRef.current?.abort();
+      const prefetchAbort = new AbortController();
+      prefetchAbortRef.current = prefetchAbort;
+
+      const task = (async (): Promise<VideoPlayMeta | null> => {
+        probingRef.current = true;
+        setProbing(true);
+        let nextMeta: VideoPlayMeta | null = playMetaRef.current;
+        try {
+          const res = await fetch(playInfoUrl(apiBase, username, item.id), {
+            cache: "no-store",
+            signal: prefetchAbort.signal
+          });
+          const data = (await res.json()) as {
+            ok?: boolean;
+            route?: string;
+            playMode?: string;
+            url?: string | null;
+            cached?: boolean;
+            fileSize?: number | null;
+            durationSec?: number | null;
+            largeFile?: boolean;
+          };
+          if (res.ok && data.ok) {
+            nextMeta = {
+              fileSize: data.fileSize != null ? Number(data.fileSize) : null,
+              durationSec: data.durationSec != null ? Number(data.durationSec) : null,
+              route: data.route || null,
+              playMode: data.playMode || null,
+              largeFile: Boolean(data.largeFile)
+            };
+            setPlayRoute(data.route || null);
+            setPlayMeta(nextMeta);
+            if (data.cached && data.url) {
+              setCachedFullUrl(resolveMediaPlayUrl(data.url));
+            }
+          }
+          return nextMeta;
+        } catch (err) {
+          if (err instanceof DOMException && err.name === "AbortError") return playMetaRef.current;
+          return playMetaRef.current;
+        } finally {
+          probingRef.current = false;
+          setProbing(false);
+          setPlayInfoReady(true);
+          setPlayReady(true);
+        }
+      })();
+
+      prefetchPromiseRef.current = task;
+      try {
+        return await task;
+      } finally {
+        if (prefetchPromiseRef.current === task) {
+          prefetchPromiseRef.current = null;
         }
       }
-    } catch {
-      /* 探测失败仍走 stream */
-    } finally {
-      probingRef.current = false;
-      setProbing(false);
-      setPlayInfoReady(true);
-      setPlayReady(true);
-    }
-  }, [apiBase, item.fullUrl, item.id, playInfoReady, username]);
+    },
+    [apiBase, item.fullUrl, item.id, playInfoReady, username]
+  );
 
   useEffect(() => {
     if (item.fullUrl) {
@@ -195,14 +387,102 @@ export function LazyVideoPlayer({
       setPlayInfoReady(true);
       setPlayReady(true);
       setPlayRoute("R2_CDN");
+      setPlayMeta({
+        fileSize: null,
+        durationSec: null,
+        route: "R2_CDN",
+        playMode: "R2/CDN 缓存",
+        largeFile: false
+      });
     }
   }, [item.fullUrl]);
+
+  useEffect(() => {
+    speedSampleRef.current = null;
+    setBufferStats(null);
+  }, [playing, videoSrc, playAttempt]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !playing || !showStreamProgress) return;
+
+    const fileSize = playMeta?.fileSize ?? null;
+    const durationHint = playMeta?.durationSec ?? null;
+
+    function updateBufferStats() {
+      const base = readVideoBufferStats(video!, fileSize, durationHint);
+      const now = Date.now();
+      let speedBps = 0;
+      let etaSec: number | null = null;
+
+      if (base.bufferedBytes > 0) {
+        const prev = speedSampleRef.current;
+        if (prev && now > prev.at) {
+          const deltaBytes = base.bufferedBytes - prev.bytes;
+          const deltaSec = (now - prev.at) / 1000;
+          if (deltaBytes > 0 && deltaSec > 0.2) {
+            speedBps = deltaBytes / deltaSec;
+          }
+        }
+        if (speedBps > 0) {
+          speedSampleRef.current = { at: now, bytes: base.bufferedBytes };
+        } else if (!speedSampleRef.current) {
+          speedSampleRef.current = { at: now, bytes: base.bufferedBytes };
+        }
+      }
+
+      if (speedBps > 0 && base.remainBytes > 0) {
+        etaSec = base.remainBytes / speedBps;
+      }
+
+      setBufferStats({ ...base, speedBps, etaSec });
+    }
+
+    updateBufferStats();
+    video.addEventListener("progress", updateBufferStats);
+    video.addEventListener("timeupdate", updateBufferStats);
+    video.addEventListener("loadedmetadata", updateBufferStats);
+    video.addEventListener("canplay", updateBufferStats);
+
+    const timer = window.setInterval(updateBufferStats, 1000);
+
+    return () => {
+      video.removeEventListener("progress", updateBufferStats);
+      video.removeEventListener("timeupdate", updateBufferStats);
+      video.removeEventListener("loadedmetadata", updateBufferStats);
+      video.removeEventListener("canplay", updateBufferStats);
+      window.clearInterval(timer);
+    };
+  }, [playing, showStreamProgress, playMeta?.fileSize, playMeta?.durationSec]);
 
   useEffect(() => {
     if (eagerPrefetch && !item.fullUrl) {
       void startPrefetch();
     }
   }, [eagerPrefetch, item.fullUrl, startPrefetch]);
+
+  useEffect(() => {
+    if (!playing || !showStreamProgress || item.fullUrl || playMeta?.fileSize) return;
+    void startPrefetch({ force: true });
+  }, [playing, showStreamProgress, item.fullUrl, playMeta?.fileSize, startPrefetch]);
+
+  useEffect(() => {
+    if (!playing) {
+      stopVideoPlayback(videoRef.current);
+      return;
+    }
+    return () => {
+      stopVideoPlayback(videoRef.current);
+    };
+  }, [playing]);
+
+  useEffect(() => {
+    return () => {
+      prefetchAbortRef.current?.abort();
+      prefetchAbortRef.current = null;
+      stopVideoPlayback(videoRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -246,13 +526,20 @@ export function LazyVideoPlayer({
 
   async function handlePlayClick() {
     setStreamError(false);
+    setBufferStats(null);
+    speedSampleRef.current = null;
     await startPrefetch();
+    if (!item.fullUrl && !playMetaRef.current?.fileSize) {
+      await startPrefetch({ force: true });
+    }
     setPlaying(true);
     setBuffering(true);
   }
 
   function handleRetryPlay() {
     setStreamError(false);
+    setBufferStats(null);
+    speedSampleRef.current = null;
     setPlaying(false);
     setBuffering(false);
     setPlayAttempt((n) => n + 1);
@@ -271,6 +558,19 @@ export function LazyVideoPlayer({
     if (playRoute === "TG_STREAM") return " · 暗网直出流";
     if (playReady) return " · 已就绪";
     return " · 封面已缓存";
+  }
+
+  function streamProgressHint() {
+    if (!showStreamProgress) return null;
+    if (!bufferStats?.hasBuffer && buffering) return "正在从 Telegram 拉取首包…";
+    if (bufferStats && bufferStats.totalBytes > 0) {
+      const eta = formatEta(bufferStats.etaSec);
+      return eta ? `继续等待即可播放 · 预计还需 ${eta}` : "数据持续到达中，请稍候…";
+    }
+    if (bufferStats && bufferStats.pct > 0) {
+      return `已缓冲约 ${bufferStats.pct}%，请继续等待…`;
+    }
+    return "正在建立视频流，请稍候…";
   }
 
   return (
@@ -315,22 +615,52 @@ export function LazyVideoPlayer({
         {playing && streamError ? (
           <div className="gs-media-video-buffering" aria-live="polite">
             <span>视频加载超时，请重试</span>
+            {bufferStats && bufferStats.totalBytes > 0 ? (
+              <span className="gs-media-video-progress-detail">
+                已缓冲 {formatMediaBytes(bufferStats.bufferedBytes)} / {formatMediaBytes(bufferStats.totalBytes)}
+              </span>
+            ) : null}
             <button type="button" className="gs-media-video-play" onClick={handleRetryPlay}>
               重新播放
             </button>
           </div>
         ) : null}
 
-        {playing && buffering && !streamError ? (
-          <div className="gs-media-video-buffering" aria-live="polite">
+        {playing && (buffering || (showStreamProgress && !bufferStats?.hasBuffer)) && !streamError ? (
+          <div className="gs-media-video-buffering gs-media-video-buffering--progress" aria-live="polite">
             <span className="gs-media-video-warm-spinner" aria-hidden />
-            <span>缓冲中…</span>
+            <span>{buffering ? "缓冲中…" : "连接中…"}</span>
+            {showStreamProgress && trafficTotalBytes <= 0 ? (
+              <p className="gs-media-video-progress-hint">{streamProgressHint()}</p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {playing && showStreamProgress && !streamError && trafficTotalBytes > 0 ? (
+          <div className="gs-media-video-progress-strip" aria-live="polite">
+            <div className="gs-media-video-progress-strip-row">
+              <div className="gs-media-video-progress-track gs-media-video-progress-track--strip" aria-hidden>
+                <span
+                  className="gs-media-video-progress-fill"
+                  style={{ width: `${Math.max(trafficBufferPct, trafficBufferedBytes > 0 ? 2 : 0)}%` }}
+                />
+              </div>
+              <span className="gs-media-video-progress-strip-size">
+                {formatTrafficPair(trafficBufferedBytes, trafficTotalBytes)}
+              </span>
+            </div>
           </div>
         ) : null}
       </div>
       <div className="gs-media-meta">
         #{item.id}
         {routeLabel()}
+        {showStreamProgress && trafficTotalBytes > 0 && playing ? (
+          <span className="gs-media-meta-progress">
+            {" "}
+            · {formatTrafficPair(trafficBufferedBytes, trafficTotalBytes)} ({trafficBufferPct}%)
+          </span>
+        ) : null}
       </div>
     </div>
   );

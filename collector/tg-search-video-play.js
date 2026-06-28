@@ -189,6 +189,21 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
   const streamAbort = new AbortController();
   const streamSignal = mergeAbortSignals(opts.signal, streamAbort.signal);
 
+  if (opts.signal) {
+    if (opts.signal.aborted) {
+      streamAbort.abort(opts.signal.reason || "client_abort");
+    } else {
+      opts.signal.addEventListener(
+        "abort",
+        () => {
+          streamAbort.abort(opts.signal.reason || "client_abort");
+          console.log(`[tg-search:play] @${uname}/#${mid} 客户端断开连接`);
+        },
+        { once: true }
+      );
+    }
+  }
+
   const stream = new ReadableStream({
     async start(controller) {
       /** @type {import('./tg-search-media-metrics').TgStreamSpeedLogger | null} */
@@ -270,7 +285,8 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
       } catch (err) {
         speedLog?.fail(err);
         if (err?.code === "REQUEST_ABORTED") {
-          console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消`);
+          const reason = streamSignal.reason || opts.signal?.reason || "abort";
+          console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消 · ${String(reason)}`);
         } else if (/TIMEOUT/i.test(String(err?.message || err))) {
           console.warn(`[tg-search:play] @${uname}/#${mid} stream TIMEOUT`);
         }
@@ -281,8 +297,11 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
         }
       }
     },
-    cancel() {
-      streamAbort.abort("stream_cancel");
+    cancel(reason) {
+      streamAbort.abort(reason || "stream_cancel");
+      console.log(
+        `[tg-search:play] @${uname}/#${mid} stream cancel · ${String(reason || "stream_cancel")}`
+      );
     }
   });
 
