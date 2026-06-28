@@ -5,7 +5,8 @@ const { withGramClient } = require("./gram-client");
 const { pickContentType } = require("./parse");
 const {
   MediaTransferMetrics,
-  extractMediaMeta
+  extractMediaMeta,
+  TgStreamSpeedLogger
 } = require("./tg-search-media-metrics");
 const {
   classifyVideoPlayRoute,
@@ -190,11 +191,24 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
 
   const stream = new ReadableStream({
     async start(controller) {
+      /** @type {import('./tg-search-media-metrics').TgStreamSpeedLogger | null} */
+      let speedLog = null;
       try {
         await withGramClient(
           async (client) => {
             throwIfAborted(streamSignal);
             const live = head;
+
+            const streamSource =
+              live.classified.route === "TG_STREAM_LARGE" ? "http-stream-large" : "http-stream";
+            speedLog = new TgStreamSpeedLogger({
+              username: uname,
+              messageId: mid,
+              fileSize: live.fileSize,
+              source: streamSource,
+              rangeStart
+            });
+            speedLog.onStart({ playMode: live.classified.playMode });
 
             const metrics = new MediaTransferMetrics({
               username: uname,
@@ -203,8 +217,8 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
               contentType: "VIDEO",
               fileSize: live.mediaMeta.fileSize,
               durationSec: live.mediaMeta.durationSec,
-              source:
-                live.classified.route === "TG_STREAM_LARGE" ? "http-stream-large" : "http-stream"
+              source: streamSource,
+              forceMetrics: opts.metrics === true ? true : opts.metrics === false ? false : undefined
             });
             metrics.start();
             metrics.tgDownloadBegin(live.fileSize);
@@ -225,6 +239,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
               throwIfAborted(streamSignal);
               if (!firstChunkAt) {
                 firstChunkAt = Date.now();
+                speedLog.onFirstChunk(chunk.length);
                 console.log(
                   `[tg-search:play] @${uname}/#${mid} 首包 ${Date.now() - metrics.startedAt}ms · ${live.classified.playMode}`
                 );
@@ -237,6 +252,7 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
               if (slice.length > 0) {
                 controller.enqueue(new Uint8Array(slice));
                 emitted += slice.length;
+                speedLog.onChunk(slice.length);
               }
               metrics.tgDownloadProgress(rangeStart + emitted, live.fileSize);
 
@@ -245,12 +261,14 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
             }
 
             metrics.tgDownloadDone(emitted);
+            speedLog.finish({ mode: "http-stream", range: Boolean(parsedRange), emitted });
             metrics.finish({ mode: "http-stream", range: Boolean(parsedRange) });
             controller.close();
           },
-          { signal: streamSignal, priority: "high", role: "stream", task: "video-stream" }
+          { signal: streamSignal, priority: "high", role: "stream", task: "video-stream", metrics: opts.metrics }
         );
       } catch (err) {
+        speedLog?.fail(err);
         if (err?.code === "REQUEST_ABORTED") {
           console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消`);
         } else if (/TIMEOUT/i.test(String(err?.message || err))) {

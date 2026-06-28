@@ -11,6 +11,28 @@ function envMetricsEnabled() {
   return process.env.NODE_ENV === "development";
 }
 
+/** TG 直出流实时网速（控制台 grep "[tg-search:stream-speed]"） */
+function streamSpeedLogEnabled() {
+  const v = String(process.env.TG_SEARCH_STREAM_SPEED_LOG ?? "").trim().toLowerCase();
+  if (v === "0" || v === "false" || v === "off") return false;
+  if (v === "1" || v === "true" || v === "on") return true;
+  return envMetricsEnabled();
+}
+
+function streamSpeedLogIntervalMs() {
+  const n = Number(process.env.TG_SEARCH_STREAM_SPEED_LOG_MS) || 2000;
+  return Math.min(10000, Math.max(500, Math.round(n)));
+}
+
+function formatMbps(bytesPerSec) {
+  const bps = Number(bytesPerSec) || 0;
+  if (bps <= 0) return "0 Kbps";
+  const mbps = (bps * 8) / (1024 * 1024);
+  if (mbps >= 1) return `${mbps.toFixed(2)} Mbps`;
+  const kbps = (bps * 8) / 1024;
+  return `${kbps.toFixed(0)} Kbps`;
+}
+
 /** 仅正式 /api/tg-search 或显式 forceMetrics 时输出指标 */
 function mediaMetricsEnabled(forceMetrics) {
   if (forceMetrics === true) return envMetricsEnabled();
@@ -243,9 +265,106 @@ function logChannelLoadSummary(username, extra) {
   logMetrics("CHANNEL", `@${username} 频道加载完成`, extra);
 }
 
+/**
+ * TG → Node 直出流实时网速（压测服务器 / 带宽用）
+ * 过滤：grep "[tg-search:stream-speed]"
+ */
+class TgStreamSpeedLogger {
+  /**
+   * @param {{ username: string, messageId: number, fileSize?: number|null, source?: string, rangeStart?: number }} ctx
+   */
+  constructor(ctx) {
+    this.enabled = streamSpeedLogEnabled();
+    this.username = String(ctx.username || "");
+    this.messageId = Math.floor(Number(ctx.messageId));
+    this.fileSize = ctx.fileSize != null ? Number(ctx.fileSize) : null;
+    this.source = ctx.source || "http-stream";
+    this.rangeStart = Math.max(0, Math.floor(Number(ctx.rangeStart) || 0));
+    this.startedAt = Date.now();
+    this.firstByteAt = 0;
+    this.bytesTotal = 0;
+    this.lastLogAt = 0;
+    this.lastLogBytes = 0;
+    this.intervalMs = streamSpeedLogIntervalMs();
+  }
+
+  tag() {
+    return `@${this.username}/#${this.messageId}`;
+  }
+
+  onStart(extra) {
+    if (!this.enabled) return;
+    console.log(
+      `[tg-search:stream-speed] ${this.tag()} 开始 TG 拉流 · ${this.source}` +
+        (this.fileSize ? ` · 文件 ${formatBytes(this.fileSize)}` : "") +
+        (this.rangeStart > 0 ? ` · Range@${formatBytes(this.rangeStart)}` : "") +
+        (extra && Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "")
+    );
+  }
+
+  onFirstChunk(chunkBytes) {
+    if (!this.enabled) return;
+    this.firstByteAt = Date.now();
+    const ttfb = this.firstByteAt - this.startedAt;
+    console.log(
+      `[tg-search:stream-speed] ${this.tag()} 首包 TTFB=${ttfb}ms · ${formatBytes(chunkBytes)} · ${this.source}`
+    );
+  }
+
+  onChunk(chunkBytes) {
+    if (!this.enabled) return;
+    this.bytesTotal += chunkBytes;
+    const now = Date.now();
+    if (this.lastLogAt && now - this.lastLogAt < this.intervalMs) return;
+
+    const windowStart = this.lastLogAt || this.firstByteAt || this.startedAt;
+    const windowBytes = this.lastLogAt ? this.bytesTotal - this.lastLogBytes : this.bytesTotal;
+    const windowMs = Math.max(1, now - windowStart);
+    const instantBps = (windowBytes / windowMs) * 1000;
+    const dlStart = this.firstByteAt || this.startedAt;
+    const elapsedMs = now - dlStart;
+    const avgBps = elapsedMs > 0 ? (this.bytesTotal / elapsedMs) * 1000 : 0;
+
+    const pct =
+      this.fileSize && this.fileSize > 0
+        ? `${Math.min(100, Math.round(((this.rangeStart + this.bytesTotal) / this.fileSize) * 100))}%`
+        : null;
+
+    console.log(
+      `[tg-search:stream-speed] ${this.tag()} TG↓ instant=${formatMbps(instantBps)} avg=${formatMbps(avgBps)} · ${formatBytes(this.bytesTotal)}${this.fileSize ? `/${formatBytes(this.fileSize)}` : ""}${pct ? ` · ${pct}` : ""} · ${formatMs(elapsedMs)}`
+    );
+
+    this.lastLogAt = now;
+    this.lastLogBytes = this.bytesTotal;
+  }
+
+  finish(extra) {
+    if (!this.enabled) return;
+    const totalMs = Date.now() - this.startedAt;
+    const dlMs = this.firstByteAt ? Date.now() - this.firstByteAt : totalMs;
+    const avgBps = dlMs > 0 ? (this.bytesTotal / dlMs) * 1000 : 0;
+    console.log(
+      `[tg-search:stream-speed] ${this.tag()} 结束 · 共 ${formatBytes(this.bytesTotal)} · 均速 ${formatMbps(avgBps)} · 总耗时 ${formatMs(totalMs)} · TTFB ${this.firstByteAt ? this.firstByteAt - this.startedAt : "?"}ms` +
+        (extra && Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "")
+    );
+  }
+
+  fail(err, extra) {
+    if (!this.enabled) return;
+    const dlMs = this.firstByteAt ? Date.now() - this.firstByteAt : Date.now() - this.startedAt;
+    const avgBps = dlMs > 0 && this.bytesTotal > 0 ? (this.bytesTotal / dlMs) * 1000 : 0;
+    console.warn(
+      `[tg-search:stream-speed] ${this.tag()} 失败 · 已传 ${formatBytes(this.bytesTotal)} · 均速 ${formatMbps(avgBps)} · ${err?.message || err}` +
+        (extra && Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "")
+    );
+  }
+}
+
 module.exports = {
   mediaMetricsEnabled,
   envMetricsEnabled,
+  streamSpeedLogEnabled,
+  formatMbps,
   formatBytes,
   formatDurationSec,
   formatMs,
@@ -253,5 +372,6 @@ module.exports = {
   extractMediaMeta,
   logMetrics,
   MediaTransferMetrics,
+  TgStreamSpeedLogger,
   logChannelLoadSummary
 };
