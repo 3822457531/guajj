@@ -44,6 +44,36 @@ function mergeAbortSignals(...signals) {
   return controller.signal;
 }
 
+const STREAM_HEAD_CACHE = new Map();
+const STREAM_HEAD_TTL_MS = 10 * 60 * 1000;
+
+function streamHeadKey(uname, mid) {
+  return `${String(uname || "").toLowerCase()}:${Math.floor(Number(mid))}`;
+}
+
+function getCachedStreamHead(uname, mid) {
+  const hit = STREAM_HEAD_CACHE.get(streamHeadKey(uname, mid));
+  if (!hit || hit.expiresAt <= Date.now()) {
+    if (hit) STREAM_HEAD_CACHE.delete(streamHeadKey(uname, mid));
+    return null;
+  }
+  return hit.head;
+}
+
+function setCachedStreamHead(uname, mid, head) {
+  STREAM_HEAD_CACHE.set(streamHeadKey(uname, mid), {
+    head,
+    expiresAt: Date.now() + STREAM_HEAD_TTL_MS
+  });
+}
+
+function isRangeSwitchAbort(reason, rangeHeader) {
+  const r = String(reason || "");
+  if (r === "ResponseAborted" || r.includes("ResponseAborted")) return true;
+  if (r === "stream_cancel" && rangeHeader) return true;
+  return false;
+}
+
 async function fetchVideoMessageMeta(client, username, messageId) {
   const mid = Math.floor(Number(messageId));
   const uname = String(username || "").trim();
@@ -161,13 +191,20 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
     };
   }
 
-  const head = await withGramClient(
-    async (client) => {
-      throwIfAborted(opts.signal);
-      return fetchVideoMessageMeta(client, uname, mid);
-    },
-    { ...opts, priority: "high", role: "stream", task: "video-stream-meta" }
-  );
+  let head = getCachedStreamHead(uname, mid);
+  if (!head) {
+    head = await withGramClient(
+      async (client) => {
+        throwIfAborted(opts.signal);
+        return fetchVideoMessageMeta(client, uname, mid);
+      },
+      { ...opts, priority: "high", role: "stream", task: "video-stream-meta" }
+    );
+    setCachedStreamHead(uname, mid, head);
+  } else {
+    throwIfAborted(opts.signal);
+    console.log(`[tg-search:play] @${uname}/#${mid} stream meta 命中缓存`);
+  }
 
   const parsedRange = parseHttpRange(rangeHeader, head.fileSize);
   const rangeStart = parsedRange?.start ?? 0;
@@ -197,7 +234,14 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
         "abort",
         () => {
           streamAbort.abort(opts.signal.reason || "client_abort");
-          console.log(`[tg-search:play] @${uname}/#${mid} 客户端断开连接`);
+          const reason = opts.signal.reason || "client_abort";
+          if (isRangeSwitchAbort(reason, rangeHeader)) {
+            console.log(
+              `[tg-search:play] @${uname}/#${mid} stream Range 切换 · ${rangeHeader || "full"} · ${String(reason)}`
+            );
+          } else {
+            console.log(`[tg-search:play] @${uname}/#${mid} 客户端断开连接 · ${String(reason)}`);
+          }
         },
         { once: true }
       );
@@ -283,10 +327,19 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
           { signal: streamSignal, priority: "high", role: "stream", task: "video-stream", metrics: opts.metrics }
         );
       } catch (err) {
-        speedLog?.fail(err);
         if (err?.code === "REQUEST_ABORTED") {
           const reason = streamSignal.reason || opts.signal?.reason || "abort";
-          console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消 · ${String(reason)}`);
+          speedLog?.abort({ reason: String(reason), range: Boolean(parsedRange) });
+        } else {
+          speedLog?.fail(err);
+        }
+        if (err?.code === "REQUEST_ABORTED") {
+          const reason = streamSignal.reason || opts.signal?.reason || "abort";
+          if (isRangeSwitchAbort(reason, rangeHeader)) {
+            console.log(`[tg-search:play] @${uname}/#${mid} stream Range 结束 · ${String(reason)}`);
+          } else {
+            console.log(`[tg-search:play] @${uname}/#${mid} stream 已取消 · ${String(reason)}`);
+          }
         } else if (/TIMEOUT/i.test(String(err?.message || err))) {
           console.warn(`[tg-search:play] @${uname}/#${mid} stream TIMEOUT`);
         }
@@ -299,9 +352,13 @@ async function createVideoStreamResponse(username, messageId, opts = {}) {
     },
     cancel(reason) {
       streamAbort.abort(reason || "stream_cancel");
-      console.log(
-        `[tg-search:play] @${uname}/#${mid} stream cancel · ${String(reason || "stream_cancel")}`
-      );
+      if (isRangeSwitchAbort(reason, rangeHeader)) {
+        console.log(`[tg-search:play] @${uname}/#${mid} stream Range 切换 · ${String(reason || "stream_cancel")}`);
+      } else {
+        console.log(
+          `[tg-search:play] @${uname}/#${mid} stream cancel · ${String(reason || "stream_cancel")}`
+        );
+      }
     }
   });
 

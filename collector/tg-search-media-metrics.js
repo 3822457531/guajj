@@ -358,6 +358,17 @@ class TgStreamSpeedLogger {
         (extra && Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "")
     );
   }
+
+  /** Range 切换 / 客户端换段（非异常） */
+  abort(extra) {
+    if (!this.enabled) return;
+    const dlMs = this.firstByteAt ? Date.now() - this.firstByteAt : Date.now() - this.startedAt;
+    const avgBps = dlMs > 0 && this.bytesTotal > 0 ? (this.bytesTotal / dlMs) * 1000 : 0;
+    console.log(
+      `[tg-search:stream-speed] ${this.tag()} Range 切换 · 已传 ${formatBytes(this.bytesTotal)} · 均速 ${formatMbps(avgBps)}` +
+        (extra && Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "")
+    );
+  }
 }
 
 module.exports = {

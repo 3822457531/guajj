@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { H5MediaViewer, type MediaViewerSource } from "@/components/h5-media-viewer";
 import type { ChannelMediaItem } from "@/lib/jisou-search-types";
 import { TG_SEARCH_API } from "@/lib/tg-search-api-paths";
@@ -123,6 +123,62 @@ function sumBufferedSeconds(video: HTMLVideoElement): number {
   return bufferedSec;
 }
 
+function maxBufferedEndSeconds(video: HTMLVideoElement): number {
+  let end = 0;
+  for (let i = 0; i < video.buffered.length; i++) {
+    end = Math.max(end, video.buffered.end(i));
+  }
+  return end;
+}
+
+function isTimeBuffered(video: HTMLVideoElement, time: number): boolean {
+  for (let i = 0; i < video.buffered.length; i++) {
+    if (time >= video.buffered.start(i) - 0.05 && time <= video.buffered.end(i) + 0.05) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** TG 直出流允许 seek 的最远时间点（必须在已缓冲范围内，避免 Range 请求风暴） */
+function getMaxSeekableTime(video: HTMLVideoElement, marginSec = 1): number {
+  if (video.buffered.length === 0) return 0;
+  const maxEnd = maxBufferedEndSeconds(video);
+  return Math.max(0, maxEnd - marginSec);
+}
+
+function clampVideoSeekToBuffer(video: HTMLVideoElement, marginSec = 1): boolean {
+  const maxSeek = getMaxSeekableTime(video, marginSec);
+  if (video.currentTime > maxSeek + 0.05) {
+    video.currentTime = maxSeek;
+    return true;
+  }
+  return false;
+}
+
+/** 估算已下载字节（累计高水位，seek 后不回退） */
+function estimateDownloadedBytes(
+  video: HTMLVideoElement,
+  fileSize: number | null,
+  durationHint: number | null,
+  previousPeak: number
+): number {
+  const base = readVideoBufferStats(video, fileSize, durationHint);
+  const duration =
+    Number.isFinite(video.duration) && video.duration > 0 ? video.duration : durationHint || 0;
+  const totalBytes = fileSize && fileSize > 0 ? fileSize : 0;
+  let estimate = base.bufferedBytes;
+
+  if (duration > 0 && totalBytes > 0) {
+    const maxEnd = maxBufferedEndSeconds(video);
+    if (maxEnd > 0) {
+      estimate = Math.round(Math.min(1, maxEnd / duration) * totalBytes);
+    }
+  }
+
+  return Math.max(previousPeak, estimate);
+}
+
 /** 按已缓冲数据量（非播放进度）估算字节与百分比 */
 function readVideoBufferStats(
   video: HTMLVideoElement,
@@ -160,6 +216,17 @@ function readVideoBufferStats(
 function isTgStreamRoute(route: string | null, cachedFullUrl: string | null) {
   if (cachedFullUrl) return false;
   return route === "TG_STREAM" || route === "TG_STREAM_LARGE" || !route;
+}
+
+type VideoPlaybackScope = {
+  activeVideoId: number | null;
+  requestPlay: (videoId: number) => void;
+};
+
+const VideoPlaybackContext = createContext<VideoPlaybackScope | null>(null);
+
+function useVideoPlaybackScope() {
+  return useContext(VideoPlaybackContext);
 }
 
 function pickSrc(apiBase: string, item: ChannelMediaItem, username: string, thumb: boolean) {
@@ -276,7 +343,12 @@ export function LazyVideoPlayer({
   );
   const playMetaRef = useRef<VideoPlayMeta | null>(playMeta);
   const [bufferStats, setBufferStats] = useState<StreamBufferStats | null>(null);
+  const [seekClampHint, setSeekClampHint] = useState(false);
   const speedSampleRef = useRef<{ at: number; bytes: number } | null>(null);
+  const downloadedBytesRef = useRef(0);
+  const seekGuardLockRef = useRef(false);
+  const playbackScope = useVideoPlaybackScope();
+  const isActivePlayback = !playbackScope || playbackScope.activeVideoId === item.id;
 
   const poster = item.thumbUrl ? resolveMediaPlayUrl(item.thumbUrl) : coverUrl ? resolveMediaPlayUrl(coverUrl) : null;
   const videoSrc = cachedFullUrl
@@ -284,11 +356,12 @@ export function LazyVideoPlayer({
     : streamVideoUrl(apiBase, username, item.id);
   const showStreamProgress = playing && isTgStreamRoute(playRoute, cachedFullUrl) && !streamError;
   const trafficTotalBytes = bufferStats?.totalBytes || playMeta?.fileSize || 0;
-  const trafficBufferedBytes = bufferStats?.bufferedBytes ?? 0;
+  const trafficBufferedBytes = bufferStats?.bufferedBytes ?? downloadedBytesRef.current;
   const trafficBufferPct =
     trafficTotalBytes > 0
       ? Math.min(100, Math.round((trafficBufferedBytes / trafficTotalBytes) * 100))
       : bufferStats?.pct ?? 0;
+  const tgStreamPlayback = isTgStreamRoute(playRoute, cachedFullUrl);
 
   useEffect(() => {
     playMetaRef.current = playMeta;
@@ -398,8 +471,18 @@ export function LazyVideoPlayer({
   }, [item.fullUrl]);
 
   useEffect(() => {
+    if (!playbackScope) return;
+    if (playbackScope.activeVideoId === item.id || !playing) return;
+    stopVideoPlayback(videoRef.current);
+    setPlaying(false);
+    setBuffering(false);
+  }, [playbackScope, playbackScope?.activeVideoId, item.id, playing]);
+
+  useEffect(() => {
     speedSampleRef.current = null;
+    downloadedBytesRef.current = 0;
     setBufferStats(null);
+    setSeekClampHint(false);
   }, [playing, videoSrc, playAttempt]);
 
   useEffect(() => {
@@ -411,49 +494,112 @@ export function LazyVideoPlayer({
 
     function updateBufferStats() {
       const base = readVideoBufferStats(video!, fileSize, durationHint);
+      const downloadedBytes = estimateDownloadedBytes(
+        video!,
+        fileSize,
+        durationHint,
+        downloadedBytesRef.current
+      );
+      downloadedBytesRef.current = downloadedBytes;
+
+      const totalBytes = fileSize && fileSize > 0 ? fileSize : base.totalBytes;
+      const bufferPct =
+        totalBytes > 0
+          ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
+          : base.pct;
+      const remainBytes = totalBytes > 0 ? Math.max(0, totalBytes - downloadedBytes) : 0;
+
       const now = Date.now();
       let speedBps = 0;
       let etaSec: number | null = null;
 
-      if (base.bufferedBytes > 0) {
+      if (downloadedBytes > 0) {
         const prev = speedSampleRef.current;
         if (prev && now > prev.at) {
-          const deltaBytes = base.bufferedBytes - prev.bytes;
+          const deltaBytes = downloadedBytes - prev.bytes;
           const deltaSec = (now - prev.at) / 1000;
           if (deltaBytes > 0 && deltaSec > 0.2) {
             speedBps = deltaBytes / deltaSec;
           }
         }
         if (speedBps > 0) {
-          speedSampleRef.current = { at: now, bytes: base.bufferedBytes };
+          speedSampleRef.current = { at: now, bytes: downloadedBytes };
         } else if (!speedSampleRef.current) {
-          speedSampleRef.current = { at: now, bytes: base.bufferedBytes };
+          speedSampleRef.current = { at: now, bytes: downloadedBytes };
         }
       }
 
-      if (speedBps > 0 && base.remainBytes > 0) {
-        etaSec = base.remainBytes / speedBps;
+      if (speedBps > 0 && remainBytes > 0) {
+        etaSec = remainBytes / speedBps;
       }
 
-      setBufferStats({ ...base, speedBps, etaSec });
+      setBufferStats({
+        ...base,
+        bufferedBytes: downloadedBytes,
+        totalBytes,
+        pct: bufferPct,
+        remainBytes,
+        speedBps,
+        etaSec
+      });
     }
+
+    const onSeeked = () => {
+      updateBufferStats();
+    };
 
     updateBufferStats();
     video.addEventListener("progress", updateBufferStats);
-    video.addEventListener("timeupdate", updateBufferStats);
     video.addEventListener("loadedmetadata", updateBufferStats);
     video.addEventListener("canplay", updateBufferStats);
+    video.addEventListener("seeked", onSeeked);
 
     const timer = window.setInterval(updateBufferStats, 1000);
 
     return () => {
       video.removeEventListener("progress", updateBufferStats);
-      video.removeEventListener("timeupdate", updateBufferStats);
       video.removeEventListener("loadedmetadata", updateBufferStats);
       video.removeEventListener("canplay", updateBufferStats);
+      video.removeEventListener("seeked", onSeeked);
       window.clearInterval(timer);
     };
   }, [playing, showStreamProgress, playMeta?.fileSize, playMeta?.durationSec]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !playing || !tgStreamPlayback) return;
+
+    const seekMarginSec = playRoute === "TG_STREAM_LARGE" ? 2 : 1;
+    let hintTimer: number | null = null;
+
+    const showSeekClampHint = () => {
+      setSeekClampHint(true);
+      if (hintTimer) window.clearTimeout(hintTimer);
+      hintTimer = window.setTimeout(() => setSeekClampHint(false), 3000);
+    };
+
+    const onSeeking = () => {
+      if (seekGuardLockRef.current) return;
+      seekGuardLockRef.current = true;
+      try {
+        const clamped = clampVideoSeekToBuffer(video, seekMarginSec);
+        if (clamped) {
+          showSeekClampHint();
+        } else if (!isTimeBuffered(video, video.currentTime)) {
+          setBuffering(true);
+        }
+      } finally {
+        seekGuardLockRef.current = false;
+      }
+    };
+
+    video.addEventListener("seeking", onSeeking);
+
+    return () => {
+      video.removeEventListener("seeking", onSeeking);
+      if (hintTimer) window.clearTimeout(hintTimer);
+    };
+  }, [playing, tgStreamPlayback, playRoute, videoSrc, playAttempt]);
 
   useEffect(() => {
     if (eagerPrefetch && !item.fullUrl) {
@@ -469,11 +615,7 @@ export function LazyVideoPlayer({
   useEffect(() => {
     if (!playing) {
       stopVideoPlayback(videoRef.current);
-      return;
     }
-    return () => {
-      stopVideoPlayback(videoRef.current);
-    };
   }, [playing]);
 
   useEffect(() => {
@@ -525,6 +667,7 @@ export function LazyVideoPlayer({
   }, [playing, buffering, streamError, cachedFullUrl, playAttempt]);
 
   async function handlePlayClick() {
+    playbackScope?.requestPlay(item.id);
     setStreamError(false);
     setBufferStats(null);
     speedSampleRef.current = null;
@@ -537,6 +680,7 @@ export function LazyVideoPlayer({
   }
 
   function handleRetryPlay() {
+    playbackScope?.requestPlay(item.id);
     setStreamError(false);
     setBufferStats(null);
     speedSampleRef.current = null;
@@ -549,9 +693,9 @@ export function LazyVideoPlayer({
   }
 
   function routeLabel() {
-    if (buffering) return " · 缓冲中…";
-    if (streamError) return " · 加载失败";
-    if (playing) return " · 播放中";
+    if (playing && isActivePlayback && buffering) return " · 缓冲中…";
+    if (streamError && isActivePlayback) return " · 加载失败";
+    if (playing && isActivePlayback) return " · 播放中";
     if (probing) return " · 探测线路…";
     if (playRoute === "R2_CDN") return " · R2/CDN";
     if (playRoute === "TG_STREAM_LARGE") return " · 暗网直出流（大文件）";
@@ -561,6 +705,7 @@ export function LazyVideoPlayer({
   }
 
   function streamProgressHint() {
+    if (seekClampHint) return "暗网资源仅支持拖到已缓冲位置，请等待缓冲前进";
     if (!showStreamProgress) return null;
     if (!bufferStats?.hasBuffer && buffering) return "正在从 Telegram 拉取首包…";
     if (bufferStats && bufferStats.totalBytes > 0) {
@@ -576,7 +721,7 @@ export function LazyVideoPlayer({
   return (
     <div className="gs-media-video">
       <div className="gs-media-video-stage">
-        {!playing ? (
+        {!playing || !isActivePlayback ? (
           <button
             type="button"
             className="gs-media-video-poster"
@@ -595,11 +740,11 @@ export function LazyVideoPlayer({
           </button>
         ) : null}
 
-        {playing ? (
+        {playing && isActivePlayback ? (
           <video
             ref={videoRef}
             key={`${item.id}-${cachedFullUrl ? "cdn" : "stream"}-${playAttempt}`}
-            className="gs-media-video-el is-active"
+            className={`gs-media-video-el is-active${tgStreamPlayback ? " is-tg-stream" : ""}`}
             controls
             playsInline
             preload="auto"
@@ -612,7 +757,7 @@ export function LazyVideoPlayer({
           />
         ) : null}
 
-        {playing && streamError ? (
+        {playing && isActivePlayback && streamError ? (
           <div className="gs-media-video-buffering" aria-live="polite">
             <span>视频加载超时，请重试</span>
             {bufferStats && bufferStats.totalBytes > 0 ? (
@@ -626,17 +771,17 @@ export function LazyVideoPlayer({
           </div>
         ) : null}
 
-        {playing && (buffering || (showStreamProgress && !bufferStats?.hasBuffer)) && !streamError ? (
+        {playing && isActivePlayback && (buffering || (showStreamProgress && !bufferStats?.hasBuffer)) && !streamError ? (
           <div className="gs-media-video-buffering gs-media-video-buffering--progress" aria-live="polite">
             <span className="gs-media-video-warm-spinner" aria-hidden />
             <span>{buffering ? "缓冲中…" : "连接中…"}</span>
-            {showStreamProgress && trafficTotalBytes <= 0 ? (
+            {showStreamProgress && (trafficTotalBytes <= 0 || seekClampHint) ? (
               <p className="gs-media-video-progress-hint">{streamProgressHint()}</p>
             ) : null}
           </div>
         ) : null}
 
-        {playing && showStreamProgress && !streamError && trafficTotalBytes > 0 ? (
+        {playing && isActivePlayback && showStreamProgress && !streamError && trafficTotalBytes > 0 ? (
           <div className="gs-media-video-progress-strip" aria-live="polite">
             <div className="gs-media-video-progress-strip-row">
               <div className="gs-media-video-progress-track gs-media-video-progress-track--strip" aria-hidden>
@@ -655,7 +800,7 @@ export function LazyVideoPlayer({
       <div className="gs-media-meta">
         #{item.id}
         {routeLabel()}
-        {showStreamProgress && trafficTotalBytes > 0 && playing ? (
+        {showStreamProgress && trafficTotalBytes > 0 && playing && isActivePlayback ? (
           <span className="gs-media-meta-progress">
             {" "}
             · {formatTrafficPair(trafficBufferedBytes, trafficTotalBytes)} ({trafficBufferPct}%)
@@ -685,6 +830,14 @@ export function MessageMediaGallery({
   eagerPrefetch?: boolean;
 }) {
   const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
+  const requestPlay = useCallback((videoId: number) => {
+    setActiveVideoId(videoId);
+  }, []);
+  const playbackScope = useMemo(
+    () => ({ activeVideoId, requestPlay }),
+    [activeVideoId, requestPlay]
+  );
 
   const visualItems = msg.mediaItems.filter((m) => m.contentType === "PHOTO" || m.contentType === "VIDEO");
   if (!visualItems.length) return null;
@@ -702,7 +855,7 @@ export function MessageMediaGallery({
   }
 
   return (
-    <>
+    <VideoPlaybackContext.Provider value={playbackScope}>
       <div className="gs-media-gallery">
         <div className="gs-media-row">
           {visualItems.map((item, index) =>
@@ -737,6 +890,6 @@ export function MessageMediaGallery({
           onIndexChange={(index) => setViewer((v) => (v ? { ...v, index } : v))}
         />
       ) : null}
-    </>
+    </VideoPlaybackContext.Provider>
   );
 }
