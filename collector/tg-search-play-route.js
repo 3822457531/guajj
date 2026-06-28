@@ -114,13 +114,17 @@ function videoStreamSegmentMinBytes() {
 }
 
 /**
- * 解析 Range；无 Range 且文件较大时只返回首段（206），交给浏览器按 Range 续拉
+ * 解析 Range。无 Range 时默认整文件直出（200），避免首段 206 导致 moov 在尾 MP4 反复 ResponseAborted。
+ * 仅当 TG_SEARCH_VIDEO_FORCE_INITIAL=1 且文件较大时才强制首段 206。
  * @returns {{ parsed: ReturnType<typeof parseHttpRange>, forcedInitial: boolean }}
  */
 function resolveStreamRange(rangeHeader, fileSize) {
   const parsed = parseHttpRange(rangeHeader, fileSize);
   if (parsed) return { parsed, forcedInitial: false };
   if (!fileSize || fileSize <= 0) return { parsed: null, forcedInitial: false };
+
+  const forceInitial = process.env.TG_SEARCH_VIDEO_FORCE_INITIAL === "1";
+  if (!forceInitial) return { parsed: null, forcedInitial: false };
 
   if (fileSize <= videoStreamSegmentMinBytes()) {
     return { parsed: null, forcedInitial: false };

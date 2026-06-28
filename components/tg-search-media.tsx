@@ -30,7 +30,7 @@ function playInfoUrl(apiBase: string, username: string, messageId: number) {
   return `${apiBase}/media/play-info?${params.toString()}`;
 }
 
-/** 小视频走 fetch→Blob URL，避免 prod 下 video src 直出流无法解码 moov 在尾的 MP4 */
+/** 小视频走 fetch→Blob URL（仍走 TG /media/stream，不经 R2） */
 const TG_BLOB_PLAY_MAX_BYTES = 8 * 1024 * 1024;
 
 function shouldBlobPlayTgStream(meta: VideoPlayMeta | null, hasCachedUrl: boolean): boolean {
@@ -98,6 +98,8 @@ type VideoPlayMeta = {
   route: string | null;
   playMode: string | null;
   largeFile: boolean;
+  warmEligible?: boolean;
+  warmEnabled?: boolean;
 };
 
 type StreamBufferStats = {
@@ -270,6 +272,7 @@ function isTgStreamRoute(route: string | null, cachedFullUrl: string | null) {
 type VideoPlaybackScope = {
   activeVideoId: number | null;
   requestPlay: (videoId: number) => void;
+  setChannelPlaybackActive?: (active: boolean) => void;
 };
 
 const VideoPlaybackContext = createContext<VideoPlaybackScope | null>(null);
@@ -401,6 +404,7 @@ export function LazyVideoPlayer({
   const speedSampleRef = useRef<{ at: number; bytes: number } | null>(null);
   const downloadedBytesRef = useRef(0);
   const seekGuardLockRef = useRef(false);
+  const streamPlayStartedRef = useRef(0);
   const playbackScope = useVideoPlaybackScope();
   const isActivePlayback = !playbackScope || playbackScope.activeVideoId === item.id;
 
@@ -435,6 +439,12 @@ export function LazyVideoPlayer({
   useEffect(() => {
     playingRef.current = playing;
   }, [playing]);
+
+  useEffect(() => {
+    if (!playbackScope?.setChannelPlaybackActive) return;
+    const active = playing && isActivePlayback && (blobFetching || tgStreamPlayback);
+    playbackScope.setChannelPlaybackActive(active);
+  }, [playbackScope, playing, isActivePlayback, blobFetching, tgStreamPlayback]);
 
   const startPrefetch = useCallback(
     async (opts?: { force?: boolean }): Promise<VideoPlayMeta | null> => {
@@ -484,6 +494,8 @@ export function LazyVideoPlayer({
             fileSize?: number | null;
             durationSec?: number | null;
             largeFile?: boolean;
+            warmEligible?: boolean;
+            warmEnabled?: boolean;
           };
           if (res.ok && data.ok) {
             nextMeta = {
@@ -491,7 +503,9 @@ export function LazyVideoPlayer({
               durationSec: data.durationSec != null ? Number(data.durationSec) : null,
               route: data.route || null,
               playMode: data.playMode || null,
-              largeFile: Boolean(data.largeFile)
+              largeFile: Boolean(data.largeFile),
+              warmEligible: Boolean(data.warmEligible),
+              warmEnabled: Boolean(data.warmEnabled)
             };
             setPlayRoute(data.route || null);
             setPlayMeta(nextMeta);
@@ -695,12 +709,10 @@ export function LazyVideoPlayer({
   }, [playing, showStreamProgress, item.fullUrl, playMeta?.fileSize, startPrefetch]);
 
   useEffect(() => {
-    if (!playing) {
-      // 仅 blob 下载走 fetch AbortController；<video src> 由 stopVideoPlayback 断开
+    return () => {
       if (blobFetching) streamFetchAbortRef.current?.abort();
-      stopVideoPlayback(videoRef.current);
-    }
-  }, [playing, blobFetching]);
+    };
+  }, [blobFetching]);
 
   useEffect(() => {
     return () => {
@@ -762,7 +774,9 @@ export function LazyVideoPlayer({
     const timeoutMs =
       blobFetching && fileSize > 0
         ? Math.max(120_000, Math.ceil(fileSize / (200 * 1024)) * 1000 + 30_000)
-        : 90_000;
+        : showStreamProgress && fileSize > 0
+          ? Math.max(180_000, Math.ceil(fileSize / (120 * 1024)) * 1000 + 90_000)
+          : 90_000;
     const timer = window.setTimeout(() => {
       setStreamError(true);
       setBuffering(false);
@@ -770,7 +784,7 @@ export function LazyVideoPlayer({
       streamFetchAbortRef.current?.abort();
     }, timeoutMs);
     return () => window.clearTimeout(timer);
-  }, [playing, buffering, streamError, cachedFullUrl, playAttempt, blobFetching, playMeta?.fileSize]);
+  }, [playing, buffering, streamError, cachedFullUrl, playAttempt, blobFetching, showStreamProgress, playMeta?.fileSize]);
 
   async function handlePlayClick() {
     playbackScope?.requestPlay(item.id);
@@ -789,7 +803,9 @@ export function LazyVideoPlayer({
     }
 
     const meta = playMetaRef.current;
-    if (shouldBlobPlayTgStream(meta, Boolean(item.fullUrl || cachedFullUrl))) {
+    const hasCached = Boolean(item.fullUrl || cachedFullUrl);
+
+    if (shouldBlobPlayTgStream(meta, hasCached)) {
       setPlaying(true);
       setBuffering(true);
       setBlobFetching(true);
@@ -827,6 +843,7 @@ export function LazyVideoPlayer({
 
     setPlaying(true);
     setBuffering(true);
+    streamPlayStartedRef.current = Date.now();
   }
 
   function handleRetryPlay() {
@@ -902,10 +919,20 @@ export function LazyVideoPlayer({
             className={`gs-media-video-el is-active${tgStreamPlayback ? " is-tg-stream" : ""}`}
             controls
             playsInline
-            preload="metadata"
+            preload={tgStreamPlayback ? "auto" : "metadata"}
             {...(poster ? { poster } : {})}
             src={activeVideoSrc}
             onError={() => {
+              const video = videoRef.current;
+              if (video && tgStreamPlayback) {
+                const code = video.error?.code ?? 0;
+                const elapsed = Date.now() - streamPlayStartedRef.current;
+                // moov 在尾的 MP4 在整流未到达前可能误触发 MEDIA_ERR_DECODE(3)
+                if (elapsed < 45_000 && (code === 3 || code === 4)) {
+                  setBuffering(true);
+                  return;
+                }
+              }
               setStreamError(true);
               setBuffering(false);
             }}
@@ -930,7 +957,8 @@ export function LazyVideoPlayer({
           <div className="gs-media-video-buffering gs-media-video-buffering--progress" aria-live="polite">
             <span className="gs-media-video-warm-spinner" aria-hidden />
             <span>{blobFetching ? "下载中…" : buffering ? "缓冲中…" : "连接中…"}</span>
-            {(showStreamProgress || showBlobFetchProgress) && (trafficTotalBytes <= 0 || seekClampHint || blobFetching) ? (
+            {(showStreamProgress || showBlobFetchProgress) &&
+            (trafficTotalBytes <= 0 || seekClampHint || blobFetching) ? (
               <p className="gs-media-video-progress-hint">{streamProgressHint()}</p>
             ) : null}
           </div>
@@ -968,7 +996,8 @@ export function MessageMediaGallery({
   apiBase = TG_SEARCH_API.prod,
   username,
   msg,
-  eagerPrefetch = false
+  eagerPrefetch = false,
+  onChannelPlaybackActive
 }: {
   apiBase?: string;
   username: string;
@@ -981,15 +1010,22 @@ export function MessageMediaGallery({
     mediaStatus?: string | null;
   };
   eagerPrefetch?: boolean;
+  onChannelPlaybackActive?: (active: boolean) => void;
 }) {
   const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
   const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
   const requestPlay = useCallback((videoId: number) => {
     setActiveVideoId(videoId);
   }, []);
+  const setChannelPlaybackActive = useCallback(
+    (active: boolean) => {
+      onChannelPlaybackActive?.(active);
+    },
+    [onChannelPlaybackActive]
+  );
   const playbackScope = useMemo(
-    () => ({ activeVideoId, requestPlay }),
-    [activeVideoId, requestPlay]
+    () => ({ activeVideoId, requestPlay, setChannelPlaybackActive }),
+    [activeVideoId, requestPlay, setChannelPlaybackActive]
   );
 
   const visualItems = msg.mediaItems.filter((m) => m.contentType === "PHOTO" || m.contentType === "VIDEO");

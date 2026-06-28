@@ -196,7 +196,8 @@ function ResourceDetailModal({
   loadError,
   onClose,
   onOpenArticle,
-  anchorRef
+  anchorRef,
+  onChannelPlaybackActive
 }: {
   channel: JisouChannel;
   activeFilterType: string | null;
@@ -213,6 +214,7 @@ function ResourceDetailModal({
   onClose: () => void;
   onOpenArticle: (payload: { title: string; text: string }) => void;
   anchorRef: React.RefObject<HTMLLIElement | null>;
+  onChannelPlaybackActive?: (active: boolean) => void;
 }) {
   const { icon: headerIcon, title: headerTitle } = formatJisouChannelRow(channel, activeFilterType);
   const messageIcon = formatJisouChannelRow(channel, activeFilterType).icon;
@@ -256,10 +258,10 @@ function ResourceDetailModal({
           {loadError && !channelLoading ? <p className="gs-alert gs-alert--inline">{loadError}</p> : null}
           {channelLoading && messages.length === 0 ? (
             <ChannelResourcesLoading />
-          ) : channelLoading ? (
-            <p className="gs-panel-loading">正在刷新…</p>
           ) : (
-            <ul className="gs-message-list">
+            <>
+              {channelLoading ? <p className="gs-panel-loading">正在刷新…</p> : null}
+              <ul className="gs-message-list">
               {messages.map((msg) => {
                 const fullText = msg.fullText || msg.caption || msg.textPreview || "";
                 const articleTitle =
@@ -312,7 +314,12 @@ function ResourceDetailModal({
                     ) : (
                       <>
                         {channel.username && msg.mediaItems.length > 0 ? (
-                          <MessageMediaGallery username={channel.username} msg={msg} eagerPrefetch />
+                          <MessageMediaGallery
+                            username={channel.username}
+                            msg={msg}
+                            eagerPrefetch
+                            onChannelPlaybackActive={onChannelPlaybackActive}
+                          />
                         ) : null}
 
                         {msg.textPreview ? (
@@ -337,6 +344,7 @@ function ResourceDetailModal({
                 );
               })}
             </ul>
+            </>
           )}
         </div>
       </div>
@@ -566,6 +574,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [landingWarnOpen, setLandingWarnOpen] = useState(false);
   const anchorRef = useRef<HTMLLIElement>(null);
   const channelAbortRef = useRef<AbortController | null>(null);
+  const channelVideoPlayingRef = useRef(false);
   const searchAbortRef = useRef<AbortController | null>(null);
 
   function abortChannelWork() {
@@ -1086,9 +1095,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     const videoIds = collectChannelVideoIds(initialMessages);
     if (!videoIds.length) return;
 
-    const playInfoConcurrency = 6;
-
     async function probePlayInfo(messageId: number): Promise<{ id: number; url: string } | null> {
+      if (channelVideoPlayingRef.current) return null;
       const params = new URLSearchParams({ username, messageId: String(messageId) });
       const res = await fetch(`${API}/media/play-info?${params.toString()}`, {
         cache: "no-store",
@@ -1106,21 +1114,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       return null;
     }
 
-    async function probeCached(messageId: number): Promise<{ id: number; url: string } | null> {
-      const params = new URLSearchParams({ username, messageId: String(messageId) });
-      const res = await fetch(`${API}/media/cached?${params.toString()}`, {
-        cache: "no-store",
-        signal: abortController.signal
-      });
-      const data = (await res.json()) as { ok?: boolean; ready?: boolean; url?: string | null };
-      if (abortController.signal.aborted) return null;
-      if (res.ok && data.ok && data.ready && data.url) {
-        return { id: messageId, url: data.url };
-      }
-      return null;
-    }
-
     function applyVideoHits(hits: Array<{ id: number; url: string } | null>) {
+      if (channelVideoPlayingRef.current) return;
       const updates: Record<number, { url: string }> = {};
       for (const hit of hits) {
         if (hit) updates[hit.id] = { url: hit.url };
@@ -1131,45 +1126,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
 
     try {
-      // 延迟 warm，避免用户点击播放时与 play-info / stream 争抢 media session
-      window.setTimeout(() => {
-        if (abortController.signal.aborted) return;
-        void fetch(`${API}/media/warm`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, messageIds: videoIds }),
-          signal: abortController.signal
-        }).catch(() => undefined);
-      }, 12_000);
-
-      const playHits = await runAsyncPool(
-        videoIds,
-        playInfoConcurrency,
-        (id) => probePlayInfo(id),
-        abortController.signal
-      );
+      const playHits = await runAsyncPool(videoIds, 3, (id) => probePlayInfo(id), abortController.signal);
       applyVideoHits(playHits);
-
-      const stillPending = videoIds.filter((id) => !playHits.some((h) => h?.id === id));
-      if (!stillPending.length || abortController.signal.aborted) return;
-
-      const pollRounds = 4;
-      const pollDelayMs = 2000;
-      for (let round = 0; round < pollRounds; round++) {
-        if (abortController.signal.aborted) break;
-        await new Promise((r) => setTimeout(r, pollDelayMs));
-        if (abortController.signal.aborted) break;
-
-        const cachedHits = await runAsyncPool(
-          stillPending,
-          playInfoConcurrency,
-          (id) => probeCached(id),
-          abortController.signal
-        );
-        applyVideoHits(cachedHits);
-        const readyIds = new Set(cachedHits.filter(Boolean).map((h) => h!.id));
-        if (readyIds.size >= stillPending.length) break;
-      }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
     }
@@ -1511,6 +1469,9 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           onClose={closeChannelModal}
           onOpenArticle={setArticle}
           anchorRef={anchorRef}
+          onChannelPlaybackActive={(active) => {
+            channelVideoPlayingRef.current = active;
+          }}
         />
       ) : null}
 
