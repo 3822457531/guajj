@@ -30,6 +30,48 @@ function playInfoUrl(apiBase: string, username: string, messageId: number) {
   return `${apiBase}/media/play-info?${params.toString()}`;
 }
 
+/** 小视频走 fetch→Blob URL，避免 prod 下 video src 直出流无法解码 moov 在尾的 MP4 */
+const TG_BLOB_PLAY_MAX_BYTES = 8 * 1024 * 1024;
+
+function shouldBlobPlayTgStream(meta: VideoPlayMeta | null, hasCachedUrl: boolean): boolean {
+  if (hasCachedUrl) return false;
+  if (!isTgStreamRoute(meta?.route ?? null, null)) return false;
+  const size = meta?.fileSize ?? 0;
+  return size > 0 && size <= TG_BLOB_PLAY_MAX_BYTES;
+}
+
+async function fetchStreamAsBlob(
+  url: string,
+  signal: AbortSignal,
+  onProgress?: (received: number) => void
+): Promise<Blob> {
+  const res = await fetch(url, { cache: "no-store", signal });
+  if (!res.ok) {
+    throw new Error(`stream HTTP ${res.status}`);
+  }
+  const mime = res.headers.get("Content-Type") || "video/mp4";
+  const reader = res.body?.getReader();
+  if (!reader) return res.blob();
+
+  const chunks: BlobPart[] = [];
+  let received = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    onProgress?.(received);
+  }
+  return new Blob(chunks, { type: mime });
+}
+
+function revokeBlobUrl(ref: { current: string | null }) {
+  if (ref.current) {
+    URL.revokeObjectURL(ref.current);
+    ref.current = null;
+  }
+}
+
 /** 断开 video 对 /media/stream 的 HTTP 连接，避免关闭弹窗后仍从 TG 拉流 */
 function stopVideoPlayback(video: HTMLVideoElement | null) {
   if (!video) return;
@@ -334,6 +376,8 @@ export function LazyVideoPlayer({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const prefetchAbortRef = useRef<AbortController | null>(null);
+  const streamFetchAbortRef = useRef<AbortController | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
   const prefetchPromiseRef = useRef<Promise<VideoPlayMeta | null> | null>(null);
   const probingRef = useRef(false);
   const [playing, setPlaying] = useState(false);
@@ -344,6 +388,8 @@ export function LazyVideoPlayer({
   const [probing, setProbing] = useState(false);
   const [buffering, setBuffering] = useState(false);
   const [streamError, setStreamError] = useState(false);
+  const [blobPlayUrl, setBlobPlayUrl] = useState<string | null>(null);
+  const [blobFetching, setBlobFetching] = useState(false);
   const [playRoute, setPlayRoute] = useState<string | null>(item.fullUrl ? "R2_CDN" : null);
   const [playMeta, setPlayMeta] = useState<VideoPlayMeta | null>(
     item.fullUrl ? { fileSize: null, durationSec: null, route: "R2_CDN", playMode: null, largeFile: false } : null
@@ -361,15 +407,20 @@ export function LazyVideoPlayer({
   const videoSrc = cachedFullUrl
     ? resolveMediaPlayUrl(cachedFullUrl)
     : streamVideoUrl(apiBase, username, item.id);
-  const showStreamProgress = playing && isTgStreamRoute(playRoute, cachedFullUrl) && !streamError;
+  const activeVideoSrc = blobPlayUrl ?? (blobFetching ? null : videoSrc);
+  const showStreamProgress =
+    playing && isTgStreamRoute(playRoute, cachedFullUrl) && !streamError && !blobPlayUrl;
+  const showBlobFetchProgress = playing && blobFetching && !streamError;
   const trafficTotalBytes = bufferStats?.totalBytes || playMeta?.fileSize || 0;
   const trafficBufferedBytes = bufferStats?.bufferedBytes ?? downloadedBytesRef.current;
   const trafficBufferPct =
     trafficTotalBytes > 0
       ? Math.min(100, Math.round((trafficBufferedBytes / trafficTotalBytes) * 100))
       : bufferStats?.pct ?? 0;
-  const tgStreamPlayback = isTgStreamRoute(playRoute, cachedFullUrl);
-  const trafficLoading = Boolean(playing && isActivePlayback && buffering && showStreamProgress);
+  const tgStreamPlayback = isTgStreamRoute(playRoute, cachedFullUrl) && !blobPlayUrl;
+  const trafficLoading = Boolean(
+    playing && isActivePlayback && buffering && (showStreamProgress || showBlobFetchProgress)
+  );
   const trafficPairLabel = formatTrafficPairDisplay(
     trafficBufferedBytes,
     trafficTotalBytes,
@@ -486,6 +537,10 @@ export function LazyVideoPlayer({
   useEffect(() => {
     if (!playbackScope) return;
     if (playbackScope.activeVideoId === item.id || !playing) return;
+    streamFetchAbortRef.current?.abort();
+    revokeBlobUrl(blobUrlRef);
+    setBlobPlayUrl(null);
+    setBlobFetching(false);
     stopVideoPlayback(videoRef.current);
     setPlaying(false);
     setBuffering(false);
@@ -497,6 +552,14 @@ export function LazyVideoPlayer({
     setBufferStats(null);
     setSeekClampHint(false);
   }, [playing, videoSrc, playAttempt]);
+
+  useEffect(() => {
+    if (playAttempt === 0) return;
+    streamFetchAbortRef.current?.abort();
+    revokeBlobUrl(blobUrlRef);
+    setBlobPlayUrl(null);
+    setBlobFetching(false);
+  }, [playAttempt]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -627,6 +690,7 @@ export function LazyVideoPlayer({
 
   useEffect(() => {
     if (!playing) {
+      streamFetchAbortRef.current?.abort();
       stopVideoPlayback(videoRef.current);
     }
   }, [playing]);
@@ -635,6 +699,9 @@ export function LazyVideoPlayer({
     return () => {
       prefetchAbortRef.current?.abort();
       prefetchAbortRef.current = null;
+      streamFetchAbortRef.current?.abort();
+      streamFetchAbortRef.current = null;
+      revokeBlobUrl(blobUrlRef);
       stopVideoPlayback(videoRef.current);
     };
   }, []);
@@ -680,26 +747,77 @@ export function LazyVideoPlayer({
       video.removeEventListener("waiting", onWaiting);
       video.removeEventListener("playing", onPlaying);
     };
-  }, [playing, videoSrc]);
+  }, [playing, activeVideoSrc]);
 
   useEffect(() => {
     if (!playing || !buffering || streamError || cachedFullUrl) return;
+    const fileSize = playMeta?.fileSize ?? 0;
+    const timeoutMs =
+      blobFetching && fileSize > 0
+        ? Math.max(120_000, Math.ceil(fileSize / (200 * 1024)) * 1000 + 30_000)
+        : 90_000;
     const timer = window.setTimeout(() => {
       setStreamError(true);
       setBuffering(false);
-    }, 90000);
+      setBlobFetching(false);
+      streamFetchAbortRef.current?.abort();
+    }, timeoutMs);
     return () => window.clearTimeout(timer);
-  }, [playing, buffering, streamError, cachedFullUrl, playAttempt]);
+  }, [playing, buffering, streamError, cachedFullUrl, playAttempt, blobFetching, playMeta?.fileSize]);
 
   async function handlePlayClick() {
     playbackScope?.requestPlay(item.id);
     setStreamError(false);
     setBufferStats(null);
     speedSampleRef.current = null;
+    downloadedBytesRef.current = 0;
+    streamFetchAbortRef.current?.abort();
+    revokeBlobUrl(blobUrlRef);
+    setBlobPlayUrl(null);
+    setBlobFetching(false);
+
     await startPrefetch();
     if (!item.fullUrl && !playMetaRef.current?.fileSize) {
       await startPrefetch({ force: true });
     }
+
+    const meta = playMetaRef.current;
+    if (shouldBlobPlayTgStream(meta, Boolean(item.fullUrl || cachedFullUrl))) {
+      setPlaying(true);
+      setBuffering(true);
+      setBlobFetching(true);
+      const totalBytes = meta?.fileSize ?? 0;
+      const ac = new AbortController();
+      streamFetchAbortRef.current = ac;
+      try {
+        const blob = await fetchStreamAsBlob(videoSrc, ac.signal, (received) => {
+          downloadedBytesRef.current = received;
+          setBufferStats((prev) => ({
+            pct: totalBytes > 0 ? Math.min(100, Math.round((received / totalBytes) * 100)) : 0,
+            bufferedBytes: received,
+            totalBytes,
+            remainBytes: Math.max(0, totalBytes - received),
+            speedBps: prev?.speedBps ?? 0,
+            etaSec: null,
+            hasBuffer: received > 0
+          }));
+        });
+        if (ac.signal.aborted) return;
+        revokeBlobUrl(blobUrlRef);
+        const url = URL.createObjectURL(blob);
+        blobUrlRef.current = url;
+        setBlobPlayUrl(url);
+        setBlobFetching(false);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setStreamError(true);
+        setBuffering(false);
+        setPlaying(false);
+        setBlobFetching(false);
+      }
+      return;
+    }
+
     setPlaying(true);
     setBuffering(true);
   }
@@ -709,6 +827,10 @@ export function LazyVideoPlayer({
     setStreamError(false);
     setBufferStats(null);
     speedSampleRef.current = null;
+    streamFetchAbortRef.current?.abort();
+    revokeBlobUrl(blobUrlRef);
+    setBlobPlayUrl(null);
+    setBlobFetching(false);
     setPlaying(false);
     setBuffering(false);
     setPlayAttempt((n) => n + 1);
@@ -731,7 +853,8 @@ export function LazyVideoPlayer({
 
   function streamProgressHint() {
     if (seekClampHint) return "暗网资源仅支持拖到已缓冲位置，请等待缓冲前进";
-    if (!showStreamProgress) return null;
+    if (blobFetching) return "正在下载完整视频（Telegram 直出）…";
+    if (!showStreamProgress && !blobFetching) return null;
     if (!bufferStats?.hasBuffer && buffering) return "正在从 Telegram 拉取首包…";
     if (bufferStats && bufferStats.totalBytes > 0) {
       const eta = formatEta(bufferStats.etaSec);
@@ -765,16 +888,16 @@ export function LazyVideoPlayer({
           </button>
         ) : null}
 
-        {playing && isActivePlayback ? (
+        {playing && isActivePlayback && activeVideoSrc ? (
           <video
             ref={videoRef}
-            key={`${item.id}-${cachedFullUrl ? "cdn" : "stream"}-${playAttempt}`}
+            key={`${item.id}-${blobPlayUrl ? "blob" : cachedFullUrl ? "cdn" : "stream"}-${playAttempt}`}
             className={`gs-media-video-el is-active${tgStreamPlayback ? " is-tg-stream" : ""}`}
             controls
             playsInline
             preload="auto"
             {...(poster ? { poster } : {})}
-            src={videoSrc}
+            src={activeVideoSrc}
             onError={() => {
               setStreamError(true);
               setBuffering(false);
@@ -796,17 +919,17 @@ export function LazyVideoPlayer({
           </div>
         ) : null}
 
-        {playing && isActivePlayback && (buffering || (showStreamProgress && !bufferStats?.hasBuffer)) && !streamError ? (
+        {playing && isActivePlayback && (buffering || (showStreamProgress && !bufferStats?.hasBuffer) || blobFetching) && !streamError ? (
           <div className="gs-media-video-buffering gs-media-video-buffering--progress" aria-live="polite">
             <span className="gs-media-video-warm-spinner" aria-hidden />
-            <span>{buffering ? "缓冲中…" : "连接中…"}</span>
-            {showStreamProgress && (trafficTotalBytes <= 0 || seekClampHint) ? (
+            <span>{blobFetching ? "下载中…" : buffering ? "缓冲中…" : "连接中…"}</span>
+            {(showStreamProgress || showBlobFetchProgress) && (trafficTotalBytes <= 0 || seekClampHint || blobFetching) ? (
               <p className="gs-media-video-progress-hint">{streamProgressHint()}</p>
             ) : null}
           </div>
         ) : null}
 
-        {playing && isActivePlayback && showStreamProgress && !streamError && trafficTotalBytes > 0 ? (
+        {playing && isActivePlayback && (showStreamProgress || showBlobFetchProgress) && !streamError && trafficTotalBytes > 0 ? (
           <div className="gs-media-video-progress-strip" aria-live="polite">
             <div className="gs-media-video-progress-strip-row">
               <div className="gs-media-video-progress-track gs-media-video-progress-track--strip" aria-hidden>

@@ -106,6 +106,13 @@ function videoStreamInitialBytes() {
   return Math.min(8 * 1024 * 1024, Math.max(256 * 1024, bytes));
 }
 
+/** 低于此大小直接整文件直出（200），不做首段 206（moov 在尾的小视频需完整文件） */
+function videoStreamSegmentMinBytes() {
+  const mb = Number(process.env.TG_SEARCH_VIDEO_SEGMENT_MIN_MB);
+  if (Number.isFinite(mb) && mb > 0) return Math.round(mb * 1024 * 1024);
+  return 8 * 1024 * 1024;
+}
+
 /**
  * 解析 Range；无 Range 且文件较大时只返回首段（206），交给浏览器按 Range 续拉
  * @returns {{ parsed: ReturnType<typeof parseHttpRange>, forcedInitial: boolean }}
@@ -114,6 +121,10 @@ function resolveStreamRange(rangeHeader, fileSize) {
   const parsed = parseHttpRange(rangeHeader, fileSize);
   if (parsed) return { parsed, forcedInitial: false };
   if (!fileSize || fileSize <= 0) return { parsed: null, forcedInitial: false };
+
+  if (fileSize <= videoStreamSegmentMinBytes()) {
+    return { parsed: null, forcedInitial: false };
+  }
 
   const chunk = videoStreamInitialBytes();
   if (fileSize <= chunk) return { parsed: null, forcedInitial: false };
@@ -137,5 +148,6 @@ module.exports = {
   logVideoPlayRoute,
   parseHttpRange,
   resolveStreamRange,
-  videoStreamInitialBytes
+  videoStreamInitialBytes,
+  videoStreamSegmentMinBytes
 };
