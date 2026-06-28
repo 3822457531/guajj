@@ -395,6 +395,7 @@ export function LazyVideoPlayer({
     item.fullUrl ? { fileSize: null, durationSec: null, route: "R2_CDN", playMode: null, largeFile: false } : null
   );
   const playMetaRef = useRef<VideoPlayMeta | null>(playMeta);
+  const playingRef = useRef(playing);
   const [bufferStats, setBufferStats] = useState<StreamBufferStats | null>(null);
   const [seekClampHint, setSeekClampHint] = useState(false);
   const speedSampleRef = useRef<{ at: number; bytes: number } | null>(null);
@@ -430,6 +431,10 @@ export function LazyVideoPlayer({
   useEffect(() => {
     playMetaRef.current = playMeta;
   }, [playMeta]);
+
+  useEffect(() => {
+    playingRef.current = playing;
+  }, [playing]);
 
   const startPrefetch = useCallback(
     async (opts?: { force?: boolean }): Promise<VideoPlayMeta | null> => {
@@ -490,7 +495,7 @@ export function LazyVideoPlayer({
             };
             setPlayRoute(data.route || null);
             setPlayMeta(nextMeta);
-            if (data.cached && data.url) {
+            if (data.cached && data.url && !playingRef.current) {
               setCachedFullUrl(resolveMediaPlayUrl(data.url));
             }
           }
@@ -519,20 +524,21 @@ export function LazyVideoPlayer({
   );
 
   useEffect(() => {
-    if (item.fullUrl) {
-      setCachedFullUrl(item.fullUrl);
-      setPlayInfoReady(true);
-      setPlayReady(true);
-      setPlayRoute("R2_CDN");
-      setPlayMeta({
-        fileSize: null,
-        durationSec: null,
-        route: "R2_CDN",
-        playMode: "R2/CDN 缓存",
-        largeFile: false
-      });
-    }
-  }, [item.fullUrl]);
+    if (!item.fullUrl) return;
+    // 播放中勿因父级 prefetch 写入 fullUrl 而切源，否则会 abort TG 流
+    if (playing && isTgStreamRoute(playRoute, cachedFullUrl) && !blobPlayUrl) return;
+    setCachedFullUrl(resolveMediaPlayUrl(item.fullUrl));
+    setPlayInfoReady(true);
+    setPlayReady(true);
+    setPlayRoute("R2_CDN");
+    setPlayMeta({
+      fileSize: null,
+      durationSec: null,
+      route: "R2_CDN",
+      playMode: "R2/CDN 缓存",
+      largeFile: false
+    });
+  }, [item.fullUrl, playing, playRoute, cachedFullUrl, blobPlayUrl]);
 
   useEffect(() => {
     if (!playbackScope) return;
@@ -690,10 +696,11 @@ export function LazyVideoPlayer({
 
   useEffect(() => {
     if (!playing) {
-      streamFetchAbortRef.current?.abort();
+      // 仅 blob 下载走 fetch AbortController；<video src> 由 stopVideoPlayback 断开
+      if (blobFetching) streamFetchAbortRef.current?.abort();
       stopVideoPlayback(videoRef.current);
     }
-  }, [playing]);
+  }, [playing, blobFetching]);
 
   useEffect(() => {
     return () => {
@@ -891,11 +898,11 @@ export function LazyVideoPlayer({
         {playing && isActivePlayback && activeVideoSrc ? (
           <video
             ref={videoRef}
-            key={`${item.id}-${blobPlayUrl ? "blob" : cachedFullUrl ? "cdn" : "stream"}-${playAttempt}`}
+            key={`${item.id}-play-${playAttempt}`}
             className={`gs-media-video-el is-active${tgStreamPlayback ? " is-tg-stream" : ""}`}
             controls
             playsInline
-            preload="auto"
+            preload="metadata"
             {...(poster ? { poster } : {})}
             src={activeVideoSrc}
             onError={() => {
@@ -1007,7 +1014,7 @@ export function MessageMediaGallery({
           {visualItems.map((item, index) =>
             item.contentType === "VIDEO" ? (
               <LazyVideoPlayer
-                key={`${item.id}-${item.thumbUrl || msg.coverUrl || "pending"}`}
+                key={item.id}
                 apiBase={apiBase}
                 username={username}
                 item={item}
@@ -1016,7 +1023,7 @@ export function MessageMediaGallery({
               />
             ) : (
               <LazyPhotoThumb
-                key={`${item.id}-${item.thumbUrl || "pending"}`}
+                key={item.id}
                 apiBase={apiBase}
                 username={username}
                 item={item}

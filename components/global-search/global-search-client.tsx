@@ -1131,12 +1131,16 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
 
     try {
-      void fetch(`${API}/media/warm`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, messageIds: videoIds }),
-        signal: abortController.signal
-      }).catch(() => undefined);
+      // 延迟 warm，避免用户点击播放时与 play-info / stream 争抢 media session
+      window.setTimeout(() => {
+        if (abortController.signal.aborted) return;
+        void fetch(`${API}/media/warm`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, messageIds: videoIds }),
+          signal: abortController.signal
+        }).catch(() => undefined);
+      }, 12_000);
 
       const playHits = await runAsyncPool(
         videoIds,
