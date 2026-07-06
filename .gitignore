@@ -12,6 +12,10 @@ prisma/dev.db
 collector/session.txt
 public/uploads/*
 !public/uploads/.gitkeep
+collector/session.txt
+collector/back.txt
+collector/back.txt.bak.*
+
 
 # 勿提交压缩包 / 备份 / 误生成文件
 *.zip

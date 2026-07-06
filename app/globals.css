@@ -4828,6 +4828,18 @@ button.h5-detail-img-cell:active {
   color: #9e9e9e;
 }
 
+.my-empty-btn {
+  margin-top: 18px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: #ff5722;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .my-profile-card {
   display: flex;
   align-items: center;

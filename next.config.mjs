@@ -29,10 +29,10 @@ const nextConfig = {
     return [{ source: "/uploads/:path*", destination: "/api/uploads/:path*" }];
   },
   /**
-   * 用 http://127.0.0.1:3000 访问时，HMR / 开发字体等请求的 Origin 为 127.0.0.1，
-   * 与默认放行的 localhost 不同，会被误判跨站。仅影响 `next dev`。
+   * 用 http://127.0.0.1:3000 或局域网 IP（如 http://192.168.1.3:3000）访问时，
+   * HMR / 开发字体等请求的 Origin 与默认放行的 localhost 不同，会被误判跨站。仅影响 `next dev`。
    */
-  allowedDevOrigins: ["127.0.0.1"],
+  allowedDevOrigins: ["127.0.0.1", "192.168.1.3"],
   ...poll
 };
 

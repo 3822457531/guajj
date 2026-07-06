@@ -13,6 +13,10 @@ function isAdminPath(pathname: string) {
   );
 }
 
+function isMyPagePath(pathname: string) {
+  return pathname === "/my";
+}
+
 function readRefFromUrl() {
   if (typeof window === "undefined") return null;
   const ref = new URLSearchParams(window.location.search).get("ref")?.trim();
@@ -43,7 +47,7 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (isAdminPath(pathname)) {
+    if (isAdminPath(pathname) || isMyPagePath(pathname)) {
       setChecking(false);
       setNeedsModal(false);
       return;
@@ -90,10 +94,6 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
     };
   }, [pathname, tryRestore, verifySession]);
 
-  if (isAdminPath(pathname)) {
-    return <>{children}</>;
-  }
-
   const handleLeave = useCallback(() => {
     setNeedsModal(false);
     if (typeof window !== "undefined") {
@@ -104,6 +104,10 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
       }
     }
   }, []);
+
+  if (isAdminPath(pathname) || isMyPagePath(pathname)) {
+    return <>{children}</>;
+  }
 
   return (
     <>

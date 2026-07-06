@@ -718,7 +718,7 @@ export function LazyVideoPlayer({
   function streamProgressHint() {
     if (seekClampHint) return "暗网资源仅支持拖到已缓冲位置，请等待缓冲前进";
     if (!showStreamProgress) return null;
-    if (!bufferStats?.hasBuffer && buffering) return "正在从 Telegram 拉取首包…";
+    if (!bufferStats?.hasBuffer && buffering) return "正在从 暗网 拉取首包…";
     if (bufferStats && bufferStats.totalBytes > 0) {
       const eta = formatEta(bufferStats.etaSec);
       return eta ? `边播边缓冲 · 预计还需 ${eta}` : "数据持续到达中，请稍候…";
@@ -792,7 +792,10 @@ export function LazyVideoPlayer({
           </div>
         ) : null}
 
-        {playing && isActivePlayback && (buffering || (showStreamProgress && !bufferStats?.hasBuffer)) && !streamError ? (
+        {playing &&
+        isActivePlayback &&
+        (buffering || (showStreamProgress && !bufferStats?.hasBuffer)) &&
+        !streamError ? (
           <div className="gs-media-video-buffering gs-media-video-buffering--progress" aria-live="polite">
             <span className="gs-media-video-warm-spinner" aria-hidden />
             <span>{buffering ? "缓冲中…" : "连接中…"}</span>

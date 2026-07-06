@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { H5SiteBottomNav } from "@/components/h5-site-bottom-nav";
 import { MyPageClient } from "@/components/my-page-client";
+import { MyPageEmptyPrompt } from "@/components/my-page-empty-prompt";
 import { getGuestSessionPayload } from "@/lib/guest-auth";
 import { countGuestReferrals, findGuestById } from "@/lib/guest-user";
 import { getGuestGlobalSearchQuota } from "@/lib/search-quota";
@@ -40,13 +41,7 @@ export default async function MyPage() {
       <main className="site-shell h5-home my-page">
         <MyPageHeader />
         <div className="h5-container my-page-container">
-          <div className="my-empty-card">
-            <span className="my-empty-icon" aria-hidden>
-              🔐
-            </span>
-            <p className="my-empty-title">尚未创建身份</p>
-            <p className="my-empty-desc">完成年龄确认后将自动生成本地加密身份。</p>
-          </div>
+          <MyPageEmptyPrompt variant="missing" />
         </div>
         <H5SiteBottomNav active="my" variant="dark" />
       </main>
@@ -59,10 +54,7 @@ export default async function MyPage() {
       <main className="site-shell h5-home my-page">
         <MyPageHeader />
         <div className="h5-container my-page-container">
-          <div className="my-empty-card">
-            <p className="my-empty-title">身份无效</p>
-            <p className="my-empty-desc">请清理缓存后重新注册，或使用密钥恢复。</p>
-          </div>
+          <MyPageEmptyPrompt variant="invalid" />
         </div>
         <H5SiteBottomNav active="my" variant="dark" />
       </main>
