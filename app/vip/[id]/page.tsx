@@ -118,7 +118,7 @@ export default async function VipDetailPage({
         </div>
       </article>
 
-      <VipBottomNav active="discover" />
+      <VipBottomNav active="global" />
     </main>
   );
 }

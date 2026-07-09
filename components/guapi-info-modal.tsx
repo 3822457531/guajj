@@ -40,21 +40,14 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
         </div>
         <div className="my-guapi-modal-body">
           <p className="my-guapi-modal-lead">
-            <strong>瓜皮</strong> 就是你的站内通用额度（原「搜索次数」）。消耗瓜皮即可使用：
+            <strong>瓜皮</strong> 就是你的站内通用额度（原「搜索次数」）。消耗瓜皮即可使用全局搜索：
           </p>
           <ul className="my-guapi-use-list">
             <li>
               <span className="my-guapi-use-icon" aria-hidden>🍉</span>
               <div>
-                <strong>吃瓜搜索</strong>
+                <strong>全局搜索</strong>
                 <p>全网暗网索引极搜，发现频道与直达资源</p>
-              </div>
-            </li>
-            <li>
-              <span className="my-guapi-use-icon" aria-hidden>📱</span>
-              <div>
-                <strong>暗网手机号</strong>
-                <p>临时匿名号码，用于各平台注册/登录时收短信验证码，与搜索共用今日瓜皮</p>
               </div>
             </li>
           </ul>

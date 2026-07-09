@@ -11,8 +11,8 @@ function formatBoardTime(value: Date | null | undefined) {
   }).format(value);
 }
 
-function buildDiscoverSearchHref(keyword: string) {
-  return `/vip?tab=search&q=${encodeURIComponent(keyword)}`;
+function buildGlobalSearchHref(keyword: string) {
+  return `/global-search?q=${encodeURIComponent(keyword)}`;
 }
 
 function tagClassName(rank: number) {
@@ -59,7 +59,7 @@ export function HotSearchBoard({
           {displayItems.map((item) => (
             <Link
               key={`${item.rank}-${item.label}`}
-              href={buildDiscoverSearchHref(item.label)}
+              href={buildGlobalSearchHref(item.label)}
               prefetch={false}
               className={`${tagClassName(item.rank)} hot-board-tag--alive`}
             >

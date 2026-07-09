@@ -25,7 +25,7 @@ export function ReferralQrShare({ publicId, referralPath, copied, onCopyLink }: 
       try {
         await navigator.share({
           title: "吃瓜网邀请",
-          text: "扫码注册，一起搜吃瓜、领暗网手机号额度",
+          text: "扫码注册，一起搜吃瓜、领瓜皮额度",
           url: absoluteUrl
         });
         return;
