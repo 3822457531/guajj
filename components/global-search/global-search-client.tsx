@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageMediaGallery, stopVideosInRoot } from "@/components/tg-search-media";
+import { ResourceShareButton } from "@/components/resource-share-button";
+import { VipHighlightText } from "@/components/vip-highlight-text";
 import {
   collectChannelThumbIdsPrioritized,
   collectChannelVideoIds,
@@ -35,6 +37,25 @@ import {
 const API = TG_SEARCH_API.prod;
 
 type JisouChannel = JisouChannelItem;
+
+type InitialResource = {
+  username: string;
+  messageId: number;
+  title?: string;
+  label?: string;
+};
+
+function buildChannelFromResource(resource: InitialResource): JisouChannel {
+  const { username, messageId, title, label } = resource;
+  return {
+    title: title || `@${username}`,
+    url: `https://t.me/${username}/${messageId}`,
+    username,
+    postId: messageId,
+    label: label ?? undefined,
+    members: null
+  };
+}
 
 type QuotaState = {
   used: number;
@@ -82,6 +103,9 @@ type SearchSuccessPayload = {
   buttons?: unknown;
   replyMessageId?: number;
   query?: string;
+  /** 服务端已套默认视频筛选 */
+  appliedFilterType?: string | null;
+  appliedFilterCallback?: string | null;
 };
 
 function JisouSearchToolbar({
@@ -187,9 +211,38 @@ function SensitiveContentMosaic({ text }: { text?: string | null }) {
   );
 }
 
+/** 优先用内联 data URL，避免首张验证码图二次请求冷启动/超时裂图 */
+function CaptchaChallengeImage({ captcha }: { captcha: JisouCaptchaChallenge }) {
+  const remoteSrc = `${captcha.imageUrl}?v=${encodeURIComponent(captcha.challengeId)}`;
+  const [src, setSrc] = useState(captcha.imageDataUrl || remoteSrc);
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    setSrc(captcha.imageDataUrl || remoteSrc);
+    setRetry(0);
+  }, [captcha.challengeId, captcha.imageDataUrl, remoteSrc]);
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      key={`${captcha.challengeId}-${retry}`}
+      src={src}
+      alt="验证码算式"
+      className="gs-captcha-img"
+      onError={() => {
+        if (retry >= 2) return;
+        // 内联失败或裂图时回退/重试远程接口
+        setRetry((n) => n + 1);
+        setSrc(`${remoteSrc}&r=${Date.now()}`);
+      }}
+    />
+  );
+}
+
 function ResourceDetailModal({
   channel,
   activeFilterType,
+  highlightKeyword = "",
   channelMeta,
   messages,
   channelLoading,
@@ -204,6 +257,7 @@ function ResourceDetailModal({
 }: {
   channel: JisouChannel;
   activeFilterType: string | null;
+  highlightKeyword?: string;
   channelMeta: {
     entityType?: string;
     broadcast?: boolean | null;
@@ -222,8 +276,13 @@ function ResourceDetailModal({
   anchorRef: React.RefObject<HTMLLIElement | null>;
   onChannelPlaybackActive?: (active: boolean) => void;
 }) {
-  const { icon: headerIcon, title: headerTitle } = formatJisouChannelRow(channel, activeFilterType);
+  const { icon: headerIcon, title: searchResultTitle } = formatJisouChannelRow(channel, activeFilterType);
   const messageIcon = formatJisouChannelRow(channel, activeFilterType).icon;
+  const anchorMessage = messages.find((m) => m.isAnchor) ?? messages[0] ?? null;
+  const headerTitle =
+    anchorMessage?.caption?.trim() ||
+    anchorMessage?.textPreview?.trim() ||
+    searchResultTitle;
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
@@ -263,9 +322,17 @@ function ResourceDetailModal({
                 {headerIcon}
               </span>
             ) : null}
-            {headerTitle || channel.title}
+            <VipHighlightText text={headerTitle || channel.title} keyword={highlightKeyword} />
           </h3>
           <div className="gs-channel-sheet-head-actions">
+            {channel.username && channel.postId ? (
+              <ResourceShareButton
+                username={channel.username}
+                messageId={channel.postId}
+                title={headerTitle || channel.title}
+                label={channel.label}
+              />
+            ) : null}
             {minimized ? (
               <button type="button" className="gs-channel-sheet-restore" onClick={onRestore}>
                 展开
@@ -571,7 +638,13 @@ function ArticleModal({ title, text, onClose }: { title: string; text: string; o
   );
 }
 
-export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: string }) {
+export function GlobalSearchClient({
+  initialQuery = "",
+  initialResource = null
+}: {
+  initialQuery?: string;
+  initialResource?: InitialResource | null;
+}) {
   const [query, setQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
   const [channelLoading, setChannelLoading] = useState(false);
@@ -596,16 +669,16 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   const [article, setArticle] = useState<{ title: string; text: string } | null>(null);
   const [adBlockedOpen, setAdBlockedOpen] = useState(false);
   const [historyClearConfirmOpen, setHistoryClearConfirmOpen] = useState(false);
-  const [fromCache, setFromCache] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [landingWarnOpen, setLandingWarnOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [replyMessageId, setReplyMessageId] = useState<number | null>(null);
   const [searchButtons, setSearchButtons] = useState<JisouSearchButtons>({ filters: [], actions: [] });
   const [activeFilterCallback, setActiveFilterCallback] = useState<string | null>(null);
   const [pendingFilterCallback, setPendingFilterCallback] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [landingWarnOpen, setLandingWarnOpen] = useState(false);
   const anchorRef = useRef<HTMLLIElement>(null);
   const channelAbortRef = useRef<AbortController | null>(null);
+  const channelLoadKeyRef = useRef("");
   const channelVideoPlayingRef = useRef(false);
   const [channelMinimized, setChannelMinimized] = useState(false);
   const searchAbortRef = useRef<AbortController | null>(null);
@@ -613,6 +686,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   function abortChannelWork() {
     channelAbortRef.current?.abort();
     channelAbortRef.current = null;
+    channelLoadKeyRef.current = "";
     setActiveChannel(null);
     setMessages([]);
     setChannelMeta(null);
@@ -646,7 +720,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   }
 
   const activeFilterType = parseJisouCallbackFilterType(activeFilterCallback);
-  const toolbarEnabled = !fromCache && replyMessageId != null && !loading;
+  const toolbarEnabled = replyMessageId != null && !loading;
 
   const refreshQuota = useCallback(async () => {
     try {
@@ -717,7 +791,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     if (data.query) setSearchQuery(data.query);
 
     if (opts?.freshKeyword) {
-      setFromCache(Boolean(data.cached));
       setActiveFilterCallback(null);
       setPendingFilterCallback(null);
       applyQuotaFromResponse(data);
@@ -741,7 +814,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     keyword: string,
     signal?: AbortSignal
   ): Promise<{ payload: SearchSuccessPayload; filterCallback: string | null }> {
-    if (data.cached || !data.replyMessageId) {
+    if (!data.replyMessageId) {
       return { payload: data, filterCallback: null };
     }
 
@@ -790,32 +863,56 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     keyword: string,
     opts?: { freshKeyword?: boolean; signal?: AbortSignal }
   ) {
-    let payload = data;
-    let filterCallback: string | null = null;
-    try {
-      const filtered = await applyDefaultVideoFilter(data, keyword, opts?.signal);
-      payload = filtered.payload;
-      filterCallback = filtered.filterCallback;
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") throw err;
+    // 服务端已在同会话内套好默认「视频」筛选：一次只展示筛选后结果
+    if (data.appliedFilterCallback || data.appliedFilterType === DEFAULT_JISOU_RESOURCE_FILTER_TYPE) {
+      applySearchSuccess({ ...data, query: data.query || keyword }, opts);
+      if (data.appliedFilterCallback) {
+        setActiveFilterCallback(data.appliedFilterCallback);
+        setPendingFilterCallback(null);
+      }
+      return;
     }
-    applySearchSuccess({ ...payload, query: payload.query || keyword }, opts);
-    if (filterCallback) {
-      setActiveFilterCallback(filterCallback);
-      setPendingFilterCallback(null);
+
+    // 新搜索若服务端未套上筛选，展示前再兜底一次；旧缓存消息多半已失效，直接展示
+    if (!data.cached) {
+      let payload = data;
+      let filterCallback: string | null = null;
+      try {
+        const filtered = await applyDefaultVideoFilter(data, keyword, opts?.signal);
+        payload = filtered.payload;
+        filterCallback = filtered.filterCallback;
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") throw err;
+      }
+      applySearchSuccess({ ...payload, query: payload.query || keyword }, opts);
+      if (filterCallback) {
+        setActiveFilterCallback(filterCallback);
+        setPendingFilterCallback(null);
+      }
+      return;
     }
+
+    applySearchSuccess({ ...data, query: data.query || keyword }, opts);
   }
 
   function handleSearchError(res: Response, data: { message?: string; error?: string; quota?: QuotaState }) {
     applyQuotaFromResponse(data);
-    if (data.error === "SEARCH_QUOTA_EXCEEDED" || data.error === "GUEST_IDENTITY_REQUIRED") {
-      setError(data.message || "今日搜索额度已用完");
+    if (data.error === "GUEST_IDENTITY_REQUIRED") {
+      setError(data.message || "请先获取匿名身份");
       return true;
     }
     if (!res.ok || !data) {
       throw new Error(data.message || data.error || "搜索失败");
     }
     return false;
+  }
+
+  function handleViewError(data: { message?: string; error?: string; quota?: QuotaState }) {
+    applyQuotaFromResponse(data);
+    if (data.error === "SEARCH_QUOTA_EXCEEDED" || data.error === "GUEST_IDENTITY_REQUIRED") {
+      return data.message || "无法观看资源";
+    }
+    return null;
   }
 
   async function submitCaptchaAnswer(answer: string) {
@@ -875,7 +972,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setError(null);
     setChannels([]);
     setCaptcha(null);
-    setFromCache(false);
     setActiveFilterCallback(null);
     setPendingFilterCallback(null);
     setReplyMessageId(null);
@@ -931,7 +1027,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   }
 
   async function runSearchAction(button: JisouButtonItem) {
-    if (!replyMessageId || !button.callback || fromCache) return;
+    if (!replyMessageId || !button.callback) return;
 
     if (isSupportedJisouFilterCallback(button.callback)) {
       setPendingFilterCallback(button.callback);
@@ -1020,14 +1116,17 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
 
     const username = channel.username;
+    const loadKey = `${username}:${channel.postId}`;
+    channelLoadKeyRef.current = loadKey;
     const loadTimeout = window.setTimeout(() => abortController.abort(), 60000);
 
     try {
       const params = new URLSearchParams({
         username,
-        messageId: String(channel.postId),
-        limit: "1"
+        messageId: String(channel.postId)
       });
+      if (channel.title) params.set("title", channel.title);
+      if (channel.label) params.set("label", channel.label);
 
       const res = await fetch(`${API}/channel?${params.toString()}`, {
         signal: abortController.signal
@@ -1036,6 +1135,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         ok?: boolean;
         message?: string;
         error?: string;
+        quota?: QuotaState;
         entityType?: string;
         broadcast?: boolean;
         rawCount?: number;
@@ -1044,24 +1144,36 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         messages?: ChannelMessageItem[];
       };
 
+      const viewErr = handleViewError(data);
       if (!res.ok || !data.ok) {
+        if (viewErr) {
+          setChannelLoadError(viewErr);
+          return;
+        }
         throw new Error(data.message || data.error || "读取资源失败");
+      }
+
+      applyQuotaFromResponse(data);
+
+      if (channelLoadKeyRef.current !== loadKey || channelAbortRef.current !== abortController) {
+        return;
       }
 
       setChannelMeta({
         entityType: data.entityType,
         broadcast: data.broadcast,
         rawCount: data.rawCount,
-        anchorMessageId: data.anchorMessageId,
+        anchorMessageId: data.anchorMessageId ?? channel.postId,
         resourceOnly: true
       });
-      const initialMessages = data.messages || [];
-      setMessages(initialMessages);
-      if (!initialMessages.length) {
+      const initialMessages = (data.messages || []).filter((m) => m.isAnchor);
+      const resolvedMessages = initialMessages.length > 0 ? initialMessages : data.messages || [];
+      setMessages(resolvedMessages);
+      if (!resolvedMessages.length) {
         setChannelLoadError("资源不存在或无法读取");
       } else {
-        void prefetchChannelThumbs(username, initialMessages, abortController);
-        void prefetchChannelVideos(username, initialMessages, abortController);
+        void prefetchChannelThumbs(username, resolvedMessages, abortController, loadKey);
+        void prefetchChannelVideos(username, resolvedMessages, abortController, loadKey);
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -1073,14 +1185,21 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
       setChannelLoadError(err instanceof Error ? err.message : "读取资源失败");
     } finally {
       window.clearTimeout(loadTimeout);
-      setChannelLoading(false);
+      if (channelAbortRef.current === abortController) {
+        setChannelLoading(false);
+      }
     }
+  }
+
+  function isChannelLoadCurrent(abortController: AbortController, loadKey: string) {
+    return channelLoadKeyRef.current === loadKey && channelAbortRef.current === abortController;
   }
 
   async function prefetchChannelThumbs(
     username: string,
     initialMessages: ChannelMessageItem[],
-    abortController: AbortController
+    abortController: AbortController,
+    loadKey: string
   ) {
     const batchSize = 24;
     const waveConcurrency = 4;
@@ -1100,8 +1219,9 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         media?: ChannelThumbMap;
         partial?: boolean;
       };
-      if (abortController.signal.aborted) return null;
+      if (abortController.signal.aborted || !isChannelLoadCurrent(abortController, loadKey)) return null;
       if (res.ok && data.ok && data.media) {
+        if (!isChannelLoadCurrent(abortController, loadKey)) return data.media;
         setMessages((prev) => mergeChannelThumbMap(prev, data.media!));
         return data.media;
       }
@@ -1139,7 +1259,8 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   async function prefetchChannelVideos(
     username: string,
     initialMessages: ChannelMessageItem[],
-    abortController: AbortController
+    abortController: AbortController,
+    loadKey: string
   ) {
     const videoIds = collectChannelVideoIds(initialMessages);
     if (!videoIds.length) return;
@@ -1164,7 +1285,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     }
 
     function applyVideoHits(hits: Array<{ id: number; url: string } | null>) {
-      if (channelVideoPlayingRef.current) return;
+      if (channelVideoPlayingRef.current || !isChannelLoadCurrent(abortController, loadKey)) return;
       const updates: Record<number, { url: string }> = {};
       for (const hit of hits) {
         if (hit) updates[hit.id] = { url: hit.url };
@@ -1205,7 +1326,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
     setError(null);
     setChannels([]);
     setCaptcha(null);
-    setFromCache(false);
     setActiveFilterCallback(null);
     setPendingFilterCallback(null);
     setReplyMessageId(null);
@@ -1261,6 +1381,15 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
   }
 
   const initialSearchDone = useRef(false);
+  const initialResourceDone = useRef(false);
+
+  useEffect(() => {
+    if (!initialResource || initialResourceDone.current) return;
+    initialResourceDone.current = true;
+    void loadResource(buildChannelFromResource(initialResource));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 分享深链接首进
+  }, [initialResource]);
+
   useEffect(() => {
     const q = initialQuery.trim();
     if (!q || initialSearchDone.current) return;
@@ -1372,13 +1501,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
           </div>
           {error ? <p className="gs-alert gs-alert--inline">{error}</p> : null}
           <p className="gs-captcha-prompt">{captcha.prompt}</p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={captcha.challengeId}
-            src={`${captcha.imageUrl}?v=${encodeURIComponent(captcha.challengeId)}`}
-            alt="验证码算式"
-            className="gs-captcha-img"
-          />
+          <CaptchaChallengeImage captcha={captcha} />
           <div className="gs-captcha-options">
             {captcha.options.map((opt) => (
               <button
@@ -1431,10 +1554,6 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
             <h2 className="gs-panel-title">暗网资源</h2>
             <span className="gs-panel-count">{channels.length}</span>
           </div>
-          {fromCache ? <p className="gs-cache-hint">已使用本地缓存，不消耗今日额度</p> : null}
-          {fromCache && (searchButtons.filters.length > 0 || searchButtons.actions.length > 0) ? (
-            <p className="gs-cache-hint gs-cache-hint--muted">缓存结果不支持筛选与翻页，请重新搜索后再操作</p>
-          ) : null}
 
           {(pickSupportedJisouFilterButtons(searchButtons.filters).length > 0 ||
             searchButtons.actions.length > 0) &&
@@ -1485,7 +1604,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
                                   {rowIcon}
                                 </span>
                               ) : null}
-                              {rowTitle}
+                              <VipHighlightText text={rowTitle} keyword={searchQuery} />
                             </span>
                             {shouldShowChannelLabel(rowTitle, ch.label) ? (
                               <span className="gs-channel-label">{ch.label}</span>
@@ -1511,6 +1630,7 @@ export function GlobalSearchClient({ initialQuery = "" }: { initialQuery?: strin
         <ResourceDetailModal
           channel={activeChannel}
           activeFilterType={activeFilterType}
+          highlightKeyword={searchQuery}
           channelMeta={channelMeta}
           messages={messages}
           channelLoading={channelLoading}

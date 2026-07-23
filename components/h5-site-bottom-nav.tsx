@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TabIconGlobal, TabIconHome, TabIconHot, TabIconMy } from "@/components/h5-tab-icons";
 
-/** 全站统一底部导航：首页 + 热搜 + 全局搜 + 我的 */
+/** 全站统一底部导航：首页 + 热搜 + 全网搜 + 我的 */
 export function H5SiteBottomNav({
   active,
   variant = "light"
@@ -30,7 +30,7 @@ export function H5SiteBottomNav({
         <span className="h5-tab-icon" aria-hidden>
           <TabIconGlobal active={active === "global"} />
         </span>
-        全局搜
+        全网搜
       </Link>
       <Link href="/my" prefetch={false} className={`h5-bottom-tab${active === "my" ? " is-active" : ""}`}>
         <span className="h5-tab-icon" aria-hidden>

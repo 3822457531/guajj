@@ -10,8 +10,14 @@ import { loadJisouSearchService } from "@/lib/load-jisou-search-service";
 import type { JisouSearchService } from "@/lib/jisou-search-types";
 import { tgSearchLog } from "@/lib/tg-search-log";
 import { tgSearchCaptchaImageUrl } from "@/lib/tg-search-api-paths";
-import { recordSearchLogFromRequest, SearchSource } from "@/lib/search-analytics";
-import { assertGlobalSearchAllowed, getGuestGlobalSearchQuota, type SearchQuotaStatus } from "@/lib/search-quota";
+import {
+  assertAdvancedSearchIdentity,
+  assertGlobalSearchAllowed,
+  getGuestGlobalSearchQuota,
+  type SearchQuotaStatus
+} from "@/lib/search-quota";
+import { INSUFFICIENT_GUAPI_CODE } from "@/lib/sms-guapi";
+import { hasGuestViewedContent, recordContentView } from "@/lib/view-guapi";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const {
@@ -31,7 +37,13 @@ export type { TgSearchApiScope } from "@/lib/tg-search-api-paths";
 
 type CaptchaErr = Error & {
   code?: string;
-  captcha?: { challengeId: string; prompt: string; options: string[]; expiresInSec: number };
+  captcha?: {
+    challengeId: string;
+    prompt: string;
+    options: string[];
+    expiresInSec: number;
+    imageDataUrl?: string;
+  };
   query?: string;
 };
 
@@ -39,8 +51,12 @@ function captchaJsonPayload(apiBase: string, captcha: NonNullable<CaptchaErr["ca
   return {
     ...extra,
     captcha: {
-      ...captcha,
-      imageUrl: tgSearchCaptchaImageUrl(apiBase, captcha.challengeId)
+      challengeId: captcha.challengeId,
+      prompt: captcha.prompt,
+      options: captcha.options,
+      expiresInSec: captcha.expiresInSec,
+      imageUrl: tgSearchCaptchaImageUrl(apiBase, captcha.challengeId),
+      ...(captcha.imageDataUrl ? { imageDataUrl: captcha.imageDataUrl } : {})
     }
   };
 }
@@ -56,14 +72,18 @@ function quotaJson(quota: SearchQuotaStatus) {
   };
 }
 
-function quotaBlockedResponse(quota: SearchQuotaStatus) {
+function quotaBlockedResponse(quota: SearchQuotaStatus, context: "search" | "view" = "search") {
   return NextResponse.json(
     {
       ok: false,
       error: quota.hasIdentity ? "SEARCH_QUOTA_EXCEEDED" : "GUEST_IDENTITY_REQUIRED",
       message: quota.hasIdentity
-        ? `今日全网搜索次数已用完（${quota.used}/${quota.limit}），邀请好友可增加额度`
-        : "请先在「我的」获取 GUA 身份后再使用全网搜索",
+        ? context === "view"
+          ? `今日瓜皮已用完（${quota.used}/${quota.limit}），无法观看资源。邀请好友可增加额度`
+          : `今日瓜皮已用完（${quota.used}/${quota.limit}），邀请好友可增加额度`
+        : context === "view"
+          ? "请先在「我的」获取 GUA 身份后再观看资源"
+          : "请先在「我的」获取 GUA 身份后再使用全网搜索",
       quota: quotaJson(quota)
     },
     { status: quota.hasIdentity ? 429 : 401 }
@@ -80,35 +100,9 @@ function mediaRedirectResponse(request: Request, url: string, cacheControl: stri
   });
 }
 
-async function recordGlobalSearchIfBillable(request: Request, keyword: string, channelCount: number) {
-  if (channelCount <= 0) return;
-  await recordSearchLogFromRequest(request, SearchSource.GLOBAL, keyword, channelCount);
-}
-
 async function readGuestUserIdFromRequest() {
   const session = await getGuestSessionPayload();
   return session?.guestUserId ?? null;
-}
-
-async function tryServeCachedGlobalSearch(guestUserId: string, keyword: string, started: number) {
-  const cached = await getCachedGlobalSearch(guestUserId, keyword);
-  if (!cached) return null;
-
-  await touchGlobalSearchCache(cached.id);
-  const quota = await getGuestGlobalSearchQuota(guestUserId);
-  tgSearchLog("search-api", "命中本地缓存", {
-    q: keyword,
-    channels: cached.channelCount,
-    ms: Date.now() - started
-  });
-
-  return NextResponse.json({
-    ok: true,
-    ...cached.payload,
-    channelCount: cached.channelCount,
-    cached: true,
-    quota: quotaJson(quota)
-  });
 }
 
 export async function handleTgSearchPost(request: Request, apiBase: string) {
@@ -133,38 +127,76 @@ export async function handleTgSearchPost(request: Request, apiBase: string) {
   }
 
   const guestUserId = await readGuestUserIdFromRequest();
-  if (guestUserId) {
-    const cachedResponse = await tryServeCachedGlobalSearch(guestUserId, q, started);
-    if (cachedResponse) return cachedResponse;
+
+  const quotaCheck = guestUserId
+    ? await (async () => {
+        const quota = await getGuestGlobalSearchQuota(guestUserId);
+        if (!quota.hasIdentity) {
+          return { allowed: false as const, quota: { ...quota, unlimited: true } };
+        }
+        return {
+          allowed: true as const,
+          quota: {
+            ...quota,
+            used: 0,
+            limit: 0,
+            remaining: Number.MAX_SAFE_INTEGER,
+            exceeded: false,
+            unlimited: true
+          }
+        };
+      })()
+    : await assertAdvancedSearchIdentity();
+  if (!quotaCheck.allowed) {
+    return quotaBlockedResponse(quotaCheck.quota, "search");
   }
 
-  const quotaCheck = await assertGlobalSearchAllowed();
-  if (!quotaCheck.allowed) {
-    return quotaBlockedResponse(quotaCheck.quota);
+  // 同用户同关键词优先读缓存（含已套视频筛选的结果）
+  if (guestUserId) {
+    const cached = await getCachedGlobalSearch(guestUserId, q);
+    if (cached?.payload?.channels?.length) {
+      void touchGlobalSearchCache(cached.id).catch(() => {});
+      tgSearchLog("search-api", "极搜命中缓存", {
+        q,
+        channels: cached.channelCount,
+        appliedFilterType: cached.payload.appliedFilterType ?? null,
+        ms: Date.now() - started
+      });
+      return NextResponse.json({
+        ok: true,
+        ...cached.payload,
+        channelCount: cached.channelCount,
+        cached: true,
+        quota: quotaJson(quotaCheck.quota)
+      });
+    }
   }
 
   tgSearchLog("search-api", "开始极搜", { q });
   try {
     const result = await svc.searchJisouChannels(q, { webCaptcha: true, signal: request.signal });
     const channelCount = result.channels?.length ?? 0;
-    if (channelCount > 0) {
-      await recordGlobalSearchIfBillable(request, q, channelCount);
-      if (guestUserId) {
-        await upsertGlobalSearchCache(guestUserId, q, result);
-      }
+    // 缓存写入不阻塞响应（优先缓存已套视频筛选的列表）
+    if (channelCount > 0 && guestUserId) {
+      void upsertGlobalSearchCache(guestUserId, q, result).catch((err) => {
+        tgSearchLog("search-api", "写入搜索缓存失败", {
+          q,
+          error: err instanceof Error ? err.message : String(err)
+        });
+      });
     }
     tgSearchLog("search-api", "极搜成功", {
       q,
       channels: channelCount,
+      appliedFilterType: result.appliedFilterType ?? null,
       ms: Date.now() - started
     });
-    const freshQuota = await assertGlobalSearchAllowed();
     return NextResponse.json({
       ok: true,
       ...result,
       channelCount,
       cached: false,
-      quota: quotaJson(freshQuota.quota)
+      quota: quotaJson(quotaCheck.quota)
     });
   } catch (err: unknown) {
     const e = err as CaptchaErr;
@@ -217,9 +249,9 @@ export async function handleTgCaptchaSolvePost(request: Request, apiBase: string
 
   tgSearchLog("search-api", "POST captcha/solve", { challengeId, answer });
 
-  const quotaCheck = await assertGlobalSearchAllowed();
+  const quotaCheck = await assertAdvancedSearchIdentity();
   if (!quotaCheck.allowed) {
-    return quotaBlockedResponse(quotaCheck.quota);
+    return quotaBlockedResponse(quotaCheck.quota, "search");
   }
 
   const svc = loadJisouSearchService<JisouSearchService>();
@@ -229,24 +261,20 @@ export async function handleTgCaptchaSolvePost(request: Request, apiBase: string
     const channelCount = result.channels?.length ?? 0;
     const q = String(result.query || "").trim();
     const guestUserId = await readGuestUserIdFromRequest();
-    if (channelCount > 0 && q) {
-      await recordGlobalSearchIfBillable(request, q, channelCount);
-      if (guestUserId) {
-        await upsertGlobalSearchCache(guestUserId, q, result);
-      }
+    if (channelCount > 0 && q && guestUserId) {
+      void upsertGlobalSearchCache(guestUserId, q, result).catch(() => {});
     }
     tgSearchLog("search-api", "验证码通过并完成极搜", {
       challengeId,
       channels: channelCount,
       ms: Date.now() - started
     });
-    const freshQuota = await assertGlobalSearchAllowed();
     return NextResponse.json({
       ok: true,
       ...result,
       channelCount,
       cached: false,
-      quota: quotaJson(freshQuota.quota)
+      quota: quotaJson(quotaCheck.quota)
     });
   } catch (err: unknown) {
     const e = err as CaptchaErr;
@@ -377,11 +405,15 @@ export async function handleTgChannelGet(request: Request) {
   const started = Date.now();
   const { searchParams } = new URL(request.url);
   const username = String(searchParams.get("username") ?? searchParams.get("u") ?? "").trim();
-  const search = String(searchParams.get("search") ?? searchParams.get("q") ?? "").trim();
+  const rawSearch = String(searchParams.get("search") ?? searchParams.get("q") ?? "").trim();
   const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 20));
   const messageId = Number(searchParams.get("messageId") || searchParams.get("mid") || 0);
+  /** 极搜直达资源时 messageId 优先，忽略 search 避免误走频道内关键词搜索 */
+  const search = messageId > 0 ? "" : rawSearch;
   const includeContext =
     searchParams.get("includeContext") === "1" || searchParams.get("includeContext") === "true";
+  const viewTitle = String(searchParams.get("title") ?? searchParams.get("t") ?? "").trim();
+  const viewLabel = String(searchParams.get("label") ?? searchParams.get("l") ?? "").trim();
 
   tgSearchLog("channel-api", "GET channel 收到请求", {
     username,
@@ -393,6 +425,24 @@ export async function handleTgChannelGet(request: Request) {
 
   if (!username) {
     return NextResponse.json({ ok: false, error: "missing_username" }, { status: 400 });
+  }
+
+  const guestUserId = await readGuestUserIdFromRequest();
+  const isResourceView = messageId > 0;
+
+  if (isResourceView) {
+    if (!guestUserId) {
+      const quota = await getGuestGlobalSearchQuota(null);
+      return quotaBlockedResponse(quota, "view");
+    }
+
+    const alreadyViewed = await hasGuestViewedContent(guestUserId, username, messageId);
+    if (!alreadyViewed) {
+      const quotaCheck = await assertGlobalSearchAllowed();
+      if (!quotaCheck.allowed) {
+        return quotaBlockedResponse(quotaCheck.quota, "view");
+      }
+    }
   }
 
   const svc = loadJisouSearchService<JisouSearchService>();
@@ -407,13 +457,39 @@ export async function handleTgChannelGet(request: Request) {
     });
     const keywords = await getBlockedKeywords();
     const messages = markChannelMessagesSensitive(result.messages ?? [], keywords);
+
+    if (isResourceView && guestUserId && messages.length > 0) {
+      try {
+        await recordContentView(guestUserId, {
+          username,
+          messageId,
+          title: viewTitle || messages.find((m) => m.isAnchor)?.textPreview || null,
+          label: viewLabel || null,
+          searchQuery: rawSearch || null
+        });
+      } catch (err) {
+        if ((err as Error & { code?: string }).code === INSUFFICIENT_GUAPI_CODE) {
+          const quota = await getGuestGlobalSearchQuota(guestUserId);
+          return quotaBlockedResponse(quota, "view");
+        }
+        throw err;
+      }
+    }
+
+    const quota = await getGuestGlobalSearchQuota(guestUserId);
     tgSearchLog("channel-api", "频道消息拉取成功", {
       username,
       count: result.count,
       sensitive: messages.filter((m) => m.sensitiveBlocked).length,
       ms: Date.now() - started
     });
-    return NextResponse.json({ ok: true, ...result, messages });
+    return NextResponse.json({
+      ok: true,
+      ...result,
+      messages,
+      quota: quotaJson(quota),
+      viewBilled: isResourceView && guestUserId && messages.length > 0
+    });
   } catch (err: unknown) {
     const mapped = svc.mapGramError(err);
     const code = (err as { code?: string })?.code || mapped.code;

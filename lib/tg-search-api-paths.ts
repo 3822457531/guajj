@@ -5,6 +5,7 @@ export const TG_SEARCH_API = {
 
 export const TG_SEARCH_QUOTA_API = `${TG_SEARCH_API.prod}/quota`;
 export const TG_SEARCH_HISTORY_API = `${TG_SEARCH_API.prod}/history`;
+export const VIEW_HISTORY_API = "/api/view-history";
 
 export type TgSearchApiScope = keyof typeof TG_SEARCH_API;
 

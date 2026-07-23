@@ -8,7 +8,7 @@ import { getLatestHotSearchBoard } from "@/lib/jisou-hot-search-board";
 
 export const metadata: Metadata = {
   title: "热搜 · 吃瓜网",
-  description: "极搜实时热搜词条，一键跳转全局搜索"
+  description: "极搜实时热搜词条，一键跳转全网搜索"
 };
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export default async function HotSearchPage({
               </span>
               <span className="h5-brand-title">热搜</span>
             </div>
-            <p className="h5-brand-sub">极搜热词 · 一键全局搜</p>
+            <p className="h5-brand-sub">极搜热词 · 一键全网搜</p>
           </div>
           <Link href="/my" prefetch={false} className="vip-member-pill">
             <span aria-hidden>👑</span>

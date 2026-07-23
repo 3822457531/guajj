@@ -301,7 +301,10 @@ export default function TgSearchTestPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={captcha.challengeId}
-            src={`${captcha.imageUrl}?v=${encodeURIComponent(captcha.challengeId)}`}
+            src={
+              captcha.imageDataUrl ||
+              `${captcha.imageUrl}?v=${encodeURIComponent(captcha.challengeId)}`
+            }
             alt="极搜验证码"
             style={{
               display: "block",

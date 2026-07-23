@@ -124,6 +124,11 @@ export type PageVisit = $Result.DefaultSelection<Prisma.$PageVisitPayload>
  */
 export type SearchLog = $Result.DefaultSelection<Prisma.$SearchLogPayload>
 /**
+ * Model ContentViewLog
+ * * 用户观看资源记录（全局搜点进频道消息）
+ */
+export type ContentViewLog = $Result.DefaultSelection<Prisma.$ContentViewLogPayload>
+/**
  * Model GlobalSearchCache
  * * 全网搜索按用户+关键词缓存的极搜频道结果
  */
@@ -547,6 +552,16 @@ export class PrismaClient<
     * ```
     */
   get searchLog(): Prisma.SearchLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.contentViewLog`: Exposes CRUD operations for the **ContentViewLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ContentViewLogs
+    * const contentViewLogs = await prisma.contentViewLog.findMany()
+    * ```
+    */
+  get contentViewLog(): Prisma.ContentViewLogDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.globalSearchCache`: Exposes CRUD operations for the **GlobalSearchCache** model.
@@ -1040,6 +1055,7 @@ export namespace Prisma {
     TgIndexedMessage: 'TgIndexedMessage',
     PageVisit: 'PageVisit',
     SearchLog: 'SearchLog',
+    ContentViewLog: 'ContentViewLog',
     GlobalSearchCache: 'GlobalSearchCache',
     JisouHotSearchSnapshot: 'JisouHotSearchSnapshot',
     DailySiteStat: 'DailySiteStat'
@@ -1061,7 +1077,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "adminUser" | "siteSettings" | "guestUser" | "smsConfig" | "smsGuapiLog" | "smsLog" | "smsUserRecord" | "smsNumberRecord" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
+      modelProps: "adminUser" | "siteSettings" | "guestUser" | "smsConfig" | "smsGuapiLog" | "smsLog" | "smsUserRecord" | "smsNumberRecord" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "contentViewLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2517,6 +2533,72 @@ export namespace Prisma {
           }
         }
       }
+      ContentViewLog: {
+        payload: Prisma.$ContentViewLogPayload<ExtArgs>
+        fields: Prisma.ContentViewLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ContentViewLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ContentViewLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>
+          }
+          findFirst: {
+            args: Prisma.ContentViewLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ContentViewLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>
+          }
+          findMany: {
+            args: Prisma.ContentViewLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>[]
+          }
+          create: {
+            args: Prisma.ContentViewLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>
+          }
+          createMany: {
+            args: Prisma.ContentViewLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ContentViewLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>
+          }
+          update: {
+            args: Prisma.ContentViewLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.ContentViewLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ContentViewLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ContentViewLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContentViewLogPayload>
+          }
+          aggregate: {
+            args: Prisma.ContentViewLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateContentViewLog>
+          }
+          groupBy: {
+            args: Prisma.ContentViewLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ContentViewLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ContentViewLogCountArgs<ExtArgs>
+            result: $Utils.Optional<ContentViewLogCountAggregateOutputType> | number
+          }
+        }
+      }
       GlobalSearchCache: {
         payload: Prisma.$GlobalSearchCachePayload<ExtArgs>
         fields: Prisma.GlobalSearchCacheFieldRefs
@@ -2833,6 +2915,7 @@ export namespace Prisma {
     tgIndexedMessage?: TgIndexedMessageOmit
     pageVisit?: PageVisitOmit
     searchLog?: SearchLogOmit
+    contentViewLog?: ContentViewLogOmit
     globalSearchCache?: GlobalSearchCacheOmit
     jisouHotSearchSnapshot?: JisouHotSearchSnapshotOmit
     dailySiteStat?: DailySiteStatOmit
@@ -2919,6 +3002,7 @@ export namespace Prisma {
     referrals: number
     searchLogs: number
     globalSearchCaches: number
+    contentViewLogs: number
     smsGuapiLogs: number
     smsLogs: number
     smsUserRecords: number
@@ -2929,6 +3013,7 @@ export namespace Prisma {
     referrals?: boolean | GuestUserCountOutputTypeCountReferralsArgs
     searchLogs?: boolean | GuestUserCountOutputTypeCountSearchLogsArgs
     globalSearchCaches?: boolean | GuestUserCountOutputTypeCountGlobalSearchCachesArgs
+    contentViewLogs?: boolean | GuestUserCountOutputTypeCountContentViewLogsArgs
     smsGuapiLogs?: boolean | GuestUserCountOutputTypeCountSmsGuapiLogsArgs
     smsLogs?: boolean | GuestUserCountOutputTypeCountSmsLogsArgs
     smsUserRecords?: boolean | GuestUserCountOutputTypeCountSmsUserRecordsArgs
@@ -2965,6 +3050,13 @@ export namespace Prisma {
    */
   export type GuestUserCountOutputTypeCountGlobalSearchCachesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: GlobalSearchCacheWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountContentViewLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ContentViewLogWhereInput
   }
 
   /**
@@ -5377,6 +5469,7 @@ export namespace Prisma {
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
     searchLogs?: boolean | GuestUser$searchLogsArgs<ExtArgs>
     globalSearchCaches?: boolean | GuestUser$globalSearchCachesArgs<ExtArgs>
+    contentViewLogs?: boolean | GuestUser$contentViewLogsArgs<ExtArgs>
     smsGuapiLogs?: boolean | GuestUser$smsGuapiLogsArgs<ExtArgs>
     smsLogs?: boolean | GuestUser$smsLogsArgs<ExtArgs>
     smsUserRecords?: boolean | GuestUser$smsUserRecordsArgs<ExtArgs>
@@ -5406,6 +5499,7 @@ export namespace Prisma {
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
     searchLogs?: boolean | GuestUser$searchLogsArgs<ExtArgs>
     globalSearchCaches?: boolean | GuestUser$globalSearchCachesArgs<ExtArgs>
+    contentViewLogs?: boolean | GuestUser$contentViewLogsArgs<ExtArgs>
     smsGuapiLogs?: boolean | GuestUser$smsGuapiLogsArgs<ExtArgs>
     smsLogs?: boolean | GuestUser$smsLogsArgs<ExtArgs>
     smsUserRecords?: boolean | GuestUser$smsUserRecordsArgs<ExtArgs>
@@ -5420,6 +5514,7 @@ export namespace Prisma {
       referrals: Prisma.$GuestUserPayload<ExtArgs>[]
       searchLogs: Prisma.$SearchLogPayload<ExtArgs>[]
       globalSearchCaches: Prisma.$GlobalSearchCachePayload<ExtArgs>[]
+      contentViewLogs: Prisma.$ContentViewLogPayload<ExtArgs>[]
       smsGuapiLogs: Prisma.$SmsGuapiLogPayload<ExtArgs>[]
       smsLogs: Prisma.$SmsLogPayload<ExtArgs>[]
       smsUserRecords: Prisma.$SmsUserRecordPayload<ExtArgs>[]
@@ -5796,6 +5891,7 @@ export namespace Prisma {
     referrals<T extends GuestUser$referralsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$referralsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     searchLogs<T extends GuestUser$searchLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$searchLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SearchLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     globalSearchCaches<T extends GuestUser$globalSearchCachesArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$globalSearchCachesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalSearchCachePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    contentViewLogs<T extends GuestUser$contentViewLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$contentViewLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsGuapiLogs<T extends GuestUser$smsGuapiLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsGuapiLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsGuapiLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsLogs<T extends GuestUser$smsLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsUserRecords<T extends GuestUser$smsUserRecordsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsUserRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6271,6 +6367,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: GlobalSearchCacheScalarFieldEnum | GlobalSearchCacheScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.contentViewLogs
+   */
+  export type GuestUser$contentViewLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    where?: ContentViewLogWhereInput
+    orderBy?: ContentViewLogOrderByWithRelationInput | ContentViewLogOrderByWithRelationInput[]
+    cursor?: ContentViewLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ContentViewLogScalarFieldEnum | ContentViewLogScalarFieldEnum[]
   }
 
   /**
@@ -25137,6 +25257,1024 @@ export namespace Prisma {
 
 
   /**
+   * Model ContentViewLog
+   */
+
+  export type AggregateContentViewLog = {
+    _count: ContentViewLogCountAggregateOutputType | null
+    _avg: ContentViewLogAvgAggregateOutputType | null
+    _sum: ContentViewLogSumAggregateOutputType | null
+    _min: ContentViewLogMinAggregateOutputType | null
+    _max: ContentViewLogMaxAggregateOutputType | null
+  }
+
+  export type ContentViewLogAvgAggregateOutputType = {
+    messageId: number | null
+  }
+
+  export type ContentViewLogSumAggregateOutputType = {
+    messageId: number | null
+  }
+
+  export type ContentViewLogMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    username: string | null
+    messageId: number | null
+    title: string | null
+    label: string | null
+    searchQuery: string | null
+    userHiddenAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ContentViewLogMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    username: string | null
+    messageId: number | null
+    title: string | null
+    label: string | null
+    searchQuery: string | null
+    userHiddenAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ContentViewLogCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    username: number
+    messageId: number
+    title: number
+    label: number
+    searchQuery: number
+    userHiddenAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ContentViewLogAvgAggregateInputType = {
+    messageId?: true
+  }
+
+  export type ContentViewLogSumAggregateInputType = {
+    messageId?: true
+  }
+
+  export type ContentViewLogMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    username?: true
+    messageId?: true
+    title?: true
+    label?: true
+    searchQuery?: true
+    userHiddenAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ContentViewLogMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    username?: true
+    messageId?: true
+    title?: true
+    label?: true
+    searchQuery?: true
+    userHiddenAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ContentViewLogCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    username?: true
+    messageId?: true
+    title?: true
+    label?: true
+    searchQuery?: true
+    userHiddenAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ContentViewLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContentViewLog to aggregate.
+     */
+    where?: ContentViewLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContentViewLogs to fetch.
+     */
+    orderBy?: ContentViewLogOrderByWithRelationInput | ContentViewLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ContentViewLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContentViewLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContentViewLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ContentViewLogs
+    **/
+    _count?: true | ContentViewLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ContentViewLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ContentViewLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ContentViewLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ContentViewLogMaxAggregateInputType
+  }
+
+  export type GetContentViewLogAggregateType<T extends ContentViewLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateContentViewLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateContentViewLog[P]>
+      : GetScalarType<T[P], AggregateContentViewLog[P]>
+  }
+
+
+
+
+  export type ContentViewLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ContentViewLogWhereInput
+    orderBy?: ContentViewLogOrderByWithAggregationInput | ContentViewLogOrderByWithAggregationInput[]
+    by: ContentViewLogScalarFieldEnum[] | ContentViewLogScalarFieldEnum
+    having?: ContentViewLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ContentViewLogCountAggregateInputType | true
+    _avg?: ContentViewLogAvgAggregateInputType
+    _sum?: ContentViewLogSumAggregateInputType
+    _min?: ContentViewLogMinAggregateInputType
+    _max?: ContentViewLogMaxAggregateInputType
+  }
+
+  export type ContentViewLogGroupByOutputType = {
+    id: string
+    guestUserId: string
+    username: string
+    messageId: number
+    title: string | null
+    label: string | null
+    searchQuery: string | null
+    userHiddenAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ContentViewLogCountAggregateOutputType | null
+    _avg: ContentViewLogAvgAggregateOutputType | null
+    _sum: ContentViewLogSumAggregateOutputType | null
+    _min: ContentViewLogMinAggregateOutputType | null
+    _max: ContentViewLogMaxAggregateOutputType | null
+  }
+
+  type GetContentViewLogGroupByPayload<T extends ContentViewLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ContentViewLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ContentViewLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ContentViewLogGroupByOutputType[P]>
+            : GetScalarType<T[P], ContentViewLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ContentViewLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    username?: boolean
+    messageId?: boolean
+    title?: boolean
+    label?: boolean
+    searchQuery?: boolean
+    userHiddenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["contentViewLog"]>
+
+
+
+  export type ContentViewLogSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    username?: boolean
+    messageId?: boolean
+    title?: boolean
+    label?: boolean
+    searchQuery?: boolean
+    userHiddenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ContentViewLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "username" | "messageId" | "title" | "label" | "searchQuery" | "userHiddenAt" | "createdAt" | "updatedAt", ExtArgs["result"]["contentViewLog"]>
+  export type ContentViewLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $ContentViewLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ContentViewLog"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      username: string
+      messageId: number
+      title: string | null
+      label: string | null
+      searchQuery: string | null
+      userHiddenAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["contentViewLog"]>
+    composites: {}
+  }
+
+  type ContentViewLogGetPayload<S extends boolean | null | undefined | ContentViewLogDefaultArgs> = $Result.GetResult<Prisma.$ContentViewLogPayload, S>
+
+  type ContentViewLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ContentViewLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ContentViewLogCountAggregateInputType | true
+    }
+
+  export interface ContentViewLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ContentViewLog'], meta: { name: 'ContentViewLog' } }
+    /**
+     * Find zero or one ContentViewLog that matches the filter.
+     * @param {ContentViewLogFindUniqueArgs} args - Arguments to find a ContentViewLog
+     * @example
+     * // Get one ContentViewLog
+     * const contentViewLog = await prisma.contentViewLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ContentViewLogFindUniqueArgs>(args: SelectSubset<T, ContentViewLogFindUniqueArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ContentViewLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ContentViewLogFindUniqueOrThrowArgs} args - Arguments to find a ContentViewLog
+     * @example
+     * // Get one ContentViewLog
+     * const contentViewLog = await prisma.contentViewLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ContentViewLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ContentViewLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ContentViewLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogFindFirstArgs} args - Arguments to find a ContentViewLog
+     * @example
+     * // Get one ContentViewLog
+     * const contentViewLog = await prisma.contentViewLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ContentViewLogFindFirstArgs>(args?: SelectSubset<T, ContentViewLogFindFirstArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ContentViewLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogFindFirstOrThrowArgs} args - Arguments to find a ContentViewLog
+     * @example
+     * // Get one ContentViewLog
+     * const contentViewLog = await prisma.contentViewLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ContentViewLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ContentViewLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ContentViewLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ContentViewLogs
+     * const contentViewLogs = await prisma.contentViewLog.findMany()
+     * 
+     * // Get first 10 ContentViewLogs
+     * const contentViewLogs = await prisma.contentViewLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const contentViewLogWithIdOnly = await prisma.contentViewLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ContentViewLogFindManyArgs>(args?: SelectSubset<T, ContentViewLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ContentViewLog.
+     * @param {ContentViewLogCreateArgs} args - Arguments to create a ContentViewLog.
+     * @example
+     * // Create one ContentViewLog
+     * const ContentViewLog = await prisma.contentViewLog.create({
+     *   data: {
+     *     // ... data to create a ContentViewLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends ContentViewLogCreateArgs>(args: SelectSubset<T, ContentViewLogCreateArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ContentViewLogs.
+     * @param {ContentViewLogCreateManyArgs} args - Arguments to create many ContentViewLogs.
+     * @example
+     * // Create many ContentViewLogs
+     * const contentViewLog = await prisma.contentViewLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ContentViewLogCreateManyArgs>(args?: SelectSubset<T, ContentViewLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ContentViewLog.
+     * @param {ContentViewLogDeleteArgs} args - Arguments to delete one ContentViewLog.
+     * @example
+     * // Delete one ContentViewLog
+     * const ContentViewLog = await prisma.contentViewLog.delete({
+     *   where: {
+     *     // ... filter to delete one ContentViewLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ContentViewLogDeleteArgs>(args: SelectSubset<T, ContentViewLogDeleteArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ContentViewLog.
+     * @param {ContentViewLogUpdateArgs} args - Arguments to update one ContentViewLog.
+     * @example
+     * // Update one ContentViewLog
+     * const contentViewLog = await prisma.contentViewLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ContentViewLogUpdateArgs>(args: SelectSubset<T, ContentViewLogUpdateArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ContentViewLogs.
+     * @param {ContentViewLogDeleteManyArgs} args - Arguments to filter ContentViewLogs to delete.
+     * @example
+     * // Delete a few ContentViewLogs
+     * const { count } = await prisma.contentViewLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ContentViewLogDeleteManyArgs>(args?: SelectSubset<T, ContentViewLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ContentViewLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ContentViewLogs
+     * const contentViewLog = await prisma.contentViewLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ContentViewLogUpdateManyArgs>(args: SelectSubset<T, ContentViewLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ContentViewLog.
+     * @param {ContentViewLogUpsertArgs} args - Arguments to update or create a ContentViewLog.
+     * @example
+     * // Update or create a ContentViewLog
+     * const contentViewLog = await prisma.contentViewLog.upsert({
+     *   create: {
+     *     // ... data to create a ContentViewLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ContentViewLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ContentViewLogUpsertArgs>(args: SelectSubset<T, ContentViewLogUpsertArgs<ExtArgs>>): Prisma__ContentViewLogClient<$Result.GetResult<Prisma.$ContentViewLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ContentViewLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogCountArgs} args - Arguments to filter ContentViewLogs to count.
+     * @example
+     * // Count the number of ContentViewLogs
+     * const count = await prisma.contentViewLog.count({
+     *   where: {
+     *     // ... the filter for the ContentViewLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ContentViewLogCountArgs>(
+      args?: Subset<T, ContentViewLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ContentViewLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ContentViewLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ContentViewLogAggregateArgs>(args: Subset<T, ContentViewLogAggregateArgs>): Prisma.PrismaPromise<GetContentViewLogAggregateType<T>>
+
+    /**
+     * Group by ContentViewLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContentViewLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ContentViewLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ContentViewLogGroupByArgs['orderBy'] }
+        : { orderBy?: ContentViewLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ContentViewLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContentViewLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ContentViewLog model
+   */
+  readonly fields: ContentViewLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ContentViewLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ContentViewLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ContentViewLog model
+   */
+  interface ContentViewLogFieldRefs {
+    readonly id: FieldRef<"ContentViewLog", 'String'>
+    readonly guestUserId: FieldRef<"ContentViewLog", 'String'>
+    readonly username: FieldRef<"ContentViewLog", 'String'>
+    readonly messageId: FieldRef<"ContentViewLog", 'Int'>
+    readonly title: FieldRef<"ContentViewLog", 'String'>
+    readonly label: FieldRef<"ContentViewLog", 'String'>
+    readonly searchQuery: FieldRef<"ContentViewLog", 'String'>
+    readonly userHiddenAt: FieldRef<"ContentViewLog", 'DateTime'>
+    readonly createdAt: FieldRef<"ContentViewLog", 'DateTime'>
+    readonly updatedAt: FieldRef<"ContentViewLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ContentViewLog findUnique
+   */
+  export type ContentViewLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ContentViewLog to fetch.
+     */
+    where: ContentViewLogWhereUniqueInput
+  }
+
+  /**
+   * ContentViewLog findUniqueOrThrow
+   */
+  export type ContentViewLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ContentViewLog to fetch.
+     */
+    where: ContentViewLogWhereUniqueInput
+  }
+
+  /**
+   * ContentViewLog findFirst
+   */
+  export type ContentViewLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ContentViewLog to fetch.
+     */
+    where?: ContentViewLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContentViewLogs to fetch.
+     */
+    orderBy?: ContentViewLogOrderByWithRelationInput | ContentViewLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContentViewLogs.
+     */
+    cursor?: ContentViewLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContentViewLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContentViewLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContentViewLogs.
+     */
+    distinct?: ContentViewLogScalarFieldEnum | ContentViewLogScalarFieldEnum[]
+  }
+
+  /**
+   * ContentViewLog findFirstOrThrow
+   */
+  export type ContentViewLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ContentViewLog to fetch.
+     */
+    where?: ContentViewLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContentViewLogs to fetch.
+     */
+    orderBy?: ContentViewLogOrderByWithRelationInput | ContentViewLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContentViewLogs.
+     */
+    cursor?: ContentViewLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContentViewLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContentViewLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContentViewLogs.
+     */
+    distinct?: ContentViewLogScalarFieldEnum | ContentViewLogScalarFieldEnum[]
+  }
+
+  /**
+   * ContentViewLog findMany
+   */
+  export type ContentViewLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ContentViewLogs to fetch.
+     */
+    where?: ContentViewLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContentViewLogs to fetch.
+     */
+    orderBy?: ContentViewLogOrderByWithRelationInput | ContentViewLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ContentViewLogs.
+     */
+    cursor?: ContentViewLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContentViewLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContentViewLogs.
+     */
+    skip?: number
+    distinct?: ContentViewLogScalarFieldEnum | ContentViewLogScalarFieldEnum[]
+  }
+
+  /**
+   * ContentViewLog create
+   */
+  export type ContentViewLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ContentViewLog.
+     */
+    data: XOR<ContentViewLogCreateInput, ContentViewLogUncheckedCreateInput>
+  }
+
+  /**
+   * ContentViewLog createMany
+   */
+  export type ContentViewLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ContentViewLogs.
+     */
+    data: ContentViewLogCreateManyInput | ContentViewLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ContentViewLog update
+   */
+  export type ContentViewLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ContentViewLog.
+     */
+    data: XOR<ContentViewLogUpdateInput, ContentViewLogUncheckedUpdateInput>
+    /**
+     * Choose, which ContentViewLog to update.
+     */
+    where: ContentViewLogWhereUniqueInput
+  }
+
+  /**
+   * ContentViewLog updateMany
+   */
+  export type ContentViewLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ContentViewLogs.
+     */
+    data: XOR<ContentViewLogUpdateManyMutationInput, ContentViewLogUncheckedUpdateManyInput>
+    /**
+     * Filter which ContentViewLogs to update
+     */
+    where?: ContentViewLogWhereInput
+    /**
+     * Limit how many ContentViewLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ContentViewLog upsert
+   */
+  export type ContentViewLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ContentViewLog to update in case it exists.
+     */
+    where: ContentViewLogWhereUniqueInput
+    /**
+     * In case the ContentViewLog found by the `where` argument doesn't exist, create a new ContentViewLog with this data.
+     */
+    create: XOR<ContentViewLogCreateInput, ContentViewLogUncheckedCreateInput>
+    /**
+     * In case the ContentViewLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ContentViewLogUpdateInput, ContentViewLogUncheckedUpdateInput>
+  }
+
+  /**
+   * ContentViewLog delete
+   */
+  export type ContentViewLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+    /**
+     * Filter which ContentViewLog to delete.
+     */
+    where: ContentViewLogWhereUniqueInput
+  }
+
+  /**
+   * ContentViewLog deleteMany
+   */
+  export type ContentViewLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContentViewLogs to delete
+     */
+    where?: ContentViewLogWhereInput
+    /**
+     * Limit how many ContentViewLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ContentViewLog without action
+   */
+  export type ContentViewLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContentViewLog
+     */
+    select?: ContentViewLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ContentViewLog
+     */
+    omit?: ContentViewLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContentViewLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model GlobalSearchCache
    */
 
@@ -28321,6 +29459,22 @@ export namespace Prisma {
   export type SearchLogScalarFieldEnum = (typeof SearchLogScalarFieldEnum)[keyof typeof SearchLogScalarFieldEnum]
 
 
+  export const ContentViewLogScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    username: 'username',
+    messageId: 'messageId',
+    title: 'title',
+    label: 'label',
+    searchQuery: 'searchQuery',
+    userHiddenAt: 'userHiddenAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ContentViewLogScalarFieldEnum = (typeof ContentViewLogScalarFieldEnum)[keyof typeof ContentViewLogScalarFieldEnum]
+
+
   export const GlobalSearchCacheScalarFieldEnum: {
     id: 'id',
     keyword: 'keyword',
@@ -28636,6 +29790,18 @@ export namespace Prisma {
   export type SearchLogOrderByRelevanceFieldEnum = (typeof SearchLogOrderByRelevanceFieldEnum)[keyof typeof SearchLogOrderByRelevanceFieldEnum]
 
 
+  export const ContentViewLogOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    username: 'username',
+    title: 'title',
+    label: 'label',
+    searchQuery: 'searchQuery'
+  };
+
+  export type ContentViewLogOrderByRelevanceFieldEnum = (typeof ContentViewLogOrderByRelevanceFieldEnum)[keyof typeof ContentViewLogOrderByRelevanceFieldEnum]
+
+
   export const JsonNullValueFilter: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
@@ -28940,6 +30106,7 @@ export namespace Prisma {
     referrals?: GuestUserListRelationFilter
     searchLogs?: SearchLogListRelationFilter
     globalSearchCaches?: GlobalSearchCacheListRelationFilter
+    contentViewLogs?: ContentViewLogListRelationFilter
     smsGuapiLogs?: SmsGuapiLogListRelationFilter
     smsLogs?: SmsLogListRelationFilter
     smsUserRecords?: SmsUserRecordListRelationFilter
@@ -28962,6 +30129,7 @@ export namespace Prisma {
     referrals?: GuestUserOrderByRelationAggregateInput
     searchLogs?: SearchLogOrderByRelationAggregateInput
     globalSearchCaches?: GlobalSearchCacheOrderByRelationAggregateInput
+    contentViewLogs?: ContentViewLogOrderByRelationAggregateInput
     smsGuapiLogs?: SmsGuapiLogOrderByRelationAggregateInput
     smsLogs?: SmsLogOrderByRelationAggregateInput
     smsUserRecords?: SmsUserRecordOrderByRelationAggregateInput
@@ -28988,6 +30156,7 @@ export namespace Prisma {
     referrals?: GuestUserListRelationFilter
     searchLogs?: SearchLogListRelationFilter
     globalSearchCaches?: GlobalSearchCacheListRelationFilter
+    contentViewLogs?: ContentViewLogListRelationFilter
     smsGuapiLogs?: SmsGuapiLogListRelationFilter
     smsLogs?: SmsLogListRelationFilter
     smsUserRecords?: SmsUserRecordListRelationFilter
@@ -30431,6 +31600,90 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"SearchLog"> | Date | string
   }
 
+  export type ContentViewLogWhereInput = {
+    AND?: ContentViewLogWhereInput | ContentViewLogWhereInput[]
+    OR?: ContentViewLogWhereInput[]
+    NOT?: ContentViewLogWhereInput | ContentViewLogWhereInput[]
+    id?: StringFilter<"ContentViewLog"> | string
+    guestUserId?: StringFilter<"ContentViewLog"> | string
+    username?: StringFilter<"ContentViewLog"> | string
+    messageId?: IntFilter<"ContentViewLog"> | number
+    title?: StringNullableFilter<"ContentViewLog"> | string | null
+    label?: StringNullableFilter<"ContentViewLog"> | string | null
+    searchQuery?: StringNullableFilter<"ContentViewLog"> | string | null
+    userHiddenAt?: DateTimeNullableFilter<"ContentViewLog"> | Date | string | null
+    createdAt?: DateTimeFilter<"ContentViewLog"> | Date | string
+    updatedAt?: DateTimeFilter<"ContentViewLog"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type ContentViewLogOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    username?: SortOrder
+    messageId?: SortOrder
+    title?: SortOrderInput | SortOrder
+    label?: SortOrderInput | SortOrder
+    searchQuery?: SortOrderInput | SortOrder
+    userHiddenAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: ContentViewLogOrderByRelevanceInput
+  }
+
+  export type ContentViewLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    guestUserId_username_messageId?: ContentViewLogGuestUserIdUsernameMessageIdCompoundUniqueInput
+    AND?: ContentViewLogWhereInput | ContentViewLogWhereInput[]
+    OR?: ContentViewLogWhereInput[]
+    NOT?: ContentViewLogWhereInput | ContentViewLogWhereInput[]
+    guestUserId?: StringFilter<"ContentViewLog"> | string
+    username?: StringFilter<"ContentViewLog"> | string
+    messageId?: IntFilter<"ContentViewLog"> | number
+    title?: StringNullableFilter<"ContentViewLog"> | string | null
+    label?: StringNullableFilter<"ContentViewLog"> | string | null
+    searchQuery?: StringNullableFilter<"ContentViewLog"> | string | null
+    userHiddenAt?: DateTimeNullableFilter<"ContentViewLog"> | Date | string | null
+    createdAt?: DateTimeFilter<"ContentViewLog"> | Date | string
+    updatedAt?: DateTimeFilter<"ContentViewLog"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id" | "guestUserId_username_messageId">
+
+  export type ContentViewLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    username?: SortOrder
+    messageId?: SortOrder
+    title?: SortOrderInput | SortOrder
+    label?: SortOrderInput | SortOrder
+    searchQuery?: SortOrderInput | SortOrder
+    userHiddenAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ContentViewLogCountOrderByAggregateInput
+    _avg?: ContentViewLogAvgOrderByAggregateInput
+    _max?: ContentViewLogMaxOrderByAggregateInput
+    _min?: ContentViewLogMinOrderByAggregateInput
+    _sum?: ContentViewLogSumOrderByAggregateInput
+  }
+
+  export type ContentViewLogScalarWhereWithAggregatesInput = {
+    AND?: ContentViewLogScalarWhereWithAggregatesInput | ContentViewLogScalarWhereWithAggregatesInput[]
+    OR?: ContentViewLogScalarWhereWithAggregatesInput[]
+    NOT?: ContentViewLogScalarWhereWithAggregatesInput | ContentViewLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ContentViewLog"> | string
+    guestUserId?: StringWithAggregatesFilter<"ContentViewLog"> | string
+    username?: StringWithAggregatesFilter<"ContentViewLog"> | string
+    messageId?: IntWithAggregatesFilter<"ContentViewLog"> | number
+    title?: StringNullableWithAggregatesFilter<"ContentViewLog"> | string | null
+    label?: StringNullableWithAggregatesFilter<"ContentViewLog"> | string | null
+    searchQuery?: StringNullableWithAggregatesFilter<"ContentViewLog"> | string | null
+    userHiddenAt?: DateTimeNullableWithAggregatesFilter<"ContentViewLog"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ContentViewLog"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ContentViewLog"> | Date | string
+  }
+
   export type GlobalSearchCacheWhereInput = {
     AND?: GlobalSearchCacheWhereInput | GlobalSearchCacheWhereInput[]
     OR?: GlobalSearchCacheWhereInput[]
@@ -30815,6 +32068,7 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
@@ -30836,6 +32090,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -30857,6 +32112,7 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
@@ -30878,6 +32134,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -32439,6 +33696,96 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ContentViewLogCreateInput = {
+    id?: string
+    username: string
+    messageId: number
+    title?: string | null
+    label?: string | null
+    searchQuery?: string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutContentViewLogsInput
+  }
+
+  export type ContentViewLogUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    username: string
+    messageId: number
+    title?: string | null
+    label?: string | null
+    searchQuery?: string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContentViewLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutContentViewLogsNestedInput
+  }
+
+  export type ContentViewLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContentViewLogCreateManyInput = {
+    id?: string
+    guestUserId: string
+    username: string
+    messageId: number
+    title?: string | null
+    label?: string | null
+    searchQuery?: string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContentViewLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContentViewLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type GlobalSearchCacheCreateInput = {
     id?: string
     keyword: string
@@ -32910,6 +34257,12 @@ export namespace Prisma {
     none?: GlobalSearchCacheWhereInput
   }
 
+  export type ContentViewLogListRelationFilter = {
+    every?: ContentViewLogWhereInput
+    some?: ContentViewLogWhereInput
+    none?: ContentViewLogWhereInput
+  }
+
   export type SmsGuapiLogListRelationFilter = {
     every?: SmsGuapiLogWhereInput
     some?: SmsGuapiLogWhereInput
@@ -32943,6 +34296,10 @@ export namespace Prisma {
   }
 
   export type GlobalSearchCacheOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ContentViewLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -34082,6 +35439,65 @@ export namespace Prisma {
     _min?: NestedEnumSearchSourceFilter<$PrismaModel>
     _max?: NestedEnumSearchSourceFilter<$PrismaModel>
   }
+
+  export type ContentViewLogOrderByRelevanceInput = {
+    fields: ContentViewLogOrderByRelevanceFieldEnum | ContentViewLogOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type ContentViewLogGuestUserIdUsernameMessageIdCompoundUniqueInput = {
+    guestUserId: string
+    username: string
+    messageId: number
+  }
+
+  export type ContentViewLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    username?: SortOrder
+    messageId?: SortOrder
+    title?: SortOrder
+    label?: SortOrder
+    searchQuery?: SortOrder
+    userHiddenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ContentViewLogAvgOrderByAggregateInput = {
+    messageId?: SortOrder
+  }
+
+  export type ContentViewLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    username?: SortOrder
+    messageId?: SortOrder
+    title?: SortOrder
+    label?: SortOrder
+    searchQuery?: SortOrder
+    userHiddenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ContentViewLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    username?: SortOrder
+    messageId?: SortOrder
+    title?: SortOrder
+    label?: SortOrder
+    searchQuery?: SortOrder
+    userHiddenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ContentViewLogSumOrderByAggregateInput = {
+    messageId?: SortOrder
+  }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -34317,6 +35733,13 @@ export namespace Prisma {
     connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
   }
 
+  export type ContentViewLogCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<ContentViewLogCreateWithoutGuestUserInput, ContentViewLogUncheckedCreateWithoutGuestUserInput> | ContentViewLogCreateWithoutGuestUserInput[] | ContentViewLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: ContentViewLogCreateOrConnectWithoutGuestUserInput | ContentViewLogCreateOrConnectWithoutGuestUserInput[]
+    createMany?: ContentViewLogCreateManyGuestUserInputEnvelope
+    connect?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+  }
+
   export type SmsGuapiLogCreateNestedManyWithoutGuestUserInput = {
     create?: XOR<SmsGuapiLogCreateWithoutGuestUserInput, SmsGuapiLogUncheckedCreateWithoutGuestUserInput> | SmsGuapiLogCreateWithoutGuestUserInput[] | SmsGuapiLogUncheckedCreateWithoutGuestUserInput[]
     connectOrCreate?: SmsGuapiLogCreateOrConnectWithoutGuestUserInput | SmsGuapiLogCreateOrConnectWithoutGuestUserInput[]
@@ -34364,6 +35787,13 @@ export namespace Prisma {
     connectOrCreate?: GlobalSearchCacheCreateOrConnectWithoutGuestUserInput | GlobalSearchCacheCreateOrConnectWithoutGuestUserInput[]
     createMany?: GlobalSearchCacheCreateManyGuestUserInputEnvelope
     connect?: GlobalSearchCacheWhereUniqueInput | GlobalSearchCacheWhereUniqueInput[]
+  }
+
+  export type ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<ContentViewLogCreateWithoutGuestUserInput, ContentViewLogUncheckedCreateWithoutGuestUserInput> | ContentViewLogCreateWithoutGuestUserInput[] | ContentViewLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: ContentViewLogCreateOrConnectWithoutGuestUserInput | ContentViewLogCreateOrConnectWithoutGuestUserInput[]
+    createMany?: ContentViewLogCreateManyGuestUserInputEnvelope
+    connect?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
   }
 
   export type SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput = {
@@ -34448,6 +35878,20 @@ export namespace Prisma {
     update?: GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput[]
     updateMany?: GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput | GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput[]
     deleteMany?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
+  }
+
+  export type ContentViewLogUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<ContentViewLogCreateWithoutGuestUserInput, ContentViewLogUncheckedCreateWithoutGuestUserInput> | ContentViewLogCreateWithoutGuestUserInput[] | ContentViewLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: ContentViewLogCreateOrConnectWithoutGuestUserInput | ContentViewLogCreateOrConnectWithoutGuestUserInput[]
+    upsert?: ContentViewLogUpsertWithWhereUniqueWithoutGuestUserInput | ContentViewLogUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: ContentViewLogCreateManyGuestUserInputEnvelope
+    set?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    disconnect?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    delete?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    connect?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    update?: ContentViewLogUpdateWithWhereUniqueWithoutGuestUserInput | ContentViewLogUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: ContentViewLogUpdateManyWithWhereWithoutGuestUserInput | ContentViewLogUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: ContentViewLogScalarWhereInput | ContentViewLogScalarWhereInput[]
   }
 
   export type SmsGuapiLogUpdateManyWithoutGuestUserNestedInput = {
@@ -34546,6 +35990,20 @@ export namespace Prisma {
     update?: GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput | GlobalSearchCacheUpdateWithWhereUniqueWithoutGuestUserInput[]
     updateMany?: GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput | GlobalSearchCacheUpdateManyWithWhereWithoutGuestUserInput[]
     deleteMany?: GlobalSearchCacheScalarWhereInput | GlobalSearchCacheScalarWhereInput[]
+  }
+
+  export type ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<ContentViewLogCreateWithoutGuestUserInput, ContentViewLogUncheckedCreateWithoutGuestUserInput> | ContentViewLogCreateWithoutGuestUserInput[] | ContentViewLogUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: ContentViewLogCreateOrConnectWithoutGuestUserInput | ContentViewLogCreateOrConnectWithoutGuestUserInput[]
+    upsert?: ContentViewLogUpsertWithWhereUniqueWithoutGuestUserInput | ContentViewLogUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: ContentViewLogCreateManyGuestUserInputEnvelope
+    set?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    disconnect?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    delete?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    connect?: ContentViewLogWhereUniqueInput | ContentViewLogWhereUniqueInput[]
+    update?: ContentViewLogUpdateWithWhereUniqueWithoutGuestUserInput | ContentViewLogUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: ContentViewLogUpdateManyWithWhereWithoutGuestUserInput | ContentViewLogUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: ContentViewLogScalarWhereInput | ContentViewLogScalarWhereInput[]
   }
 
   export type SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput = {
@@ -35218,6 +36676,20 @@ export namespace Prisma {
     update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutSearchLogsInput, GuestUserUpdateWithoutSearchLogsInput>, GuestUserUncheckedUpdateWithoutSearchLogsInput>
   }
 
+  export type GuestUserCreateNestedOneWithoutContentViewLogsInput = {
+    create?: XOR<GuestUserCreateWithoutContentViewLogsInput, GuestUserUncheckedCreateWithoutContentViewLogsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutContentViewLogsInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutContentViewLogsNestedInput = {
+    create?: XOR<GuestUserCreateWithoutContentViewLogsInput, GuestUserUncheckedCreateWithoutContentViewLogsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutContentViewLogsInput
+    upsert?: GuestUserUpsertWithoutContentViewLogsInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutContentViewLogsInput, GuestUserUpdateWithoutContentViewLogsInput>, GuestUserUncheckedUpdateWithoutContentViewLogsInput>
+  }
+
   export type GuestUserCreateNestedOneWithoutGlobalSearchCachesInput = {
     create?: XOR<GuestUserCreateWithoutGlobalSearchCachesInput, GuestUserUncheckedCreateWithoutGlobalSearchCachesInput>
     connectOrCreate?: GuestUserCreateOrConnectWithoutGlobalSearchCachesInput
@@ -35559,6 +37031,7 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
@@ -35579,6 +37052,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -35604,6 +37078,7 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
@@ -35624,6 +37099,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -35705,6 +37181,40 @@ export namespace Prisma {
 
   export type GlobalSearchCacheCreateManyGuestUserInputEnvelope = {
     data: GlobalSearchCacheCreateManyGuestUserInput | GlobalSearchCacheCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ContentViewLogCreateWithoutGuestUserInput = {
+    id?: string
+    username: string
+    messageId: number
+    title?: string | null
+    label?: string | null
+    searchQuery?: string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContentViewLogUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    username: string
+    messageId: number
+    title?: string | null
+    label?: string | null
+    searchQuery?: string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContentViewLogCreateOrConnectWithoutGuestUserInput = {
+    where: ContentViewLogWhereUniqueInput
+    create: XOR<ContentViewLogCreateWithoutGuestUserInput, ContentViewLogUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type ContentViewLogCreateManyGuestUserInputEnvelope = {
+    data: ContentViewLogCreateManyGuestUserInput | ContentViewLogCreateManyGuestUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -35841,6 +37351,7 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
@@ -35861,6 +37372,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -35962,6 +37474,38 @@ export namespace Prisma {
     userHiddenAt?: DateTimeNullableFilter<"GlobalSearchCache"> | Date | string | null
     createdAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
     updatedAt?: DateTimeFilter<"GlobalSearchCache"> | Date | string
+  }
+
+  export type ContentViewLogUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: ContentViewLogWhereUniqueInput
+    update: XOR<ContentViewLogUpdateWithoutGuestUserInput, ContentViewLogUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<ContentViewLogCreateWithoutGuestUserInput, ContentViewLogUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type ContentViewLogUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: ContentViewLogWhereUniqueInput
+    data: XOR<ContentViewLogUpdateWithoutGuestUserInput, ContentViewLogUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type ContentViewLogUpdateManyWithWhereWithoutGuestUserInput = {
+    where: ContentViewLogScalarWhereInput
+    data: XOR<ContentViewLogUpdateManyMutationInput, ContentViewLogUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type ContentViewLogScalarWhereInput = {
+    AND?: ContentViewLogScalarWhereInput | ContentViewLogScalarWhereInput[]
+    OR?: ContentViewLogScalarWhereInput[]
+    NOT?: ContentViewLogScalarWhereInput | ContentViewLogScalarWhereInput[]
+    id?: StringFilter<"ContentViewLog"> | string
+    guestUserId?: StringFilter<"ContentViewLog"> | string
+    username?: StringFilter<"ContentViewLog"> | string
+    messageId?: IntFilter<"ContentViewLog"> | number
+    title?: StringNullableFilter<"ContentViewLog"> | string | null
+    label?: StringNullableFilter<"ContentViewLog"> | string | null
+    searchQuery?: StringNullableFilter<"ContentViewLog"> | string | null
+    userHiddenAt?: DateTimeNullableFilter<"ContentViewLog"> | Date | string | null
+    createdAt?: DateTimeFilter<"ContentViewLog"> | Date | string
+    updatedAt?: DateTimeFilter<"ContentViewLog"> | Date | string
   }
 
   export type SmsGuapiLogUpsertWithWhereUniqueWithoutGuestUserInput = {
@@ -36093,6 +37637,7 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
@@ -36113,6 +37658,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -36149,6 +37695,7 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
@@ -36169,6 +37716,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -36189,6 +37737,7 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
@@ -36209,6 +37758,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -36245,6 +37795,7 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
@@ -36265,6 +37816,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -36285,6 +37837,7 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
@@ -36305,6 +37858,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -36341,6 +37895,7 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
@@ -36361,6 +37916,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -36381,6 +37937,7 @@ export namespace Prisma {
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
@@ -36401,6 +37958,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -36437,6 +37995,7 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
@@ -36457,6 +38016,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -37627,6 +39187,7 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
@@ -37647,6 +39208,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -37724,6 +39286,7 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
@@ -37743,6 +39306,107 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserCreateWithoutContentViewLogsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutContentViewLogsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutContentViewLogsInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutContentViewLogsInput, GuestUserUncheckedCreateWithoutContentViewLogsInput>
+  }
+
+  export type GuestUserUpsertWithoutContentViewLogsInput = {
+    update: XOR<GuestUserUpdateWithoutContentViewLogsInput, GuestUserUncheckedUpdateWithoutContentViewLogsInput>
+    create: XOR<GuestUserCreateWithoutContentViewLogsInput, GuestUserUncheckedCreateWithoutContentViewLogsInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutContentViewLogsInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutContentViewLogsInput, GuestUserUncheckedUpdateWithoutContentViewLogsInput>
+  }
+
+  export type GuestUserUpdateWithoutContentViewLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutContentViewLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -37764,6 +39428,7 @@ export namespace Prisma {
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
@@ -37784,6 +39449,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
@@ -37820,6 +39486,7 @@ export namespace Prisma {
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
@@ -37840,6 +39507,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -37878,6 +39546,18 @@ export namespace Prisma {
     channelCount?: number
     payload: JsonNullValueInput | InputJsonValue
     sourceFetchedAt?: Date | string | null
+    userHiddenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContentViewLogCreateManyGuestUserInput = {
+    id?: string
+    username: string
+    messageId: number
+    title?: string | null
+    label?: string | null
+    searchQuery?: string | null
     userHiddenAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -37931,6 +39611,7 @@ export namespace Prisma {
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
@@ -37951,6 +39632,7 @@ export namespace Prisma {
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
     globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -38037,6 +39719,42 @@ export namespace Prisma {
     channelCount?: IntFieldUpdateOperationsInput | number
     payload?: JsonNullValueInput | InputJsonValue
     sourceFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContentViewLogUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContentViewLogUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
+    userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContentViewLogUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    messageId?: IntFieldUpdateOperationsInput | number
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    searchQuery?: NullableStringFieldUpdateOperationsInput | string | null
     userHiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

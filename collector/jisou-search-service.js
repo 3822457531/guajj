@@ -254,7 +254,7 @@ async function waitForJisouReply(client, botEntity, afterMessageId, timeoutMs) {
         if (!msg.out) return msg;
       }
     }
-    await sleep(600);
+    await sleep(320);
   }
 
   const err = new Error("等待极搜回复超时");
@@ -385,8 +385,82 @@ function buildJisouSearchResult(q, reply) {
     replyMessageId: reply.id,
     ...parsed,
     buttons,
-    fetchedAt: new Date().toISOString()
+    fetchedAt: new Date().toISOString(),
+    appliedFilterType: null,
+    appliedFilterCallback: null
   };
+}
+
+/** 从极搜筛选按钮里找默认「视频」 */
+function findDefaultVideoFilterButton(buttons) {
+  const filters = Array.isArray(buttons?.filters) ? buttons.filters : [];
+  for (const btn of filters) {
+    const callback = String(btn?.callback || "").trim();
+    const match = callback.match(/^\/s\s+\S+\s+\S+\s+(\S+)/);
+    if (match?.[1] === "Video") return btn;
+  }
+  return filters.find((btn) => /🎬|视频/u.test(String(btn?.text || ""))) || null;
+}
+
+/**
+ * 同一次 gram 会话内点默认「视频」筛选，让首搜直接返回视频资源列表
+ * 失败/超时/验证码时回退原始结果，避免整次搜索失败
+ */
+async function applyDefaultVideoFilterInSession(client, botEntity, result, opts = {}) {
+  const query = String(opts.query || result.query || "").trim();
+  const deliverWebCaptcha = opts.deliverWebCaptcha !== false;
+  const videoBtn = findDefaultVideoFilterButton(result.buttons);
+  const replyMessageId = Number(result.replyMessageId) || 0;
+
+  if (!videoBtn?.callback || replyMessageId <= 0) {
+    return result;
+  }
+
+  const batch = await client.getMessages(botEntity, { ids: [replyMessageId] });
+  const msg = batch?.[0];
+  if (!msg) return result;
+
+  const button = findCallbackButton(msg, { callback: videoBtn.callback, text: videoBtn.text });
+  if (!button?.data) return result;
+
+  const previousText = String(msg.message || "");
+  console.log(
+    `[tg-search:collector] auto video filter msgId=${replyMessageId} callback=${JSON.stringify(videoBtn.callback)}`
+  );
+
+  try {
+    await clickCallbackButton(client, botEntity, msg, button);
+    const outcome = await waitForJisouSearchUpdate(client, botEntity, replyMessageId, previousText);
+
+    if (outcome.kind === "captcha") {
+      if (deliverWebCaptcha) {
+        console.log(`[tg-search:collector] auto video filter 触发验证码，回退未筛选结果`);
+        return result;
+      }
+      await handleJisouCaptcha(client, botEntity, outcome.msg);
+      return result;
+    }
+
+    if (outcome.kind !== "search" || !outcome.msg) {
+      console.log(`[tg-search:collector] auto video filter 超时，回退未筛选结果`);
+      return result;
+    }
+
+    const filtered = buildJisouSearchResult(query, outcome.msg);
+    console.log(
+      `[tg-search:collector] auto video filter ok channels=${filtered.channels?.length ?? 0} msgId=${outcome.msg.id}`
+    );
+    return {
+      ...filtered,
+      appliedFilterType: "Video",
+      appliedFilterCallback: videoBtn.callback
+    };
+  } catch (err) {
+    console.log(
+      `[tg-search:collector] auto video filter fail，回退未筛选结果: ${err?.message || err}`
+    );
+    return result;
+  }
 }
 
 function findCallbackButton(msg, { callback, text }) {
@@ -419,7 +493,7 @@ async function waitForJisouSearchUpdate(client, botEntity, messageId, previousTe
         return { kind: "search", msg };
       }
     }
-    await sleep(650);
+    await sleep(320);
   }
 
   return { kind: "timeout" };
@@ -535,7 +609,10 @@ async function searchJisouChannels(query, opts = {}) {
 
       const result = buildJisouSearchResult(q, reply);
       console.log(`[tg-search:collector] search ok channels=${result.channels?.length ?? 0} replyId=${reply.id}`);
-      return result;
+      return applyDefaultVideoFilterInSession(client, botEntity, result, {
+        query: q,
+        deliverWebCaptcha
+      });
     }
 
     const err = new Error("极搜搜索在验证后仍未返回结果，请稍后重试");
@@ -589,7 +666,10 @@ async function solveJisouCaptchaAndSearch(challengeId, answer) {
       console.log(
         `[tg-search:collector] captcha solved, search ok channels=${result.channels?.length ?? 0} replyId=${post.msg.id}`
       );
-      return result;
+      return applyDefaultVideoFilterInSession(client, botEntity, result, {
+        query: q,
+        deliverWebCaptcha: true
+      });
     }
 
     // 超时：若原验证码消息仍存在，优先刷题给用户，避免误重发关键词
@@ -617,7 +697,10 @@ async function solveJisouCaptchaAndSearch(challengeId, answer) {
     console.log(
       `[tg-search:collector] captcha solved (late), search ok channels=${result.channels?.length ?? 0} replyId=${reply.id}`
     );
-    return result;
+    return applyDefaultVideoFilterInSession(client, botEntity, result, {
+      query: q,
+      deliverWebCaptcha: true
+    });
   }, { priority: "high", task: "jisou-captcha-solve" });
 }
 
@@ -651,8 +734,8 @@ async function fetchAnchorResourceOnly(client, entity, anchorId) {
 
   if (anchor.groupedId != null) {
     const around = await client.getMessages(entity, {
-      minId: Math.max(1, anchorId - 40),
-      maxId: anchorId + 40
+      minId: Math.max(1, anchorId - 80),
+      maxId: anchorId + 81
     });
     for (const m of around || []) {
       if (m?.groupedId != null && String(m.groupedId) === String(anchor.groupedId)) {
@@ -680,8 +763,8 @@ async function fetchMessagesAroundAnchor(client, entity, anchorId, limit = 20) {
 
   if (anchor.groupedId != null) {
     const around = await client.getMessages(entity, {
-      minId: Math.max(1, anchorId - 40),
-      maxId: anchorId + 40
+      minId: Math.max(1, anchorId - 80),
+      maxId: anchorId + 81
     });
     for (const m of around || []) {
       if (m?.groupedId != null && String(m.groupedId) === String(anchor.groupedId)) {
@@ -721,11 +804,13 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
   const limit = Math.min(50, Math.max(1, Number(opts.limit) || 20));
   const search = String(opts.search || "").trim();
   const messageId = Number(opts.messageId) || 0;
-  const anchorMessageId = !search && messageId > 0 ? messageId : null;
+  /** 有 messageId 时按极搜定位拉取，忽略 search */
+  const anchorMessageId = messageId > 0 ? messageId : null;
+  const channelSearch = anchorMessageId ? "" : search;
   const includeContext = Boolean(opts.includeContext);
 
   console.log(
-    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(search || null)} anchor=${anchorMessageId || "none"} resourceOnly=${Boolean(anchorMessageId && !includeContext)}`
+    `[tg-search:collector] ${new Date().toISOString()} fetchChannelMessages username=${JSON.stringify(username)} limit=${limit} search=${JSON.stringify(channelSearch || null)} anchor=${anchorMessageId || "none"} resourceOnly=${Boolean(anchorMessageId && !includeContext)}`
   );
 
   const channelStarted = Date.now();
@@ -757,8 +842,8 @@ async function fetchChannelMessages(usernameOrUrl, opts = {}) {
     let messages;
     const gramStarted = Date.now();
     try {
-      if (search) {
-        messages = await client.getMessages(entity, { limit, search });
+      if (channelSearch) {
+        messages = await client.getMessages(entity, { limit, search: channelSearch });
       } else if (anchorMessageId) {
         if (includeContext) {
           const anchored = await fetchMessagesAroundAnchor(client, entity, anchorMessageId, limit);

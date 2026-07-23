@@ -281,7 +281,9 @@ async function packCaptchaForWeb(client, botEntity, captchaMsg, query, sentMessa
     challengeId,
     prompt,
     options,
-    expiresInSec: Math.round(DEFAULT_TTL_MS / 1000)
+    expiresInSec: Math.round(DEFAULT_TTL_MS / 1000),
+    // 随 428 响应内联，避免前端再请求 /captcha/.../image 时冷启动/超时导致首张裂图
+    imageDataUrl: `data:image/jpeg;base64,${imageBuffer.toString("base64")}`
   };
 }
 

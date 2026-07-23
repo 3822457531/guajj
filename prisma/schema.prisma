@@ -81,6 +81,7 @@ model GuestUser {
   lastLoginAt     DateTime?
   searchLogs         SearchLog[]
   globalSearchCaches GlobalSearchCache[]
+  contentViewLogs    ContentViewLog[]
   smsGuapiLogs       SmsGuapiLog[]
   smsLogs            SmsLog[]
   smsUserRecords     SmsUserRecord[]
@@ -406,6 +407,24 @@ model SearchLog {
   @@index([visitorId, createdAt])
   @@index([socialUserId, createdAt])
   @@index([guestUserId, createdAt])
+}
+
+/** 用户观看资源记录（全局搜点进频道消息） */
+model ContentViewLog {
+  id           String    @id @default(cuid()) @db.VarChar(30)
+  guestUserId  String    @db.VarChar(30)
+  guestUser    GuestUser @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  username     String    @db.VarChar(64)
+  messageId    Int
+  title        String?   @db.VarChar(500)
+  label        String?   @db.VarChar(255)
+  searchQuery  String?   @db.VarChar(191)
+  userHiddenAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([guestUserId, username, messageId])
+  @@index([guestUserId, userHiddenAt, updatedAt])
 }
 
 /** 全网搜索按用户+关键词缓存的极搜频道结果 */

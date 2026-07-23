@@ -6,7 +6,10 @@ import { normalizeSearchKeyword } from "@/lib/search-analytics";
 export type GlobalSearchCachePayload = Pick<
   JisouSearchResult,
   "query" | "replyMessageId" | "channels" | "hotKeywords" | "ads" | "buttons" | "fetchedAt"
->;
+> & {
+  appliedFilterType?: string | null;
+  appliedFilterCallback?: string | null;
+};
 
 export type GlobalSearchCacheRow = {
   id: string;
@@ -73,7 +76,9 @@ export async function upsertGlobalSearchCache(
     hotKeywords: result.hotKeywords ?? [],
     ads: result.ads ?? [],
     buttons: result.buttons,
-    fetchedAt: result.fetchedAt
+    fetchedAt: result.fetchedAt,
+    appliedFilterType: result.appliedFilterType ?? null,
+    appliedFilterCallback: result.appliedFilterCallback ?? null
   };
   const payloadJson = JSON.parse(JSON.stringify(payload)) as Prisma.InputJsonValue;
 

@@ -3,19 +3,21 @@ import Link from "next/link";
 import { GlobalSearchClient } from "@/components/global-search/global-search-client";
 import { SearchModeTabs } from "@/components/search-mode-tabs";
 import { H5SiteBottomNav } from "@/components/h5-site-bottom-nav";
+import { parseResourceShareParams } from "@/lib/resource-share";
 
 export const metadata: Metadata = {
-  title: "全局搜 · 吃瓜网",
+  title: "全网搜 · 吃瓜网",
   description: "暗网索引 · 检索全网公开频道与消息预览"
 };
 
 export default async function GlobalSearchPage({
   searchParams
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; u?: string; mid?: string; t?: string; l?: string }>;
 }) {
   const params = await searchParams;
   const initialQuery = typeof params.q === "string" ? params.q.trim() : "";
+  const initialResource = parseResourceShareParams(params);
 
   return (
     <main className="site-shell h5-home global-search-page">
@@ -26,7 +28,7 @@ export default async function GlobalSearchPage({
               <span className="h5-brand-flame" aria-hidden>
                 🌐
               </span>
-              <span className="h5-brand-title">全局搜</span>
+              <span className="h5-brand-title">全网搜</span>
             </div>
             <p className="h5-brand-sub">暗网索引 · 频道与消息预览</p>
           </div>
@@ -40,7 +42,7 @@ export default async function GlobalSearchPage({
       </header>
 
       <div className="h5-container global-search-container">
-        <GlobalSearchClient initialQuery={initialQuery} />
+        <GlobalSearchClient initialQuery={initialQuery} initialResource={initialResource} />
       </div>
 
       <H5SiteBottomNav active="global" variant="dark" />

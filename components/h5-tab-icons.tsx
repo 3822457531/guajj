@@ -18,39 +18,55 @@ export function TabIconHome({ active }: TabIconProps) {
   );
 }
 
+/** 热搜：上升热度柱 + 尖角，偏「热搜榜」 */
 export function TabIconHot({ active }: TabIconProps) {
   const w = stroke(active);
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M12 21c4.5-2.8 7-6.2 7-10.2C19 6.8 16.2 4 12.5 4c-.8 0-1.5.1-2.2.4C8.8 2.8 7 2 5 2c0 5.5 2.2 8.5 5.5 11.2-.8 1.2-1.2 2.5-1.5 3.8 2.2-.5 4.2-1.5 6-3 1.2 1.8 2.5 3 4 3.8Z"
-        stroke="currentColor"
-        strokeWidth={w}
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 21V11"
+        d="M5.5 18.5V12.5M10.5 18.5V8.5M15.5 18.5V5.5"
         stroke="currentColor"
         strokeWidth={w}
         strokeLinecap="round"
-        opacity={active ? 0.5 : 0.35}
+      />
+      <path
+        d="M13.2 5.2 15.5 3l2.3 2.2"
+        stroke="currentColor"
+        strokeWidth={w}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <path
+        d="M4.5 19.5h13"
+        stroke="currentColor"
+        strokeWidth={w}
+        strokeLinecap="round"
+        opacity={active ? 0.55 : 0.4}
       />
     </svg>
   );
 }
 
+/** 全网搜：放大镜内嵌地球经纬，偏「搜全网」 */
 export function TabIconGlobal({ active }: TabIconProps) {
   const w = stroke(active);
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth={w} />
+      <circle cx="10.25" cy="10.25" r="6.25" stroke="currentColor" strokeWidth={w} />
       <path
-        d="M3.5 12h17M12 3.5c2.2 2.8 3.5 6 3.5 8.5S14.2 17.7 12 20.5M12 3.5C9.8 6.3 8.5 9.5 8.5 12s1.3 5.7 3.5 8.5"
+        d="M4.2 10.25h12.1M10.25 4.2c1.55 1.9 2.4 4 2.4 6.05s-.85 4.15-2.4 6.05M10.25 4.2C8.7 6.1 7.85 8.2 7.85 10.25s.85 4.15 2.4 6.05"
+        stroke="currentColor"
+        strokeWidth={w * 0.92}
+        strokeLinecap="round"
+        opacity={active ? 0.9 : 0.72}
+      />
+      <path
+        d="m15.1 15.1 4.6 4.6"
         stroke="currentColor"
         strokeWidth={w}
         strokeLinecap="round"
       />
-      <circle cx="12" cy="12" r="1.25" fill="currentColor" />
     </svg>
   );
 }

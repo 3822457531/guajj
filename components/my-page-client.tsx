@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { GuapiHelpButton, GuapiInfoModal } from "@/components/guapi-info-modal";
 import { ReferralQrShare } from "@/components/referral-qr-share";
+import { VIEW_HISTORY_API } from "@/lib/tg-search-api-paths";
+import { buildResourceSharePath } from "@/lib/resource-share";
 import {
   buildAbsoluteReferralLink,
   buildReferralLink,
@@ -21,6 +23,16 @@ type MyPageClientProps = {
   referralCount: number;
   dailyBaseLimit: number;
   referralBonusPerInvite: number;
+};
+
+type ViewHistoryItem = {
+  id: string;
+  username: string;
+  messageId: number;
+  title: string | null;
+  label: string | null;
+  searchQuery: string | null;
+  viewedAt: string;
 };
 
 function CopyIconButton({
@@ -51,6 +63,41 @@ export function MyPageClient(props: MyPageClientProps) {
   const [recovering, setRecovering] = useState(false);
   const [secretKey, setSecretKey] = useState<string | null>(null);
   const [guapiInfoOpen, setGuapiInfoOpen] = useState(false);
+  const [viewHistory, setViewHistory] = useState<ViewHistoryItem[]>([]);
+  const [viewHistoryLoading, setViewHistoryLoading] = useState(true);
+  const [viewHistoryClearing, setViewHistoryClearing] = useState(false);
+
+  const refreshViewHistory = useCallback(async () => {
+    try {
+      const res = await fetch(VIEW_HISTORY_API, { cache: "no-store" });
+      const data = (await res.json()) as { ok?: boolean; items?: ViewHistoryItem[] };
+      if (data.ok && data.items) setViewHistory(data.items);
+    } catch {
+      /* ignore */
+    } finally {
+      setViewHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshViewHistory();
+  }, [refreshViewHistory]);
+
+  const clearViewHistory = useCallback(async () => {
+    setViewHistoryClearing(true);
+    try {
+      const res = await fetch(VIEW_HISTORY_API, {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ all: true })
+      });
+      if (res.ok) setViewHistory([]);
+    } catch {
+      /* ignore */
+    } finally {
+      setViewHistoryClearing(false);
+    }
+  }, []);
 
   useEffect(() => {
     const backup = readGuestIdentityBackup();
@@ -137,16 +184,59 @@ export function MyPageClient(props: MyPageClientProps) {
         <div className="my-quota-bar" aria-hidden>
           <span className="my-quota-bar-fill" style={{ width: `${quotaPercent}%` }} />
         </div>
-        <p className="my-quota-tip">
+          <p className="my-quota-tip">
           {props.remaining <= 0
-            ? `瓜皮已用完。邀请好友每位 +${props.referralBonusPerInvite} 瓜皮（基础 ${props.dailyBaseLimit}/日），已搜关键词可走缓存不扣瓜皮。`
-            : `基础 ${props.dailyBaseLimit} 瓜皮/日 + 邀请奖励 ${props.searchBonus} 瓜皮 · 用于全局搜索 · 重复关键词不扣瓜皮`}
+            ? `瓜皮已用完。邀请好友每位 +${props.referralBonusPerInvite} 瓜皮（基础 ${props.dailyBaseLimit}/日），搜索不扣瓜皮，重复观看同一资源不扣瓜皮。`
+            : `基础 ${props.dailyBaseLimit} 瓜皮/日 + 邀请奖励 ${props.searchBonus} 瓜皮 · 搜索免费 · 点进观看扣 1 瓜皮 · 重复观看不扣`}
         </p>
         <div className="my-quota-links">
           <Link href="/global-search" prefetch={false} className="my-quota-link">
-            去全局搜索 →
+            去全网搜索 →
           </Link>
         </div>
+      </section>
+
+      <section className="my-panel" aria-label="观看历史">
+        <div className="my-panel-title-row">
+          <h2 className="my-panel-title my-panel-title--inline">观看历史</h2>
+          {viewHistory.length > 0 ? (
+            <button
+              type="button"
+              className="my-text-btn"
+              disabled={viewHistoryClearing}
+              onClick={() => void clearViewHistory()}
+            >
+              {viewHistoryClearing ? "清空中…" : "清空"}
+            </button>
+          ) : null}
+        </div>
+        {viewHistoryLoading ? (
+          <p className="my-field-hint">加载中…</p>
+        ) : viewHistory.length === 0 ? (
+          <p className="my-field-hint">暂无观看记录，在全网搜索点进资源后会显示在这里</p>
+        ) : (
+          <ul className="my-view-history-list">
+            {viewHistory.map((item) => {
+              const displayTitle = item.title?.trim() || `@${item.username} #${item.messageId}`;
+              const href = buildResourceSharePath(item.username, item.messageId, {
+                title: item.title,
+                label: item.label
+              });
+              const viewedAt = item.viewedAt ? new Date(item.viewedAt).toLocaleString("zh-CN") : "";
+              return (
+                <li key={item.id} className="my-view-history-item">
+                  <Link href={href} prefetch={false} className="my-view-history-link">
+                    <span className="my-view-history-title">{displayTitle}</span>
+                    {item.label ? <span className="my-view-history-label">{item.label}</span> : null}
+                    <time className="my-view-history-time" dateTime={item.viewedAt}>
+                      {viewedAt}
+                    </time>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
       <section className="my-panel" aria-label="账户凭证">

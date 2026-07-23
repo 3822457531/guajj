@@ -44,27 +44,30 @@ async function loadGuestQuotaBase(guestUserId: string | null) {
   return { guest, usedGuapi };
 }
 
-/** 今日已消耗瓜皮 = 全网搜索次数 + 接码消费 */
+/** 今日已消耗瓜皮 = 观看资源次数 + 接码消费 */
 export async function countTodayGuapiUsedForGuest(guestUserId: string) {
   const todayStart = startOfDayUtc(new Date());
-  const [searchCount, smsAgg] = await Promise.all([
-    prisma.searchLog.count({
+  const [viewAgg, smsAgg] = await Promise.all([
+    prisma.smsGuapiLog.aggregate({
       where: {
         guestUserId,
-        source: SearchSource.GLOBAL,
-        createdAt: { gte: todayStart }
-      }
+        type: "consume_view",
+        createdAt: { gte: todayStart },
+        amount: { lt: 0 }
+      },
+      _sum: { amount: true }
     }),
     prisma.smsGuapiLog.aggregate({
       where: {
         guestUserId,
         createdAt: { gte: todayStart },
-        amount: { lt: 0 }
+        amount: { lt: 0 },
+        type: { not: "consume_view" }
       },
       _sum: { amount: true }
     })
   ]);
-  return searchCount + Math.abs(smsAgg._sum.amount ?? 0);
+  return Math.abs(viewAgg._sum.amount ?? 0) + Math.abs(smsAgg._sum.amount ?? 0);
 }
 
 /** 全网搜索 + 接码共用每日瓜皮配额 */

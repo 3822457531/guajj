@@ -25,6 +25,9 @@ export type JisouSearchResult = {
   ads: Array<{ label: string; url: string }>;
   buttons: unknown;
   fetchedAt: string;
+  /** 服务端同会话已套默认筛选（如 Video） */
+  appliedFilterType?: string | null;
+  appliedFilterCallback?: string | null;
 };
 
 export type MediaItemStatus = "pending" | "thumb_ready" | "ready";
@@ -91,6 +94,8 @@ export type JisouCaptchaChallenge = {
   options: string[];
   expiresInSec: number;
   imageUrl: string;
+  /** 内联图片，优先展示，避免首张验证码图二次请求失败 */
+  imageDataUrl?: string;
 };
 
 export type JisouSearchService = {

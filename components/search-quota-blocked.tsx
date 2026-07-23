@@ -34,7 +34,7 @@ export function SearchQuotaBlocked({ quota, variant = "home" }: SearchQuotaBlock
             <>
               <h2 className="search-quota-blocked-title">今日瓜皮已用完</h2>
               <p className="search-quota-blocked-desc">
-                已使用 {quota.used} / {quota.limit} 瓜皮。分享推广链接或二维码给好友，每成功邀请一位自动增加瓜皮（可继续全局搜索）。
+                已使用 {quota.used} / {quota.limit} 瓜皮。搜索不消耗瓜皮，观看资源需要瓜皮。分享推广链接给好友，每成功邀请一位自动增加瓜皮。
               </p>
               <Link href="/my" className="search-quota-blocked-link">
                 前往「我的」扫码分享 →
