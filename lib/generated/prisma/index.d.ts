@@ -29,6 +29,46 @@ export type SiteSettings = $Result.DefaultSelection<Prisma.$SiteSettingsPayload>
  */
 export type GuestUser = $Result.DefaultSelection<Prisma.$GuestUserPayload>
 /**
+ * Model PayConfig
+ * * 支付配置（key-value，如微信默认渠道）
+ */
+export type PayConfig = $Result.DefaultSelection<Prisma.$PayConfigPayload>
+/**
+ * Model GuapiPackage
+ * * 瓜皮购买套餐（对接第三方店铺 goods_key）
+ */
+export type GuapiPackage = $Result.DefaultSelection<Prisma.$GuapiPackagePayload>
+/**
+ * Model GuapiOrder
+ * * 瓜皮购买订单
+ */
+export type GuapiOrder = $Result.DefaultSelection<Prisma.$GuapiOrderPayload>
+/**
+ * Model AgentConfig
+ * * 代理分销配置（key-value）
+ */
+export type AgentConfig = $Result.DefaultSelection<Prisma.$AgentConfigPayload>
+/**
+ * Model AgentPackage
+ * * 代理开通套餐
+ */
+export type AgentPackage = $Result.DefaultSelection<Prisma.$AgentPackagePayload>
+/**
+ * Model AgentOrder
+ * * 代理开通订单
+ */
+export type AgentOrder = $Result.DefaultSelection<Prisma.$AgentOrderPayload>
+/**
+ * Model AgentCommission
+ * * 代理佣金流水
+ */
+export type AgentCommission = $Result.DefaultSelection<Prisma.$AgentCommissionPayload>
+/**
+ * Model AgentWithdrawal
+ * * 代理提现申请
+ */
+export type AgentWithdrawal = $Result.DefaultSelection<Prisma.$AgentWithdrawalPayload>
+/**
  * Model SmsConfig
  * * 接码平台配置（key-value）
  */
@@ -175,6 +215,49 @@ export const MediaType: {
 export type MediaType = (typeof MediaType)[keyof typeof MediaType]
 
 
+export const GuapiOrderStatus: {
+  pending: 'pending',
+  paid: 'paid',
+  closed: 'closed'
+};
+
+export type GuapiOrderStatus = (typeof GuapiOrderStatus)[keyof typeof GuapiOrderStatus]
+
+
+export const AgentOrderStatus: {
+  pending: 'pending',
+  paid: 'paid',
+  closed: 'closed'
+};
+
+export type AgentOrderStatus = (typeof AgentOrderStatus)[keyof typeof AgentOrderStatus]
+
+
+export const AgentCommissionLevel: {
+  direct: 'direct',
+  indirect: 'indirect'
+};
+
+export type AgentCommissionLevel = (typeof AgentCommissionLevel)[keyof typeof AgentCommissionLevel]
+
+
+export const AgentWithdrawChannel: {
+  alipay: 'alipay',
+  wechat: 'wechat'
+};
+
+export type AgentWithdrawChannel = (typeof AgentWithdrawChannel)[keyof typeof AgentWithdrawChannel]
+
+
+export const AgentWithdrawStatus: {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
+
+export type AgentWithdrawStatus = (typeof AgentWithdrawStatus)[keyof typeof AgentWithdrawStatus]
+
+
 export const TgIndexContentType: {
   VIDEO: 'VIDEO',
   PHOTO: 'PHOTO',
@@ -206,6 +289,26 @@ export const PostStatus: typeof $Enums.PostStatus
 export type MediaType = $Enums.MediaType
 
 export const MediaType: typeof $Enums.MediaType
+
+export type GuapiOrderStatus = $Enums.GuapiOrderStatus
+
+export const GuapiOrderStatus: typeof $Enums.GuapiOrderStatus
+
+export type AgentOrderStatus = $Enums.AgentOrderStatus
+
+export const AgentOrderStatus: typeof $Enums.AgentOrderStatus
+
+export type AgentCommissionLevel = $Enums.AgentCommissionLevel
+
+export const AgentCommissionLevel: typeof $Enums.AgentCommissionLevel
+
+export type AgentWithdrawChannel = $Enums.AgentWithdrawChannel
+
+export const AgentWithdrawChannel: typeof $Enums.AgentWithdrawChannel
+
+export type AgentWithdrawStatus = $Enums.AgentWithdrawStatus
+
+export const AgentWithdrawStatus: typeof $Enums.AgentWithdrawStatus
 
 export type TgIndexContentType = $Enums.TgIndexContentType
 
@@ -362,6 +465,86 @@ export class PrismaClient<
     * ```
     */
   get guestUser(): Prisma.GuestUserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.payConfig`: Exposes CRUD operations for the **PayConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PayConfigs
+    * const payConfigs = await prisma.payConfig.findMany()
+    * ```
+    */
+  get payConfig(): Prisma.PayConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.guapiPackage`: Exposes CRUD operations for the **GuapiPackage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GuapiPackages
+    * const guapiPackages = await prisma.guapiPackage.findMany()
+    * ```
+    */
+  get guapiPackage(): Prisma.GuapiPackageDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.guapiOrder`: Exposes CRUD operations for the **GuapiOrder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GuapiOrders
+    * const guapiOrders = await prisma.guapiOrder.findMany()
+    * ```
+    */
+  get guapiOrder(): Prisma.GuapiOrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentConfig`: Exposes CRUD operations for the **AgentConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentConfigs
+    * const agentConfigs = await prisma.agentConfig.findMany()
+    * ```
+    */
+  get agentConfig(): Prisma.AgentConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentPackage`: Exposes CRUD operations for the **AgentPackage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentPackages
+    * const agentPackages = await prisma.agentPackage.findMany()
+    * ```
+    */
+  get agentPackage(): Prisma.AgentPackageDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentOrder`: Exposes CRUD operations for the **AgentOrder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentOrders
+    * const agentOrders = await prisma.agentOrder.findMany()
+    * ```
+    */
+  get agentOrder(): Prisma.AgentOrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentCommission`: Exposes CRUD operations for the **AgentCommission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentCommissions
+    * const agentCommissions = await prisma.agentCommission.findMany()
+    * ```
+    */
+  get agentCommission(): Prisma.AgentCommissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentWithdrawal`: Exposes CRUD operations for the **AgentWithdrawal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentWithdrawals
+    * const agentWithdrawals = await prisma.agentWithdrawal.findMany()
+    * ```
+    */
+  get agentWithdrawal(): Prisma.AgentWithdrawalDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.smsConfig`: Exposes CRUD operations for the **SmsConfig** model.
@@ -1036,6 +1219,14 @@ export namespace Prisma {
     AdminUser: 'AdminUser',
     SiteSettings: 'SiteSettings',
     GuestUser: 'GuestUser',
+    PayConfig: 'PayConfig',
+    GuapiPackage: 'GuapiPackage',
+    GuapiOrder: 'GuapiOrder',
+    AgentConfig: 'AgentConfig',
+    AgentPackage: 'AgentPackage',
+    AgentOrder: 'AgentOrder',
+    AgentCommission: 'AgentCommission',
+    AgentWithdrawal: 'AgentWithdrawal',
     SmsConfig: 'SmsConfig',
     SmsGuapiLog: 'SmsGuapiLog',
     SmsLog: 'SmsLog',
@@ -1077,7 +1268,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "adminUser" | "siteSettings" | "guestUser" | "smsConfig" | "smsGuapiLog" | "smsLog" | "smsUserRecord" | "smsNumberRecord" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "contentViewLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
+      modelProps: "adminUser" | "siteSettings" | "guestUser" | "payConfig" | "guapiPackage" | "guapiOrder" | "agentConfig" | "agentPackage" | "agentOrder" | "agentCommission" | "agentWithdrawal" | "smsConfig" | "smsGuapiLog" | "smsLog" | "smsUserRecord" | "smsNumberRecord" | "category" | "tag" | "postTag" | "post" | "socialUser" | "oAuthLoginState" | "comment" | "mediaAsset" | "telegramConfig" | "telegramImport" | "tgSourceChannel" | "tgIndexedMessage" | "pageVisit" | "searchLog" | "contentViewLog" | "globalSearchCache" | "jisouHotSearchSnapshot" | "dailySiteStat"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1276,6 +1467,534 @@ export namespace Prisma {
           count: {
             args: Prisma.GuestUserCountArgs<ExtArgs>
             result: $Utils.Optional<GuestUserCountAggregateOutputType> | number
+          }
+        }
+      }
+      PayConfig: {
+        payload: Prisma.$PayConfigPayload<ExtArgs>
+        fields: Prisma.PayConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PayConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PayConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.PayConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PayConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>
+          }
+          findMany: {
+            args: Prisma.PayConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>[]
+          }
+          create: {
+            args: Prisma.PayConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>
+          }
+          createMany: {
+            args: Prisma.PayConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PayConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>
+          }
+          update: {
+            args: Prisma.PayConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.PayConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PayConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PayConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.PayConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePayConfig>
+          }
+          groupBy: {
+            args: Prisma.PayConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PayConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PayConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<PayConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      GuapiPackage: {
+        payload: Prisma.$GuapiPackagePayload<ExtArgs>
+        fields: Prisma.GuapiPackageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GuapiPackageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GuapiPackageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>
+          }
+          findFirst: {
+            args: Prisma.GuapiPackageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GuapiPackageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>
+          }
+          findMany: {
+            args: Prisma.GuapiPackageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>[]
+          }
+          create: {
+            args: Prisma.GuapiPackageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>
+          }
+          createMany: {
+            args: Prisma.GuapiPackageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.GuapiPackageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>
+          }
+          update: {
+            args: Prisma.GuapiPackageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>
+          }
+          deleteMany: {
+            args: Prisma.GuapiPackageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GuapiPackageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GuapiPackageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiPackagePayload>
+          }
+          aggregate: {
+            args: Prisma.GuapiPackageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGuapiPackage>
+          }
+          groupBy: {
+            args: Prisma.GuapiPackageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GuapiPackageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GuapiPackageCountArgs<ExtArgs>
+            result: $Utils.Optional<GuapiPackageCountAggregateOutputType> | number
+          }
+        }
+      }
+      GuapiOrder: {
+        payload: Prisma.$GuapiOrderPayload<ExtArgs>
+        fields: Prisma.GuapiOrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GuapiOrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GuapiOrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>
+          }
+          findFirst: {
+            args: Prisma.GuapiOrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GuapiOrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>
+          }
+          findMany: {
+            args: Prisma.GuapiOrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>[]
+          }
+          create: {
+            args: Prisma.GuapiOrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>
+          }
+          createMany: {
+            args: Prisma.GuapiOrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.GuapiOrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>
+          }
+          update: {
+            args: Prisma.GuapiOrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.GuapiOrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GuapiOrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GuapiOrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuapiOrderPayload>
+          }
+          aggregate: {
+            args: Prisma.GuapiOrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGuapiOrder>
+          }
+          groupBy: {
+            args: Prisma.GuapiOrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GuapiOrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GuapiOrderCountArgs<ExtArgs>
+            result: $Utils.Optional<GuapiOrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentConfig: {
+        payload: Prisma.$AgentConfigPayload<ExtArgs>
+        fields: Prisma.AgentConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>
+          }
+          findMany: {
+            args: Prisma.AgentConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>[]
+          }
+          create: {
+            args: Prisma.AgentConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>
+          }
+          createMany: {
+            args: Prisma.AgentConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.AgentConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>
+          }
+          update: {
+            args: Prisma.AgentConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AgentConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentConfig>
+          }
+          groupBy: {
+            args: Prisma.AgentConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentPackage: {
+        payload: Prisma.$AgentPackagePayload<ExtArgs>
+        fields: Prisma.AgentPackageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentPackageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentPackageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>
+          }
+          findFirst: {
+            args: Prisma.AgentPackageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentPackageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>
+          }
+          findMany: {
+            args: Prisma.AgentPackageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>[]
+          }
+          create: {
+            args: Prisma.AgentPackageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>
+          }
+          createMany: {
+            args: Prisma.AgentPackageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.AgentPackageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>
+          }
+          update: {
+            args: Prisma.AgentPackageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentPackageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentPackageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AgentPackageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentPackagePayload>
+          }
+          aggregate: {
+            args: Prisma.AgentPackageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentPackage>
+          }
+          groupBy: {
+            args: Prisma.AgentPackageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentPackageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentPackageCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentPackageCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentOrder: {
+        payload: Prisma.$AgentOrderPayload<ExtArgs>
+        fields: Prisma.AgentOrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentOrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentOrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentOrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentOrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>
+          }
+          findMany: {
+            args: Prisma.AgentOrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>[]
+          }
+          create: {
+            args: Prisma.AgentOrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>
+          }
+          createMany: {
+            args: Prisma.AgentOrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.AgentOrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>
+          }
+          update: {
+            args: Prisma.AgentOrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentOrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentOrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AgentOrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentOrderPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentOrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentOrder>
+          }
+          groupBy: {
+            args: Prisma.AgentOrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentOrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentOrderCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentOrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentCommission: {
+        payload: Prisma.$AgentCommissionPayload<ExtArgs>
+        fields: Prisma.AgentCommissionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentCommissionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentCommissionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentCommissionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentCommissionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>
+          }
+          findMany: {
+            args: Prisma.AgentCommissionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>[]
+          }
+          create: {
+            args: Prisma.AgentCommissionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>
+          }
+          createMany: {
+            args: Prisma.AgentCommissionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.AgentCommissionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>
+          }
+          update: {
+            args: Prisma.AgentCommissionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentCommissionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentCommissionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AgentCommissionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentCommissionPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentCommissionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentCommission>
+          }
+          groupBy: {
+            args: Prisma.AgentCommissionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentCommissionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentCommissionCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentCommissionCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentWithdrawal: {
+        payload: Prisma.$AgentWithdrawalPayload<ExtArgs>
+        fields: Prisma.AgentWithdrawalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentWithdrawalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentWithdrawalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentWithdrawalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentWithdrawalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>
+          }
+          findMany: {
+            args: Prisma.AgentWithdrawalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>[]
+          }
+          create: {
+            args: Prisma.AgentWithdrawalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>
+          }
+          createMany: {
+            args: Prisma.AgentWithdrawalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.AgentWithdrawalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>
+          }
+          update: {
+            args: Prisma.AgentWithdrawalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentWithdrawalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentWithdrawalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AgentWithdrawalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentWithdrawalPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentWithdrawalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentWithdrawal>
+          }
+          groupBy: {
+            args: Prisma.AgentWithdrawalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentWithdrawalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentWithdrawalCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentWithdrawalCountAggregateOutputType> | number
           }
         }
       }
@@ -2896,6 +3615,14 @@ export namespace Prisma {
     adminUser?: AdminUserOmit
     siteSettings?: SiteSettingsOmit
     guestUser?: GuestUserOmit
+    payConfig?: PayConfigOmit
+    guapiPackage?: GuapiPackageOmit
+    guapiOrder?: GuapiOrderOmit
+    agentConfig?: AgentConfigOmit
+    agentPackage?: AgentPackageOmit
+    agentOrder?: AgentOrderOmit
+    agentCommission?: AgentCommissionOmit
+    agentWithdrawal?: AgentWithdrawalOmit
     smsConfig?: SmsConfigOmit
     smsGuapiLog?: SmsGuapiLogOmit
     smsLog?: SmsLogOmit
@@ -3007,6 +3734,11 @@ export namespace Prisma {
     smsLogs: number
     smsUserRecords: number
     smsNumberRecords: number
+    guapiOrders: number
+    agentOrders: number
+    commissionsEarned: number
+    commissionsFrom: number
+    agentWithdrawals: number
   }
 
   export type GuestUserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3018,6 +3750,11 @@ export namespace Prisma {
     smsLogs?: boolean | GuestUserCountOutputTypeCountSmsLogsArgs
     smsUserRecords?: boolean | GuestUserCountOutputTypeCountSmsUserRecordsArgs
     smsNumberRecords?: boolean | GuestUserCountOutputTypeCountSmsNumberRecordsArgs
+    guapiOrders?: boolean | GuestUserCountOutputTypeCountGuapiOrdersArgs
+    agentOrders?: boolean | GuestUserCountOutputTypeCountAgentOrdersArgs
+    commissionsEarned?: boolean | GuestUserCountOutputTypeCountCommissionsEarnedArgs
+    commissionsFrom?: boolean | GuestUserCountOutputTypeCountCommissionsFromArgs
+    agentWithdrawals?: boolean | GuestUserCountOutputTypeCountAgentWithdrawalsArgs
   }
 
   // Custom InputTypes
@@ -3085,6 +3822,103 @@ export namespace Prisma {
    */
   export type GuestUserCountOutputTypeCountSmsNumberRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SmsNumberRecordWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountGuapiOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuapiOrderWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountAgentOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentOrderWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountCommissionsEarnedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentCommissionWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountCommissionsFromArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentCommissionWhereInput
+  }
+
+  /**
+   * GuestUserCountOutputType without action
+   */
+  export type GuestUserCountOutputTypeCountAgentWithdrawalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentWithdrawalWhereInput
+  }
+
+
+  /**
+   * Count Type GuapiPackageCountOutputType
+   */
+
+  export type GuapiPackageCountOutputType = {
+    orders: number
+  }
+
+  export type GuapiPackageCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    orders?: boolean | GuapiPackageCountOutputTypeCountOrdersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * GuapiPackageCountOutputType without action
+   */
+  export type GuapiPackageCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackageCountOutputType
+     */
+    select?: GuapiPackageCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * GuapiPackageCountOutputType without action
+   */
+  export type GuapiPackageCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuapiOrderWhereInput
+  }
+
+
+  /**
+   * Count Type AgentPackageCountOutputType
+   */
+
+  export type AgentPackageCountOutputType = {
+    orders: number
+  }
+
+  export type AgentPackageCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    orders?: boolean | AgentPackageCountOutputTypeCountOrdersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AgentPackageCountOutputType without action
+   */
+  export type AgentPackageCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackageCountOutputType
+     */
+    select?: AgentPackageCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AgentPackageCountOutputType without action
+   */
+  export type AgentPackageCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentOrderWhereInput
   }
 
 
@@ -5230,11 +6064,13 @@ export namespace Prisma {
   export type GuestUserAvgAggregateOutputType = {
     searchBonus: number | null
     guapiBalance: number | null
+    agentWalletYuan: Decimal | null
   }
 
   export type GuestUserSumAggregateOutputType = {
     searchBonus: number | null
     guapiBalance: number | null
+    agentWalletYuan: Decimal | null
   }
 
   export type GuestUserMinAggregateOutputType = {
@@ -5247,6 +6083,9 @@ export namespace Prisma {
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
+    isAgent: boolean | null
+    agentAt: Date | null
+    agentWalletYuan: Decimal | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5261,6 +6100,9 @@ export namespace Prisma {
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
+    isAgent: boolean | null
+    agentAt: Date | null
+    agentWalletYuan: Decimal | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5275,6 +6117,9 @@ export namespace Prisma {
     registerIp: number
     lastLoginIp: number
     lastLoginAt: number
+    isAgent: number
+    agentAt: number
+    agentWalletYuan: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5284,11 +6129,13 @@ export namespace Prisma {
   export type GuestUserAvgAggregateInputType = {
     searchBonus?: true
     guapiBalance?: true
+    agentWalletYuan?: true
   }
 
   export type GuestUserSumAggregateInputType = {
     searchBonus?: true
     guapiBalance?: true
+    agentWalletYuan?: true
   }
 
   export type GuestUserMinAggregateInputType = {
@@ -5301,6 +6148,9 @@ export namespace Prisma {
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
+    isAgent?: true
+    agentAt?: true
+    agentWalletYuan?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5315,6 +6165,9 @@ export namespace Prisma {
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
+    isAgent?: true
+    agentAt?: true
+    agentWalletYuan?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5329,6 +6182,9 @@ export namespace Prisma {
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
+    isAgent?: true
+    agentAt?: true
+    agentWalletYuan?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5430,6 +6286,9 @@ export namespace Prisma {
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
+    isAgent: boolean
+    agentAt: Date | null
+    agentWalletYuan: Decimal
     createdAt: Date
     updatedAt: Date
     _count: GuestUserCountAggregateOutputType | null
@@ -5463,6 +6322,9 @@ export namespace Prisma {
     registerIp?: boolean
     lastLoginIp?: boolean
     lastLoginAt?: boolean
+    isAgent?: boolean
+    agentAt?: boolean
+    agentWalletYuan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     referrer?: boolean | GuestUser$referrerArgs<ExtArgs>
@@ -5474,6 +6336,11 @@ export namespace Prisma {
     smsLogs?: boolean | GuestUser$smsLogsArgs<ExtArgs>
     smsUserRecords?: boolean | GuestUser$smsUserRecordsArgs<ExtArgs>
     smsNumberRecords?: boolean | GuestUser$smsNumberRecordsArgs<ExtArgs>
+    guapiOrders?: boolean | GuestUser$guapiOrdersArgs<ExtArgs>
+    agentOrders?: boolean | GuestUser$agentOrdersArgs<ExtArgs>
+    commissionsEarned?: boolean | GuestUser$commissionsEarnedArgs<ExtArgs>
+    commissionsFrom?: boolean | GuestUser$commissionsFromArgs<ExtArgs>
+    agentWithdrawals?: boolean | GuestUser$agentWithdrawalsArgs<ExtArgs>
     _count?: boolean | GuestUserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["guestUser"]>
 
@@ -5489,11 +6356,14 @@ export namespace Prisma {
     registerIp?: boolean
     lastLoginIp?: boolean
     lastLoginAt?: boolean
+    isAgent?: boolean
+    agentAt?: boolean
+    agentWalletYuan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type GuestUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicId" | "secretKeyHash" | "referrerId" | "searchBonus" | "guapiBalance" | "registerIp" | "lastLoginIp" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["guestUser"]>
+  export type GuestUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicId" | "secretKeyHash" | "referrerId" | "searchBonus" | "guapiBalance" | "registerIp" | "lastLoginIp" | "lastLoginAt" | "isAgent" | "agentAt" | "agentWalletYuan" | "createdAt" | "updatedAt", ExtArgs["result"]["guestUser"]>
   export type GuestUserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referrer?: boolean | GuestUser$referrerArgs<ExtArgs>
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
@@ -5504,6 +6374,11 @@ export namespace Prisma {
     smsLogs?: boolean | GuestUser$smsLogsArgs<ExtArgs>
     smsUserRecords?: boolean | GuestUser$smsUserRecordsArgs<ExtArgs>
     smsNumberRecords?: boolean | GuestUser$smsNumberRecordsArgs<ExtArgs>
+    guapiOrders?: boolean | GuestUser$guapiOrdersArgs<ExtArgs>
+    agentOrders?: boolean | GuestUser$agentOrdersArgs<ExtArgs>
+    commissionsEarned?: boolean | GuestUser$commissionsEarnedArgs<ExtArgs>
+    commissionsFrom?: boolean | GuestUser$commissionsFromArgs<ExtArgs>
+    agentWithdrawals?: boolean | GuestUser$agentWithdrawalsArgs<ExtArgs>
     _count?: boolean | GuestUserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -5519,6 +6394,11 @@ export namespace Prisma {
       smsLogs: Prisma.$SmsLogPayload<ExtArgs>[]
       smsUserRecords: Prisma.$SmsUserRecordPayload<ExtArgs>[]
       smsNumberRecords: Prisma.$SmsNumberRecordPayload<ExtArgs>[]
+      guapiOrders: Prisma.$GuapiOrderPayload<ExtArgs>[]
+      agentOrders: Prisma.$AgentOrderPayload<ExtArgs>[]
+      commissionsEarned: Prisma.$AgentCommissionPayload<ExtArgs>[]
+      commissionsFrom: Prisma.$AgentCommissionPayload<ExtArgs>[]
+      agentWithdrawals: Prisma.$AgentWithdrawalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5545,6 +6425,15 @@ export namespace Prisma {
        * * 最近一次登录/恢复会话时间
        */
       lastLoginAt: Date | null
+      /**
+       * * 是否已开通代理
+       */
+      isAgent: boolean
+      agentAt: Date | null
+      /**
+       * * 代理可提现余额（元）
+       */
+      agentWalletYuan: Prisma.Decimal
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["guestUser"]>
@@ -5896,6 +6785,11 @@ export namespace Prisma {
     smsLogs<T extends GuestUser$smsLogsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsUserRecords<T extends GuestUser$smsUserRecordsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsUserRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsUserRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     smsNumberRecords<T extends GuestUser$smsNumberRecordsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$smsNumberRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SmsNumberRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    guapiOrders<T extends GuestUser$guapiOrdersArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$guapiOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    agentOrders<T extends GuestUser$agentOrdersArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$agentOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    commissionsEarned<T extends GuestUser$commissionsEarnedArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$commissionsEarnedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    commissionsFrom<T extends GuestUser$commissionsFromArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$commissionsFromArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    agentWithdrawals<T extends GuestUser$agentWithdrawalsArgs<ExtArgs> = {}>(args?: Subset<T, GuestUser$agentWithdrawalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5934,6 +6828,9 @@ export namespace Prisma {
     readonly registerIp: FieldRef<"GuestUser", 'String'>
     readonly lastLoginIp: FieldRef<"GuestUser", 'String'>
     readonly lastLoginAt: FieldRef<"GuestUser", 'DateTime'>
+    readonly isAgent: FieldRef<"GuestUser", 'Boolean'>
+    readonly agentAt: FieldRef<"GuestUser", 'DateTime'>
+    readonly agentWalletYuan: FieldRef<"GuestUser", 'Decimal'>
     readonly createdAt: FieldRef<"GuestUser", 'DateTime'>
     readonly updatedAt: FieldRef<"GuestUser", 'DateTime'>
   }
@@ -6490,6 +7387,126 @@ export namespace Prisma {
   }
 
   /**
+   * GuestUser.guapiOrders
+   */
+  export type GuestUser$guapiOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    where?: GuapiOrderWhereInput
+    orderBy?: GuapiOrderOrderByWithRelationInput | GuapiOrderOrderByWithRelationInput[]
+    cursor?: GuapiOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GuapiOrderScalarFieldEnum | GuapiOrderScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.agentOrders
+   */
+  export type GuestUser$agentOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    where?: AgentOrderWhereInput
+    orderBy?: AgentOrderOrderByWithRelationInput | AgentOrderOrderByWithRelationInput[]
+    cursor?: AgentOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentOrderScalarFieldEnum | AgentOrderScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.commissionsEarned
+   */
+  export type GuestUser$commissionsEarnedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    where?: AgentCommissionWhereInput
+    orderBy?: AgentCommissionOrderByWithRelationInput | AgentCommissionOrderByWithRelationInput[]
+    cursor?: AgentCommissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentCommissionScalarFieldEnum | AgentCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.commissionsFrom
+   */
+  export type GuestUser$commissionsFromArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    where?: AgentCommissionWhereInput
+    orderBy?: AgentCommissionOrderByWithRelationInput | AgentCommissionOrderByWithRelationInput[]
+    cursor?: AgentCommissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentCommissionScalarFieldEnum | AgentCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * GuestUser.agentWithdrawals
+   */
+  export type GuestUser$agentWithdrawalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    where?: AgentWithdrawalWhereInput
+    orderBy?: AgentWithdrawalOrderByWithRelationInput | AgentWithdrawalOrderByWithRelationInput[]
+    cursor?: AgentWithdrawalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentWithdrawalScalarFieldEnum | AgentWithdrawalScalarFieldEnum[]
+  }
+
+  /**
    * GuestUser without action
    */
   export type GuestUserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6505,6 +7522,8058 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: GuestUserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PayConfig
+   */
+
+  export type AggregatePayConfig = {
+    _count: PayConfigCountAggregateOutputType | null
+    _min: PayConfigMinAggregateOutputType | null
+    _max: PayConfigMaxAggregateOutputType | null
+  }
+
+  export type PayConfigMinAggregateOutputType = {
+    key: string | null
+    value: string | null
+  }
+
+  export type PayConfigMaxAggregateOutputType = {
+    key: string | null
+    value: string | null
+  }
+
+  export type PayConfigCountAggregateOutputType = {
+    key: number
+    value: number
+    _all: number
+  }
+
+
+  export type PayConfigMinAggregateInputType = {
+    key?: true
+    value?: true
+  }
+
+  export type PayConfigMaxAggregateInputType = {
+    key?: true
+    value?: true
+  }
+
+  export type PayConfigCountAggregateInputType = {
+    key?: true
+    value?: true
+    _all?: true
+  }
+
+  export type PayConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PayConfig to aggregate.
+     */
+    where?: PayConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PayConfigs to fetch.
+     */
+    orderBy?: PayConfigOrderByWithRelationInput | PayConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PayConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PayConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PayConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PayConfigs
+    **/
+    _count?: true | PayConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PayConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PayConfigMaxAggregateInputType
+  }
+
+  export type GetPayConfigAggregateType<T extends PayConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregatePayConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePayConfig[P]>
+      : GetScalarType<T[P], AggregatePayConfig[P]>
+  }
+
+
+
+
+  export type PayConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PayConfigWhereInput
+    orderBy?: PayConfigOrderByWithAggregationInput | PayConfigOrderByWithAggregationInput[]
+    by: PayConfigScalarFieldEnum[] | PayConfigScalarFieldEnum
+    having?: PayConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PayConfigCountAggregateInputType | true
+    _min?: PayConfigMinAggregateInputType
+    _max?: PayConfigMaxAggregateInputType
+  }
+
+  export type PayConfigGroupByOutputType = {
+    key: string
+    value: string
+    _count: PayConfigCountAggregateOutputType | null
+    _min: PayConfigMinAggregateOutputType | null
+    _max: PayConfigMaxAggregateOutputType | null
+  }
+
+  type GetPayConfigGroupByPayload<T extends PayConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PayConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PayConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PayConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], PayConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PayConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+  }, ExtArgs["result"]["payConfig"]>
+
+
+
+  export type PayConfigSelectScalar = {
+    key?: boolean
+    value?: boolean
+  }
+
+  export type PayConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "value", ExtArgs["result"]["payConfig"]>
+
+  export type $PayConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PayConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      value: string
+    }, ExtArgs["result"]["payConfig"]>
+    composites: {}
+  }
+
+  type PayConfigGetPayload<S extends boolean | null | undefined | PayConfigDefaultArgs> = $Result.GetResult<Prisma.$PayConfigPayload, S>
+
+  type PayConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PayConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PayConfigCountAggregateInputType | true
+    }
+
+  export interface PayConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PayConfig'], meta: { name: 'PayConfig' } }
+    /**
+     * Find zero or one PayConfig that matches the filter.
+     * @param {PayConfigFindUniqueArgs} args - Arguments to find a PayConfig
+     * @example
+     * // Get one PayConfig
+     * const payConfig = await prisma.payConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PayConfigFindUniqueArgs>(args: SelectSubset<T, PayConfigFindUniqueArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PayConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PayConfigFindUniqueOrThrowArgs} args - Arguments to find a PayConfig
+     * @example
+     * // Get one PayConfig
+     * const payConfig = await prisma.payConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PayConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, PayConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PayConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigFindFirstArgs} args - Arguments to find a PayConfig
+     * @example
+     * // Get one PayConfig
+     * const payConfig = await prisma.payConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PayConfigFindFirstArgs>(args?: SelectSubset<T, PayConfigFindFirstArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PayConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigFindFirstOrThrowArgs} args - Arguments to find a PayConfig
+     * @example
+     * // Get one PayConfig
+     * const payConfig = await prisma.payConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PayConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, PayConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PayConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PayConfigs
+     * const payConfigs = await prisma.payConfig.findMany()
+     * 
+     * // Get first 10 PayConfigs
+     * const payConfigs = await prisma.payConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const payConfigWithKeyOnly = await prisma.payConfig.findMany({ select: { key: true } })
+     * 
+     */
+    findMany<T extends PayConfigFindManyArgs>(args?: SelectSubset<T, PayConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PayConfig.
+     * @param {PayConfigCreateArgs} args - Arguments to create a PayConfig.
+     * @example
+     * // Create one PayConfig
+     * const PayConfig = await prisma.payConfig.create({
+     *   data: {
+     *     // ... data to create a PayConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends PayConfigCreateArgs>(args: SelectSubset<T, PayConfigCreateArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PayConfigs.
+     * @param {PayConfigCreateManyArgs} args - Arguments to create many PayConfigs.
+     * @example
+     * // Create many PayConfigs
+     * const payConfig = await prisma.payConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PayConfigCreateManyArgs>(args?: SelectSubset<T, PayConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PayConfig.
+     * @param {PayConfigDeleteArgs} args - Arguments to delete one PayConfig.
+     * @example
+     * // Delete one PayConfig
+     * const PayConfig = await prisma.payConfig.delete({
+     *   where: {
+     *     // ... filter to delete one PayConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PayConfigDeleteArgs>(args: SelectSubset<T, PayConfigDeleteArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PayConfig.
+     * @param {PayConfigUpdateArgs} args - Arguments to update one PayConfig.
+     * @example
+     * // Update one PayConfig
+     * const payConfig = await prisma.payConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PayConfigUpdateArgs>(args: SelectSubset<T, PayConfigUpdateArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PayConfigs.
+     * @param {PayConfigDeleteManyArgs} args - Arguments to filter PayConfigs to delete.
+     * @example
+     * // Delete a few PayConfigs
+     * const { count } = await prisma.payConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PayConfigDeleteManyArgs>(args?: SelectSubset<T, PayConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PayConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PayConfigs
+     * const payConfig = await prisma.payConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PayConfigUpdateManyArgs>(args: SelectSubset<T, PayConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PayConfig.
+     * @param {PayConfigUpsertArgs} args - Arguments to update or create a PayConfig.
+     * @example
+     * // Update or create a PayConfig
+     * const payConfig = await prisma.payConfig.upsert({
+     *   create: {
+     *     // ... data to create a PayConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PayConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PayConfigUpsertArgs>(args: SelectSubset<T, PayConfigUpsertArgs<ExtArgs>>): Prisma__PayConfigClient<$Result.GetResult<Prisma.$PayConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PayConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigCountArgs} args - Arguments to filter PayConfigs to count.
+     * @example
+     * // Count the number of PayConfigs
+     * const count = await prisma.payConfig.count({
+     *   where: {
+     *     // ... the filter for the PayConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends PayConfigCountArgs>(
+      args?: Subset<T, PayConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PayConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PayConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PayConfigAggregateArgs>(args: Subset<T, PayConfigAggregateArgs>): Prisma.PrismaPromise<GetPayConfigAggregateType<T>>
+
+    /**
+     * Group by PayConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PayConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PayConfigGroupByArgs['orderBy'] }
+        : { orderBy?: PayConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PayConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPayConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PayConfig model
+   */
+  readonly fields: PayConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PayConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PayConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PayConfig model
+   */
+  interface PayConfigFieldRefs {
+    readonly key: FieldRef<"PayConfig", 'String'>
+    readonly value: FieldRef<"PayConfig", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PayConfig findUnique
+   */
+  export type PayConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which PayConfig to fetch.
+     */
+    where: PayConfigWhereUniqueInput
+  }
+
+  /**
+   * PayConfig findUniqueOrThrow
+   */
+  export type PayConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which PayConfig to fetch.
+     */
+    where: PayConfigWhereUniqueInput
+  }
+
+  /**
+   * PayConfig findFirst
+   */
+  export type PayConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which PayConfig to fetch.
+     */
+    where?: PayConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PayConfigs to fetch.
+     */
+    orderBy?: PayConfigOrderByWithRelationInput | PayConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PayConfigs.
+     */
+    cursor?: PayConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PayConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PayConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PayConfigs.
+     */
+    distinct?: PayConfigScalarFieldEnum | PayConfigScalarFieldEnum[]
+  }
+
+  /**
+   * PayConfig findFirstOrThrow
+   */
+  export type PayConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which PayConfig to fetch.
+     */
+    where?: PayConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PayConfigs to fetch.
+     */
+    orderBy?: PayConfigOrderByWithRelationInput | PayConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PayConfigs.
+     */
+    cursor?: PayConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PayConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PayConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PayConfigs.
+     */
+    distinct?: PayConfigScalarFieldEnum | PayConfigScalarFieldEnum[]
+  }
+
+  /**
+   * PayConfig findMany
+   */
+  export type PayConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which PayConfigs to fetch.
+     */
+    where?: PayConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PayConfigs to fetch.
+     */
+    orderBy?: PayConfigOrderByWithRelationInput | PayConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PayConfigs.
+     */
+    cursor?: PayConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PayConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PayConfigs.
+     */
+    skip?: number
+    distinct?: PayConfigScalarFieldEnum | PayConfigScalarFieldEnum[]
+  }
+
+  /**
+   * PayConfig create
+   */
+  export type PayConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PayConfig.
+     */
+    data: XOR<PayConfigCreateInput, PayConfigUncheckedCreateInput>
+  }
+
+  /**
+   * PayConfig createMany
+   */
+  export type PayConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PayConfigs.
+     */
+    data: PayConfigCreateManyInput | PayConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PayConfig update
+   */
+  export type PayConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PayConfig.
+     */
+    data: XOR<PayConfigUpdateInput, PayConfigUncheckedUpdateInput>
+    /**
+     * Choose, which PayConfig to update.
+     */
+    where: PayConfigWhereUniqueInput
+  }
+
+  /**
+   * PayConfig updateMany
+   */
+  export type PayConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PayConfigs.
+     */
+    data: XOR<PayConfigUpdateManyMutationInput, PayConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which PayConfigs to update
+     */
+    where?: PayConfigWhereInput
+    /**
+     * Limit how many PayConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PayConfig upsert
+   */
+  export type PayConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PayConfig to update in case it exists.
+     */
+    where: PayConfigWhereUniqueInput
+    /**
+     * In case the PayConfig found by the `where` argument doesn't exist, create a new PayConfig with this data.
+     */
+    create: XOR<PayConfigCreateInput, PayConfigUncheckedCreateInput>
+    /**
+     * In case the PayConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PayConfigUpdateInput, PayConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * PayConfig delete
+   */
+  export type PayConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+    /**
+     * Filter which PayConfig to delete.
+     */
+    where: PayConfigWhereUniqueInput
+  }
+
+  /**
+   * PayConfig deleteMany
+   */
+  export type PayConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PayConfigs to delete
+     */
+    where?: PayConfigWhereInput
+    /**
+     * Limit how many PayConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PayConfig without action
+   */
+  export type PayConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PayConfig
+     */
+    select?: PayConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PayConfig
+     */
+    omit?: PayConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GuapiPackage
+   */
+
+  export type AggregateGuapiPackage = {
+    _count: GuapiPackageCountAggregateOutputType | null
+    _avg: GuapiPackageAvgAggregateOutputType | null
+    _sum: GuapiPackageSumAggregateOutputType | null
+    _min: GuapiPackageMinAggregateOutputType | null
+    _max: GuapiPackageMaxAggregateOutputType | null
+  }
+
+  export type GuapiPackageAvgAggregateOutputType = {
+    guapiAmount: number | null
+    priceYuan: Decimal | null
+    sortOrder: number | null
+  }
+
+  export type GuapiPackageSumAggregateOutputType = {
+    guapiAmount: number | null
+    priceYuan: Decimal | null
+    sortOrder: number | null
+  }
+
+  export type GuapiPackageMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    goodsKey: string | null
+    guapiAmount: number | null
+    priceYuan: Decimal | null
+    sortOrder: number | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GuapiPackageMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    goodsKey: string | null
+    guapiAmount: number | null
+    priceYuan: Decimal | null
+    sortOrder: number | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GuapiPackageCountAggregateOutputType = {
+    id: number
+    title: number
+    goodsKey: number
+    guapiAmount: number
+    priceYuan: number
+    sortOrder: number
+    enabled: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GuapiPackageAvgAggregateInputType = {
+    guapiAmount?: true
+    priceYuan?: true
+    sortOrder?: true
+  }
+
+  export type GuapiPackageSumAggregateInputType = {
+    guapiAmount?: true
+    priceYuan?: true
+    sortOrder?: true
+  }
+
+  export type GuapiPackageMinAggregateInputType = {
+    id?: true
+    title?: true
+    goodsKey?: true
+    guapiAmount?: true
+    priceYuan?: true
+    sortOrder?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GuapiPackageMaxAggregateInputType = {
+    id?: true
+    title?: true
+    goodsKey?: true
+    guapiAmount?: true
+    priceYuan?: true
+    sortOrder?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GuapiPackageCountAggregateInputType = {
+    id?: true
+    title?: true
+    goodsKey?: true
+    guapiAmount?: true
+    priceYuan?: true
+    sortOrder?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GuapiPackageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GuapiPackage to aggregate.
+     */
+    where?: GuapiPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiPackages to fetch.
+     */
+    orderBy?: GuapiPackageOrderByWithRelationInput | GuapiPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GuapiPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiPackages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GuapiPackages
+    **/
+    _count?: true | GuapiPackageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GuapiPackageAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GuapiPackageSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GuapiPackageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GuapiPackageMaxAggregateInputType
+  }
+
+  export type GetGuapiPackageAggregateType<T extends GuapiPackageAggregateArgs> = {
+        [P in keyof T & keyof AggregateGuapiPackage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGuapiPackage[P]>
+      : GetScalarType<T[P], AggregateGuapiPackage[P]>
+  }
+
+
+
+
+  export type GuapiPackageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuapiPackageWhereInput
+    orderBy?: GuapiPackageOrderByWithAggregationInput | GuapiPackageOrderByWithAggregationInput[]
+    by: GuapiPackageScalarFieldEnum[] | GuapiPackageScalarFieldEnum
+    having?: GuapiPackageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GuapiPackageCountAggregateInputType | true
+    _avg?: GuapiPackageAvgAggregateInputType
+    _sum?: GuapiPackageSumAggregateInputType
+    _min?: GuapiPackageMinAggregateInputType
+    _max?: GuapiPackageMaxAggregateInputType
+  }
+
+  export type GuapiPackageGroupByOutputType = {
+    id: string
+    title: string
+    goodsKey: string
+    guapiAmount: number
+    priceYuan: Decimal
+    sortOrder: number
+    enabled: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: GuapiPackageCountAggregateOutputType | null
+    _avg: GuapiPackageAvgAggregateOutputType | null
+    _sum: GuapiPackageSumAggregateOutputType | null
+    _min: GuapiPackageMinAggregateOutputType | null
+    _max: GuapiPackageMaxAggregateOutputType | null
+  }
+
+  type GetGuapiPackageGroupByPayload<T extends GuapiPackageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GuapiPackageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GuapiPackageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GuapiPackageGroupByOutputType[P]>
+            : GetScalarType<T[P], GuapiPackageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GuapiPackageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    goodsKey?: boolean
+    guapiAmount?: boolean
+    priceYuan?: boolean
+    sortOrder?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    orders?: boolean | GuapiPackage$ordersArgs<ExtArgs>
+    _count?: boolean | GuapiPackageCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["guapiPackage"]>
+
+
+
+  export type GuapiPackageSelectScalar = {
+    id?: boolean
+    title?: boolean
+    goodsKey?: boolean
+    guapiAmount?: boolean
+    priceYuan?: boolean
+    sortOrder?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GuapiPackageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "goodsKey" | "guapiAmount" | "priceYuan" | "sortOrder" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["guapiPackage"]>
+  export type GuapiPackageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    orders?: boolean | GuapiPackage$ordersArgs<ExtArgs>
+    _count?: boolean | GuapiPackageCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $GuapiPackagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GuapiPackage"
+    objects: {
+      orders: Prisma.$GuapiOrderPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      goodsKey: string
+      guapiAmount: number
+      /**
+       * * 展示标价（元）
+       */
+      priceYuan: Prisma.Decimal
+      sortOrder: number
+      enabled: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["guapiPackage"]>
+    composites: {}
+  }
+
+  type GuapiPackageGetPayload<S extends boolean | null | undefined | GuapiPackageDefaultArgs> = $Result.GetResult<Prisma.$GuapiPackagePayload, S>
+
+  type GuapiPackageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GuapiPackageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GuapiPackageCountAggregateInputType | true
+    }
+
+  export interface GuapiPackageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GuapiPackage'], meta: { name: 'GuapiPackage' } }
+    /**
+     * Find zero or one GuapiPackage that matches the filter.
+     * @param {GuapiPackageFindUniqueArgs} args - Arguments to find a GuapiPackage
+     * @example
+     * // Get one GuapiPackage
+     * const guapiPackage = await prisma.guapiPackage.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GuapiPackageFindUniqueArgs>(args: SelectSubset<T, GuapiPackageFindUniqueArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GuapiPackage that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GuapiPackageFindUniqueOrThrowArgs} args - Arguments to find a GuapiPackage
+     * @example
+     * // Get one GuapiPackage
+     * const guapiPackage = await prisma.guapiPackage.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GuapiPackageFindUniqueOrThrowArgs>(args: SelectSubset<T, GuapiPackageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GuapiPackage that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageFindFirstArgs} args - Arguments to find a GuapiPackage
+     * @example
+     * // Get one GuapiPackage
+     * const guapiPackage = await prisma.guapiPackage.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GuapiPackageFindFirstArgs>(args?: SelectSubset<T, GuapiPackageFindFirstArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GuapiPackage that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageFindFirstOrThrowArgs} args - Arguments to find a GuapiPackage
+     * @example
+     * // Get one GuapiPackage
+     * const guapiPackage = await prisma.guapiPackage.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GuapiPackageFindFirstOrThrowArgs>(args?: SelectSubset<T, GuapiPackageFindFirstOrThrowArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GuapiPackages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GuapiPackages
+     * const guapiPackages = await prisma.guapiPackage.findMany()
+     * 
+     * // Get first 10 GuapiPackages
+     * const guapiPackages = await prisma.guapiPackage.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const guapiPackageWithIdOnly = await prisma.guapiPackage.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GuapiPackageFindManyArgs>(args?: SelectSubset<T, GuapiPackageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GuapiPackage.
+     * @param {GuapiPackageCreateArgs} args - Arguments to create a GuapiPackage.
+     * @example
+     * // Create one GuapiPackage
+     * const GuapiPackage = await prisma.guapiPackage.create({
+     *   data: {
+     *     // ... data to create a GuapiPackage
+     *   }
+     * })
+     * 
+     */
+    create<T extends GuapiPackageCreateArgs>(args: SelectSubset<T, GuapiPackageCreateArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GuapiPackages.
+     * @param {GuapiPackageCreateManyArgs} args - Arguments to create many GuapiPackages.
+     * @example
+     * // Create many GuapiPackages
+     * const guapiPackage = await prisma.guapiPackage.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GuapiPackageCreateManyArgs>(args?: SelectSubset<T, GuapiPackageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a GuapiPackage.
+     * @param {GuapiPackageDeleteArgs} args - Arguments to delete one GuapiPackage.
+     * @example
+     * // Delete one GuapiPackage
+     * const GuapiPackage = await prisma.guapiPackage.delete({
+     *   where: {
+     *     // ... filter to delete one GuapiPackage
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GuapiPackageDeleteArgs>(args: SelectSubset<T, GuapiPackageDeleteArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GuapiPackage.
+     * @param {GuapiPackageUpdateArgs} args - Arguments to update one GuapiPackage.
+     * @example
+     * // Update one GuapiPackage
+     * const guapiPackage = await prisma.guapiPackage.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GuapiPackageUpdateArgs>(args: SelectSubset<T, GuapiPackageUpdateArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GuapiPackages.
+     * @param {GuapiPackageDeleteManyArgs} args - Arguments to filter GuapiPackages to delete.
+     * @example
+     * // Delete a few GuapiPackages
+     * const { count } = await prisma.guapiPackage.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GuapiPackageDeleteManyArgs>(args?: SelectSubset<T, GuapiPackageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GuapiPackages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GuapiPackages
+     * const guapiPackage = await prisma.guapiPackage.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GuapiPackageUpdateManyArgs>(args: SelectSubset<T, GuapiPackageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GuapiPackage.
+     * @param {GuapiPackageUpsertArgs} args - Arguments to update or create a GuapiPackage.
+     * @example
+     * // Update or create a GuapiPackage
+     * const guapiPackage = await prisma.guapiPackage.upsert({
+     *   create: {
+     *     // ... data to create a GuapiPackage
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GuapiPackage we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GuapiPackageUpsertArgs>(args: SelectSubset<T, GuapiPackageUpsertArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GuapiPackages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageCountArgs} args - Arguments to filter GuapiPackages to count.
+     * @example
+     * // Count the number of GuapiPackages
+     * const count = await prisma.guapiPackage.count({
+     *   where: {
+     *     // ... the filter for the GuapiPackages we want to count
+     *   }
+     * })
+    **/
+    count<T extends GuapiPackageCountArgs>(
+      args?: Subset<T, GuapiPackageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GuapiPackageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GuapiPackage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GuapiPackageAggregateArgs>(args: Subset<T, GuapiPackageAggregateArgs>): Prisma.PrismaPromise<GetGuapiPackageAggregateType<T>>
+
+    /**
+     * Group by GuapiPackage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiPackageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GuapiPackageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GuapiPackageGroupByArgs['orderBy'] }
+        : { orderBy?: GuapiPackageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GuapiPackageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGuapiPackageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GuapiPackage model
+   */
+  readonly fields: GuapiPackageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GuapiPackage.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GuapiPackageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    orders<T extends GuapiPackage$ordersArgs<ExtArgs> = {}>(args?: Subset<T, GuapiPackage$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GuapiPackage model
+   */
+  interface GuapiPackageFieldRefs {
+    readonly id: FieldRef<"GuapiPackage", 'String'>
+    readonly title: FieldRef<"GuapiPackage", 'String'>
+    readonly goodsKey: FieldRef<"GuapiPackage", 'String'>
+    readonly guapiAmount: FieldRef<"GuapiPackage", 'Int'>
+    readonly priceYuan: FieldRef<"GuapiPackage", 'Decimal'>
+    readonly sortOrder: FieldRef<"GuapiPackage", 'Int'>
+    readonly enabled: FieldRef<"GuapiPackage", 'Boolean'>
+    readonly createdAt: FieldRef<"GuapiPackage", 'DateTime'>
+    readonly updatedAt: FieldRef<"GuapiPackage", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GuapiPackage findUnique
+   */
+  export type GuapiPackageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiPackage to fetch.
+     */
+    where: GuapiPackageWhereUniqueInput
+  }
+
+  /**
+   * GuapiPackage findUniqueOrThrow
+   */
+  export type GuapiPackageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiPackage to fetch.
+     */
+    where: GuapiPackageWhereUniqueInput
+  }
+
+  /**
+   * GuapiPackage findFirst
+   */
+  export type GuapiPackageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiPackage to fetch.
+     */
+    where?: GuapiPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiPackages to fetch.
+     */
+    orderBy?: GuapiPackageOrderByWithRelationInput | GuapiPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GuapiPackages.
+     */
+    cursor?: GuapiPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiPackages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GuapiPackages.
+     */
+    distinct?: GuapiPackageScalarFieldEnum | GuapiPackageScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiPackage findFirstOrThrow
+   */
+  export type GuapiPackageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiPackage to fetch.
+     */
+    where?: GuapiPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiPackages to fetch.
+     */
+    orderBy?: GuapiPackageOrderByWithRelationInput | GuapiPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GuapiPackages.
+     */
+    cursor?: GuapiPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiPackages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GuapiPackages.
+     */
+    distinct?: GuapiPackageScalarFieldEnum | GuapiPackageScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiPackage findMany
+   */
+  export type GuapiPackageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiPackages to fetch.
+     */
+    where?: GuapiPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiPackages to fetch.
+     */
+    orderBy?: GuapiPackageOrderByWithRelationInput | GuapiPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GuapiPackages.
+     */
+    cursor?: GuapiPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiPackages.
+     */
+    skip?: number
+    distinct?: GuapiPackageScalarFieldEnum | GuapiPackageScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiPackage create
+   */
+  export type GuapiPackageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GuapiPackage.
+     */
+    data: XOR<GuapiPackageCreateInput, GuapiPackageUncheckedCreateInput>
+  }
+
+  /**
+   * GuapiPackage createMany
+   */
+  export type GuapiPackageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GuapiPackages.
+     */
+    data: GuapiPackageCreateManyInput | GuapiPackageCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GuapiPackage update
+   */
+  export type GuapiPackageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GuapiPackage.
+     */
+    data: XOR<GuapiPackageUpdateInput, GuapiPackageUncheckedUpdateInput>
+    /**
+     * Choose, which GuapiPackage to update.
+     */
+    where: GuapiPackageWhereUniqueInput
+  }
+
+  /**
+   * GuapiPackage updateMany
+   */
+  export type GuapiPackageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GuapiPackages.
+     */
+    data: XOR<GuapiPackageUpdateManyMutationInput, GuapiPackageUncheckedUpdateManyInput>
+    /**
+     * Filter which GuapiPackages to update
+     */
+    where?: GuapiPackageWhereInput
+    /**
+     * Limit how many GuapiPackages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GuapiPackage upsert
+   */
+  export type GuapiPackageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GuapiPackage to update in case it exists.
+     */
+    where: GuapiPackageWhereUniqueInput
+    /**
+     * In case the GuapiPackage found by the `where` argument doesn't exist, create a new GuapiPackage with this data.
+     */
+    create: XOR<GuapiPackageCreateInput, GuapiPackageUncheckedCreateInput>
+    /**
+     * In case the GuapiPackage was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GuapiPackageUpdateInput, GuapiPackageUncheckedUpdateInput>
+  }
+
+  /**
+   * GuapiPackage delete
+   */
+  export type GuapiPackageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+    /**
+     * Filter which GuapiPackage to delete.
+     */
+    where: GuapiPackageWhereUniqueInput
+  }
+
+  /**
+   * GuapiPackage deleteMany
+   */
+  export type GuapiPackageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GuapiPackages to delete
+     */
+    where?: GuapiPackageWhereInput
+    /**
+     * Limit how many GuapiPackages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GuapiPackage.orders
+   */
+  export type GuapiPackage$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    where?: GuapiOrderWhereInput
+    orderBy?: GuapiOrderOrderByWithRelationInput | GuapiOrderOrderByWithRelationInput[]
+    cursor?: GuapiOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GuapiOrderScalarFieldEnum | GuapiOrderScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiPackage without action
+   */
+  export type GuapiPackageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiPackage
+     */
+    select?: GuapiPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiPackage
+     */
+    omit?: GuapiPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiPackageInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GuapiOrder
+   */
+
+  export type AggregateGuapiOrder = {
+    _count: GuapiOrderCountAggregateOutputType | null
+    _avg: GuapiOrderAvgAggregateOutputType | null
+    _sum: GuapiOrderSumAggregateOutputType | null
+    _min: GuapiOrderMinAggregateOutputType | null
+    _max: GuapiOrderMaxAggregateOutputType | null
+  }
+
+  export type GuapiOrderAvgAggregateOutputType = {
+    channelId: number | null
+    quantity: number | null
+    totalAmount: Decimal | null
+    guapiAmount: number | null
+  }
+
+  export type GuapiOrderSumAggregateOutputType = {
+    channelId: number | null
+    quantity: number | null
+    totalAmount: Decimal | null
+    guapiAmount: number | null
+  }
+
+  export type GuapiOrderMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    packageId: string | null
+    tradeNo: string | null
+    channelId: number | null
+    channelName: string | null
+    quantity: number | null
+    totalAmount: Decimal | null
+    guapiAmount: number | null
+    payUrl: string | null
+    shopSessionCookie: string | null
+    status: $Enums.GuapiOrderStatus | null
+    paidAt: Date | null
+    fulfilledAt: Date | null
+    contact: string | null
+    rawCreateResp: string | null
+    rawQueryResp: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GuapiOrderMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    packageId: string | null
+    tradeNo: string | null
+    channelId: number | null
+    channelName: string | null
+    quantity: number | null
+    totalAmount: Decimal | null
+    guapiAmount: number | null
+    payUrl: string | null
+    shopSessionCookie: string | null
+    status: $Enums.GuapiOrderStatus | null
+    paidAt: Date | null
+    fulfilledAt: Date | null
+    contact: string | null
+    rawCreateResp: string | null
+    rawQueryResp: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GuapiOrderCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    packageId: number
+    tradeNo: number
+    channelId: number
+    channelName: number
+    quantity: number
+    totalAmount: number
+    guapiAmount: number
+    payUrl: number
+    shopSessionCookie: number
+    status: number
+    paidAt: number
+    fulfilledAt: number
+    contact: number
+    rawCreateResp: number
+    rawQueryResp: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GuapiOrderAvgAggregateInputType = {
+    channelId?: true
+    quantity?: true
+    totalAmount?: true
+    guapiAmount?: true
+  }
+
+  export type GuapiOrderSumAggregateInputType = {
+    channelId?: true
+    quantity?: true
+    totalAmount?: true
+    guapiAmount?: true
+  }
+
+  export type GuapiOrderMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    packageId?: true
+    tradeNo?: true
+    channelId?: true
+    channelName?: true
+    quantity?: true
+    totalAmount?: true
+    guapiAmount?: true
+    payUrl?: true
+    shopSessionCookie?: true
+    status?: true
+    paidAt?: true
+    fulfilledAt?: true
+    contact?: true
+    rawCreateResp?: true
+    rawQueryResp?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GuapiOrderMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    packageId?: true
+    tradeNo?: true
+    channelId?: true
+    channelName?: true
+    quantity?: true
+    totalAmount?: true
+    guapiAmount?: true
+    payUrl?: true
+    shopSessionCookie?: true
+    status?: true
+    paidAt?: true
+    fulfilledAt?: true
+    contact?: true
+    rawCreateResp?: true
+    rawQueryResp?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GuapiOrderCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    packageId?: true
+    tradeNo?: true
+    channelId?: true
+    channelName?: true
+    quantity?: true
+    totalAmount?: true
+    guapiAmount?: true
+    payUrl?: true
+    shopSessionCookie?: true
+    status?: true
+    paidAt?: true
+    fulfilledAt?: true
+    contact?: true
+    rawCreateResp?: true
+    rawQueryResp?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GuapiOrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GuapiOrder to aggregate.
+     */
+    where?: GuapiOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiOrders to fetch.
+     */
+    orderBy?: GuapiOrderOrderByWithRelationInput | GuapiOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GuapiOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GuapiOrders
+    **/
+    _count?: true | GuapiOrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GuapiOrderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GuapiOrderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GuapiOrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GuapiOrderMaxAggregateInputType
+  }
+
+  export type GetGuapiOrderAggregateType<T extends GuapiOrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateGuapiOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGuapiOrder[P]>
+      : GetScalarType<T[P], AggregateGuapiOrder[P]>
+  }
+
+
+
+
+  export type GuapiOrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuapiOrderWhereInput
+    orderBy?: GuapiOrderOrderByWithAggregationInput | GuapiOrderOrderByWithAggregationInput[]
+    by: GuapiOrderScalarFieldEnum[] | GuapiOrderScalarFieldEnum
+    having?: GuapiOrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GuapiOrderCountAggregateInputType | true
+    _avg?: GuapiOrderAvgAggregateInputType
+    _sum?: GuapiOrderSumAggregateInputType
+    _min?: GuapiOrderMinAggregateInputType
+    _max?: GuapiOrderMaxAggregateInputType
+  }
+
+  export type GuapiOrderGroupByOutputType = {
+    id: string
+    guestUserId: string
+    packageId: string
+    tradeNo: string | null
+    channelId: number
+    channelName: string
+    quantity: number
+    totalAmount: Decimal | null
+    guapiAmount: number
+    payUrl: string | null
+    shopSessionCookie: string | null
+    status: $Enums.GuapiOrderStatus
+    paidAt: Date | null
+    fulfilledAt: Date | null
+    contact: string
+    rawCreateResp: string | null
+    rawQueryResp: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: GuapiOrderCountAggregateOutputType | null
+    _avg: GuapiOrderAvgAggregateOutputType | null
+    _sum: GuapiOrderSumAggregateOutputType | null
+    _min: GuapiOrderMinAggregateOutputType | null
+    _max: GuapiOrderMaxAggregateOutputType | null
+  }
+
+  type GetGuapiOrderGroupByPayload<T extends GuapiOrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GuapiOrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GuapiOrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GuapiOrderGroupByOutputType[P]>
+            : GetScalarType<T[P], GuapiOrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GuapiOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    packageId?: boolean
+    tradeNo?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    quantity?: boolean
+    totalAmount?: boolean
+    guapiAmount?: boolean
+    payUrl?: boolean
+    shopSessionCookie?: boolean
+    status?: boolean
+    paidAt?: boolean
+    fulfilledAt?: boolean
+    contact?: boolean
+    rawCreateResp?: boolean
+    rawQueryResp?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+    package?: boolean | GuapiPackageDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["guapiOrder"]>
+
+
+
+  export type GuapiOrderSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    packageId?: boolean
+    tradeNo?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    quantity?: boolean
+    totalAmount?: boolean
+    guapiAmount?: boolean
+    payUrl?: boolean
+    shopSessionCookie?: boolean
+    status?: boolean
+    paidAt?: boolean
+    fulfilledAt?: boolean
+    contact?: boolean
+    rawCreateResp?: boolean
+    rawQueryResp?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GuapiOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "packageId" | "tradeNo" | "channelId" | "channelName" | "quantity" | "totalAmount" | "guapiAmount" | "payUrl" | "shopSessionCookie" | "status" | "paidAt" | "fulfilledAt" | "contact" | "rawCreateResp" | "rawQueryResp" | "createdAt" | "updatedAt", ExtArgs["result"]["guapiOrder"]>
+  export type GuapiOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+    package?: boolean | GuapiPackageDefaultArgs<ExtArgs>
+  }
+
+  export type $GuapiOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GuapiOrder"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+      package: Prisma.$GuapiPackagePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      packageId: string
+      tradeNo: string | null
+      channelId: number
+      channelName: string
+      quantity: number
+      totalAmount: Prisma.Decimal | null
+      guapiAmount: number
+      payUrl: string | null
+      shopSessionCookie: string | null
+      status: $Enums.GuapiOrderStatus
+      paidAt: Date | null
+      fulfilledAt: Date | null
+      contact: string
+      rawCreateResp: string | null
+      rawQueryResp: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["guapiOrder"]>
+    composites: {}
+  }
+
+  type GuapiOrderGetPayload<S extends boolean | null | undefined | GuapiOrderDefaultArgs> = $Result.GetResult<Prisma.$GuapiOrderPayload, S>
+
+  type GuapiOrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GuapiOrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GuapiOrderCountAggregateInputType | true
+    }
+
+  export interface GuapiOrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GuapiOrder'], meta: { name: 'GuapiOrder' } }
+    /**
+     * Find zero or one GuapiOrder that matches the filter.
+     * @param {GuapiOrderFindUniqueArgs} args - Arguments to find a GuapiOrder
+     * @example
+     * // Get one GuapiOrder
+     * const guapiOrder = await prisma.guapiOrder.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GuapiOrderFindUniqueArgs>(args: SelectSubset<T, GuapiOrderFindUniqueArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GuapiOrder that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GuapiOrderFindUniqueOrThrowArgs} args - Arguments to find a GuapiOrder
+     * @example
+     * // Get one GuapiOrder
+     * const guapiOrder = await prisma.guapiOrder.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GuapiOrderFindUniqueOrThrowArgs>(args: SelectSubset<T, GuapiOrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GuapiOrder that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderFindFirstArgs} args - Arguments to find a GuapiOrder
+     * @example
+     * // Get one GuapiOrder
+     * const guapiOrder = await prisma.guapiOrder.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GuapiOrderFindFirstArgs>(args?: SelectSubset<T, GuapiOrderFindFirstArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GuapiOrder that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderFindFirstOrThrowArgs} args - Arguments to find a GuapiOrder
+     * @example
+     * // Get one GuapiOrder
+     * const guapiOrder = await prisma.guapiOrder.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GuapiOrderFindFirstOrThrowArgs>(args?: SelectSubset<T, GuapiOrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GuapiOrders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GuapiOrders
+     * const guapiOrders = await prisma.guapiOrder.findMany()
+     * 
+     * // Get first 10 GuapiOrders
+     * const guapiOrders = await prisma.guapiOrder.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const guapiOrderWithIdOnly = await prisma.guapiOrder.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GuapiOrderFindManyArgs>(args?: SelectSubset<T, GuapiOrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GuapiOrder.
+     * @param {GuapiOrderCreateArgs} args - Arguments to create a GuapiOrder.
+     * @example
+     * // Create one GuapiOrder
+     * const GuapiOrder = await prisma.guapiOrder.create({
+     *   data: {
+     *     // ... data to create a GuapiOrder
+     *   }
+     * })
+     * 
+     */
+    create<T extends GuapiOrderCreateArgs>(args: SelectSubset<T, GuapiOrderCreateArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GuapiOrders.
+     * @param {GuapiOrderCreateManyArgs} args - Arguments to create many GuapiOrders.
+     * @example
+     * // Create many GuapiOrders
+     * const guapiOrder = await prisma.guapiOrder.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GuapiOrderCreateManyArgs>(args?: SelectSubset<T, GuapiOrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a GuapiOrder.
+     * @param {GuapiOrderDeleteArgs} args - Arguments to delete one GuapiOrder.
+     * @example
+     * // Delete one GuapiOrder
+     * const GuapiOrder = await prisma.guapiOrder.delete({
+     *   where: {
+     *     // ... filter to delete one GuapiOrder
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GuapiOrderDeleteArgs>(args: SelectSubset<T, GuapiOrderDeleteArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GuapiOrder.
+     * @param {GuapiOrderUpdateArgs} args - Arguments to update one GuapiOrder.
+     * @example
+     * // Update one GuapiOrder
+     * const guapiOrder = await prisma.guapiOrder.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GuapiOrderUpdateArgs>(args: SelectSubset<T, GuapiOrderUpdateArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GuapiOrders.
+     * @param {GuapiOrderDeleteManyArgs} args - Arguments to filter GuapiOrders to delete.
+     * @example
+     * // Delete a few GuapiOrders
+     * const { count } = await prisma.guapiOrder.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GuapiOrderDeleteManyArgs>(args?: SelectSubset<T, GuapiOrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GuapiOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GuapiOrders
+     * const guapiOrder = await prisma.guapiOrder.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GuapiOrderUpdateManyArgs>(args: SelectSubset<T, GuapiOrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GuapiOrder.
+     * @param {GuapiOrderUpsertArgs} args - Arguments to update or create a GuapiOrder.
+     * @example
+     * // Update or create a GuapiOrder
+     * const guapiOrder = await prisma.guapiOrder.upsert({
+     *   create: {
+     *     // ... data to create a GuapiOrder
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GuapiOrder we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GuapiOrderUpsertArgs>(args: SelectSubset<T, GuapiOrderUpsertArgs<ExtArgs>>): Prisma__GuapiOrderClient<$Result.GetResult<Prisma.$GuapiOrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GuapiOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderCountArgs} args - Arguments to filter GuapiOrders to count.
+     * @example
+     * // Count the number of GuapiOrders
+     * const count = await prisma.guapiOrder.count({
+     *   where: {
+     *     // ... the filter for the GuapiOrders we want to count
+     *   }
+     * })
+    **/
+    count<T extends GuapiOrderCountArgs>(
+      args?: Subset<T, GuapiOrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GuapiOrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GuapiOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GuapiOrderAggregateArgs>(args: Subset<T, GuapiOrderAggregateArgs>): Prisma.PrismaPromise<GetGuapiOrderAggregateType<T>>
+
+    /**
+     * Group by GuapiOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuapiOrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GuapiOrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GuapiOrderGroupByArgs['orderBy'] }
+        : { orderBy?: GuapiOrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GuapiOrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGuapiOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GuapiOrder model
+   */
+  readonly fields: GuapiOrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GuapiOrder.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GuapiOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    package<T extends GuapiPackageDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuapiPackageDefaultArgs<ExtArgs>>): Prisma__GuapiPackageClient<$Result.GetResult<Prisma.$GuapiPackagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GuapiOrder model
+   */
+  interface GuapiOrderFieldRefs {
+    readonly id: FieldRef<"GuapiOrder", 'String'>
+    readonly guestUserId: FieldRef<"GuapiOrder", 'String'>
+    readonly packageId: FieldRef<"GuapiOrder", 'String'>
+    readonly tradeNo: FieldRef<"GuapiOrder", 'String'>
+    readonly channelId: FieldRef<"GuapiOrder", 'Int'>
+    readonly channelName: FieldRef<"GuapiOrder", 'String'>
+    readonly quantity: FieldRef<"GuapiOrder", 'Int'>
+    readonly totalAmount: FieldRef<"GuapiOrder", 'Decimal'>
+    readonly guapiAmount: FieldRef<"GuapiOrder", 'Int'>
+    readonly payUrl: FieldRef<"GuapiOrder", 'String'>
+    readonly shopSessionCookie: FieldRef<"GuapiOrder", 'String'>
+    readonly status: FieldRef<"GuapiOrder", 'GuapiOrderStatus'>
+    readonly paidAt: FieldRef<"GuapiOrder", 'DateTime'>
+    readonly fulfilledAt: FieldRef<"GuapiOrder", 'DateTime'>
+    readonly contact: FieldRef<"GuapiOrder", 'String'>
+    readonly rawCreateResp: FieldRef<"GuapiOrder", 'String'>
+    readonly rawQueryResp: FieldRef<"GuapiOrder", 'String'>
+    readonly createdAt: FieldRef<"GuapiOrder", 'DateTime'>
+    readonly updatedAt: FieldRef<"GuapiOrder", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GuapiOrder findUnique
+   */
+  export type GuapiOrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiOrder to fetch.
+     */
+    where: GuapiOrderWhereUniqueInput
+  }
+
+  /**
+   * GuapiOrder findUniqueOrThrow
+   */
+  export type GuapiOrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiOrder to fetch.
+     */
+    where: GuapiOrderWhereUniqueInput
+  }
+
+  /**
+   * GuapiOrder findFirst
+   */
+  export type GuapiOrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiOrder to fetch.
+     */
+    where?: GuapiOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiOrders to fetch.
+     */
+    orderBy?: GuapiOrderOrderByWithRelationInput | GuapiOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GuapiOrders.
+     */
+    cursor?: GuapiOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GuapiOrders.
+     */
+    distinct?: GuapiOrderScalarFieldEnum | GuapiOrderScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiOrder findFirstOrThrow
+   */
+  export type GuapiOrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiOrder to fetch.
+     */
+    where?: GuapiOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiOrders to fetch.
+     */
+    orderBy?: GuapiOrderOrderByWithRelationInput | GuapiOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GuapiOrders.
+     */
+    cursor?: GuapiOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GuapiOrders.
+     */
+    distinct?: GuapiOrderScalarFieldEnum | GuapiOrderScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiOrder findMany
+   */
+  export type GuapiOrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which GuapiOrders to fetch.
+     */
+    where?: GuapiOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuapiOrders to fetch.
+     */
+    orderBy?: GuapiOrderOrderByWithRelationInput | GuapiOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GuapiOrders.
+     */
+    cursor?: GuapiOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuapiOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuapiOrders.
+     */
+    skip?: number
+    distinct?: GuapiOrderScalarFieldEnum | GuapiOrderScalarFieldEnum[]
+  }
+
+  /**
+   * GuapiOrder create
+   */
+  export type GuapiOrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GuapiOrder.
+     */
+    data: XOR<GuapiOrderCreateInput, GuapiOrderUncheckedCreateInput>
+  }
+
+  /**
+   * GuapiOrder createMany
+   */
+  export type GuapiOrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GuapiOrders.
+     */
+    data: GuapiOrderCreateManyInput | GuapiOrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GuapiOrder update
+   */
+  export type GuapiOrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GuapiOrder.
+     */
+    data: XOR<GuapiOrderUpdateInput, GuapiOrderUncheckedUpdateInput>
+    /**
+     * Choose, which GuapiOrder to update.
+     */
+    where: GuapiOrderWhereUniqueInput
+  }
+
+  /**
+   * GuapiOrder updateMany
+   */
+  export type GuapiOrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GuapiOrders.
+     */
+    data: XOR<GuapiOrderUpdateManyMutationInput, GuapiOrderUncheckedUpdateManyInput>
+    /**
+     * Filter which GuapiOrders to update
+     */
+    where?: GuapiOrderWhereInput
+    /**
+     * Limit how many GuapiOrders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GuapiOrder upsert
+   */
+  export type GuapiOrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GuapiOrder to update in case it exists.
+     */
+    where: GuapiOrderWhereUniqueInput
+    /**
+     * In case the GuapiOrder found by the `where` argument doesn't exist, create a new GuapiOrder with this data.
+     */
+    create: XOR<GuapiOrderCreateInput, GuapiOrderUncheckedCreateInput>
+    /**
+     * In case the GuapiOrder was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GuapiOrderUpdateInput, GuapiOrderUncheckedUpdateInput>
+  }
+
+  /**
+   * GuapiOrder delete
+   */
+  export type GuapiOrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+    /**
+     * Filter which GuapiOrder to delete.
+     */
+    where: GuapiOrderWhereUniqueInput
+  }
+
+  /**
+   * GuapiOrder deleteMany
+   */
+  export type GuapiOrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GuapiOrders to delete
+     */
+    where?: GuapiOrderWhereInput
+    /**
+     * Limit how many GuapiOrders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GuapiOrder without action
+   */
+  export type GuapiOrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuapiOrder
+     */
+    select?: GuapiOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GuapiOrder
+     */
+    omit?: GuapiOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuapiOrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentConfig
+   */
+
+  export type AggregateAgentConfig = {
+    _count: AgentConfigCountAggregateOutputType | null
+    _min: AgentConfigMinAggregateOutputType | null
+    _max: AgentConfigMaxAggregateOutputType | null
+  }
+
+  export type AgentConfigMinAggregateOutputType = {
+    key: string | null
+    value: string | null
+  }
+
+  export type AgentConfigMaxAggregateOutputType = {
+    key: string | null
+    value: string | null
+  }
+
+  export type AgentConfigCountAggregateOutputType = {
+    key: number
+    value: number
+    _all: number
+  }
+
+
+  export type AgentConfigMinAggregateInputType = {
+    key?: true
+    value?: true
+  }
+
+  export type AgentConfigMaxAggregateInputType = {
+    key?: true
+    value?: true
+  }
+
+  export type AgentConfigCountAggregateInputType = {
+    key?: true
+    value?: true
+    _all?: true
+  }
+
+  export type AgentConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentConfig to aggregate.
+     */
+    where?: AgentConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentConfigs to fetch.
+     */
+    orderBy?: AgentConfigOrderByWithRelationInput | AgentConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentConfigs
+    **/
+    _count?: true | AgentConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentConfigMaxAggregateInputType
+  }
+
+  export type GetAgentConfigAggregateType<T extends AgentConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentConfig[P]>
+      : GetScalarType<T[P], AggregateAgentConfig[P]>
+  }
+
+
+
+
+  export type AgentConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentConfigWhereInput
+    orderBy?: AgentConfigOrderByWithAggregationInput | AgentConfigOrderByWithAggregationInput[]
+    by: AgentConfigScalarFieldEnum[] | AgentConfigScalarFieldEnum
+    having?: AgentConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentConfigCountAggregateInputType | true
+    _min?: AgentConfigMinAggregateInputType
+    _max?: AgentConfigMaxAggregateInputType
+  }
+
+  export type AgentConfigGroupByOutputType = {
+    key: string
+    value: string
+    _count: AgentConfigCountAggregateOutputType | null
+    _min: AgentConfigMinAggregateOutputType | null
+    _max: AgentConfigMaxAggregateOutputType | null
+  }
+
+  type GetAgentConfigGroupByPayload<T extends AgentConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+  }, ExtArgs["result"]["agentConfig"]>
+
+
+
+  export type AgentConfigSelectScalar = {
+    key?: boolean
+    value?: boolean
+  }
+
+  export type AgentConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "value", ExtArgs["result"]["agentConfig"]>
+
+  export type $AgentConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      value: string
+    }, ExtArgs["result"]["agentConfig"]>
+    composites: {}
+  }
+
+  type AgentConfigGetPayload<S extends boolean | null | undefined | AgentConfigDefaultArgs> = $Result.GetResult<Prisma.$AgentConfigPayload, S>
+
+  type AgentConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentConfigCountAggregateInputType | true
+    }
+
+  export interface AgentConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentConfig'], meta: { name: 'AgentConfig' } }
+    /**
+     * Find zero or one AgentConfig that matches the filter.
+     * @param {AgentConfigFindUniqueArgs} args - Arguments to find a AgentConfig
+     * @example
+     * // Get one AgentConfig
+     * const agentConfig = await prisma.agentConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentConfigFindUniqueArgs>(args: SelectSubset<T, AgentConfigFindUniqueArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentConfigFindUniqueOrThrowArgs} args - Arguments to find a AgentConfig
+     * @example
+     * // Get one AgentConfig
+     * const agentConfig = await prisma.agentConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigFindFirstArgs} args - Arguments to find a AgentConfig
+     * @example
+     * // Get one AgentConfig
+     * const agentConfig = await prisma.agentConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentConfigFindFirstArgs>(args?: SelectSubset<T, AgentConfigFindFirstArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigFindFirstOrThrowArgs} args - Arguments to find a AgentConfig
+     * @example
+     * // Get one AgentConfig
+     * const agentConfig = await prisma.agentConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentConfigs
+     * const agentConfigs = await prisma.agentConfig.findMany()
+     * 
+     * // Get first 10 AgentConfigs
+     * const agentConfigs = await prisma.agentConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const agentConfigWithKeyOnly = await prisma.agentConfig.findMany({ select: { key: true } })
+     * 
+     */
+    findMany<T extends AgentConfigFindManyArgs>(args?: SelectSubset<T, AgentConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentConfig.
+     * @param {AgentConfigCreateArgs} args - Arguments to create a AgentConfig.
+     * @example
+     * // Create one AgentConfig
+     * const AgentConfig = await prisma.agentConfig.create({
+     *   data: {
+     *     // ... data to create a AgentConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentConfigCreateArgs>(args: SelectSubset<T, AgentConfigCreateArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentConfigs.
+     * @param {AgentConfigCreateManyArgs} args - Arguments to create many AgentConfigs.
+     * @example
+     * // Create many AgentConfigs
+     * const agentConfig = await prisma.agentConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentConfigCreateManyArgs>(args?: SelectSubset<T, AgentConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AgentConfig.
+     * @param {AgentConfigDeleteArgs} args - Arguments to delete one AgentConfig.
+     * @example
+     * // Delete one AgentConfig
+     * const AgentConfig = await prisma.agentConfig.delete({
+     *   where: {
+     *     // ... filter to delete one AgentConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentConfigDeleteArgs>(args: SelectSubset<T, AgentConfigDeleteArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentConfig.
+     * @param {AgentConfigUpdateArgs} args - Arguments to update one AgentConfig.
+     * @example
+     * // Update one AgentConfig
+     * const agentConfig = await prisma.agentConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentConfigUpdateArgs>(args: SelectSubset<T, AgentConfigUpdateArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentConfigs.
+     * @param {AgentConfigDeleteManyArgs} args - Arguments to filter AgentConfigs to delete.
+     * @example
+     * // Delete a few AgentConfigs
+     * const { count } = await prisma.agentConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentConfigDeleteManyArgs>(args?: SelectSubset<T, AgentConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentConfigs
+     * const agentConfig = await prisma.agentConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentConfigUpdateManyArgs>(args: SelectSubset<T, AgentConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AgentConfig.
+     * @param {AgentConfigUpsertArgs} args - Arguments to update or create a AgentConfig.
+     * @example
+     * // Update or create a AgentConfig
+     * const agentConfig = await prisma.agentConfig.upsert({
+     *   create: {
+     *     // ... data to create a AgentConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentConfigUpsertArgs>(args: SelectSubset<T, AgentConfigUpsertArgs<ExtArgs>>): Prisma__AgentConfigClient<$Result.GetResult<Prisma.$AgentConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigCountArgs} args - Arguments to filter AgentConfigs to count.
+     * @example
+     * // Count the number of AgentConfigs
+     * const count = await prisma.agentConfig.count({
+     *   where: {
+     *     // ... the filter for the AgentConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentConfigCountArgs>(
+      args?: Subset<T, AgentConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentConfigAggregateArgs>(args: Subset<T, AgentConfigAggregateArgs>): Prisma.PrismaPromise<GetAgentConfigAggregateType<T>>
+
+    /**
+     * Group by AgentConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentConfigGroupByArgs['orderBy'] }
+        : { orderBy?: AgentConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentConfig model
+   */
+  readonly fields: AgentConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentConfig model
+   */
+  interface AgentConfigFieldRefs {
+    readonly key: FieldRef<"AgentConfig", 'String'>
+    readonly value: FieldRef<"AgentConfig", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentConfig findUnique
+   */
+  export type AgentConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which AgentConfig to fetch.
+     */
+    where: AgentConfigWhereUniqueInput
+  }
+
+  /**
+   * AgentConfig findUniqueOrThrow
+   */
+  export type AgentConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which AgentConfig to fetch.
+     */
+    where: AgentConfigWhereUniqueInput
+  }
+
+  /**
+   * AgentConfig findFirst
+   */
+  export type AgentConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which AgentConfig to fetch.
+     */
+    where?: AgentConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentConfigs to fetch.
+     */
+    orderBy?: AgentConfigOrderByWithRelationInput | AgentConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentConfigs.
+     */
+    cursor?: AgentConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentConfigs.
+     */
+    distinct?: AgentConfigScalarFieldEnum | AgentConfigScalarFieldEnum[]
+  }
+
+  /**
+   * AgentConfig findFirstOrThrow
+   */
+  export type AgentConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which AgentConfig to fetch.
+     */
+    where?: AgentConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentConfigs to fetch.
+     */
+    orderBy?: AgentConfigOrderByWithRelationInput | AgentConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentConfigs.
+     */
+    cursor?: AgentConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentConfigs.
+     */
+    distinct?: AgentConfigScalarFieldEnum | AgentConfigScalarFieldEnum[]
+  }
+
+  /**
+   * AgentConfig findMany
+   */
+  export type AgentConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which AgentConfigs to fetch.
+     */
+    where?: AgentConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentConfigs to fetch.
+     */
+    orderBy?: AgentConfigOrderByWithRelationInput | AgentConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentConfigs.
+     */
+    cursor?: AgentConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentConfigs.
+     */
+    skip?: number
+    distinct?: AgentConfigScalarFieldEnum | AgentConfigScalarFieldEnum[]
+  }
+
+  /**
+   * AgentConfig create
+   */
+  export type AgentConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AgentConfig.
+     */
+    data: XOR<AgentConfigCreateInput, AgentConfigUncheckedCreateInput>
+  }
+
+  /**
+   * AgentConfig createMany
+   */
+  export type AgentConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentConfigs.
+     */
+    data: AgentConfigCreateManyInput | AgentConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentConfig update
+   */
+  export type AgentConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AgentConfig.
+     */
+    data: XOR<AgentConfigUpdateInput, AgentConfigUncheckedUpdateInput>
+    /**
+     * Choose, which AgentConfig to update.
+     */
+    where: AgentConfigWhereUniqueInput
+  }
+
+  /**
+   * AgentConfig updateMany
+   */
+  export type AgentConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentConfigs.
+     */
+    data: XOR<AgentConfigUpdateManyMutationInput, AgentConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentConfigs to update
+     */
+    where?: AgentConfigWhereInput
+    /**
+     * Limit how many AgentConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentConfig upsert
+   */
+  export type AgentConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AgentConfig to update in case it exists.
+     */
+    where: AgentConfigWhereUniqueInput
+    /**
+     * In case the AgentConfig found by the `where` argument doesn't exist, create a new AgentConfig with this data.
+     */
+    create: XOR<AgentConfigCreateInput, AgentConfigUncheckedCreateInput>
+    /**
+     * In case the AgentConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentConfigUpdateInput, AgentConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentConfig delete
+   */
+  export type AgentConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+    /**
+     * Filter which AgentConfig to delete.
+     */
+    where: AgentConfigWhereUniqueInput
+  }
+
+  /**
+   * AgentConfig deleteMany
+   */
+  export type AgentConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentConfigs to delete
+     */
+    where?: AgentConfigWhereInput
+    /**
+     * Limit how many AgentConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentConfig without action
+   */
+  export type AgentConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentConfig
+     */
+    select?: AgentConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentConfig
+     */
+    omit?: AgentConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentPackage
+   */
+
+  export type AggregateAgentPackage = {
+    _count: AgentPackageCountAggregateOutputType | null
+    _avg: AgentPackageAvgAggregateOutputType | null
+    _sum: AgentPackageSumAggregateOutputType | null
+    _min: AgentPackageMinAggregateOutputType | null
+    _max: AgentPackageMaxAggregateOutputType | null
+  }
+
+  export type AgentPackageAvgAggregateOutputType = {
+    priceYuan: Decimal | null
+    sortOrder: number | null
+  }
+
+  export type AgentPackageSumAggregateOutputType = {
+    priceYuan: Decimal | null
+    sortOrder: number | null
+  }
+
+  export type AgentPackageMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    goodsKey: string | null
+    priceYuan: Decimal | null
+    sortOrder: number | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentPackageMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    goodsKey: string | null
+    priceYuan: Decimal | null
+    sortOrder: number | null
+    enabled: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentPackageCountAggregateOutputType = {
+    id: number
+    title: number
+    goodsKey: number
+    priceYuan: number
+    sortOrder: number
+    enabled: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgentPackageAvgAggregateInputType = {
+    priceYuan?: true
+    sortOrder?: true
+  }
+
+  export type AgentPackageSumAggregateInputType = {
+    priceYuan?: true
+    sortOrder?: true
+  }
+
+  export type AgentPackageMinAggregateInputType = {
+    id?: true
+    title?: true
+    goodsKey?: true
+    priceYuan?: true
+    sortOrder?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentPackageMaxAggregateInputType = {
+    id?: true
+    title?: true
+    goodsKey?: true
+    priceYuan?: true
+    sortOrder?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentPackageCountAggregateInputType = {
+    id?: true
+    title?: true
+    goodsKey?: true
+    priceYuan?: true
+    sortOrder?: true
+    enabled?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgentPackageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentPackage to aggregate.
+     */
+    where?: AgentPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentPackages to fetch.
+     */
+    orderBy?: AgentPackageOrderByWithRelationInput | AgentPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentPackages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentPackages
+    **/
+    _count?: true | AgentPackageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AgentPackageAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AgentPackageSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentPackageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentPackageMaxAggregateInputType
+  }
+
+  export type GetAgentPackageAggregateType<T extends AgentPackageAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentPackage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentPackage[P]>
+      : GetScalarType<T[P], AggregateAgentPackage[P]>
+  }
+
+
+
+
+  export type AgentPackageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentPackageWhereInput
+    orderBy?: AgentPackageOrderByWithAggregationInput | AgentPackageOrderByWithAggregationInput[]
+    by: AgentPackageScalarFieldEnum[] | AgentPackageScalarFieldEnum
+    having?: AgentPackageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentPackageCountAggregateInputType | true
+    _avg?: AgentPackageAvgAggregateInputType
+    _sum?: AgentPackageSumAggregateInputType
+    _min?: AgentPackageMinAggregateInputType
+    _max?: AgentPackageMaxAggregateInputType
+  }
+
+  export type AgentPackageGroupByOutputType = {
+    id: string
+    title: string
+    goodsKey: string
+    priceYuan: Decimal
+    sortOrder: number
+    enabled: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: AgentPackageCountAggregateOutputType | null
+    _avg: AgentPackageAvgAggregateOutputType | null
+    _sum: AgentPackageSumAggregateOutputType | null
+    _min: AgentPackageMinAggregateOutputType | null
+    _max: AgentPackageMaxAggregateOutputType | null
+  }
+
+  type GetAgentPackageGroupByPayload<T extends AgentPackageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentPackageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentPackageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentPackageGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentPackageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentPackageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    goodsKey?: boolean
+    priceYuan?: boolean
+    sortOrder?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    orders?: boolean | AgentPackage$ordersArgs<ExtArgs>
+    _count?: boolean | AgentPackageCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentPackage"]>
+
+
+
+  export type AgentPackageSelectScalar = {
+    id?: boolean
+    title?: boolean
+    goodsKey?: boolean
+    priceYuan?: boolean
+    sortOrder?: boolean
+    enabled?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgentPackageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "goodsKey" | "priceYuan" | "sortOrder" | "enabled" | "createdAt" | "updatedAt", ExtArgs["result"]["agentPackage"]>
+  export type AgentPackageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    orders?: boolean | AgentPackage$ordersArgs<ExtArgs>
+    _count?: boolean | AgentPackageCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentPackagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentPackage"
+    objects: {
+      orders: Prisma.$AgentOrderPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      goodsKey: string
+      priceYuan: Prisma.Decimal
+      sortOrder: number
+      enabled: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["agentPackage"]>
+    composites: {}
+  }
+
+  type AgentPackageGetPayload<S extends boolean | null | undefined | AgentPackageDefaultArgs> = $Result.GetResult<Prisma.$AgentPackagePayload, S>
+
+  type AgentPackageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentPackageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentPackageCountAggregateInputType | true
+    }
+
+  export interface AgentPackageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentPackage'], meta: { name: 'AgentPackage' } }
+    /**
+     * Find zero or one AgentPackage that matches the filter.
+     * @param {AgentPackageFindUniqueArgs} args - Arguments to find a AgentPackage
+     * @example
+     * // Get one AgentPackage
+     * const agentPackage = await prisma.agentPackage.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentPackageFindUniqueArgs>(args: SelectSubset<T, AgentPackageFindUniqueArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentPackage that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentPackageFindUniqueOrThrowArgs} args - Arguments to find a AgentPackage
+     * @example
+     * // Get one AgentPackage
+     * const agentPackage = await prisma.agentPackage.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentPackageFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentPackageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentPackage that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageFindFirstArgs} args - Arguments to find a AgentPackage
+     * @example
+     * // Get one AgentPackage
+     * const agentPackage = await prisma.agentPackage.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentPackageFindFirstArgs>(args?: SelectSubset<T, AgentPackageFindFirstArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentPackage that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageFindFirstOrThrowArgs} args - Arguments to find a AgentPackage
+     * @example
+     * // Get one AgentPackage
+     * const agentPackage = await prisma.agentPackage.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentPackageFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentPackageFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentPackages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentPackages
+     * const agentPackages = await prisma.agentPackage.findMany()
+     * 
+     * // Get first 10 AgentPackages
+     * const agentPackages = await prisma.agentPackage.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agentPackageWithIdOnly = await prisma.agentPackage.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgentPackageFindManyArgs>(args?: SelectSubset<T, AgentPackageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentPackage.
+     * @param {AgentPackageCreateArgs} args - Arguments to create a AgentPackage.
+     * @example
+     * // Create one AgentPackage
+     * const AgentPackage = await prisma.agentPackage.create({
+     *   data: {
+     *     // ... data to create a AgentPackage
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentPackageCreateArgs>(args: SelectSubset<T, AgentPackageCreateArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentPackages.
+     * @param {AgentPackageCreateManyArgs} args - Arguments to create many AgentPackages.
+     * @example
+     * // Create many AgentPackages
+     * const agentPackage = await prisma.agentPackage.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentPackageCreateManyArgs>(args?: SelectSubset<T, AgentPackageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AgentPackage.
+     * @param {AgentPackageDeleteArgs} args - Arguments to delete one AgentPackage.
+     * @example
+     * // Delete one AgentPackage
+     * const AgentPackage = await prisma.agentPackage.delete({
+     *   where: {
+     *     // ... filter to delete one AgentPackage
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentPackageDeleteArgs>(args: SelectSubset<T, AgentPackageDeleteArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentPackage.
+     * @param {AgentPackageUpdateArgs} args - Arguments to update one AgentPackage.
+     * @example
+     * // Update one AgentPackage
+     * const agentPackage = await prisma.agentPackage.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentPackageUpdateArgs>(args: SelectSubset<T, AgentPackageUpdateArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentPackages.
+     * @param {AgentPackageDeleteManyArgs} args - Arguments to filter AgentPackages to delete.
+     * @example
+     * // Delete a few AgentPackages
+     * const { count } = await prisma.agentPackage.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentPackageDeleteManyArgs>(args?: SelectSubset<T, AgentPackageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentPackages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentPackages
+     * const agentPackage = await prisma.agentPackage.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentPackageUpdateManyArgs>(args: SelectSubset<T, AgentPackageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AgentPackage.
+     * @param {AgentPackageUpsertArgs} args - Arguments to update or create a AgentPackage.
+     * @example
+     * // Update or create a AgentPackage
+     * const agentPackage = await prisma.agentPackage.upsert({
+     *   create: {
+     *     // ... data to create a AgentPackage
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentPackage we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentPackageUpsertArgs>(args: SelectSubset<T, AgentPackageUpsertArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentPackages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageCountArgs} args - Arguments to filter AgentPackages to count.
+     * @example
+     * // Count the number of AgentPackages
+     * const count = await prisma.agentPackage.count({
+     *   where: {
+     *     // ... the filter for the AgentPackages we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentPackageCountArgs>(
+      args?: Subset<T, AgentPackageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentPackageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentPackage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentPackageAggregateArgs>(args: Subset<T, AgentPackageAggregateArgs>): Prisma.PrismaPromise<GetAgentPackageAggregateType<T>>
+
+    /**
+     * Group by AgentPackage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentPackageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentPackageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentPackageGroupByArgs['orderBy'] }
+        : { orderBy?: AgentPackageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentPackageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentPackageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentPackage model
+   */
+  readonly fields: AgentPackageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentPackage.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentPackageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    orders<T extends AgentPackage$ordersArgs<ExtArgs> = {}>(args?: Subset<T, AgentPackage$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentPackage model
+   */
+  interface AgentPackageFieldRefs {
+    readonly id: FieldRef<"AgentPackage", 'String'>
+    readonly title: FieldRef<"AgentPackage", 'String'>
+    readonly goodsKey: FieldRef<"AgentPackage", 'String'>
+    readonly priceYuan: FieldRef<"AgentPackage", 'Decimal'>
+    readonly sortOrder: FieldRef<"AgentPackage", 'Int'>
+    readonly enabled: FieldRef<"AgentPackage", 'Boolean'>
+    readonly createdAt: FieldRef<"AgentPackage", 'DateTime'>
+    readonly updatedAt: FieldRef<"AgentPackage", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentPackage findUnique
+   */
+  export type AgentPackageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentPackage to fetch.
+     */
+    where: AgentPackageWhereUniqueInput
+  }
+
+  /**
+   * AgentPackage findUniqueOrThrow
+   */
+  export type AgentPackageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentPackage to fetch.
+     */
+    where: AgentPackageWhereUniqueInput
+  }
+
+  /**
+   * AgentPackage findFirst
+   */
+  export type AgentPackageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentPackage to fetch.
+     */
+    where?: AgentPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentPackages to fetch.
+     */
+    orderBy?: AgentPackageOrderByWithRelationInput | AgentPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentPackages.
+     */
+    cursor?: AgentPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentPackages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentPackages.
+     */
+    distinct?: AgentPackageScalarFieldEnum | AgentPackageScalarFieldEnum[]
+  }
+
+  /**
+   * AgentPackage findFirstOrThrow
+   */
+  export type AgentPackageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentPackage to fetch.
+     */
+    where?: AgentPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentPackages to fetch.
+     */
+    orderBy?: AgentPackageOrderByWithRelationInput | AgentPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentPackages.
+     */
+    cursor?: AgentPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentPackages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentPackages.
+     */
+    distinct?: AgentPackageScalarFieldEnum | AgentPackageScalarFieldEnum[]
+  }
+
+  /**
+   * AgentPackage findMany
+   */
+  export type AgentPackageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentPackages to fetch.
+     */
+    where?: AgentPackageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentPackages to fetch.
+     */
+    orderBy?: AgentPackageOrderByWithRelationInput | AgentPackageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentPackages.
+     */
+    cursor?: AgentPackageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentPackages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentPackages.
+     */
+    skip?: number
+    distinct?: AgentPackageScalarFieldEnum | AgentPackageScalarFieldEnum[]
+  }
+
+  /**
+   * AgentPackage create
+   */
+  export type AgentPackageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentPackage.
+     */
+    data: XOR<AgentPackageCreateInput, AgentPackageUncheckedCreateInput>
+  }
+
+  /**
+   * AgentPackage createMany
+   */
+  export type AgentPackageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentPackages.
+     */
+    data: AgentPackageCreateManyInput | AgentPackageCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentPackage update
+   */
+  export type AgentPackageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentPackage.
+     */
+    data: XOR<AgentPackageUpdateInput, AgentPackageUncheckedUpdateInput>
+    /**
+     * Choose, which AgentPackage to update.
+     */
+    where: AgentPackageWhereUniqueInput
+  }
+
+  /**
+   * AgentPackage updateMany
+   */
+  export type AgentPackageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentPackages.
+     */
+    data: XOR<AgentPackageUpdateManyMutationInput, AgentPackageUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentPackages to update
+     */
+    where?: AgentPackageWhereInput
+    /**
+     * Limit how many AgentPackages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentPackage upsert
+   */
+  export type AgentPackageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentPackage to update in case it exists.
+     */
+    where: AgentPackageWhereUniqueInput
+    /**
+     * In case the AgentPackage found by the `where` argument doesn't exist, create a new AgentPackage with this data.
+     */
+    create: XOR<AgentPackageCreateInput, AgentPackageUncheckedCreateInput>
+    /**
+     * In case the AgentPackage was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentPackageUpdateInput, AgentPackageUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentPackage delete
+   */
+  export type AgentPackageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+    /**
+     * Filter which AgentPackage to delete.
+     */
+    where: AgentPackageWhereUniqueInput
+  }
+
+  /**
+   * AgentPackage deleteMany
+   */
+  export type AgentPackageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentPackages to delete
+     */
+    where?: AgentPackageWhereInput
+    /**
+     * Limit how many AgentPackages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentPackage.orders
+   */
+  export type AgentPackage$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    where?: AgentOrderWhereInput
+    orderBy?: AgentOrderOrderByWithRelationInput | AgentOrderOrderByWithRelationInput[]
+    cursor?: AgentOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgentOrderScalarFieldEnum | AgentOrderScalarFieldEnum[]
+  }
+
+  /**
+   * AgentPackage without action
+   */
+  export type AgentPackageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentPackage
+     */
+    select?: AgentPackageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentPackage
+     */
+    omit?: AgentPackageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentPackageInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentOrder
+   */
+
+  export type AggregateAgentOrder = {
+    _count: AgentOrderCountAggregateOutputType | null
+    _avg: AgentOrderAvgAggregateOutputType | null
+    _sum: AgentOrderSumAggregateOutputType | null
+    _min: AgentOrderMinAggregateOutputType | null
+    _max: AgentOrderMaxAggregateOutputType | null
+  }
+
+  export type AgentOrderAvgAggregateOutputType = {
+    channelId: number | null
+    totalAmount: Decimal | null
+  }
+
+  export type AgentOrderSumAggregateOutputType = {
+    channelId: number | null
+    totalAmount: Decimal | null
+  }
+
+  export type AgentOrderMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    packageId: string | null
+    tradeNo: string | null
+    channelId: number | null
+    channelName: string | null
+    totalAmount: Decimal | null
+    payUrl: string | null
+    shopSessionCookie: string | null
+    status: $Enums.AgentOrderStatus | null
+    paidAt: Date | null
+    fulfilledAt: Date | null
+    contact: string | null
+    rawCreateResp: string | null
+    rawQueryResp: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentOrderMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    packageId: string | null
+    tradeNo: string | null
+    channelId: number | null
+    channelName: string | null
+    totalAmount: Decimal | null
+    payUrl: string | null
+    shopSessionCookie: string | null
+    status: $Enums.AgentOrderStatus | null
+    paidAt: Date | null
+    fulfilledAt: Date | null
+    contact: string | null
+    rawCreateResp: string | null
+    rawQueryResp: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentOrderCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    packageId: number
+    tradeNo: number
+    channelId: number
+    channelName: number
+    totalAmount: number
+    payUrl: number
+    shopSessionCookie: number
+    status: number
+    paidAt: number
+    fulfilledAt: number
+    contact: number
+    rawCreateResp: number
+    rawQueryResp: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgentOrderAvgAggregateInputType = {
+    channelId?: true
+    totalAmount?: true
+  }
+
+  export type AgentOrderSumAggregateInputType = {
+    channelId?: true
+    totalAmount?: true
+  }
+
+  export type AgentOrderMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    packageId?: true
+    tradeNo?: true
+    channelId?: true
+    channelName?: true
+    totalAmount?: true
+    payUrl?: true
+    shopSessionCookie?: true
+    status?: true
+    paidAt?: true
+    fulfilledAt?: true
+    contact?: true
+    rawCreateResp?: true
+    rawQueryResp?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentOrderMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    packageId?: true
+    tradeNo?: true
+    channelId?: true
+    channelName?: true
+    totalAmount?: true
+    payUrl?: true
+    shopSessionCookie?: true
+    status?: true
+    paidAt?: true
+    fulfilledAt?: true
+    contact?: true
+    rawCreateResp?: true
+    rawQueryResp?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentOrderCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    packageId?: true
+    tradeNo?: true
+    channelId?: true
+    channelName?: true
+    totalAmount?: true
+    payUrl?: true
+    shopSessionCookie?: true
+    status?: true
+    paidAt?: true
+    fulfilledAt?: true
+    contact?: true
+    rawCreateResp?: true
+    rawQueryResp?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgentOrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentOrder to aggregate.
+     */
+    where?: AgentOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentOrders to fetch.
+     */
+    orderBy?: AgentOrderOrderByWithRelationInput | AgentOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentOrders
+    **/
+    _count?: true | AgentOrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AgentOrderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AgentOrderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentOrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentOrderMaxAggregateInputType
+  }
+
+  export type GetAgentOrderAggregateType<T extends AgentOrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentOrder[P]>
+      : GetScalarType<T[P], AggregateAgentOrder[P]>
+  }
+
+
+
+
+  export type AgentOrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentOrderWhereInput
+    orderBy?: AgentOrderOrderByWithAggregationInput | AgentOrderOrderByWithAggregationInput[]
+    by: AgentOrderScalarFieldEnum[] | AgentOrderScalarFieldEnum
+    having?: AgentOrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentOrderCountAggregateInputType | true
+    _avg?: AgentOrderAvgAggregateInputType
+    _sum?: AgentOrderSumAggregateInputType
+    _min?: AgentOrderMinAggregateInputType
+    _max?: AgentOrderMaxAggregateInputType
+  }
+
+  export type AgentOrderGroupByOutputType = {
+    id: string
+    guestUserId: string
+    packageId: string
+    tradeNo: string | null
+    channelId: number
+    channelName: string
+    totalAmount: Decimal | null
+    payUrl: string | null
+    shopSessionCookie: string | null
+    status: $Enums.AgentOrderStatus
+    paidAt: Date | null
+    fulfilledAt: Date | null
+    contact: string
+    rawCreateResp: string | null
+    rawQueryResp: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AgentOrderCountAggregateOutputType | null
+    _avg: AgentOrderAvgAggregateOutputType | null
+    _sum: AgentOrderSumAggregateOutputType | null
+    _min: AgentOrderMinAggregateOutputType | null
+    _max: AgentOrderMaxAggregateOutputType | null
+  }
+
+  type GetAgentOrderGroupByPayload<T extends AgentOrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentOrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentOrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentOrderGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentOrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    packageId?: boolean
+    tradeNo?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    totalAmount?: boolean
+    payUrl?: boolean
+    shopSessionCookie?: boolean
+    status?: boolean
+    paidAt?: boolean
+    fulfilledAt?: boolean
+    contact?: boolean
+    rawCreateResp?: boolean
+    rawQueryResp?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+    package?: boolean | AgentPackageDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentOrder"]>
+
+
+
+  export type AgentOrderSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    packageId?: boolean
+    tradeNo?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    totalAmount?: boolean
+    payUrl?: boolean
+    shopSessionCookie?: boolean
+    status?: boolean
+    paidAt?: boolean
+    fulfilledAt?: boolean
+    contact?: boolean
+    rawCreateResp?: boolean
+    rawQueryResp?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgentOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "packageId" | "tradeNo" | "channelId" | "channelName" | "totalAmount" | "payUrl" | "shopSessionCookie" | "status" | "paidAt" | "fulfilledAt" | "contact" | "rawCreateResp" | "rawQueryResp" | "createdAt" | "updatedAt", ExtArgs["result"]["agentOrder"]>
+  export type AgentOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+    package?: boolean | AgentPackageDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentOrder"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+      package: Prisma.$AgentPackagePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      packageId: string
+      tradeNo: string | null
+      channelId: number
+      channelName: string
+      totalAmount: Prisma.Decimal | null
+      payUrl: string | null
+      shopSessionCookie: string | null
+      status: $Enums.AgentOrderStatus
+      paidAt: Date | null
+      fulfilledAt: Date | null
+      contact: string
+      rawCreateResp: string | null
+      rawQueryResp: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["agentOrder"]>
+    composites: {}
+  }
+
+  type AgentOrderGetPayload<S extends boolean | null | undefined | AgentOrderDefaultArgs> = $Result.GetResult<Prisma.$AgentOrderPayload, S>
+
+  type AgentOrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentOrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentOrderCountAggregateInputType | true
+    }
+
+  export interface AgentOrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentOrder'], meta: { name: 'AgentOrder' } }
+    /**
+     * Find zero or one AgentOrder that matches the filter.
+     * @param {AgentOrderFindUniqueArgs} args - Arguments to find a AgentOrder
+     * @example
+     * // Get one AgentOrder
+     * const agentOrder = await prisma.agentOrder.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentOrderFindUniqueArgs>(args: SelectSubset<T, AgentOrderFindUniqueArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentOrder that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentOrderFindUniqueOrThrowArgs} args - Arguments to find a AgentOrder
+     * @example
+     * // Get one AgentOrder
+     * const agentOrder = await prisma.agentOrder.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentOrderFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentOrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentOrder that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderFindFirstArgs} args - Arguments to find a AgentOrder
+     * @example
+     * // Get one AgentOrder
+     * const agentOrder = await prisma.agentOrder.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentOrderFindFirstArgs>(args?: SelectSubset<T, AgentOrderFindFirstArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentOrder that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderFindFirstOrThrowArgs} args - Arguments to find a AgentOrder
+     * @example
+     * // Get one AgentOrder
+     * const agentOrder = await prisma.agentOrder.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentOrderFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentOrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentOrders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentOrders
+     * const agentOrders = await prisma.agentOrder.findMany()
+     * 
+     * // Get first 10 AgentOrders
+     * const agentOrders = await prisma.agentOrder.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agentOrderWithIdOnly = await prisma.agentOrder.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgentOrderFindManyArgs>(args?: SelectSubset<T, AgentOrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentOrder.
+     * @param {AgentOrderCreateArgs} args - Arguments to create a AgentOrder.
+     * @example
+     * // Create one AgentOrder
+     * const AgentOrder = await prisma.agentOrder.create({
+     *   data: {
+     *     // ... data to create a AgentOrder
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentOrderCreateArgs>(args: SelectSubset<T, AgentOrderCreateArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentOrders.
+     * @param {AgentOrderCreateManyArgs} args - Arguments to create many AgentOrders.
+     * @example
+     * // Create many AgentOrders
+     * const agentOrder = await prisma.agentOrder.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentOrderCreateManyArgs>(args?: SelectSubset<T, AgentOrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AgentOrder.
+     * @param {AgentOrderDeleteArgs} args - Arguments to delete one AgentOrder.
+     * @example
+     * // Delete one AgentOrder
+     * const AgentOrder = await prisma.agentOrder.delete({
+     *   where: {
+     *     // ... filter to delete one AgentOrder
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentOrderDeleteArgs>(args: SelectSubset<T, AgentOrderDeleteArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentOrder.
+     * @param {AgentOrderUpdateArgs} args - Arguments to update one AgentOrder.
+     * @example
+     * // Update one AgentOrder
+     * const agentOrder = await prisma.agentOrder.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentOrderUpdateArgs>(args: SelectSubset<T, AgentOrderUpdateArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentOrders.
+     * @param {AgentOrderDeleteManyArgs} args - Arguments to filter AgentOrders to delete.
+     * @example
+     * // Delete a few AgentOrders
+     * const { count } = await prisma.agentOrder.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentOrderDeleteManyArgs>(args?: SelectSubset<T, AgentOrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentOrders
+     * const agentOrder = await prisma.agentOrder.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentOrderUpdateManyArgs>(args: SelectSubset<T, AgentOrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AgentOrder.
+     * @param {AgentOrderUpsertArgs} args - Arguments to update or create a AgentOrder.
+     * @example
+     * // Update or create a AgentOrder
+     * const agentOrder = await prisma.agentOrder.upsert({
+     *   create: {
+     *     // ... data to create a AgentOrder
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentOrder we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentOrderUpsertArgs>(args: SelectSubset<T, AgentOrderUpsertArgs<ExtArgs>>): Prisma__AgentOrderClient<$Result.GetResult<Prisma.$AgentOrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderCountArgs} args - Arguments to filter AgentOrders to count.
+     * @example
+     * // Count the number of AgentOrders
+     * const count = await prisma.agentOrder.count({
+     *   where: {
+     *     // ... the filter for the AgentOrders we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentOrderCountArgs>(
+      args?: Subset<T, AgentOrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentOrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentOrderAggregateArgs>(args: Subset<T, AgentOrderAggregateArgs>): Prisma.PrismaPromise<GetAgentOrderAggregateType<T>>
+
+    /**
+     * Group by AgentOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentOrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentOrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentOrderGroupByArgs['orderBy'] }
+        : { orderBy?: AgentOrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentOrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentOrder model
+   */
+  readonly fields: AgentOrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentOrder.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    package<T extends AgentPackageDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgentPackageDefaultArgs<ExtArgs>>): Prisma__AgentPackageClient<$Result.GetResult<Prisma.$AgentPackagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentOrder model
+   */
+  interface AgentOrderFieldRefs {
+    readonly id: FieldRef<"AgentOrder", 'String'>
+    readonly guestUserId: FieldRef<"AgentOrder", 'String'>
+    readonly packageId: FieldRef<"AgentOrder", 'String'>
+    readonly tradeNo: FieldRef<"AgentOrder", 'String'>
+    readonly channelId: FieldRef<"AgentOrder", 'Int'>
+    readonly channelName: FieldRef<"AgentOrder", 'String'>
+    readonly totalAmount: FieldRef<"AgentOrder", 'Decimal'>
+    readonly payUrl: FieldRef<"AgentOrder", 'String'>
+    readonly shopSessionCookie: FieldRef<"AgentOrder", 'String'>
+    readonly status: FieldRef<"AgentOrder", 'AgentOrderStatus'>
+    readonly paidAt: FieldRef<"AgentOrder", 'DateTime'>
+    readonly fulfilledAt: FieldRef<"AgentOrder", 'DateTime'>
+    readonly contact: FieldRef<"AgentOrder", 'String'>
+    readonly rawCreateResp: FieldRef<"AgentOrder", 'String'>
+    readonly rawQueryResp: FieldRef<"AgentOrder", 'String'>
+    readonly createdAt: FieldRef<"AgentOrder", 'DateTime'>
+    readonly updatedAt: FieldRef<"AgentOrder", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentOrder findUnique
+   */
+  export type AgentOrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentOrder to fetch.
+     */
+    where: AgentOrderWhereUniqueInput
+  }
+
+  /**
+   * AgentOrder findUniqueOrThrow
+   */
+  export type AgentOrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentOrder to fetch.
+     */
+    where: AgentOrderWhereUniqueInput
+  }
+
+  /**
+   * AgentOrder findFirst
+   */
+  export type AgentOrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentOrder to fetch.
+     */
+    where?: AgentOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentOrders to fetch.
+     */
+    orderBy?: AgentOrderOrderByWithRelationInput | AgentOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentOrders.
+     */
+    cursor?: AgentOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentOrders.
+     */
+    distinct?: AgentOrderScalarFieldEnum | AgentOrderScalarFieldEnum[]
+  }
+
+  /**
+   * AgentOrder findFirstOrThrow
+   */
+  export type AgentOrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentOrder to fetch.
+     */
+    where?: AgentOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentOrders to fetch.
+     */
+    orderBy?: AgentOrderOrderByWithRelationInput | AgentOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentOrders.
+     */
+    cursor?: AgentOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentOrders.
+     */
+    distinct?: AgentOrderScalarFieldEnum | AgentOrderScalarFieldEnum[]
+  }
+
+  /**
+   * AgentOrder findMany
+   */
+  export type AgentOrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentOrders to fetch.
+     */
+    where?: AgentOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentOrders to fetch.
+     */
+    orderBy?: AgentOrderOrderByWithRelationInput | AgentOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentOrders.
+     */
+    cursor?: AgentOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentOrders.
+     */
+    skip?: number
+    distinct?: AgentOrderScalarFieldEnum | AgentOrderScalarFieldEnum[]
+  }
+
+  /**
+   * AgentOrder create
+   */
+  export type AgentOrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentOrder.
+     */
+    data: XOR<AgentOrderCreateInput, AgentOrderUncheckedCreateInput>
+  }
+
+  /**
+   * AgentOrder createMany
+   */
+  export type AgentOrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentOrders.
+     */
+    data: AgentOrderCreateManyInput | AgentOrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentOrder update
+   */
+  export type AgentOrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentOrder.
+     */
+    data: XOR<AgentOrderUpdateInput, AgentOrderUncheckedUpdateInput>
+    /**
+     * Choose, which AgentOrder to update.
+     */
+    where: AgentOrderWhereUniqueInput
+  }
+
+  /**
+   * AgentOrder updateMany
+   */
+  export type AgentOrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentOrders.
+     */
+    data: XOR<AgentOrderUpdateManyMutationInput, AgentOrderUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentOrders to update
+     */
+    where?: AgentOrderWhereInput
+    /**
+     * Limit how many AgentOrders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentOrder upsert
+   */
+  export type AgentOrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentOrder to update in case it exists.
+     */
+    where: AgentOrderWhereUniqueInput
+    /**
+     * In case the AgentOrder found by the `where` argument doesn't exist, create a new AgentOrder with this data.
+     */
+    create: XOR<AgentOrderCreateInput, AgentOrderUncheckedCreateInput>
+    /**
+     * In case the AgentOrder was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentOrderUpdateInput, AgentOrderUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentOrder delete
+   */
+  export type AgentOrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+    /**
+     * Filter which AgentOrder to delete.
+     */
+    where: AgentOrderWhereUniqueInput
+  }
+
+  /**
+   * AgentOrder deleteMany
+   */
+  export type AgentOrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentOrders to delete
+     */
+    where?: AgentOrderWhereInput
+    /**
+     * Limit how many AgentOrders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentOrder without action
+   */
+  export type AgentOrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentOrder
+     */
+    select?: AgentOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentOrder
+     */
+    omit?: AgentOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentOrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentCommission
+   */
+
+  export type AggregateAgentCommission = {
+    _count: AgentCommissionCountAggregateOutputType | null
+    _avg: AgentCommissionAvgAggregateOutputType | null
+    _sum: AgentCommissionSumAggregateOutputType | null
+    _min: AgentCommissionMinAggregateOutputType | null
+    _max: AgentCommissionMaxAggregateOutputType | null
+  }
+
+  export type AgentCommissionAvgAggregateOutputType = {
+    orderAmount: Decimal | null
+    rate: Decimal | null
+    amount: Decimal | null
+  }
+
+  export type AgentCommissionSumAggregateOutputType = {
+    orderAmount: Decimal | null
+    rate: Decimal | null
+    amount: Decimal | null
+  }
+
+  export type AgentCommissionMinAggregateOutputType = {
+    id: string | null
+    beneficiaryId: string | null
+    fromGuestId: string | null
+    guapiOrderId: string | null
+    level: $Enums.AgentCommissionLevel | null
+    orderAmount: Decimal | null
+    rate: Decimal | null
+    amount: Decimal | null
+    createdAt: Date | null
+  }
+
+  export type AgentCommissionMaxAggregateOutputType = {
+    id: string | null
+    beneficiaryId: string | null
+    fromGuestId: string | null
+    guapiOrderId: string | null
+    level: $Enums.AgentCommissionLevel | null
+    orderAmount: Decimal | null
+    rate: Decimal | null
+    amount: Decimal | null
+    createdAt: Date | null
+  }
+
+  export type AgentCommissionCountAggregateOutputType = {
+    id: number
+    beneficiaryId: number
+    fromGuestId: number
+    guapiOrderId: number
+    level: number
+    orderAmount: number
+    rate: number
+    amount: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AgentCommissionAvgAggregateInputType = {
+    orderAmount?: true
+    rate?: true
+    amount?: true
+  }
+
+  export type AgentCommissionSumAggregateInputType = {
+    orderAmount?: true
+    rate?: true
+    amount?: true
+  }
+
+  export type AgentCommissionMinAggregateInputType = {
+    id?: true
+    beneficiaryId?: true
+    fromGuestId?: true
+    guapiOrderId?: true
+    level?: true
+    orderAmount?: true
+    rate?: true
+    amount?: true
+    createdAt?: true
+  }
+
+  export type AgentCommissionMaxAggregateInputType = {
+    id?: true
+    beneficiaryId?: true
+    fromGuestId?: true
+    guapiOrderId?: true
+    level?: true
+    orderAmount?: true
+    rate?: true
+    amount?: true
+    createdAt?: true
+  }
+
+  export type AgentCommissionCountAggregateInputType = {
+    id?: true
+    beneficiaryId?: true
+    fromGuestId?: true
+    guapiOrderId?: true
+    level?: true
+    orderAmount?: true
+    rate?: true
+    amount?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AgentCommissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentCommission to aggregate.
+     */
+    where?: AgentCommissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentCommissions to fetch.
+     */
+    orderBy?: AgentCommissionOrderByWithRelationInput | AgentCommissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentCommissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentCommissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentCommissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentCommissions
+    **/
+    _count?: true | AgentCommissionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AgentCommissionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AgentCommissionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentCommissionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentCommissionMaxAggregateInputType
+  }
+
+  export type GetAgentCommissionAggregateType<T extends AgentCommissionAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentCommission]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentCommission[P]>
+      : GetScalarType<T[P], AggregateAgentCommission[P]>
+  }
+
+
+
+
+  export type AgentCommissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentCommissionWhereInput
+    orderBy?: AgentCommissionOrderByWithAggregationInput | AgentCommissionOrderByWithAggregationInput[]
+    by: AgentCommissionScalarFieldEnum[] | AgentCommissionScalarFieldEnum
+    having?: AgentCommissionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentCommissionCountAggregateInputType | true
+    _avg?: AgentCommissionAvgAggregateInputType
+    _sum?: AgentCommissionSumAggregateInputType
+    _min?: AgentCommissionMinAggregateInputType
+    _max?: AgentCommissionMaxAggregateInputType
+  }
+
+  export type AgentCommissionGroupByOutputType = {
+    id: string
+    beneficiaryId: string
+    fromGuestId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal
+    rate: Decimal
+    amount: Decimal
+    createdAt: Date
+    _count: AgentCommissionCountAggregateOutputType | null
+    _avg: AgentCommissionAvgAggregateOutputType | null
+    _sum: AgentCommissionSumAggregateOutputType | null
+    _min: AgentCommissionMinAggregateOutputType | null
+    _max: AgentCommissionMaxAggregateOutputType | null
+  }
+
+  type GetAgentCommissionGroupByPayload<T extends AgentCommissionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentCommissionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentCommissionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentCommissionGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentCommissionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentCommissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    beneficiaryId?: boolean
+    fromGuestId?: boolean
+    guapiOrderId?: boolean
+    level?: boolean
+    orderAmount?: boolean
+    rate?: boolean
+    amount?: boolean
+    createdAt?: boolean
+    beneficiary?: boolean | GuestUserDefaultArgs<ExtArgs>
+    fromGuest?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentCommission"]>
+
+
+
+  export type AgentCommissionSelectScalar = {
+    id?: boolean
+    beneficiaryId?: boolean
+    fromGuestId?: boolean
+    guapiOrderId?: boolean
+    level?: boolean
+    orderAmount?: boolean
+    rate?: boolean
+    amount?: boolean
+    createdAt?: boolean
+  }
+
+  export type AgentCommissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "beneficiaryId" | "fromGuestId" | "guapiOrderId" | "level" | "orderAmount" | "rate" | "amount" | "createdAt", ExtArgs["result"]["agentCommission"]>
+  export type AgentCommissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    beneficiary?: boolean | GuestUserDefaultArgs<ExtArgs>
+    fromGuest?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentCommissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentCommission"
+    objects: {
+      beneficiary: Prisma.$GuestUserPayload<ExtArgs>
+      fromGuest: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      beneficiaryId: string
+      fromGuestId: string
+      guapiOrderId: string
+      level: $Enums.AgentCommissionLevel
+      orderAmount: Prisma.Decimal
+      rate: Prisma.Decimal
+      amount: Prisma.Decimal
+      createdAt: Date
+    }, ExtArgs["result"]["agentCommission"]>
+    composites: {}
+  }
+
+  type AgentCommissionGetPayload<S extends boolean | null | undefined | AgentCommissionDefaultArgs> = $Result.GetResult<Prisma.$AgentCommissionPayload, S>
+
+  type AgentCommissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentCommissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentCommissionCountAggregateInputType | true
+    }
+
+  export interface AgentCommissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentCommission'], meta: { name: 'AgentCommission' } }
+    /**
+     * Find zero or one AgentCommission that matches the filter.
+     * @param {AgentCommissionFindUniqueArgs} args - Arguments to find a AgentCommission
+     * @example
+     * // Get one AgentCommission
+     * const agentCommission = await prisma.agentCommission.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentCommissionFindUniqueArgs>(args: SelectSubset<T, AgentCommissionFindUniqueArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentCommission that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentCommissionFindUniqueOrThrowArgs} args - Arguments to find a AgentCommission
+     * @example
+     * // Get one AgentCommission
+     * const agentCommission = await prisma.agentCommission.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentCommissionFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentCommissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentCommission that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionFindFirstArgs} args - Arguments to find a AgentCommission
+     * @example
+     * // Get one AgentCommission
+     * const agentCommission = await prisma.agentCommission.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentCommissionFindFirstArgs>(args?: SelectSubset<T, AgentCommissionFindFirstArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentCommission that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionFindFirstOrThrowArgs} args - Arguments to find a AgentCommission
+     * @example
+     * // Get one AgentCommission
+     * const agentCommission = await prisma.agentCommission.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentCommissionFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentCommissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentCommissions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentCommissions
+     * const agentCommissions = await prisma.agentCommission.findMany()
+     * 
+     * // Get first 10 AgentCommissions
+     * const agentCommissions = await prisma.agentCommission.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agentCommissionWithIdOnly = await prisma.agentCommission.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgentCommissionFindManyArgs>(args?: SelectSubset<T, AgentCommissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentCommission.
+     * @param {AgentCommissionCreateArgs} args - Arguments to create a AgentCommission.
+     * @example
+     * // Create one AgentCommission
+     * const AgentCommission = await prisma.agentCommission.create({
+     *   data: {
+     *     // ... data to create a AgentCommission
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentCommissionCreateArgs>(args: SelectSubset<T, AgentCommissionCreateArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentCommissions.
+     * @param {AgentCommissionCreateManyArgs} args - Arguments to create many AgentCommissions.
+     * @example
+     * // Create many AgentCommissions
+     * const agentCommission = await prisma.agentCommission.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentCommissionCreateManyArgs>(args?: SelectSubset<T, AgentCommissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AgentCommission.
+     * @param {AgentCommissionDeleteArgs} args - Arguments to delete one AgentCommission.
+     * @example
+     * // Delete one AgentCommission
+     * const AgentCommission = await prisma.agentCommission.delete({
+     *   where: {
+     *     // ... filter to delete one AgentCommission
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentCommissionDeleteArgs>(args: SelectSubset<T, AgentCommissionDeleteArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentCommission.
+     * @param {AgentCommissionUpdateArgs} args - Arguments to update one AgentCommission.
+     * @example
+     * // Update one AgentCommission
+     * const agentCommission = await prisma.agentCommission.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentCommissionUpdateArgs>(args: SelectSubset<T, AgentCommissionUpdateArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentCommissions.
+     * @param {AgentCommissionDeleteManyArgs} args - Arguments to filter AgentCommissions to delete.
+     * @example
+     * // Delete a few AgentCommissions
+     * const { count } = await prisma.agentCommission.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentCommissionDeleteManyArgs>(args?: SelectSubset<T, AgentCommissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentCommissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentCommissions
+     * const agentCommission = await prisma.agentCommission.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentCommissionUpdateManyArgs>(args: SelectSubset<T, AgentCommissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AgentCommission.
+     * @param {AgentCommissionUpsertArgs} args - Arguments to update or create a AgentCommission.
+     * @example
+     * // Update or create a AgentCommission
+     * const agentCommission = await prisma.agentCommission.upsert({
+     *   create: {
+     *     // ... data to create a AgentCommission
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentCommission we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentCommissionUpsertArgs>(args: SelectSubset<T, AgentCommissionUpsertArgs<ExtArgs>>): Prisma__AgentCommissionClient<$Result.GetResult<Prisma.$AgentCommissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentCommissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionCountArgs} args - Arguments to filter AgentCommissions to count.
+     * @example
+     * // Count the number of AgentCommissions
+     * const count = await prisma.agentCommission.count({
+     *   where: {
+     *     // ... the filter for the AgentCommissions we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentCommissionCountArgs>(
+      args?: Subset<T, AgentCommissionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentCommissionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentCommission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentCommissionAggregateArgs>(args: Subset<T, AgentCommissionAggregateArgs>): Prisma.PrismaPromise<GetAgentCommissionAggregateType<T>>
+
+    /**
+     * Group by AgentCommission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentCommissionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentCommissionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentCommissionGroupByArgs['orderBy'] }
+        : { orderBy?: AgentCommissionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentCommissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentCommissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentCommission model
+   */
+  readonly fields: AgentCommissionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentCommission.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentCommissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    beneficiary<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    fromGuest<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentCommission model
+   */
+  interface AgentCommissionFieldRefs {
+    readonly id: FieldRef<"AgentCommission", 'String'>
+    readonly beneficiaryId: FieldRef<"AgentCommission", 'String'>
+    readonly fromGuestId: FieldRef<"AgentCommission", 'String'>
+    readonly guapiOrderId: FieldRef<"AgentCommission", 'String'>
+    readonly level: FieldRef<"AgentCommission", 'AgentCommissionLevel'>
+    readonly orderAmount: FieldRef<"AgentCommission", 'Decimal'>
+    readonly rate: FieldRef<"AgentCommission", 'Decimal'>
+    readonly amount: FieldRef<"AgentCommission", 'Decimal'>
+    readonly createdAt: FieldRef<"AgentCommission", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentCommission findUnique
+   */
+  export type AgentCommissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentCommission to fetch.
+     */
+    where: AgentCommissionWhereUniqueInput
+  }
+
+  /**
+   * AgentCommission findUniqueOrThrow
+   */
+  export type AgentCommissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentCommission to fetch.
+     */
+    where: AgentCommissionWhereUniqueInput
+  }
+
+  /**
+   * AgentCommission findFirst
+   */
+  export type AgentCommissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentCommission to fetch.
+     */
+    where?: AgentCommissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentCommissions to fetch.
+     */
+    orderBy?: AgentCommissionOrderByWithRelationInput | AgentCommissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentCommissions.
+     */
+    cursor?: AgentCommissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentCommissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentCommissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentCommissions.
+     */
+    distinct?: AgentCommissionScalarFieldEnum | AgentCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * AgentCommission findFirstOrThrow
+   */
+  export type AgentCommissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentCommission to fetch.
+     */
+    where?: AgentCommissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentCommissions to fetch.
+     */
+    orderBy?: AgentCommissionOrderByWithRelationInput | AgentCommissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentCommissions.
+     */
+    cursor?: AgentCommissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentCommissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentCommissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentCommissions.
+     */
+    distinct?: AgentCommissionScalarFieldEnum | AgentCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * AgentCommission findMany
+   */
+  export type AgentCommissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentCommissions to fetch.
+     */
+    where?: AgentCommissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentCommissions to fetch.
+     */
+    orderBy?: AgentCommissionOrderByWithRelationInput | AgentCommissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentCommissions.
+     */
+    cursor?: AgentCommissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentCommissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentCommissions.
+     */
+    skip?: number
+    distinct?: AgentCommissionScalarFieldEnum | AgentCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * AgentCommission create
+   */
+  export type AgentCommissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentCommission.
+     */
+    data: XOR<AgentCommissionCreateInput, AgentCommissionUncheckedCreateInput>
+  }
+
+  /**
+   * AgentCommission createMany
+   */
+  export type AgentCommissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentCommissions.
+     */
+    data: AgentCommissionCreateManyInput | AgentCommissionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentCommission update
+   */
+  export type AgentCommissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentCommission.
+     */
+    data: XOR<AgentCommissionUpdateInput, AgentCommissionUncheckedUpdateInput>
+    /**
+     * Choose, which AgentCommission to update.
+     */
+    where: AgentCommissionWhereUniqueInput
+  }
+
+  /**
+   * AgentCommission updateMany
+   */
+  export type AgentCommissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentCommissions.
+     */
+    data: XOR<AgentCommissionUpdateManyMutationInput, AgentCommissionUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentCommissions to update
+     */
+    where?: AgentCommissionWhereInput
+    /**
+     * Limit how many AgentCommissions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentCommission upsert
+   */
+  export type AgentCommissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentCommission to update in case it exists.
+     */
+    where: AgentCommissionWhereUniqueInput
+    /**
+     * In case the AgentCommission found by the `where` argument doesn't exist, create a new AgentCommission with this data.
+     */
+    create: XOR<AgentCommissionCreateInput, AgentCommissionUncheckedCreateInput>
+    /**
+     * In case the AgentCommission was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentCommissionUpdateInput, AgentCommissionUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentCommission delete
+   */
+  export type AgentCommissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+    /**
+     * Filter which AgentCommission to delete.
+     */
+    where: AgentCommissionWhereUniqueInput
+  }
+
+  /**
+   * AgentCommission deleteMany
+   */
+  export type AgentCommissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentCommissions to delete
+     */
+    where?: AgentCommissionWhereInput
+    /**
+     * Limit how many AgentCommissions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentCommission without action
+   */
+  export type AgentCommissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentCommission
+     */
+    select?: AgentCommissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentCommission
+     */
+    omit?: AgentCommissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentCommissionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentWithdrawal
+   */
+
+  export type AggregateAgentWithdrawal = {
+    _count: AgentWithdrawalCountAggregateOutputType | null
+    _avg: AgentWithdrawalAvgAggregateOutputType | null
+    _sum: AgentWithdrawalSumAggregateOutputType | null
+    _min: AgentWithdrawalMinAggregateOutputType | null
+    _max: AgentWithdrawalMaxAggregateOutputType | null
+  }
+
+  export type AgentWithdrawalAvgAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type AgentWithdrawalSumAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type AgentWithdrawalMinAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    amount: Decimal | null
+    channel: $Enums.AgentWithdrawChannel | null
+    account: string | null
+    accountName: string | null
+    status: $Enums.AgentWithdrawStatus | null
+    adminNote: string | null
+    reviewedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentWithdrawalMaxAggregateOutputType = {
+    id: string | null
+    guestUserId: string | null
+    amount: Decimal | null
+    channel: $Enums.AgentWithdrawChannel | null
+    account: string | null
+    accountName: string | null
+    status: $Enums.AgentWithdrawStatus | null
+    adminNote: string | null
+    reviewedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgentWithdrawalCountAggregateOutputType = {
+    id: number
+    guestUserId: number
+    amount: number
+    channel: number
+    account: number
+    accountName: number
+    status: number
+    adminNote: number
+    reviewedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgentWithdrawalAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type AgentWithdrawalSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type AgentWithdrawalMinAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    amount?: true
+    channel?: true
+    account?: true
+    accountName?: true
+    status?: true
+    adminNote?: true
+    reviewedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentWithdrawalMaxAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    amount?: true
+    channel?: true
+    account?: true
+    accountName?: true
+    status?: true
+    adminNote?: true
+    reviewedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgentWithdrawalCountAggregateInputType = {
+    id?: true
+    guestUserId?: true
+    amount?: true
+    channel?: true
+    account?: true
+    accountName?: true
+    status?: true
+    adminNote?: true
+    reviewedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgentWithdrawalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentWithdrawal to aggregate.
+     */
+    where?: AgentWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentWithdrawals to fetch.
+     */
+    orderBy?: AgentWithdrawalOrderByWithRelationInput | AgentWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentWithdrawals
+    **/
+    _count?: true | AgentWithdrawalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AgentWithdrawalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AgentWithdrawalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentWithdrawalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentWithdrawalMaxAggregateInputType
+  }
+
+  export type GetAgentWithdrawalAggregateType<T extends AgentWithdrawalAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentWithdrawal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentWithdrawal[P]>
+      : GetScalarType<T[P], AggregateAgentWithdrawal[P]>
+  }
+
+
+
+
+  export type AgentWithdrawalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentWithdrawalWhereInput
+    orderBy?: AgentWithdrawalOrderByWithAggregationInput | AgentWithdrawalOrderByWithAggregationInput[]
+    by: AgentWithdrawalScalarFieldEnum[] | AgentWithdrawalScalarFieldEnum
+    having?: AgentWithdrawalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentWithdrawalCountAggregateInputType | true
+    _avg?: AgentWithdrawalAvgAggregateInputType
+    _sum?: AgentWithdrawalSumAggregateInputType
+    _min?: AgentWithdrawalMinAggregateInputType
+    _max?: AgentWithdrawalMaxAggregateInputType
+  }
+
+  export type AgentWithdrawalGroupByOutputType = {
+    id: string
+    guestUserId: string
+    amount: Decimal
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName: string | null
+    status: $Enums.AgentWithdrawStatus
+    adminNote: string | null
+    reviewedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AgentWithdrawalCountAggregateOutputType | null
+    _avg: AgentWithdrawalAvgAggregateOutputType | null
+    _sum: AgentWithdrawalSumAggregateOutputType | null
+    _min: AgentWithdrawalMinAggregateOutputType | null
+    _max: AgentWithdrawalMaxAggregateOutputType | null
+  }
+
+  type GetAgentWithdrawalGroupByPayload<T extends AgentWithdrawalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentWithdrawalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentWithdrawalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentWithdrawalGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentWithdrawalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentWithdrawalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    guestUserId?: boolean
+    amount?: boolean
+    channel?: boolean
+    account?: boolean
+    accountName?: boolean
+    status?: boolean
+    adminNote?: boolean
+    reviewedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentWithdrawal"]>
+
+
+
+  export type AgentWithdrawalSelectScalar = {
+    id?: boolean
+    guestUserId?: boolean
+    amount?: boolean
+    channel?: boolean
+    account?: boolean
+    accountName?: boolean
+    status?: boolean
+    adminNote?: boolean
+    reviewedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgentWithdrawalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "guestUserId" | "amount" | "channel" | "account" | "accountName" | "status" | "adminNote" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["agentWithdrawal"]>
+  export type AgentWithdrawalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    guestUser?: boolean | GuestUserDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentWithdrawalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentWithdrawal"
+    objects: {
+      guestUser: Prisma.$GuestUserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      guestUserId: string
+      amount: Prisma.Decimal
+      channel: $Enums.AgentWithdrawChannel
+      account: string
+      accountName: string | null
+      status: $Enums.AgentWithdrawStatus
+      adminNote: string | null
+      reviewedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["agentWithdrawal"]>
+    composites: {}
+  }
+
+  type AgentWithdrawalGetPayload<S extends boolean | null | undefined | AgentWithdrawalDefaultArgs> = $Result.GetResult<Prisma.$AgentWithdrawalPayload, S>
+
+  type AgentWithdrawalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentWithdrawalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentWithdrawalCountAggregateInputType | true
+    }
+
+  export interface AgentWithdrawalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentWithdrawal'], meta: { name: 'AgentWithdrawal' } }
+    /**
+     * Find zero or one AgentWithdrawal that matches the filter.
+     * @param {AgentWithdrawalFindUniqueArgs} args - Arguments to find a AgentWithdrawal
+     * @example
+     * // Get one AgentWithdrawal
+     * const agentWithdrawal = await prisma.agentWithdrawal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentWithdrawalFindUniqueArgs>(args: SelectSubset<T, AgentWithdrawalFindUniqueArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentWithdrawal that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentWithdrawalFindUniqueOrThrowArgs} args - Arguments to find a AgentWithdrawal
+     * @example
+     * // Get one AgentWithdrawal
+     * const agentWithdrawal = await prisma.agentWithdrawal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentWithdrawalFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentWithdrawalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentWithdrawal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalFindFirstArgs} args - Arguments to find a AgentWithdrawal
+     * @example
+     * // Get one AgentWithdrawal
+     * const agentWithdrawal = await prisma.agentWithdrawal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentWithdrawalFindFirstArgs>(args?: SelectSubset<T, AgentWithdrawalFindFirstArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentWithdrawal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalFindFirstOrThrowArgs} args - Arguments to find a AgentWithdrawal
+     * @example
+     * // Get one AgentWithdrawal
+     * const agentWithdrawal = await prisma.agentWithdrawal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentWithdrawalFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentWithdrawalFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentWithdrawals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentWithdrawals
+     * const agentWithdrawals = await prisma.agentWithdrawal.findMany()
+     * 
+     * // Get first 10 AgentWithdrawals
+     * const agentWithdrawals = await prisma.agentWithdrawal.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agentWithdrawalWithIdOnly = await prisma.agentWithdrawal.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgentWithdrawalFindManyArgs>(args?: SelectSubset<T, AgentWithdrawalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentWithdrawal.
+     * @param {AgentWithdrawalCreateArgs} args - Arguments to create a AgentWithdrawal.
+     * @example
+     * // Create one AgentWithdrawal
+     * const AgentWithdrawal = await prisma.agentWithdrawal.create({
+     *   data: {
+     *     // ... data to create a AgentWithdrawal
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentWithdrawalCreateArgs>(args: SelectSubset<T, AgentWithdrawalCreateArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentWithdrawals.
+     * @param {AgentWithdrawalCreateManyArgs} args - Arguments to create many AgentWithdrawals.
+     * @example
+     * // Create many AgentWithdrawals
+     * const agentWithdrawal = await prisma.agentWithdrawal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentWithdrawalCreateManyArgs>(args?: SelectSubset<T, AgentWithdrawalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AgentWithdrawal.
+     * @param {AgentWithdrawalDeleteArgs} args - Arguments to delete one AgentWithdrawal.
+     * @example
+     * // Delete one AgentWithdrawal
+     * const AgentWithdrawal = await prisma.agentWithdrawal.delete({
+     *   where: {
+     *     // ... filter to delete one AgentWithdrawal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentWithdrawalDeleteArgs>(args: SelectSubset<T, AgentWithdrawalDeleteArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentWithdrawal.
+     * @param {AgentWithdrawalUpdateArgs} args - Arguments to update one AgentWithdrawal.
+     * @example
+     * // Update one AgentWithdrawal
+     * const agentWithdrawal = await prisma.agentWithdrawal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentWithdrawalUpdateArgs>(args: SelectSubset<T, AgentWithdrawalUpdateArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentWithdrawals.
+     * @param {AgentWithdrawalDeleteManyArgs} args - Arguments to filter AgentWithdrawals to delete.
+     * @example
+     * // Delete a few AgentWithdrawals
+     * const { count } = await prisma.agentWithdrawal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentWithdrawalDeleteManyArgs>(args?: SelectSubset<T, AgentWithdrawalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentWithdrawals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentWithdrawals
+     * const agentWithdrawal = await prisma.agentWithdrawal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentWithdrawalUpdateManyArgs>(args: SelectSubset<T, AgentWithdrawalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AgentWithdrawal.
+     * @param {AgentWithdrawalUpsertArgs} args - Arguments to update or create a AgentWithdrawal.
+     * @example
+     * // Update or create a AgentWithdrawal
+     * const agentWithdrawal = await prisma.agentWithdrawal.upsert({
+     *   create: {
+     *     // ... data to create a AgentWithdrawal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentWithdrawal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentWithdrawalUpsertArgs>(args: SelectSubset<T, AgentWithdrawalUpsertArgs<ExtArgs>>): Prisma__AgentWithdrawalClient<$Result.GetResult<Prisma.$AgentWithdrawalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentWithdrawals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalCountArgs} args - Arguments to filter AgentWithdrawals to count.
+     * @example
+     * // Count the number of AgentWithdrawals
+     * const count = await prisma.agentWithdrawal.count({
+     *   where: {
+     *     // ... the filter for the AgentWithdrawals we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentWithdrawalCountArgs>(
+      args?: Subset<T, AgentWithdrawalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentWithdrawalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentWithdrawal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentWithdrawalAggregateArgs>(args: Subset<T, AgentWithdrawalAggregateArgs>): Prisma.PrismaPromise<GetAgentWithdrawalAggregateType<T>>
+
+    /**
+     * Group by AgentWithdrawal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentWithdrawalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentWithdrawalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentWithdrawalGroupByArgs['orderBy'] }
+        : { orderBy?: AgentWithdrawalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentWithdrawalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentWithdrawalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentWithdrawal model
+   */
+  readonly fields: AgentWithdrawalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentWithdrawal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentWithdrawalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    guestUser<T extends GuestUserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GuestUserDefaultArgs<ExtArgs>>): Prisma__GuestUserClient<$Result.GetResult<Prisma.$GuestUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentWithdrawal model
+   */
+  interface AgentWithdrawalFieldRefs {
+    readonly id: FieldRef<"AgentWithdrawal", 'String'>
+    readonly guestUserId: FieldRef<"AgentWithdrawal", 'String'>
+    readonly amount: FieldRef<"AgentWithdrawal", 'Decimal'>
+    readonly channel: FieldRef<"AgentWithdrawal", 'AgentWithdrawChannel'>
+    readonly account: FieldRef<"AgentWithdrawal", 'String'>
+    readonly accountName: FieldRef<"AgentWithdrawal", 'String'>
+    readonly status: FieldRef<"AgentWithdrawal", 'AgentWithdrawStatus'>
+    readonly adminNote: FieldRef<"AgentWithdrawal", 'String'>
+    readonly reviewedAt: FieldRef<"AgentWithdrawal", 'DateTime'>
+    readonly createdAt: FieldRef<"AgentWithdrawal", 'DateTime'>
+    readonly updatedAt: FieldRef<"AgentWithdrawal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentWithdrawal findUnique
+   */
+  export type AgentWithdrawalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentWithdrawal to fetch.
+     */
+    where: AgentWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * AgentWithdrawal findUniqueOrThrow
+   */
+  export type AgentWithdrawalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentWithdrawal to fetch.
+     */
+    where: AgentWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * AgentWithdrawal findFirst
+   */
+  export type AgentWithdrawalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentWithdrawal to fetch.
+     */
+    where?: AgentWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentWithdrawals to fetch.
+     */
+    orderBy?: AgentWithdrawalOrderByWithRelationInput | AgentWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentWithdrawals.
+     */
+    cursor?: AgentWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentWithdrawals.
+     */
+    distinct?: AgentWithdrawalScalarFieldEnum | AgentWithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * AgentWithdrawal findFirstOrThrow
+   */
+  export type AgentWithdrawalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentWithdrawal to fetch.
+     */
+    where?: AgentWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentWithdrawals to fetch.
+     */
+    orderBy?: AgentWithdrawalOrderByWithRelationInput | AgentWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentWithdrawals.
+     */
+    cursor?: AgentWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentWithdrawals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentWithdrawals.
+     */
+    distinct?: AgentWithdrawalScalarFieldEnum | AgentWithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * AgentWithdrawal findMany
+   */
+  export type AgentWithdrawalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentWithdrawals to fetch.
+     */
+    where?: AgentWithdrawalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentWithdrawals to fetch.
+     */
+    orderBy?: AgentWithdrawalOrderByWithRelationInput | AgentWithdrawalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentWithdrawals.
+     */
+    cursor?: AgentWithdrawalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentWithdrawals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentWithdrawals.
+     */
+    skip?: number
+    distinct?: AgentWithdrawalScalarFieldEnum | AgentWithdrawalScalarFieldEnum[]
+  }
+
+  /**
+   * AgentWithdrawal create
+   */
+  export type AgentWithdrawalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentWithdrawal.
+     */
+    data: XOR<AgentWithdrawalCreateInput, AgentWithdrawalUncheckedCreateInput>
+  }
+
+  /**
+   * AgentWithdrawal createMany
+   */
+  export type AgentWithdrawalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentWithdrawals.
+     */
+    data: AgentWithdrawalCreateManyInput | AgentWithdrawalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentWithdrawal update
+   */
+  export type AgentWithdrawalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentWithdrawal.
+     */
+    data: XOR<AgentWithdrawalUpdateInput, AgentWithdrawalUncheckedUpdateInput>
+    /**
+     * Choose, which AgentWithdrawal to update.
+     */
+    where: AgentWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * AgentWithdrawal updateMany
+   */
+  export type AgentWithdrawalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentWithdrawals.
+     */
+    data: XOR<AgentWithdrawalUpdateManyMutationInput, AgentWithdrawalUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentWithdrawals to update
+     */
+    where?: AgentWithdrawalWhereInput
+    /**
+     * Limit how many AgentWithdrawals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentWithdrawal upsert
+   */
+  export type AgentWithdrawalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentWithdrawal to update in case it exists.
+     */
+    where: AgentWithdrawalWhereUniqueInput
+    /**
+     * In case the AgentWithdrawal found by the `where` argument doesn't exist, create a new AgentWithdrawal with this data.
+     */
+    create: XOR<AgentWithdrawalCreateInput, AgentWithdrawalUncheckedCreateInput>
+    /**
+     * In case the AgentWithdrawal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentWithdrawalUpdateInput, AgentWithdrawalUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentWithdrawal delete
+   */
+  export type AgentWithdrawalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
+    /**
+     * Filter which AgentWithdrawal to delete.
+     */
+    where: AgentWithdrawalWhereUniqueInput
+  }
+
+  /**
+   * AgentWithdrawal deleteMany
+   */
+  export type AgentWithdrawalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentWithdrawals to delete
+     */
+    where?: AgentWithdrawalWhereInput
+    /**
+     * Limit how many AgentWithdrawals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentWithdrawal without action
+   */
+  export type AgentWithdrawalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentWithdrawal
+     */
+    select?: AgentWithdrawalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentWithdrawal
+     */
+    omit?: AgentWithdrawalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentWithdrawalInclude<ExtArgs> | null
   }
 
 
@@ -29182,11 +38251,139 @@ export namespace Prisma {
     registerIp: 'registerIp',
     lastLoginIp: 'lastLoginIp',
     lastLoginAt: 'lastLoginAt',
+    isAgent: 'isAgent',
+    agentAt: 'agentAt',
+    agentWalletYuan: 'agentWalletYuan',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type GuestUserScalarFieldEnum = (typeof GuestUserScalarFieldEnum)[keyof typeof GuestUserScalarFieldEnum]
+
+
+  export const PayConfigScalarFieldEnum: {
+    key: 'key',
+    value: 'value'
+  };
+
+  export type PayConfigScalarFieldEnum = (typeof PayConfigScalarFieldEnum)[keyof typeof PayConfigScalarFieldEnum]
+
+
+  export const GuapiPackageScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    goodsKey: 'goodsKey',
+    guapiAmount: 'guapiAmount',
+    priceYuan: 'priceYuan',
+    sortOrder: 'sortOrder',
+    enabled: 'enabled',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GuapiPackageScalarFieldEnum = (typeof GuapiPackageScalarFieldEnum)[keyof typeof GuapiPackageScalarFieldEnum]
+
+
+  export const GuapiOrderScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    packageId: 'packageId',
+    tradeNo: 'tradeNo',
+    channelId: 'channelId',
+    channelName: 'channelName',
+    quantity: 'quantity',
+    totalAmount: 'totalAmount',
+    guapiAmount: 'guapiAmount',
+    payUrl: 'payUrl',
+    shopSessionCookie: 'shopSessionCookie',
+    status: 'status',
+    paidAt: 'paidAt',
+    fulfilledAt: 'fulfilledAt',
+    contact: 'contact',
+    rawCreateResp: 'rawCreateResp',
+    rawQueryResp: 'rawQueryResp',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GuapiOrderScalarFieldEnum = (typeof GuapiOrderScalarFieldEnum)[keyof typeof GuapiOrderScalarFieldEnum]
+
+
+  export const AgentConfigScalarFieldEnum: {
+    key: 'key',
+    value: 'value'
+  };
+
+  export type AgentConfigScalarFieldEnum = (typeof AgentConfigScalarFieldEnum)[keyof typeof AgentConfigScalarFieldEnum]
+
+
+  export const AgentPackageScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    goodsKey: 'goodsKey',
+    priceYuan: 'priceYuan',
+    sortOrder: 'sortOrder',
+    enabled: 'enabled',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgentPackageScalarFieldEnum = (typeof AgentPackageScalarFieldEnum)[keyof typeof AgentPackageScalarFieldEnum]
+
+
+  export const AgentOrderScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    packageId: 'packageId',
+    tradeNo: 'tradeNo',
+    channelId: 'channelId',
+    channelName: 'channelName',
+    totalAmount: 'totalAmount',
+    payUrl: 'payUrl',
+    shopSessionCookie: 'shopSessionCookie',
+    status: 'status',
+    paidAt: 'paidAt',
+    fulfilledAt: 'fulfilledAt',
+    contact: 'contact',
+    rawCreateResp: 'rawCreateResp',
+    rawQueryResp: 'rawQueryResp',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgentOrderScalarFieldEnum = (typeof AgentOrderScalarFieldEnum)[keyof typeof AgentOrderScalarFieldEnum]
+
+
+  export const AgentCommissionScalarFieldEnum: {
+    id: 'id',
+    beneficiaryId: 'beneficiaryId',
+    fromGuestId: 'fromGuestId',
+    guapiOrderId: 'guapiOrderId',
+    level: 'level',
+    orderAmount: 'orderAmount',
+    rate: 'rate',
+    amount: 'amount',
+    createdAt: 'createdAt'
+  };
+
+  export type AgentCommissionScalarFieldEnum = (typeof AgentCommissionScalarFieldEnum)[keyof typeof AgentCommissionScalarFieldEnum]
+
+
+  export const AgentWithdrawalScalarFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    amount: 'amount',
+    channel: 'channel',
+    account: 'account',
+    accountName: 'accountName',
+    status: 'status',
+    adminNote: 'adminNote',
+    reviewedAt: 'reviewedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgentWithdrawalScalarFieldEnum = (typeof AgentWithdrawalScalarFieldEnum)[keyof typeof AgentWithdrawalScalarFieldEnum]
 
 
   export const SmsConfigScalarFieldEnum: {
@@ -29572,6 +38769,93 @@ export namespace Prisma {
   export type GuestUserOrderByRelevanceFieldEnum = (typeof GuestUserOrderByRelevanceFieldEnum)[keyof typeof GuestUserOrderByRelevanceFieldEnum]
 
 
+  export const PayConfigOrderByRelevanceFieldEnum: {
+    key: 'key',
+    value: 'value'
+  };
+
+  export type PayConfigOrderByRelevanceFieldEnum = (typeof PayConfigOrderByRelevanceFieldEnum)[keyof typeof PayConfigOrderByRelevanceFieldEnum]
+
+
+  export const GuapiPackageOrderByRelevanceFieldEnum: {
+    id: 'id',
+    title: 'title',
+    goodsKey: 'goodsKey'
+  };
+
+  export type GuapiPackageOrderByRelevanceFieldEnum = (typeof GuapiPackageOrderByRelevanceFieldEnum)[keyof typeof GuapiPackageOrderByRelevanceFieldEnum]
+
+
+  export const GuapiOrderOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    packageId: 'packageId',
+    tradeNo: 'tradeNo',
+    channelName: 'channelName',
+    payUrl: 'payUrl',
+    shopSessionCookie: 'shopSessionCookie',
+    contact: 'contact',
+    rawCreateResp: 'rawCreateResp',
+    rawQueryResp: 'rawQueryResp'
+  };
+
+  export type GuapiOrderOrderByRelevanceFieldEnum = (typeof GuapiOrderOrderByRelevanceFieldEnum)[keyof typeof GuapiOrderOrderByRelevanceFieldEnum]
+
+
+  export const AgentConfigOrderByRelevanceFieldEnum: {
+    key: 'key',
+    value: 'value'
+  };
+
+  export type AgentConfigOrderByRelevanceFieldEnum = (typeof AgentConfigOrderByRelevanceFieldEnum)[keyof typeof AgentConfigOrderByRelevanceFieldEnum]
+
+
+  export const AgentPackageOrderByRelevanceFieldEnum: {
+    id: 'id',
+    title: 'title',
+    goodsKey: 'goodsKey'
+  };
+
+  export type AgentPackageOrderByRelevanceFieldEnum = (typeof AgentPackageOrderByRelevanceFieldEnum)[keyof typeof AgentPackageOrderByRelevanceFieldEnum]
+
+
+  export const AgentOrderOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    packageId: 'packageId',
+    tradeNo: 'tradeNo',
+    channelName: 'channelName',
+    payUrl: 'payUrl',
+    shopSessionCookie: 'shopSessionCookie',
+    contact: 'contact',
+    rawCreateResp: 'rawCreateResp',
+    rawQueryResp: 'rawQueryResp'
+  };
+
+  export type AgentOrderOrderByRelevanceFieldEnum = (typeof AgentOrderOrderByRelevanceFieldEnum)[keyof typeof AgentOrderOrderByRelevanceFieldEnum]
+
+
+  export const AgentCommissionOrderByRelevanceFieldEnum: {
+    id: 'id',
+    beneficiaryId: 'beneficiaryId',
+    fromGuestId: 'fromGuestId',
+    guapiOrderId: 'guapiOrderId'
+  };
+
+  export type AgentCommissionOrderByRelevanceFieldEnum = (typeof AgentCommissionOrderByRelevanceFieldEnum)[keyof typeof AgentCommissionOrderByRelevanceFieldEnum]
+
+
+  export const AgentWithdrawalOrderByRelevanceFieldEnum: {
+    id: 'id',
+    guestUserId: 'guestUserId',
+    account: 'account',
+    accountName: 'accountName',
+    adminNote: 'adminNote'
+  };
+
+  export type AgentWithdrawalOrderByRelevanceFieldEnum = (typeof AgentWithdrawalOrderByRelevanceFieldEnum)[keyof typeof AgentWithdrawalOrderByRelevanceFieldEnum]
+
+
   export const SmsConfigOrderByRelevanceFieldEnum: {
     key: 'key',
     value: 'value'
@@ -29876,6 +39160,48 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'GuapiOrderStatus'
+   */
+  export type EnumGuapiOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GuapiOrderStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentOrderStatus'
+   */
+  export type EnumAgentOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentOrderStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentCommissionLevel'
+   */
+  export type EnumAgentCommissionLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentCommissionLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentWithdrawChannel'
+   */
+  export type EnumAgentWithdrawChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentWithdrawChannel'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgentWithdrawStatus'
+   */
+  export type EnumAgentWithdrawStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentWithdrawStatus'>
+    
+
+
+  /**
    * Reference to a field of type 'PostType'
    */
   export type EnumPostTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PostType'>
@@ -30100,6 +39426,9 @@ export namespace Prisma {
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
+    isAgent?: BoolFilter<"GuestUser"> | boolean
+    agentAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
+    agentWalletYuan?: DecimalFilter<"GuestUser"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"GuestUser"> | Date | string
     updatedAt?: DateTimeFilter<"GuestUser"> | Date | string
     referrer?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
@@ -30111,6 +39440,11 @@ export namespace Prisma {
     smsLogs?: SmsLogListRelationFilter
     smsUserRecords?: SmsUserRecordListRelationFilter
     smsNumberRecords?: SmsNumberRecordListRelationFilter
+    guapiOrders?: GuapiOrderListRelationFilter
+    agentOrders?: AgentOrderListRelationFilter
+    commissionsEarned?: AgentCommissionListRelationFilter
+    commissionsFrom?: AgentCommissionListRelationFilter
+    agentWithdrawals?: AgentWithdrawalListRelationFilter
   }
 
   export type GuestUserOrderByWithRelationInput = {
@@ -30123,6 +39457,9 @@ export namespace Prisma {
     registerIp?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
+    isAgent?: SortOrder
+    agentAt?: SortOrderInput | SortOrder
+    agentWalletYuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     referrer?: GuestUserOrderByWithRelationInput
@@ -30134,6 +39471,11 @@ export namespace Prisma {
     smsLogs?: SmsLogOrderByRelationAggregateInput
     smsUserRecords?: SmsUserRecordOrderByRelationAggregateInput
     smsNumberRecords?: SmsNumberRecordOrderByRelationAggregateInput
+    guapiOrders?: GuapiOrderOrderByRelationAggregateInput
+    agentOrders?: AgentOrderOrderByRelationAggregateInput
+    commissionsEarned?: AgentCommissionOrderByRelationAggregateInput
+    commissionsFrom?: AgentCommissionOrderByRelationAggregateInput
+    agentWithdrawals?: AgentWithdrawalOrderByRelationAggregateInput
     _relevance?: GuestUserOrderByRelevanceInput
   }
 
@@ -30150,6 +39492,9 @@ export namespace Prisma {
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
+    isAgent?: BoolFilter<"GuestUser"> | boolean
+    agentAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
+    agentWalletYuan?: DecimalFilter<"GuestUser"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"GuestUser"> | Date | string
     updatedAt?: DateTimeFilter<"GuestUser"> | Date | string
     referrer?: XOR<GuestUserNullableScalarRelationFilter, GuestUserWhereInput> | null
@@ -30161,6 +39506,11 @@ export namespace Prisma {
     smsLogs?: SmsLogListRelationFilter
     smsUserRecords?: SmsUserRecordListRelationFilter
     smsNumberRecords?: SmsNumberRecordListRelationFilter
+    guapiOrders?: GuapiOrderListRelationFilter
+    agentOrders?: AgentOrderListRelationFilter
+    commissionsEarned?: AgentCommissionListRelationFilter
+    commissionsFrom?: AgentCommissionListRelationFilter
+    agentWithdrawals?: AgentWithdrawalListRelationFilter
   }, "id" | "publicId">
 
   export type GuestUserOrderByWithAggregationInput = {
@@ -30173,6 +39523,9 @@ export namespace Prisma {
     registerIp?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
+    isAgent?: SortOrder
+    agentAt?: SortOrderInput | SortOrder
+    agentWalletYuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: GuestUserCountOrderByAggregateInput
@@ -30195,8 +39548,660 @@ export namespace Prisma {
     registerIp?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"GuestUser"> | Date | string | null
+    isAgent?: BoolWithAggregatesFilter<"GuestUser"> | boolean
+    agentAt?: DateTimeNullableWithAggregatesFilter<"GuestUser"> | Date | string | null
+    agentWalletYuan?: DecimalWithAggregatesFilter<"GuestUser"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeWithAggregatesFilter<"GuestUser"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"GuestUser"> | Date | string
+  }
+
+  export type PayConfigWhereInput = {
+    AND?: PayConfigWhereInput | PayConfigWhereInput[]
+    OR?: PayConfigWhereInput[]
+    NOT?: PayConfigWhereInput | PayConfigWhereInput[]
+    key?: StringFilter<"PayConfig"> | string
+    value?: StringFilter<"PayConfig"> | string
+  }
+
+  export type PayConfigOrderByWithRelationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    _relevance?: PayConfigOrderByRelevanceInput
+  }
+
+  export type PayConfigWhereUniqueInput = Prisma.AtLeast<{
+    key?: string
+    AND?: PayConfigWhereInput | PayConfigWhereInput[]
+    OR?: PayConfigWhereInput[]
+    NOT?: PayConfigWhereInput | PayConfigWhereInput[]
+    value?: StringFilter<"PayConfig"> | string
+  }, "key">
+
+  export type PayConfigOrderByWithAggregationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    _count?: PayConfigCountOrderByAggregateInput
+    _max?: PayConfigMaxOrderByAggregateInput
+    _min?: PayConfigMinOrderByAggregateInput
+  }
+
+  export type PayConfigScalarWhereWithAggregatesInput = {
+    AND?: PayConfigScalarWhereWithAggregatesInput | PayConfigScalarWhereWithAggregatesInput[]
+    OR?: PayConfigScalarWhereWithAggregatesInput[]
+    NOT?: PayConfigScalarWhereWithAggregatesInput | PayConfigScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"PayConfig"> | string
+    value?: StringWithAggregatesFilter<"PayConfig"> | string
+  }
+
+  export type GuapiPackageWhereInput = {
+    AND?: GuapiPackageWhereInput | GuapiPackageWhereInput[]
+    OR?: GuapiPackageWhereInput[]
+    NOT?: GuapiPackageWhereInput | GuapiPackageWhereInput[]
+    id?: StringFilter<"GuapiPackage"> | string
+    title?: StringFilter<"GuapiPackage"> | string
+    goodsKey?: StringFilter<"GuapiPackage"> | string
+    guapiAmount?: IntFilter<"GuapiPackage"> | number
+    priceYuan?: DecimalFilter<"GuapiPackage"> | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFilter<"GuapiPackage"> | number
+    enabled?: BoolFilter<"GuapiPackage"> | boolean
+    createdAt?: DateTimeFilter<"GuapiPackage"> | Date | string
+    updatedAt?: DateTimeFilter<"GuapiPackage"> | Date | string
+    orders?: GuapiOrderListRelationFilter
+  }
+
+  export type GuapiPackageOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    orders?: GuapiOrderOrderByRelationAggregateInput
+    _relevance?: GuapiPackageOrderByRelevanceInput
+  }
+
+  export type GuapiPackageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GuapiPackageWhereInput | GuapiPackageWhereInput[]
+    OR?: GuapiPackageWhereInput[]
+    NOT?: GuapiPackageWhereInput | GuapiPackageWhereInput[]
+    title?: StringFilter<"GuapiPackage"> | string
+    goodsKey?: StringFilter<"GuapiPackage"> | string
+    guapiAmount?: IntFilter<"GuapiPackage"> | number
+    priceYuan?: DecimalFilter<"GuapiPackage"> | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFilter<"GuapiPackage"> | number
+    enabled?: BoolFilter<"GuapiPackage"> | boolean
+    createdAt?: DateTimeFilter<"GuapiPackage"> | Date | string
+    updatedAt?: DateTimeFilter<"GuapiPackage"> | Date | string
+    orders?: GuapiOrderListRelationFilter
+  }, "id">
+
+  export type GuapiPackageOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GuapiPackageCountOrderByAggregateInput
+    _avg?: GuapiPackageAvgOrderByAggregateInput
+    _max?: GuapiPackageMaxOrderByAggregateInput
+    _min?: GuapiPackageMinOrderByAggregateInput
+    _sum?: GuapiPackageSumOrderByAggregateInput
+  }
+
+  export type GuapiPackageScalarWhereWithAggregatesInput = {
+    AND?: GuapiPackageScalarWhereWithAggregatesInput | GuapiPackageScalarWhereWithAggregatesInput[]
+    OR?: GuapiPackageScalarWhereWithAggregatesInput[]
+    NOT?: GuapiPackageScalarWhereWithAggregatesInput | GuapiPackageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GuapiPackage"> | string
+    title?: StringWithAggregatesFilter<"GuapiPackage"> | string
+    goodsKey?: StringWithAggregatesFilter<"GuapiPackage"> | string
+    guapiAmount?: IntWithAggregatesFilter<"GuapiPackage"> | number
+    priceYuan?: DecimalWithAggregatesFilter<"GuapiPackage"> | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntWithAggregatesFilter<"GuapiPackage"> | number
+    enabled?: BoolWithAggregatesFilter<"GuapiPackage"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"GuapiPackage"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GuapiPackage"> | Date | string
+  }
+
+  export type GuapiOrderWhereInput = {
+    AND?: GuapiOrderWhereInput | GuapiOrderWhereInput[]
+    OR?: GuapiOrderWhereInput[]
+    NOT?: GuapiOrderWhereInput | GuapiOrderWhereInput[]
+    id?: StringFilter<"GuapiOrder"> | string
+    guestUserId?: StringFilter<"GuapiOrder"> | string
+    packageId?: StringFilter<"GuapiOrder"> | string
+    tradeNo?: StringNullableFilter<"GuapiOrder"> | string | null
+    channelId?: IntFilter<"GuapiOrder"> | number
+    channelName?: StringFilter<"GuapiOrder"> | string
+    quantity?: IntFilter<"GuapiOrder"> | number
+    totalAmount?: DecimalNullableFilter<"GuapiOrder"> | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFilter<"GuapiOrder"> | number
+    payUrl?: StringNullableFilter<"GuapiOrder"> | string | null
+    shopSessionCookie?: StringNullableFilter<"GuapiOrder"> | string | null
+    status?: EnumGuapiOrderStatusFilter<"GuapiOrder"> | $Enums.GuapiOrderStatus
+    paidAt?: DateTimeNullableFilter<"GuapiOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableFilter<"GuapiOrder"> | Date | string | null
+    contact?: StringFilter<"GuapiOrder"> | string
+    rawCreateResp?: StringNullableFilter<"GuapiOrder"> | string | null
+    rawQueryResp?: StringNullableFilter<"GuapiOrder"> | string | null
+    createdAt?: DateTimeFilter<"GuapiOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"GuapiOrder"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+    package?: XOR<GuapiPackageScalarRelationFilter, GuapiPackageWhereInput>
+  }
+
+  export type GuapiOrderOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrderInput | SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    guapiAmount?: SortOrder
+    payUrl?: SortOrderInput | SortOrder
+    shopSessionCookie?: SortOrderInput | SortOrder
+    status?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    fulfilledAt?: SortOrderInput | SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrderInput | SortOrder
+    rawQueryResp?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    package?: GuapiPackageOrderByWithRelationInput
+    _relevance?: GuapiOrderOrderByRelevanceInput
+  }
+
+  export type GuapiOrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tradeNo?: string
+    AND?: GuapiOrderWhereInput | GuapiOrderWhereInput[]
+    OR?: GuapiOrderWhereInput[]
+    NOT?: GuapiOrderWhereInput | GuapiOrderWhereInput[]
+    guestUserId?: StringFilter<"GuapiOrder"> | string
+    packageId?: StringFilter<"GuapiOrder"> | string
+    channelId?: IntFilter<"GuapiOrder"> | number
+    channelName?: StringFilter<"GuapiOrder"> | string
+    quantity?: IntFilter<"GuapiOrder"> | number
+    totalAmount?: DecimalNullableFilter<"GuapiOrder"> | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFilter<"GuapiOrder"> | number
+    payUrl?: StringNullableFilter<"GuapiOrder"> | string | null
+    shopSessionCookie?: StringNullableFilter<"GuapiOrder"> | string | null
+    status?: EnumGuapiOrderStatusFilter<"GuapiOrder"> | $Enums.GuapiOrderStatus
+    paidAt?: DateTimeNullableFilter<"GuapiOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableFilter<"GuapiOrder"> | Date | string | null
+    contact?: StringFilter<"GuapiOrder"> | string
+    rawCreateResp?: StringNullableFilter<"GuapiOrder"> | string | null
+    rawQueryResp?: StringNullableFilter<"GuapiOrder"> | string | null
+    createdAt?: DateTimeFilter<"GuapiOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"GuapiOrder"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+    package?: XOR<GuapiPackageScalarRelationFilter, GuapiPackageWhereInput>
+  }, "id" | "tradeNo">
+
+  export type GuapiOrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrderInput | SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    guapiAmount?: SortOrder
+    payUrl?: SortOrderInput | SortOrder
+    shopSessionCookie?: SortOrderInput | SortOrder
+    status?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    fulfilledAt?: SortOrderInput | SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrderInput | SortOrder
+    rawQueryResp?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GuapiOrderCountOrderByAggregateInput
+    _avg?: GuapiOrderAvgOrderByAggregateInput
+    _max?: GuapiOrderMaxOrderByAggregateInput
+    _min?: GuapiOrderMinOrderByAggregateInput
+    _sum?: GuapiOrderSumOrderByAggregateInput
+  }
+
+  export type GuapiOrderScalarWhereWithAggregatesInput = {
+    AND?: GuapiOrderScalarWhereWithAggregatesInput | GuapiOrderScalarWhereWithAggregatesInput[]
+    OR?: GuapiOrderScalarWhereWithAggregatesInput[]
+    NOT?: GuapiOrderScalarWhereWithAggregatesInput | GuapiOrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GuapiOrder"> | string
+    guestUserId?: StringWithAggregatesFilter<"GuapiOrder"> | string
+    packageId?: StringWithAggregatesFilter<"GuapiOrder"> | string
+    tradeNo?: StringNullableWithAggregatesFilter<"GuapiOrder"> | string | null
+    channelId?: IntWithAggregatesFilter<"GuapiOrder"> | number
+    channelName?: StringWithAggregatesFilter<"GuapiOrder"> | string
+    quantity?: IntWithAggregatesFilter<"GuapiOrder"> | number
+    totalAmount?: DecimalNullableWithAggregatesFilter<"GuapiOrder"> | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntWithAggregatesFilter<"GuapiOrder"> | number
+    payUrl?: StringNullableWithAggregatesFilter<"GuapiOrder"> | string | null
+    shopSessionCookie?: StringNullableWithAggregatesFilter<"GuapiOrder"> | string | null
+    status?: EnumGuapiOrderStatusWithAggregatesFilter<"GuapiOrder"> | $Enums.GuapiOrderStatus
+    paidAt?: DateTimeNullableWithAggregatesFilter<"GuapiOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableWithAggregatesFilter<"GuapiOrder"> | Date | string | null
+    contact?: StringWithAggregatesFilter<"GuapiOrder"> | string
+    rawCreateResp?: StringNullableWithAggregatesFilter<"GuapiOrder"> | string | null
+    rawQueryResp?: StringNullableWithAggregatesFilter<"GuapiOrder"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GuapiOrder"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GuapiOrder"> | Date | string
+  }
+
+  export type AgentConfigWhereInput = {
+    AND?: AgentConfigWhereInput | AgentConfigWhereInput[]
+    OR?: AgentConfigWhereInput[]
+    NOT?: AgentConfigWhereInput | AgentConfigWhereInput[]
+    key?: StringFilter<"AgentConfig"> | string
+    value?: StringFilter<"AgentConfig"> | string
+  }
+
+  export type AgentConfigOrderByWithRelationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    _relevance?: AgentConfigOrderByRelevanceInput
+  }
+
+  export type AgentConfigWhereUniqueInput = Prisma.AtLeast<{
+    key?: string
+    AND?: AgentConfigWhereInput | AgentConfigWhereInput[]
+    OR?: AgentConfigWhereInput[]
+    NOT?: AgentConfigWhereInput | AgentConfigWhereInput[]
+    value?: StringFilter<"AgentConfig"> | string
+  }, "key">
+
+  export type AgentConfigOrderByWithAggregationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    _count?: AgentConfigCountOrderByAggregateInput
+    _max?: AgentConfigMaxOrderByAggregateInput
+    _min?: AgentConfigMinOrderByAggregateInput
+  }
+
+  export type AgentConfigScalarWhereWithAggregatesInput = {
+    AND?: AgentConfigScalarWhereWithAggregatesInput | AgentConfigScalarWhereWithAggregatesInput[]
+    OR?: AgentConfigScalarWhereWithAggregatesInput[]
+    NOT?: AgentConfigScalarWhereWithAggregatesInput | AgentConfigScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"AgentConfig"> | string
+    value?: StringWithAggregatesFilter<"AgentConfig"> | string
+  }
+
+  export type AgentPackageWhereInput = {
+    AND?: AgentPackageWhereInput | AgentPackageWhereInput[]
+    OR?: AgentPackageWhereInput[]
+    NOT?: AgentPackageWhereInput | AgentPackageWhereInput[]
+    id?: StringFilter<"AgentPackage"> | string
+    title?: StringFilter<"AgentPackage"> | string
+    goodsKey?: StringFilter<"AgentPackage"> | string
+    priceYuan?: DecimalFilter<"AgentPackage"> | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFilter<"AgentPackage"> | number
+    enabled?: BoolFilter<"AgentPackage"> | boolean
+    createdAt?: DateTimeFilter<"AgentPackage"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentPackage"> | Date | string
+    orders?: AgentOrderListRelationFilter
+  }
+
+  export type AgentPackageOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    orders?: AgentOrderOrderByRelationAggregateInput
+    _relevance?: AgentPackageOrderByRelevanceInput
+  }
+
+  export type AgentPackageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AgentPackageWhereInput | AgentPackageWhereInput[]
+    OR?: AgentPackageWhereInput[]
+    NOT?: AgentPackageWhereInput | AgentPackageWhereInput[]
+    title?: StringFilter<"AgentPackage"> | string
+    goodsKey?: StringFilter<"AgentPackage"> | string
+    priceYuan?: DecimalFilter<"AgentPackage"> | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFilter<"AgentPackage"> | number
+    enabled?: BoolFilter<"AgentPackage"> | boolean
+    createdAt?: DateTimeFilter<"AgentPackage"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentPackage"> | Date | string
+    orders?: AgentOrderListRelationFilter
+  }, "id">
+
+  export type AgentPackageOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AgentPackageCountOrderByAggregateInput
+    _avg?: AgentPackageAvgOrderByAggregateInput
+    _max?: AgentPackageMaxOrderByAggregateInput
+    _min?: AgentPackageMinOrderByAggregateInput
+    _sum?: AgentPackageSumOrderByAggregateInput
+  }
+
+  export type AgentPackageScalarWhereWithAggregatesInput = {
+    AND?: AgentPackageScalarWhereWithAggregatesInput | AgentPackageScalarWhereWithAggregatesInput[]
+    OR?: AgentPackageScalarWhereWithAggregatesInput[]
+    NOT?: AgentPackageScalarWhereWithAggregatesInput | AgentPackageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgentPackage"> | string
+    title?: StringWithAggregatesFilter<"AgentPackage"> | string
+    goodsKey?: StringWithAggregatesFilter<"AgentPackage"> | string
+    priceYuan?: DecimalWithAggregatesFilter<"AgentPackage"> | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntWithAggregatesFilter<"AgentPackage"> | number
+    enabled?: BoolWithAggregatesFilter<"AgentPackage"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"AgentPackage"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AgentPackage"> | Date | string
+  }
+
+  export type AgentOrderWhereInput = {
+    AND?: AgentOrderWhereInput | AgentOrderWhereInput[]
+    OR?: AgentOrderWhereInput[]
+    NOT?: AgentOrderWhereInput | AgentOrderWhereInput[]
+    id?: StringFilter<"AgentOrder"> | string
+    guestUserId?: StringFilter<"AgentOrder"> | string
+    packageId?: StringFilter<"AgentOrder"> | string
+    tradeNo?: StringNullableFilter<"AgentOrder"> | string | null
+    channelId?: IntFilter<"AgentOrder"> | number
+    channelName?: StringFilter<"AgentOrder"> | string
+    totalAmount?: DecimalNullableFilter<"AgentOrder"> | Decimal | DecimalJsLike | number | string | null
+    payUrl?: StringNullableFilter<"AgentOrder"> | string | null
+    shopSessionCookie?: StringNullableFilter<"AgentOrder"> | string | null
+    status?: EnumAgentOrderStatusFilter<"AgentOrder"> | $Enums.AgentOrderStatus
+    paidAt?: DateTimeNullableFilter<"AgentOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableFilter<"AgentOrder"> | Date | string | null
+    contact?: StringFilter<"AgentOrder"> | string
+    rawCreateResp?: StringNullableFilter<"AgentOrder"> | string | null
+    rawQueryResp?: StringNullableFilter<"AgentOrder"> | string | null
+    createdAt?: DateTimeFilter<"AgentOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentOrder"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+    package?: XOR<AgentPackageScalarRelationFilter, AgentPackageWhereInput>
+  }
+
+  export type AgentOrderOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrderInput | SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    payUrl?: SortOrderInput | SortOrder
+    shopSessionCookie?: SortOrderInput | SortOrder
+    status?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    fulfilledAt?: SortOrderInput | SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrderInput | SortOrder
+    rawQueryResp?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    package?: AgentPackageOrderByWithRelationInput
+    _relevance?: AgentOrderOrderByRelevanceInput
+  }
+
+  export type AgentOrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tradeNo?: string
+    AND?: AgentOrderWhereInput | AgentOrderWhereInput[]
+    OR?: AgentOrderWhereInput[]
+    NOT?: AgentOrderWhereInput | AgentOrderWhereInput[]
+    guestUserId?: StringFilter<"AgentOrder"> | string
+    packageId?: StringFilter<"AgentOrder"> | string
+    channelId?: IntFilter<"AgentOrder"> | number
+    channelName?: StringFilter<"AgentOrder"> | string
+    totalAmount?: DecimalNullableFilter<"AgentOrder"> | Decimal | DecimalJsLike | number | string | null
+    payUrl?: StringNullableFilter<"AgentOrder"> | string | null
+    shopSessionCookie?: StringNullableFilter<"AgentOrder"> | string | null
+    status?: EnumAgentOrderStatusFilter<"AgentOrder"> | $Enums.AgentOrderStatus
+    paidAt?: DateTimeNullableFilter<"AgentOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableFilter<"AgentOrder"> | Date | string | null
+    contact?: StringFilter<"AgentOrder"> | string
+    rawCreateResp?: StringNullableFilter<"AgentOrder"> | string | null
+    rawQueryResp?: StringNullableFilter<"AgentOrder"> | string | null
+    createdAt?: DateTimeFilter<"AgentOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentOrder"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+    package?: XOR<AgentPackageScalarRelationFilter, AgentPackageWhereInput>
+  }, "id" | "tradeNo">
+
+  export type AgentOrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrderInput | SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    payUrl?: SortOrderInput | SortOrder
+    shopSessionCookie?: SortOrderInput | SortOrder
+    status?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
+    fulfilledAt?: SortOrderInput | SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrderInput | SortOrder
+    rawQueryResp?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AgentOrderCountOrderByAggregateInput
+    _avg?: AgentOrderAvgOrderByAggregateInput
+    _max?: AgentOrderMaxOrderByAggregateInput
+    _min?: AgentOrderMinOrderByAggregateInput
+    _sum?: AgentOrderSumOrderByAggregateInput
+  }
+
+  export type AgentOrderScalarWhereWithAggregatesInput = {
+    AND?: AgentOrderScalarWhereWithAggregatesInput | AgentOrderScalarWhereWithAggregatesInput[]
+    OR?: AgentOrderScalarWhereWithAggregatesInput[]
+    NOT?: AgentOrderScalarWhereWithAggregatesInput | AgentOrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgentOrder"> | string
+    guestUserId?: StringWithAggregatesFilter<"AgentOrder"> | string
+    packageId?: StringWithAggregatesFilter<"AgentOrder"> | string
+    tradeNo?: StringNullableWithAggregatesFilter<"AgentOrder"> | string | null
+    channelId?: IntWithAggregatesFilter<"AgentOrder"> | number
+    channelName?: StringWithAggregatesFilter<"AgentOrder"> | string
+    totalAmount?: DecimalNullableWithAggregatesFilter<"AgentOrder"> | Decimal | DecimalJsLike | number | string | null
+    payUrl?: StringNullableWithAggregatesFilter<"AgentOrder"> | string | null
+    shopSessionCookie?: StringNullableWithAggregatesFilter<"AgentOrder"> | string | null
+    status?: EnumAgentOrderStatusWithAggregatesFilter<"AgentOrder"> | $Enums.AgentOrderStatus
+    paidAt?: DateTimeNullableWithAggregatesFilter<"AgentOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableWithAggregatesFilter<"AgentOrder"> | Date | string | null
+    contact?: StringWithAggregatesFilter<"AgentOrder"> | string
+    rawCreateResp?: StringNullableWithAggregatesFilter<"AgentOrder"> | string | null
+    rawQueryResp?: StringNullableWithAggregatesFilter<"AgentOrder"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AgentOrder"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AgentOrder"> | Date | string
+  }
+
+  export type AgentCommissionWhereInput = {
+    AND?: AgentCommissionWhereInput | AgentCommissionWhereInput[]
+    OR?: AgentCommissionWhereInput[]
+    NOT?: AgentCommissionWhereInput | AgentCommissionWhereInput[]
+    id?: StringFilter<"AgentCommission"> | string
+    beneficiaryId?: StringFilter<"AgentCommission"> | string
+    fromGuestId?: StringFilter<"AgentCommission"> | string
+    guapiOrderId?: StringFilter<"AgentCommission"> | string
+    level?: EnumAgentCommissionLevelFilter<"AgentCommission"> | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFilter<"AgentCommission"> | Date | string
+    beneficiary?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+    fromGuest?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type AgentCommissionOrderByWithRelationInput = {
+    id?: SortOrder
+    beneficiaryId?: SortOrder
+    fromGuestId?: SortOrder
+    guapiOrderId?: SortOrder
+    level?: SortOrder
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+    beneficiary?: GuestUserOrderByWithRelationInput
+    fromGuest?: GuestUserOrderByWithRelationInput
+    _relevance?: AgentCommissionOrderByRelevanceInput
+  }
+
+  export type AgentCommissionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    guapiOrderId_level?: AgentCommissionGuapiOrderIdLevelCompoundUniqueInput
+    AND?: AgentCommissionWhereInput | AgentCommissionWhereInput[]
+    OR?: AgentCommissionWhereInput[]
+    NOT?: AgentCommissionWhereInput | AgentCommissionWhereInput[]
+    beneficiaryId?: StringFilter<"AgentCommission"> | string
+    fromGuestId?: StringFilter<"AgentCommission"> | string
+    guapiOrderId?: StringFilter<"AgentCommission"> | string
+    level?: EnumAgentCommissionLevelFilter<"AgentCommission"> | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFilter<"AgentCommission"> | Date | string
+    beneficiary?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+    fromGuest?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id" | "guapiOrderId_level">
+
+  export type AgentCommissionOrderByWithAggregationInput = {
+    id?: SortOrder
+    beneficiaryId?: SortOrder
+    fromGuestId?: SortOrder
+    guapiOrderId?: SortOrder
+    level?: SortOrder
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+    _count?: AgentCommissionCountOrderByAggregateInput
+    _avg?: AgentCommissionAvgOrderByAggregateInput
+    _max?: AgentCommissionMaxOrderByAggregateInput
+    _min?: AgentCommissionMinOrderByAggregateInput
+    _sum?: AgentCommissionSumOrderByAggregateInput
+  }
+
+  export type AgentCommissionScalarWhereWithAggregatesInput = {
+    AND?: AgentCommissionScalarWhereWithAggregatesInput | AgentCommissionScalarWhereWithAggregatesInput[]
+    OR?: AgentCommissionScalarWhereWithAggregatesInput[]
+    NOT?: AgentCommissionScalarWhereWithAggregatesInput | AgentCommissionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgentCommission"> | string
+    beneficiaryId?: StringWithAggregatesFilter<"AgentCommission"> | string
+    fromGuestId?: StringWithAggregatesFilter<"AgentCommission"> | string
+    guapiOrderId?: StringWithAggregatesFilter<"AgentCommission"> | string
+    level?: EnumAgentCommissionLevelWithAggregatesFilter<"AgentCommission"> | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalWithAggregatesFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    rate?: DecimalWithAggregatesFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalWithAggregatesFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeWithAggregatesFilter<"AgentCommission"> | Date | string
+  }
+
+  export type AgentWithdrawalWhereInput = {
+    AND?: AgentWithdrawalWhereInput | AgentWithdrawalWhereInput[]
+    OR?: AgentWithdrawalWhereInput[]
+    NOT?: AgentWithdrawalWhereInput | AgentWithdrawalWhereInput[]
+    id?: StringFilter<"AgentWithdrawal"> | string
+    guestUserId?: StringFilter<"AgentWithdrawal"> | string
+    amount?: DecimalFilter<"AgentWithdrawal"> | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawChannel
+    account?: StringFilter<"AgentWithdrawal"> | string
+    accountName?: StringNullableFilter<"AgentWithdrawal"> | string | null
+    status?: EnumAgentWithdrawStatusFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawStatus
+    adminNote?: StringNullableFilter<"AgentWithdrawal"> | string | null
+    reviewedAt?: DateTimeNullableFilter<"AgentWithdrawal"> | Date | string | null
+    createdAt?: DateTimeFilter<"AgentWithdrawal"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentWithdrawal"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }
+
+  export type AgentWithdrawalOrderByWithRelationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    channel?: SortOrder
+    account?: SortOrder
+    accountName?: SortOrderInput | SortOrder
+    status?: SortOrder
+    adminNote?: SortOrderInput | SortOrder
+    reviewedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    guestUser?: GuestUserOrderByWithRelationInput
+    _relevance?: AgentWithdrawalOrderByRelevanceInput
+  }
+
+  export type AgentWithdrawalWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AgentWithdrawalWhereInput | AgentWithdrawalWhereInput[]
+    OR?: AgentWithdrawalWhereInput[]
+    NOT?: AgentWithdrawalWhereInput | AgentWithdrawalWhereInput[]
+    guestUserId?: StringFilter<"AgentWithdrawal"> | string
+    amount?: DecimalFilter<"AgentWithdrawal"> | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawChannel
+    account?: StringFilter<"AgentWithdrawal"> | string
+    accountName?: StringNullableFilter<"AgentWithdrawal"> | string | null
+    status?: EnumAgentWithdrawStatusFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawStatus
+    adminNote?: StringNullableFilter<"AgentWithdrawal"> | string | null
+    reviewedAt?: DateTimeNullableFilter<"AgentWithdrawal"> | Date | string | null
+    createdAt?: DateTimeFilter<"AgentWithdrawal"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentWithdrawal"> | Date | string
+    guestUser?: XOR<GuestUserScalarRelationFilter, GuestUserWhereInput>
+  }, "id">
+
+  export type AgentWithdrawalOrderByWithAggregationInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    channel?: SortOrder
+    account?: SortOrder
+    accountName?: SortOrderInput | SortOrder
+    status?: SortOrder
+    adminNote?: SortOrderInput | SortOrder
+    reviewedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AgentWithdrawalCountOrderByAggregateInput
+    _avg?: AgentWithdrawalAvgOrderByAggregateInput
+    _max?: AgentWithdrawalMaxOrderByAggregateInput
+    _min?: AgentWithdrawalMinOrderByAggregateInput
+    _sum?: AgentWithdrawalSumOrderByAggregateInput
+  }
+
+  export type AgentWithdrawalScalarWhereWithAggregatesInput = {
+    AND?: AgentWithdrawalScalarWhereWithAggregatesInput | AgentWithdrawalScalarWhereWithAggregatesInput[]
+    OR?: AgentWithdrawalScalarWhereWithAggregatesInput[]
+    NOT?: AgentWithdrawalScalarWhereWithAggregatesInput | AgentWithdrawalScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgentWithdrawal"> | string
+    guestUserId?: StringWithAggregatesFilter<"AgentWithdrawal"> | string
+    amount?: DecimalWithAggregatesFilter<"AgentWithdrawal"> | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelWithAggregatesFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawChannel
+    account?: StringWithAggregatesFilter<"AgentWithdrawal"> | string
+    accountName?: StringNullableWithAggregatesFilter<"AgentWithdrawal"> | string | null
+    status?: EnumAgentWithdrawStatusWithAggregatesFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawStatus
+    adminNote?: StringNullableWithAggregatesFilter<"AgentWithdrawal"> | string | null
+    reviewedAt?: DateTimeNullableWithAggregatesFilter<"AgentWithdrawal"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AgentWithdrawal"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AgentWithdrawal"> | Date | string
   }
 
   export type SmsConfigWhereInput = {
@@ -32062,6 +42067,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -32073,6 +42081,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateInput = {
@@ -32085,6 +42098,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -32095,6 +42111,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUpdateInput = {
@@ -32106,6 +42127,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -32117,6 +42141,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateInput = {
@@ -32129,6 +42158,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -32139,6 +42171,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateManyInput = {
@@ -32151,6 +42188,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -32164,6 +42204,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32178,6 +42221,717 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayConfigCreateInput = {
+    key: string
+    value: string
+  }
+
+  export type PayConfigUncheckedCreateInput = {
+    key: string
+    value: string
+  }
+
+  export type PayConfigUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PayConfigUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PayConfigCreateManyInput = {
+    key: string
+    value: string
+  }
+
+  export type PayConfigUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PayConfigUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type GuapiPackageCreateInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    guapiAmount: number
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: GuapiOrderCreateNestedManyWithoutPackageInput
+  }
+
+  export type GuapiPackageUncheckedCreateInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    guapiAmount: number
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: GuapiOrderUncheckedCreateNestedManyWithoutPackageInput
+  }
+
+  export type GuapiPackageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: GuapiOrderUpdateManyWithoutPackageNestedInput
+  }
+
+  export type GuapiPackageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: GuapiOrderUncheckedUpdateManyWithoutPackageNestedInput
+  }
+
+  export type GuapiPackageCreateManyInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    guapiAmount: number
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiPackageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiPackageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiOrderCreateInput = {
+    id?: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutGuapiOrdersInput
+    package: GuapiPackageCreateNestedOneWithoutOrdersInput
+  }
+
+  export type GuapiOrderUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiOrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutGuapiOrdersNestedInput
+    package?: GuapiPackageUpdateOneRequiredWithoutOrdersNestedInput
+  }
+
+  export type GuapiOrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiOrderCreateManyInput = {
+    id?: string
+    guestUserId: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiOrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiOrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentConfigCreateInput = {
+    key: string
+    value: string
+  }
+
+  export type AgentConfigUncheckedCreateInput = {
+    key: string
+    value: string
+  }
+
+  export type AgentConfigUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AgentConfigUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AgentConfigCreateManyInput = {
+    key: string
+    value: string
+  }
+
+  export type AgentConfigUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AgentConfigUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AgentPackageCreateInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: AgentOrderCreateNestedManyWithoutPackageInput
+  }
+
+  export type AgentPackageUncheckedCreateInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orders?: AgentOrderUncheckedCreateNestedManyWithoutPackageInput
+  }
+
+  export type AgentPackageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: AgentOrderUpdateManyWithoutPackageNestedInput
+  }
+
+  export type AgentPackageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orders?: AgentOrderUncheckedUpdateManyWithoutPackageNestedInput
+  }
+
+  export type AgentPackageCreateManyInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentPackageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentPackageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderCreateInput = {
+    id?: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutAgentOrdersInput
+    package: AgentPackageCreateNestedOneWithoutOrdersInput
+  }
+
+  export type AgentOrderUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentOrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutAgentOrdersNestedInput
+    package?: AgentPackageUpdateOneRequiredWithoutOrdersNestedInput
+  }
+
+  export type AgentOrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderCreateManyInput = {
+    id?: string
+    guestUserId: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentOrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionCreateInput = {
+    id?: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    beneficiary: GuestUserCreateNestedOneWithoutCommissionsEarnedInput
+    fromGuest: GuestUserCreateNestedOneWithoutCommissionsFromInput
+  }
+
+  export type AgentCommissionUncheckedCreateInput = {
+    id?: string
+    beneficiaryId: string
+    fromGuestId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type AgentCommissionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    beneficiary?: GuestUserUpdateOneRequiredWithoutCommissionsEarnedNestedInput
+    fromGuest?: GuestUserUpdateOneRequiredWithoutCommissionsFromNestedInput
+  }
+
+  export type AgentCommissionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    beneficiaryId?: StringFieldUpdateOperationsInput | string
+    fromGuestId?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionCreateManyInput = {
+    id?: string
+    beneficiaryId: string
+    fromGuestId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type AgentCommissionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    beneficiaryId?: StringFieldUpdateOperationsInput | string
+    fromGuestId?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentWithdrawalCreateInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName?: string | null
+    status?: $Enums.AgentWithdrawStatus
+    adminNote?: string | null
+    reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutAgentWithdrawalsInput
+  }
+
+  export type AgentWithdrawalUncheckedCreateInput = {
+    id?: string
+    guestUserId: string
+    amount: Decimal | DecimalJsLike | number | string
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName?: string | null
+    status?: $Enums.AgentWithdrawStatus
+    adminNote?: string | null
+    reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentWithdrawalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutAgentWithdrawalsNestedInput
+  }
+
+  export type AgentWithdrawalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentWithdrawalCreateManyInput = {
+    id?: string
+    guestUserId: string
+    amount: Decimal | DecimalJsLike | number | string
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName?: string | null
+    status?: $Enums.AgentWithdrawStatus
+    adminNote?: string | null
+    reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentWithdrawalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentWithdrawalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34234,6 +44988,17 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
   export type GuestUserNullableScalarRelationFilter = {
     is?: GuestUserWhereInput | null
     isNot?: GuestUserWhereInput | null
@@ -34287,6 +45052,30 @@ export namespace Prisma {
     none?: SmsNumberRecordWhereInput
   }
 
+  export type GuapiOrderListRelationFilter = {
+    every?: GuapiOrderWhereInput
+    some?: GuapiOrderWhereInput
+    none?: GuapiOrderWhereInput
+  }
+
+  export type AgentOrderListRelationFilter = {
+    every?: AgentOrderWhereInput
+    some?: AgentOrderWhereInput
+    none?: AgentOrderWhereInput
+  }
+
+  export type AgentCommissionListRelationFilter = {
+    every?: AgentCommissionWhereInput
+    some?: AgentCommissionWhereInput
+    none?: AgentCommissionWhereInput
+  }
+
+  export type AgentWithdrawalListRelationFilter = {
+    every?: AgentWithdrawalWhereInput
+    some?: AgentWithdrawalWhereInput
+    none?: AgentWithdrawalWhereInput
+  }
+
   export type GuestUserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -34319,6 +45108,22 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type GuapiOrderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgentOrderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgentCommissionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgentWithdrawalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type GuestUserOrderByRelevanceInput = {
     fields: GuestUserOrderByRelevanceFieldEnum | GuestUserOrderByRelevanceFieldEnum[]
     sort: SortOrder
@@ -34335,6 +45140,9 @@ export namespace Prisma {
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
+    isAgent?: SortOrder
+    agentAt?: SortOrder
+    agentWalletYuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -34342,6 +45150,7 @@ export namespace Prisma {
   export type GuestUserAvgOrderByAggregateInput = {
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    agentWalletYuan?: SortOrder
   }
 
   export type GuestUserMaxOrderByAggregateInput = {
@@ -34354,6 +45163,9 @@ export namespace Prisma {
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
+    isAgent?: SortOrder
+    agentAt?: SortOrder
+    agentWalletYuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -34368,6 +45180,9 @@ export namespace Prisma {
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
+    isAgent?: SortOrder
+    agentAt?: SortOrder
+    agentWalletYuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -34375,6 +45190,7 @@ export namespace Prisma {
   export type GuestUserSumOrderByAggregateInput = {
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    agentWalletYuan?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -34389,6 +45205,571 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type PayConfigOrderByRelevanceInput = {
+    fields: PayConfigOrderByRelevanceFieldEnum | PayConfigOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type PayConfigCountOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type PayConfigMaxOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type PayConfigMinOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type GuapiPackageOrderByRelevanceInput = {
+    fields: GuapiPackageOrderByRelevanceFieldEnum | GuapiPackageOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type GuapiPackageCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GuapiPackageAvgOrderByAggregateInput = {
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type GuapiPackageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GuapiPackageMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GuapiPackageSumOrderByAggregateInput = {
+    guapiAmount?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type EnumGuapiOrderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.GuapiOrderStatus | EnumGuapiOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GuapiOrderStatus[]
+    notIn?: $Enums.GuapiOrderStatus[]
+    not?: NestedEnumGuapiOrderStatusFilter<$PrismaModel> | $Enums.GuapiOrderStatus
+  }
+
+  export type GuestUserScalarRelationFilter = {
+    is?: GuestUserWhereInput
+    isNot?: GuestUserWhereInput
+  }
+
+  export type GuapiPackageScalarRelationFilter = {
+    is?: GuapiPackageWhereInput
+    isNot?: GuapiPackageWhereInput
+  }
+
+  export type GuapiOrderOrderByRelevanceInput = {
+    fields: GuapiOrderOrderByRelevanceFieldEnum | GuapiOrderOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type GuapiOrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    guapiAmount?: SortOrder
+    payUrl?: SortOrder
+    shopSessionCookie?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    fulfilledAt?: SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrder
+    rawQueryResp?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GuapiOrderAvgOrderByAggregateInput = {
+    channelId?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    guapiAmount?: SortOrder
+  }
+
+  export type GuapiOrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    guapiAmount?: SortOrder
+    payUrl?: SortOrder
+    shopSessionCookie?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    fulfilledAt?: SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrder
+    rawQueryResp?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GuapiOrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    guapiAmount?: SortOrder
+    payUrl?: SortOrder
+    shopSessionCookie?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    fulfilledAt?: SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrder
+    rawQueryResp?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GuapiOrderSumOrderByAggregateInput = {
+    channelId?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    guapiAmount?: SortOrder
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type EnumGuapiOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GuapiOrderStatus | EnumGuapiOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GuapiOrderStatus[]
+    notIn?: $Enums.GuapiOrderStatus[]
+    not?: NestedEnumGuapiOrderStatusWithAggregatesFilter<$PrismaModel> | $Enums.GuapiOrderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGuapiOrderStatusFilter<$PrismaModel>
+    _max?: NestedEnumGuapiOrderStatusFilter<$PrismaModel>
+  }
+
+  export type AgentConfigOrderByRelevanceInput = {
+    fields: AgentConfigOrderByRelevanceFieldEnum | AgentConfigOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type AgentConfigCountOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type AgentConfigMaxOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type AgentConfigMinOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+  }
+
+  export type AgentPackageOrderByRelevanceInput = {
+    fields: AgentPackageOrderByRelevanceFieldEnum | AgentPackageOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type AgentPackageCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentPackageAvgOrderByAggregateInput = {
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type AgentPackageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentPackageMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    goodsKey?: SortOrder
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+    enabled?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentPackageSumOrderByAggregateInput = {
+    priceYuan?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type EnumAgentOrderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentOrderStatus | EnumAgentOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentOrderStatus[]
+    notIn?: $Enums.AgentOrderStatus[]
+    not?: NestedEnumAgentOrderStatusFilter<$PrismaModel> | $Enums.AgentOrderStatus
+  }
+
+  export type AgentPackageScalarRelationFilter = {
+    is?: AgentPackageWhereInput
+    isNot?: AgentPackageWhereInput
+  }
+
+  export type AgentOrderOrderByRelevanceInput = {
+    fields: AgentOrderOrderByRelevanceFieldEnum | AgentOrderOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type AgentOrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    totalAmount?: SortOrder
+    payUrl?: SortOrder
+    shopSessionCookie?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    fulfilledAt?: SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrder
+    rawQueryResp?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentOrderAvgOrderByAggregateInput = {
+    channelId?: SortOrder
+    totalAmount?: SortOrder
+  }
+
+  export type AgentOrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    totalAmount?: SortOrder
+    payUrl?: SortOrder
+    shopSessionCookie?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    fulfilledAt?: SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrder
+    rawQueryResp?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentOrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    packageId?: SortOrder
+    tradeNo?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    totalAmount?: SortOrder
+    payUrl?: SortOrder
+    shopSessionCookie?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    fulfilledAt?: SortOrder
+    contact?: SortOrder
+    rawCreateResp?: SortOrder
+    rawQueryResp?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentOrderSumOrderByAggregateInput = {
+    channelId?: SortOrder
+    totalAmount?: SortOrder
+  }
+
+  export type EnumAgentOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentOrderStatus | EnumAgentOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentOrderStatus[]
+    notIn?: $Enums.AgentOrderStatus[]
+    not?: NestedEnumAgentOrderStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentOrderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentOrderStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgentOrderStatusFilter<$PrismaModel>
+  }
+
+  export type EnumAgentCommissionLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentCommissionLevel | EnumAgentCommissionLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentCommissionLevel[]
+    notIn?: $Enums.AgentCommissionLevel[]
+    not?: NestedEnumAgentCommissionLevelFilter<$PrismaModel> | $Enums.AgentCommissionLevel
+  }
+
+  export type AgentCommissionOrderByRelevanceInput = {
+    fields: AgentCommissionOrderByRelevanceFieldEnum | AgentCommissionOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type AgentCommissionGuapiOrderIdLevelCompoundUniqueInput = {
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+  }
+
+  export type AgentCommissionCountOrderByAggregateInput = {
+    id?: SortOrder
+    beneficiaryId?: SortOrder
+    fromGuestId?: SortOrder
+    guapiOrderId?: SortOrder
+    level?: SortOrder
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgentCommissionAvgOrderByAggregateInput = {
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type AgentCommissionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    beneficiaryId?: SortOrder
+    fromGuestId?: SortOrder
+    guapiOrderId?: SortOrder
+    level?: SortOrder
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgentCommissionMinOrderByAggregateInput = {
+    id?: SortOrder
+    beneficiaryId?: SortOrder
+    fromGuestId?: SortOrder
+    guapiOrderId?: SortOrder
+    level?: SortOrder
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgentCommissionSumOrderByAggregateInput = {
+    orderAmount?: SortOrder
+    rate?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type EnumAgentCommissionLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentCommissionLevel | EnumAgentCommissionLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentCommissionLevel[]
+    notIn?: $Enums.AgentCommissionLevel[]
+    not?: NestedEnumAgentCommissionLevelWithAggregatesFilter<$PrismaModel> | $Enums.AgentCommissionLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentCommissionLevelFilter<$PrismaModel>
+    _max?: NestedEnumAgentCommissionLevelFilter<$PrismaModel>
+  }
+
+  export type EnumAgentWithdrawChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawChannel | EnumAgentWithdrawChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawChannel[]
+    notIn?: $Enums.AgentWithdrawChannel[]
+    not?: NestedEnumAgentWithdrawChannelFilter<$PrismaModel> | $Enums.AgentWithdrawChannel
+  }
+
+  export type EnumAgentWithdrawStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawStatus | EnumAgentWithdrawStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawStatus[]
+    notIn?: $Enums.AgentWithdrawStatus[]
+    not?: NestedEnumAgentWithdrawStatusFilter<$PrismaModel> | $Enums.AgentWithdrawStatus
+  }
+
+  export type AgentWithdrawalOrderByRelevanceInput = {
+    fields: AgentWithdrawalOrderByRelevanceFieldEnum | AgentWithdrawalOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type AgentWithdrawalCountOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    channel?: SortOrder
+    account?: SortOrder
+    accountName?: SortOrder
+    status?: SortOrder
+    adminNote?: SortOrder
+    reviewedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentWithdrawalAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type AgentWithdrawalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    channel?: SortOrder
+    account?: SortOrder
+    accountName?: SortOrder
+    status?: SortOrder
+    adminNote?: SortOrder
+    reviewedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentWithdrawalMinOrderByAggregateInput = {
+    id?: SortOrder
+    guestUserId?: SortOrder
+    amount?: SortOrder
+    channel?: SortOrder
+    account?: SortOrder
+    accountName?: SortOrder
+    status?: SortOrder
+    adminNote?: SortOrder
+    reviewedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentWithdrawalSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type EnumAgentWithdrawChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawChannel | EnumAgentWithdrawChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawChannel[]
+    notIn?: $Enums.AgentWithdrawChannel[]
+    not?: NestedEnumAgentWithdrawChannelWithAggregatesFilter<$PrismaModel> | $Enums.AgentWithdrawChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentWithdrawChannelFilter<$PrismaModel>
+    _max?: NestedEnumAgentWithdrawChannelFilter<$PrismaModel>
+  }
+
+  export type EnumAgentWithdrawStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawStatus | EnumAgentWithdrawStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawStatus[]
+    notIn?: $Enums.AgentWithdrawStatus[]
+    not?: NestedEnumAgentWithdrawStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentWithdrawStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentWithdrawStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgentWithdrawStatusFilter<$PrismaModel>
   }
 
   export type SmsConfigOrderByRelevanceInput = {
@@ -34410,11 +45791,6 @@ export namespace Prisma {
   export type SmsConfigMinOrderByAggregateInput = {
     key?: SortOrder
     value?: SortOrder
-  }
-
-  export type GuestUserScalarRelationFilter = {
-    is?: GuestUserWhereInput
-    isNot?: GuestUserWhereInput
   }
 
   export type SmsGuapiLogOrderByRelevanceInput = {
@@ -35768,6 +47144,41 @@ export namespace Prisma {
     connect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
   }
 
+  export type GuapiOrderCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<GuapiOrderCreateWithoutGuestUserInput, GuapiOrderUncheckedCreateWithoutGuestUserInput> | GuapiOrderCreateWithoutGuestUserInput[] | GuapiOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutGuestUserInput | GuapiOrderCreateOrConnectWithoutGuestUserInput[]
+    createMany?: GuapiOrderCreateManyGuestUserInputEnvelope
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+  }
+
+  export type AgentOrderCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<AgentOrderCreateWithoutGuestUserInput, AgentOrderUncheckedCreateWithoutGuestUserInput> | AgentOrderCreateWithoutGuestUserInput[] | AgentOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutGuestUserInput | AgentOrderCreateOrConnectWithoutGuestUserInput[]
+    createMany?: AgentOrderCreateManyGuestUserInputEnvelope
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+  }
+
+  export type AgentCommissionCreateNestedManyWithoutBeneficiaryInput = {
+    create?: XOR<AgentCommissionCreateWithoutBeneficiaryInput, AgentCommissionUncheckedCreateWithoutBeneficiaryInput> | AgentCommissionCreateWithoutBeneficiaryInput[] | AgentCommissionUncheckedCreateWithoutBeneficiaryInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutBeneficiaryInput | AgentCommissionCreateOrConnectWithoutBeneficiaryInput[]
+    createMany?: AgentCommissionCreateManyBeneficiaryInputEnvelope
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+  }
+
+  export type AgentCommissionCreateNestedManyWithoutFromGuestInput = {
+    create?: XOR<AgentCommissionCreateWithoutFromGuestInput, AgentCommissionUncheckedCreateWithoutFromGuestInput> | AgentCommissionCreateWithoutFromGuestInput[] | AgentCommissionUncheckedCreateWithoutFromGuestInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutFromGuestInput | AgentCommissionCreateOrConnectWithoutFromGuestInput[]
+    createMany?: AgentCommissionCreateManyFromGuestInputEnvelope
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+  }
+
+  export type AgentWithdrawalCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<AgentWithdrawalCreateWithoutGuestUserInput, AgentWithdrawalUncheckedCreateWithoutGuestUserInput> | AgentWithdrawalCreateWithoutGuestUserInput[] | AgentWithdrawalUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentWithdrawalCreateOrConnectWithoutGuestUserInput | AgentWithdrawalCreateOrConnectWithoutGuestUserInput[]
+    createMany?: AgentWithdrawalCreateManyGuestUserInputEnvelope
+    connect?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+  }
+
   export type GuestUserUncheckedCreateNestedManyWithoutReferrerInput = {
     create?: XOR<GuestUserCreateWithoutReferrerInput, GuestUserUncheckedCreateWithoutReferrerInput> | GuestUserCreateWithoutReferrerInput[] | GuestUserUncheckedCreateWithoutReferrerInput[]
     connectOrCreate?: GuestUserCreateOrConnectWithoutReferrerInput | GuestUserCreateOrConnectWithoutReferrerInput[]
@@ -35824,8 +47235,51 @@ export namespace Prisma {
     connect?: SmsNumberRecordWhereUniqueInput | SmsNumberRecordWhereUniqueInput[]
   }
 
+  export type GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<GuapiOrderCreateWithoutGuestUserInput, GuapiOrderUncheckedCreateWithoutGuestUserInput> | GuapiOrderCreateWithoutGuestUserInput[] | GuapiOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutGuestUserInput | GuapiOrderCreateOrConnectWithoutGuestUserInput[]
+    createMany?: GuapiOrderCreateManyGuestUserInputEnvelope
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+  }
+
+  export type AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<AgentOrderCreateWithoutGuestUserInput, AgentOrderUncheckedCreateWithoutGuestUserInput> | AgentOrderCreateWithoutGuestUserInput[] | AgentOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutGuestUserInput | AgentOrderCreateOrConnectWithoutGuestUserInput[]
+    createMany?: AgentOrderCreateManyGuestUserInputEnvelope
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+  }
+
+  export type AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput = {
+    create?: XOR<AgentCommissionCreateWithoutBeneficiaryInput, AgentCommissionUncheckedCreateWithoutBeneficiaryInput> | AgentCommissionCreateWithoutBeneficiaryInput[] | AgentCommissionUncheckedCreateWithoutBeneficiaryInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutBeneficiaryInput | AgentCommissionCreateOrConnectWithoutBeneficiaryInput[]
+    createMany?: AgentCommissionCreateManyBeneficiaryInputEnvelope
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+  }
+
+  export type AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput = {
+    create?: XOR<AgentCommissionCreateWithoutFromGuestInput, AgentCommissionUncheckedCreateWithoutFromGuestInput> | AgentCommissionCreateWithoutFromGuestInput[] | AgentCommissionUncheckedCreateWithoutFromGuestInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutFromGuestInput | AgentCommissionCreateOrConnectWithoutFromGuestInput[]
+    createMany?: AgentCommissionCreateManyFromGuestInputEnvelope
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+  }
+
+  export type AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput = {
+    create?: XOR<AgentWithdrawalCreateWithoutGuestUserInput, AgentWithdrawalUncheckedCreateWithoutGuestUserInput> | AgentWithdrawalCreateWithoutGuestUserInput[] | AgentWithdrawalUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentWithdrawalCreateOrConnectWithoutGuestUserInput | AgentWithdrawalCreateOrConnectWithoutGuestUserInput[]
+    createMany?: AgentWithdrawalCreateManyGuestUserInputEnvelope
+    connect?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+  }
+
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
   }
 
   export type GuestUserUpdateOneWithoutReferralsNestedInput = {
@@ -35950,6 +47404,76 @@ export namespace Prisma {
     deleteMany?: SmsNumberRecordScalarWhereInput | SmsNumberRecordScalarWhereInput[]
   }
 
+  export type GuapiOrderUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<GuapiOrderCreateWithoutGuestUserInput, GuapiOrderUncheckedCreateWithoutGuestUserInput> | GuapiOrderCreateWithoutGuestUserInput[] | GuapiOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutGuestUserInput | GuapiOrderCreateOrConnectWithoutGuestUserInput[]
+    upsert?: GuapiOrderUpsertWithWhereUniqueWithoutGuestUserInput | GuapiOrderUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: GuapiOrderCreateManyGuestUserInputEnvelope
+    set?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    disconnect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    delete?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    update?: GuapiOrderUpdateWithWhereUniqueWithoutGuestUserInput | GuapiOrderUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: GuapiOrderUpdateManyWithWhereWithoutGuestUserInput | GuapiOrderUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: GuapiOrderScalarWhereInput | GuapiOrderScalarWhereInput[]
+  }
+
+  export type AgentOrderUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<AgentOrderCreateWithoutGuestUserInput, AgentOrderUncheckedCreateWithoutGuestUserInput> | AgentOrderCreateWithoutGuestUserInput[] | AgentOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutGuestUserInput | AgentOrderCreateOrConnectWithoutGuestUserInput[]
+    upsert?: AgentOrderUpsertWithWhereUniqueWithoutGuestUserInput | AgentOrderUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: AgentOrderCreateManyGuestUserInputEnvelope
+    set?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    disconnect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    delete?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    update?: AgentOrderUpdateWithWhereUniqueWithoutGuestUserInput | AgentOrderUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: AgentOrderUpdateManyWithWhereWithoutGuestUserInput | AgentOrderUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: AgentOrderScalarWhereInput | AgentOrderScalarWhereInput[]
+  }
+
+  export type AgentCommissionUpdateManyWithoutBeneficiaryNestedInput = {
+    create?: XOR<AgentCommissionCreateWithoutBeneficiaryInput, AgentCommissionUncheckedCreateWithoutBeneficiaryInput> | AgentCommissionCreateWithoutBeneficiaryInput[] | AgentCommissionUncheckedCreateWithoutBeneficiaryInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutBeneficiaryInput | AgentCommissionCreateOrConnectWithoutBeneficiaryInput[]
+    upsert?: AgentCommissionUpsertWithWhereUniqueWithoutBeneficiaryInput | AgentCommissionUpsertWithWhereUniqueWithoutBeneficiaryInput[]
+    createMany?: AgentCommissionCreateManyBeneficiaryInputEnvelope
+    set?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    disconnect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    delete?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    update?: AgentCommissionUpdateWithWhereUniqueWithoutBeneficiaryInput | AgentCommissionUpdateWithWhereUniqueWithoutBeneficiaryInput[]
+    updateMany?: AgentCommissionUpdateManyWithWhereWithoutBeneficiaryInput | AgentCommissionUpdateManyWithWhereWithoutBeneficiaryInput[]
+    deleteMany?: AgentCommissionScalarWhereInput | AgentCommissionScalarWhereInput[]
+  }
+
+  export type AgentCommissionUpdateManyWithoutFromGuestNestedInput = {
+    create?: XOR<AgentCommissionCreateWithoutFromGuestInput, AgentCommissionUncheckedCreateWithoutFromGuestInput> | AgentCommissionCreateWithoutFromGuestInput[] | AgentCommissionUncheckedCreateWithoutFromGuestInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutFromGuestInput | AgentCommissionCreateOrConnectWithoutFromGuestInput[]
+    upsert?: AgentCommissionUpsertWithWhereUniqueWithoutFromGuestInput | AgentCommissionUpsertWithWhereUniqueWithoutFromGuestInput[]
+    createMany?: AgentCommissionCreateManyFromGuestInputEnvelope
+    set?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    disconnect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    delete?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    update?: AgentCommissionUpdateWithWhereUniqueWithoutFromGuestInput | AgentCommissionUpdateWithWhereUniqueWithoutFromGuestInput[]
+    updateMany?: AgentCommissionUpdateManyWithWhereWithoutFromGuestInput | AgentCommissionUpdateManyWithWhereWithoutFromGuestInput[]
+    deleteMany?: AgentCommissionScalarWhereInput | AgentCommissionScalarWhereInput[]
+  }
+
+  export type AgentWithdrawalUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<AgentWithdrawalCreateWithoutGuestUserInput, AgentWithdrawalUncheckedCreateWithoutGuestUserInput> | AgentWithdrawalCreateWithoutGuestUserInput[] | AgentWithdrawalUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentWithdrawalCreateOrConnectWithoutGuestUserInput | AgentWithdrawalCreateOrConnectWithoutGuestUserInput[]
+    upsert?: AgentWithdrawalUpsertWithWhereUniqueWithoutGuestUserInput | AgentWithdrawalUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: AgentWithdrawalCreateManyGuestUserInputEnvelope
+    set?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    disconnect?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    delete?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    connect?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    update?: AgentWithdrawalUpdateWithWhereUniqueWithoutGuestUserInput | AgentWithdrawalUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: AgentWithdrawalUpdateManyWithWhereWithoutGuestUserInput | AgentWithdrawalUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: AgentWithdrawalScalarWhereInput | AgentWithdrawalScalarWhereInput[]
+  }
+
   export type GuestUserUncheckedUpdateManyWithoutReferrerNestedInput = {
     create?: XOR<GuestUserCreateWithoutReferrerInput, GuestUserUncheckedCreateWithoutReferrerInput> | GuestUserCreateWithoutReferrerInput[] | GuestUserUncheckedCreateWithoutReferrerInput[]
     connectOrCreate?: GuestUserCreateOrConnectWithoutReferrerInput | GuestUserCreateOrConnectWithoutReferrerInput[]
@@ -36060,6 +47584,286 @@ export namespace Prisma {
     update?: SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput | SmsNumberRecordUpdateWithWhereUniqueWithoutGuestUserInput[]
     updateMany?: SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput | SmsNumberRecordUpdateManyWithWhereWithoutGuestUserInput[]
     deleteMany?: SmsNumberRecordScalarWhereInput | SmsNumberRecordScalarWhereInput[]
+  }
+
+  export type GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<GuapiOrderCreateWithoutGuestUserInput, GuapiOrderUncheckedCreateWithoutGuestUserInput> | GuapiOrderCreateWithoutGuestUserInput[] | GuapiOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutGuestUserInput | GuapiOrderCreateOrConnectWithoutGuestUserInput[]
+    upsert?: GuapiOrderUpsertWithWhereUniqueWithoutGuestUserInput | GuapiOrderUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: GuapiOrderCreateManyGuestUserInputEnvelope
+    set?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    disconnect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    delete?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    update?: GuapiOrderUpdateWithWhereUniqueWithoutGuestUserInput | GuapiOrderUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: GuapiOrderUpdateManyWithWhereWithoutGuestUserInput | GuapiOrderUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: GuapiOrderScalarWhereInput | GuapiOrderScalarWhereInput[]
+  }
+
+  export type AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<AgentOrderCreateWithoutGuestUserInput, AgentOrderUncheckedCreateWithoutGuestUserInput> | AgentOrderCreateWithoutGuestUserInput[] | AgentOrderUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutGuestUserInput | AgentOrderCreateOrConnectWithoutGuestUserInput[]
+    upsert?: AgentOrderUpsertWithWhereUniqueWithoutGuestUserInput | AgentOrderUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: AgentOrderCreateManyGuestUserInputEnvelope
+    set?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    disconnect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    delete?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    update?: AgentOrderUpdateWithWhereUniqueWithoutGuestUserInput | AgentOrderUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: AgentOrderUpdateManyWithWhereWithoutGuestUserInput | AgentOrderUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: AgentOrderScalarWhereInput | AgentOrderScalarWhereInput[]
+  }
+
+  export type AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput = {
+    create?: XOR<AgentCommissionCreateWithoutBeneficiaryInput, AgentCommissionUncheckedCreateWithoutBeneficiaryInput> | AgentCommissionCreateWithoutBeneficiaryInput[] | AgentCommissionUncheckedCreateWithoutBeneficiaryInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutBeneficiaryInput | AgentCommissionCreateOrConnectWithoutBeneficiaryInput[]
+    upsert?: AgentCommissionUpsertWithWhereUniqueWithoutBeneficiaryInput | AgentCommissionUpsertWithWhereUniqueWithoutBeneficiaryInput[]
+    createMany?: AgentCommissionCreateManyBeneficiaryInputEnvelope
+    set?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    disconnect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    delete?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    update?: AgentCommissionUpdateWithWhereUniqueWithoutBeneficiaryInput | AgentCommissionUpdateWithWhereUniqueWithoutBeneficiaryInput[]
+    updateMany?: AgentCommissionUpdateManyWithWhereWithoutBeneficiaryInput | AgentCommissionUpdateManyWithWhereWithoutBeneficiaryInput[]
+    deleteMany?: AgentCommissionScalarWhereInput | AgentCommissionScalarWhereInput[]
+  }
+
+  export type AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput = {
+    create?: XOR<AgentCommissionCreateWithoutFromGuestInput, AgentCommissionUncheckedCreateWithoutFromGuestInput> | AgentCommissionCreateWithoutFromGuestInput[] | AgentCommissionUncheckedCreateWithoutFromGuestInput[]
+    connectOrCreate?: AgentCommissionCreateOrConnectWithoutFromGuestInput | AgentCommissionCreateOrConnectWithoutFromGuestInput[]
+    upsert?: AgentCommissionUpsertWithWhereUniqueWithoutFromGuestInput | AgentCommissionUpsertWithWhereUniqueWithoutFromGuestInput[]
+    createMany?: AgentCommissionCreateManyFromGuestInputEnvelope
+    set?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    disconnect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    delete?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    connect?: AgentCommissionWhereUniqueInput | AgentCommissionWhereUniqueInput[]
+    update?: AgentCommissionUpdateWithWhereUniqueWithoutFromGuestInput | AgentCommissionUpdateWithWhereUniqueWithoutFromGuestInput[]
+    updateMany?: AgentCommissionUpdateManyWithWhereWithoutFromGuestInput | AgentCommissionUpdateManyWithWhereWithoutFromGuestInput[]
+    deleteMany?: AgentCommissionScalarWhereInput | AgentCommissionScalarWhereInput[]
+  }
+
+  export type AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput = {
+    create?: XOR<AgentWithdrawalCreateWithoutGuestUserInput, AgentWithdrawalUncheckedCreateWithoutGuestUserInput> | AgentWithdrawalCreateWithoutGuestUserInput[] | AgentWithdrawalUncheckedCreateWithoutGuestUserInput[]
+    connectOrCreate?: AgentWithdrawalCreateOrConnectWithoutGuestUserInput | AgentWithdrawalCreateOrConnectWithoutGuestUserInput[]
+    upsert?: AgentWithdrawalUpsertWithWhereUniqueWithoutGuestUserInput | AgentWithdrawalUpsertWithWhereUniqueWithoutGuestUserInput[]
+    createMany?: AgentWithdrawalCreateManyGuestUserInputEnvelope
+    set?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    disconnect?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    delete?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    connect?: AgentWithdrawalWhereUniqueInput | AgentWithdrawalWhereUniqueInput[]
+    update?: AgentWithdrawalUpdateWithWhereUniqueWithoutGuestUserInput | AgentWithdrawalUpdateWithWhereUniqueWithoutGuestUserInput[]
+    updateMany?: AgentWithdrawalUpdateManyWithWhereWithoutGuestUserInput | AgentWithdrawalUpdateManyWithWhereWithoutGuestUserInput[]
+    deleteMany?: AgentWithdrawalScalarWhereInput | AgentWithdrawalScalarWhereInput[]
+  }
+
+  export type GuapiOrderCreateNestedManyWithoutPackageInput = {
+    create?: XOR<GuapiOrderCreateWithoutPackageInput, GuapiOrderUncheckedCreateWithoutPackageInput> | GuapiOrderCreateWithoutPackageInput[] | GuapiOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutPackageInput | GuapiOrderCreateOrConnectWithoutPackageInput[]
+    createMany?: GuapiOrderCreateManyPackageInputEnvelope
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+  }
+
+  export type GuapiOrderUncheckedCreateNestedManyWithoutPackageInput = {
+    create?: XOR<GuapiOrderCreateWithoutPackageInput, GuapiOrderUncheckedCreateWithoutPackageInput> | GuapiOrderCreateWithoutPackageInput[] | GuapiOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutPackageInput | GuapiOrderCreateOrConnectWithoutPackageInput[]
+    createMany?: GuapiOrderCreateManyPackageInputEnvelope
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+  }
+
+  export type GuapiOrderUpdateManyWithoutPackageNestedInput = {
+    create?: XOR<GuapiOrderCreateWithoutPackageInput, GuapiOrderUncheckedCreateWithoutPackageInput> | GuapiOrderCreateWithoutPackageInput[] | GuapiOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutPackageInput | GuapiOrderCreateOrConnectWithoutPackageInput[]
+    upsert?: GuapiOrderUpsertWithWhereUniqueWithoutPackageInput | GuapiOrderUpsertWithWhereUniqueWithoutPackageInput[]
+    createMany?: GuapiOrderCreateManyPackageInputEnvelope
+    set?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    disconnect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    delete?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    update?: GuapiOrderUpdateWithWhereUniqueWithoutPackageInput | GuapiOrderUpdateWithWhereUniqueWithoutPackageInput[]
+    updateMany?: GuapiOrderUpdateManyWithWhereWithoutPackageInput | GuapiOrderUpdateManyWithWhereWithoutPackageInput[]
+    deleteMany?: GuapiOrderScalarWhereInput | GuapiOrderScalarWhereInput[]
+  }
+
+  export type GuapiOrderUncheckedUpdateManyWithoutPackageNestedInput = {
+    create?: XOR<GuapiOrderCreateWithoutPackageInput, GuapiOrderUncheckedCreateWithoutPackageInput> | GuapiOrderCreateWithoutPackageInput[] | GuapiOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: GuapiOrderCreateOrConnectWithoutPackageInput | GuapiOrderCreateOrConnectWithoutPackageInput[]
+    upsert?: GuapiOrderUpsertWithWhereUniqueWithoutPackageInput | GuapiOrderUpsertWithWhereUniqueWithoutPackageInput[]
+    createMany?: GuapiOrderCreateManyPackageInputEnvelope
+    set?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    disconnect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    delete?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    connect?: GuapiOrderWhereUniqueInput | GuapiOrderWhereUniqueInput[]
+    update?: GuapiOrderUpdateWithWhereUniqueWithoutPackageInput | GuapiOrderUpdateWithWhereUniqueWithoutPackageInput[]
+    updateMany?: GuapiOrderUpdateManyWithWhereWithoutPackageInput | GuapiOrderUpdateManyWithWhereWithoutPackageInput[]
+    deleteMany?: GuapiOrderScalarWhereInput | GuapiOrderScalarWhereInput[]
+  }
+
+  export type GuestUserCreateNestedOneWithoutGuapiOrdersInput = {
+    create?: XOR<GuestUserCreateWithoutGuapiOrdersInput, GuestUserUncheckedCreateWithoutGuapiOrdersInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutGuapiOrdersInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuapiPackageCreateNestedOneWithoutOrdersInput = {
+    create?: XOR<GuapiPackageCreateWithoutOrdersInput, GuapiPackageUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: GuapiPackageCreateOrConnectWithoutOrdersInput
+    connect?: GuapiPackageWhereUniqueInput
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type EnumGuapiOrderStatusFieldUpdateOperationsInput = {
+    set?: $Enums.GuapiOrderStatus
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutGuapiOrdersNestedInput = {
+    create?: XOR<GuestUserCreateWithoutGuapiOrdersInput, GuestUserUncheckedCreateWithoutGuapiOrdersInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutGuapiOrdersInput
+    upsert?: GuestUserUpsertWithoutGuapiOrdersInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutGuapiOrdersInput, GuestUserUpdateWithoutGuapiOrdersInput>, GuestUserUncheckedUpdateWithoutGuapiOrdersInput>
+  }
+
+  export type GuapiPackageUpdateOneRequiredWithoutOrdersNestedInput = {
+    create?: XOR<GuapiPackageCreateWithoutOrdersInput, GuapiPackageUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: GuapiPackageCreateOrConnectWithoutOrdersInput
+    upsert?: GuapiPackageUpsertWithoutOrdersInput
+    connect?: GuapiPackageWhereUniqueInput
+    update?: XOR<XOR<GuapiPackageUpdateToOneWithWhereWithoutOrdersInput, GuapiPackageUpdateWithoutOrdersInput>, GuapiPackageUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type AgentOrderCreateNestedManyWithoutPackageInput = {
+    create?: XOR<AgentOrderCreateWithoutPackageInput, AgentOrderUncheckedCreateWithoutPackageInput> | AgentOrderCreateWithoutPackageInput[] | AgentOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutPackageInput | AgentOrderCreateOrConnectWithoutPackageInput[]
+    createMany?: AgentOrderCreateManyPackageInputEnvelope
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+  }
+
+  export type AgentOrderUncheckedCreateNestedManyWithoutPackageInput = {
+    create?: XOR<AgentOrderCreateWithoutPackageInput, AgentOrderUncheckedCreateWithoutPackageInput> | AgentOrderCreateWithoutPackageInput[] | AgentOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutPackageInput | AgentOrderCreateOrConnectWithoutPackageInput[]
+    createMany?: AgentOrderCreateManyPackageInputEnvelope
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+  }
+
+  export type AgentOrderUpdateManyWithoutPackageNestedInput = {
+    create?: XOR<AgentOrderCreateWithoutPackageInput, AgentOrderUncheckedCreateWithoutPackageInput> | AgentOrderCreateWithoutPackageInput[] | AgentOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutPackageInput | AgentOrderCreateOrConnectWithoutPackageInput[]
+    upsert?: AgentOrderUpsertWithWhereUniqueWithoutPackageInput | AgentOrderUpsertWithWhereUniqueWithoutPackageInput[]
+    createMany?: AgentOrderCreateManyPackageInputEnvelope
+    set?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    disconnect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    delete?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    update?: AgentOrderUpdateWithWhereUniqueWithoutPackageInput | AgentOrderUpdateWithWhereUniqueWithoutPackageInput[]
+    updateMany?: AgentOrderUpdateManyWithWhereWithoutPackageInput | AgentOrderUpdateManyWithWhereWithoutPackageInput[]
+    deleteMany?: AgentOrderScalarWhereInput | AgentOrderScalarWhereInput[]
+  }
+
+  export type AgentOrderUncheckedUpdateManyWithoutPackageNestedInput = {
+    create?: XOR<AgentOrderCreateWithoutPackageInput, AgentOrderUncheckedCreateWithoutPackageInput> | AgentOrderCreateWithoutPackageInput[] | AgentOrderUncheckedCreateWithoutPackageInput[]
+    connectOrCreate?: AgentOrderCreateOrConnectWithoutPackageInput | AgentOrderCreateOrConnectWithoutPackageInput[]
+    upsert?: AgentOrderUpsertWithWhereUniqueWithoutPackageInput | AgentOrderUpsertWithWhereUniqueWithoutPackageInput[]
+    createMany?: AgentOrderCreateManyPackageInputEnvelope
+    set?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    disconnect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    delete?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    connect?: AgentOrderWhereUniqueInput | AgentOrderWhereUniqueInput[]
+    update?: AgentOrderUpdateWithWhereUniqueWithoutPackageInput | AgentOrderUpdateWithWhereUniqueWithoutPackageInput[]
+    updateMany?: AgentOrderUpdateManyWithWhereWithoutPackageInput | AgentOrderUpdateManyWithWhereWithoutPackageInput[]
+    deleteMany?: AgentOrderScalarWhereInput | AgentOrderScalarWhereInput[]
+  }
+
+  export type GuestUserCreateNestedOneWithoutAgentOrdersInput = {
+    create?: XOR<GuestUserCreateWithoutAgentOrdersInput, GuestUserUncheckedCreateWithoutAgentOrdersInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutAgentOrdersInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type AgentPackageCreateNestedOneWithoutOrdersInput = {
+    create?: XOR<AgentPackageCreateWithoutOrdersInput, AgentPackageUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: AgentPackageCreateOrConnectWithoutOrdersInput
+    connect?: AgentPackageWhereUniqueInput
+  }
+
+  export type EnumAgentOrderStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AgentOrderStatus
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutAgentOrdersNestedInput = {
+    create?: XOR<GuestUserCreateWithoutAgentOrdersInput, GuestUserUncheckedCreateWithoutAgentOrdersInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutAgentOrdersInput
+    upsert?: GuestUserUpsertWithoutAgentOrdersInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutAgentOrdersInput, GuestUserUpdateWithoutAgentOrdersInput>, GuestUserUncheckedUpdateWithoutAgentOrdersInput>
+  }
+
+  export type AgentPackageUpdateOneRequiredWithoutOrdersNestedInput = {
+    create?: XOR<AgentPackageCreateWithoutOrdersInput, AgentPackageUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: AgentPackageCreateOrConnectWithoutOrdersInput
+    upsert?: AgentPackageUpsertWithoutOrdersInput
+    connect?: AgentPackageWhereUniqueInput
+    update?: XOR<XOR<AgentPackageUpdateToOneWithWhereWithoutOrdersInput, AgentPackageUpdateWithoutOrdersInput>, AgentPackageUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type GuestUserCreateNestedOneWithoutCommissionsEarnedInput = {
+    create?: XOR<GuestUserCreateWithoutCommissionsEarnedInput, GuestUserUncheckedCreateWithoutCommissionsEarnedInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutCommissionsEarnedInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type GuestUserCreateNestedOneWithoutCommissionsFromInput = {
+    create?: XOR<GuestUserCreateWithoutCommissionsFromInput, GuestUserUncheckedCreateWithoutCommissionsFromInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutCommissionsFromInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type EnumAgentCommissionLevelFieldUpdateOperationsInput = {
+    set?: $Enums.AgentCommissionLevel
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutCommissionsEarnedNestedInput = {
+    create?: XOR<GuestUserCreateWithoutCommissionsEarnedInput, GuestUserUncheckedCreateWithoutCommissionsEarnedInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutCommissionsEarnedInput
+    upsert?: GuestUserUpsertWithoutCommissionsEarnedInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutCommissionsEarnedInput, GuestUserUpdateWithoutCommissionsEarnedInput>, GuestUserUncheckedUpdateWithoutCommissionsEarnedInput>
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutCommissionsFromNestedInput = {
+    create?: XOR<GuestUserCreateWithoutCommissionsFromInput, GuestUserUncheckedCreateWithoutCommissionsFromInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutCommissionsFromInput
+    upsert?: GuestUserUpsertWithoutCommissionsFromInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutCommissionsFromInput, GuestUserUpdateWithoutCommissionsFromInput>, GuestUserUncheckedUpdateWithoutCommissionsFromInput>
+  }
+
+  export type GuestUserCreateNestedOneWithoutAgentWithdrawalsInput = {
+    create?: XOR<GuestUserCreateWithoutAgentWithdrawalsInput, GuestUserUncheckedCreateWithoutAgentWithdrawalsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutAgentWithdrawalsInput
+    connect?: GuestUserWhereUniqueInput
+  }
+
+  export type EnumAgentWithdrawChannelFieldUpdateOperationsInput = {
+    set?: $Enums.AgentWithdrawChannel
+  }
+
+  export type EnumAgentWithdrawStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AgentWithdrawStatus
+  }
+
+  export type GuestUserUpdateOneRequiredWithoutAgentWithdrawalsNestedInput = {
+    create?: XOR<GuestUserCreateWithoutAgentWithdrawalsInput, GuestUserUncheckedCreateWithoutAgentWithdrawalsInput>
+    connectOrCreate?: GuestUserCreateOrConnectWithoutAgentWithdrawalsInput
+    upsert?: GuestUserUpsertWithoutAgentWithdrawalsInput
+    connect?: GuestUserWhereUniqueInput
+    update?: XOR<XOR<GuestUserUpdateToOneWithWhereWithoutAgentWithdrawalsInput, GuestUserUpdateWithoutAgentWithdrawalsInput>, GuestUserUncheckedUpdateWithoutAgentWithdrawalsInput>
   }
 
   export type GuestUserCreateNestedOneWithoutSmsGuapiLogsInput = {
@@ -36868,6 +48672,17 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | null
@@ -36880,6 +48695,134 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedEnumGuapiOrderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.GuapiOrderStatus | EnumGuapiOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GuapiOrderStatus[]
+    notIn?: $Enums.GuapiOrderStatus[]
+    not?: NestedEnumGuapiOrderStatusFilter<$PrismaModel> | $Enums.GuapiOrderStatus
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumGuapiOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GuapiOrderStatus | EnumGuapiOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GuapiOrderStatus[]
+    notIn?: $Enums.GuapiOrderStatus[]
+    not?: NestedEnumGuapiOrderStatusWithAggregatesFilter<$PrismaModel> | $Enums.GuapiOrderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGuapiOrderStatusFilter<$PrismaModel>
+    _max?: NestedEnumGuapiOrderStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentOrderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentOrderStatus | EnumAgentOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentOrderStatus[]
+    notIn?: $Enums.AgentOrderStatus[]
+    not?: NestedEnumAgentOrderStatusFilter<$PrismaModel> | $Enums.AgentOrderStatus
+  }
+
+  export type NestedEnumAgentOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentOrderStatus | EnumAgentOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentOrderStatus[]
+    notIn?: $Enums.AgentOrderStatus[]
+    not?: NestedEnumAgentOrderStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentOrderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentOrderStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgentOrderStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentCommissionLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentCommissionLevel | EnumAgentCommissionLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentCommissionLevel[]
+    notIn?: $Enums.AgentCommissionLevel[]
+    not?: NestedEnumAgentCommissionLevelFilter<$PrismaModel> | $Enums.AgentCommissionLevel
+  }
+
+  export type NestedEnumAgentCommissionLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentCommissionLevel | EnumAgentCommissionLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentCommissionLevel[]
+    notIn?: $Enums.AgentCommissionLevel[]
+    not?: NestedEnumAgentCommissionLevelWithAggregatesFilter<$PrismaModel> | $Enums.AgentCommissionLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentCommissionLevelFilter<$PrismaModel>
+    _max?: NestedEnumAgentCommissionLevelFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentWithdrawChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawChannel | EnumAgentWithdrawChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawChannel[]
+    notIn?: $Enums.AgentWithdrawChannel[]
+    not?: NestedEnumAgentWithdrawChannelFilter<$PrismaModel> | $Enums.AgentWithdrawChannel
+  }
+
+  export type NestedEnumAgentWithdrawStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawStatus | EnumAgentWithdrawStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawStatus[]
+    notIn?: $Enums.AgentWithdrawStatus[]
+    not?: NestedEnumAgentWithdrawStatusFilter<$PrismaModel> | $Enums.AgentWithdrawStatus
+  }
+
+  export type NestedEnumAgentWithdrawChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawChannel | EnumAgentWithdrawChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawChannel[]
+    notIn?: $Enums.AgentWithdrawChannel[]
+    not?: NestedEnumAgentWithdrawChannelWithAggregatesFilter<$PrismaModel> | $Enums.AgentWithdrawChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentWithdrawChannelFilter<$PrismaModel>
+    _max?: NestedEnumAgentWithdrawChannelFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgentWithdrawStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgentWithdrawStatus | EnumAgentWithdrawStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgentWithdrawStatus[]
+    notIn?: $Enums.AgentWithdrawStatus[]
+    not?: NestedEnumAgentWithdrawStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgentWithdrawStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgentWithdrawStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgentWithdrawStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumPostTypeFilter<$PrismaModel = never> = {
@@ -37026,6 +48969,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -37036,6 +48982,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutReferralsInput = {
@@ -37048,6 +48999,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
@@ -37057,6 +49011,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutReferralsInput = {
@@ -37073,6 +49032,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserCreateNestedManyWithoutReferrerInput
@@ -37083,6 +49045,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutReferrerInput = {
@@ -37094,6 +49061,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -37104,6 +49074,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutReferrerInput = {
@@ -37326,6 +49301,206 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type GuapiOrderCreateWithoutGuestUserInput = {
+    id?: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    package: GuapiPackageCreateNestedOneWithoutOrdersInput
+  }
+
+  export type GuapiOrderUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiOrderCreateOrConnectWithoutGuestUserInput = {
+    where: GuapiOrderWhereUniqueInput
+    create: XOR<GuapiOrderCreateWithoutGuestUserInput, GuapiOrderUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type GuapiOrderCreateManyGuestUserInputEnvelope = {
+    data: GuapiOrderCreateManyGuestUserInput | GuapiOrderCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentOrderCreateWithoutGuestUserInput = {
+    id?: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    package: AgentPackageCreateNestedOneWithoutOrdersInput
+  }
+
+  export type AgentOrderUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentOrderCreateOrConnectWithoutGuestUserInput = {
+    where: AgentOrderWhereUniqueInput
+    create: XOR<AgentOrderCreateWithoutGuestUserInput, AgentOrderUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type AgentOrderCreateManyGuestUserInputEnvelope = {
+    data: AgentOrderCreateManyGuestUserInput | AgentOrderCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentCommissionCreateWithoutBeneficiaryInput = {
+    id?: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    fromGuest: GuestUserCreateNestedOneWithoutCommissionsFromInput
+  }
+
+  export type AgentCommissionUncheckedCreateWithoutBeneficiaryInput = {
+    id?: string
+    fromGuestId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type AgentCommissionCreateOrConnectWithoutBeneficiaryInput = {
+    where: AgentCommissionWhereUniqueInput
+    create: XOR<AgentCommissionCreateWithoutBeneficiaryInput, AgentCommissionUncheckedCreateWithoutBeneficiaryInput>
+  }
+
+  export type AgentCommissionCreateManyBeneficiaryInputEnvelope = {
+    data: AgentCommissionCreateManyBeneficiaryInput | AgentCommissionCreateManyBeneficiaryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentCommissionCreateWithoutFromGuestInput = {
+    id?: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    beneficiary: GuestUserCreateNestedOneWithoutCommissionsEarnedInput
+  }
+
+  export type AgentCommissionUncheckedCreateWithoutFromGuestInput = {
+    id?: string
+    beneficiaryId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type AgentCommissionCreateOrConnectWithoutFromGuestInput = {
+    where: AgentCommissionWhereUniqueInput
+    create: XOR<AgentCommissionCreateWithoutFromGuestInput, AgentCommissionUncheckedCreateWithoutFromGuestInput>
+  }
+
+  export type AgentCommissionCreateManyFromGuestInputEnvelope = {
+    data: AgentCommissionCreateManyFromGuestInput | AgentCommissionCreateManyFromGuestInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentWithdrawalCreateWithoutGuestUserInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName?: string | null
+    status?: $Enums.AgentWithdrawStatus
+    adminNote?: string | null
+    reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentWithdrawalUncheckedCreateWithoutGuestUserInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName?: string | null
+    status?: $Enums.AgentWithdrawStatus
+    adminNote?: string | null
+    reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentWithdrawalCreateOrConnectWithoutGuestUserInput = {
+    where: AgentWithdrawalWhereUniqueInput
+    create: XOR<AgentWithdrawalCreateWithoutGuestUserInput, AgentWithdrawalUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type AgentWithdrawalCreateManyGuestUserInputEnvelope = {
+    data: AgentWithdrawalCreateManyGuestUserInput | AgentWithdrawalCreateManyGuestUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type GuestUserUpsertWithoutReferralsInput = {
     update: XOR<GuestUserUpdateWithoutReferralsInput, GuestUserUncheckedUpdateWithoutReferralsInput>
     create: XOR<GuestUserCreateWithoutReferralsInput, GuestUserUncheckedCreateWithoutReferralsInput>
@@ -37346,6 +49521,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -37356,6 +49534,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutReferralsInput = {
@@ -37368,6 +49551,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
@@ -37377,6 +49563,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUpsertWithWhereUniqueWithoutReferrerInput = {
@@ -37408,6 +49599,9 @@ export namespace Prisma {
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
+    isAgent?: BoolFilter<"GuestUser"> | boolean
+    agentAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
+    agentWalletYuan?: DecimalFilter<"GuestUser"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"GuestUser"> | Date | string
     updatedAt?: DateTimeFilter<"GuestUser"> | Date | string
   }
@@ -37622,6 +49816,1082 @@ export namespace Prisma {
     releasedAt?: DateTimeNullableFilter<"SmsNumberRecord"> | Date | string | null
   }
 
+  export type GuapiOrderUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: GuapiOrderWhereUniqueInput
+    update: XOR<GuapiOrderUpdateWithoutGuestUserInput, GuapiOrderUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<GuapiOrderCreateWithoutGuestUserInput, GuapiOrderUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type GuapiOrderUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: GuapiOrderWhereUniqueInput
+    data: XOR<GuapiOrderUpdateWithoutGuestUserInput, GuapiOrderUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type GuapiOrderUpdateManyWithWhereWithoutGuestUserInput = {
+    where: GuapiOrderScalarWhereInput
+    data: XOR<GuapiOrderUpdateManyMutationInput, GuapiOrderUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type GuapiOrderScalarWhereInput = {
+    AND?: GuapiOrderScalarWhereInput | GuapiOrderScalarWhereInput[]
+    OR?: GuapiOrderScalarWhereInput[]
+    NOT?: GuapiOrderScalarWhereInput | GuapiOrderScalarWhereInput[]
+    id?: StringFilter<"GuapiOrder"> | string
+    guestUserId?: StringFilter<"GuapiOrder"> | string
+    packageId?: StringFilter<"GuapiOrder"> | string
+    tradeNo?: StringNullableFilter<"GuapiOrder"> | string | null
+    channelId?: IntFilter<"GuapiOrder"> | number
+    channelName?: StringFilter<"GuapiOrder"> | string
+    quantity?: IntFilter<"GuapiOrder"> | number
+    totalAmount?: DecimalNullableFilter<"GuapiOrder"> | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFilter<"GuapiOrder"> | number
+    payUrl?: StringNullableFilter<"GuapiOrder"> | string | null
+    shopSessionCookie?: StringNullableFilter<"GuapiOrder"> | string | null
+    status?: EnumGuapiOrderStatusFilter<"GuapiOrder"> | $Enums.GuapiOrderStatus
+    paidAt?: DateTimeNullableFilter<"GuapiOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableFilter<"GuapiOrder"> | Date | string | null
+    contact?: StringFilter<"GuapiOrder"> | string
+    rawCreateResp?: StringNullableFilter<"GuapiOrder"> | string | null
+    rawQueryResp?: StringNullableFilter<"GuapiOrder"> | string | null
+    createdAt?: DateTimeFilter<"GuapiOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"GuapiOrder"> | Date | string
+  }
+
+  export type AgentOrderUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: AgentOrderWhereUniqueInput
+    update: XOR<AgentOrderUpdateWithoutGuestUserInput, AgentOrderUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<AgentOrderCreateWithoutGuestUserInput, AgentOrderUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type AgentOrderUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: AgentOrderWhereUniqueInput
+    data: XOR<AgentOrderUpdateWithoutGuestUserInput, AgentOrderUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type AgentOrderUpdateManyWithWhereWithoutGuestUserInput = {
+    where: AgentOrderScalarWhereInput
+    data: XOR<AgentOrderUpdateManyMutationInput, AgentOrderUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type AgentOrderScalarWhereInput = {
+    AND?: AgentOrderScalarWhereInput | AgentOrderScalarWhereInput[]
+    OR?: AgentOrderScalarWhereInput[]
+    NOT?: AgentOrderScalarWhereInput | AgentOrderScalarWhereInput[]
+    id?: StringFilter<"AgentOrder"> | string
+    guestUserId?: StringFilter<"AgentOrder"> | string
+    packageId?: StringFilter<"AgentOrder"> | string
+    tradeNo?: StringNullableFilter<"AgentOrder"> | string | null
+    channelId?: IntFilter<"AgentOrder"> | number
+    channelName?: StringFilter<"AgentOrder"> | string
+    totalAmount?: DecimalNullableFilter<"AgentOrder"> | Decimal | DecimalJsLike | number | string | null
+    payUrl?: StringNullableFilter<"AgentOrder"> | string | null
+    shopSessionCookie?: StringNullableFilter<"AgentOrder"> | string | null
+    status?: EnumAgentOrderStatusFilter<"AgentOrder"> | $Enums.AgentOrderStatus
+    paidAt?: DateTimeNullableFilter<"AgentOrder"> | Date | string | null
+    fulfilledAt?: DateTimeNullableFilter<"AgentOrder"> | Date | string | null
+    contact?: StringFilter<"AgentOrder"> | string
+    rawCreateResp?: StringNullableFilter<"AgentOrder"> | string | null
+    rawQueryResp?: StringNullableFilter<"AgentOrder"> | string | null
+    createdAt?: DateTimeFilter<"AgentOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentOrder"> | Date | string
+  }
+
+  export type AgentCommissionUpsertWithWhereUniqueWithoutBeneficiaryInput = {
+    where: AgentCommissionWhereUniqueInput
+    update: XOR<AgentCommissionUpdateWithoutBeneficiaryInput, AgentCommissionUncheckedUpdateWithoutBeneficiaryInput>
+    create: XOR<AgentCommissionCreateWithoutBeneficiaryInput, AgentCommissionUncheckedCreateWithoutBeneficiaryInput>
+  }
+
+  export type AgentCommissionUpdateWithWhereUniqueWithoutBeneficiaryInput = {
+    where: AgentCommissionWhereUniqueInput
+    data: XOR<AgentCommissionUpdateWithoutBeneficiaryInput, AgentCommissionUncheckedUpdateWithoutBeneficiaryInput>
+  }
+
+  export type AgentCommissionUpdateManyWithWhereWithoutBeneficiaryInput = {
+    where: AgentCommissionScalarWhereInput
+    data: XOR<AgentCommissionUpdateManyMutationInput, AgentCommissionUncheckedUpdateManyWithoutBeneficiaryInput>
+  }
+
+  export type AgentCommissionScalarWhereInput = {
+    AND?: AgentCommissionScalarWhereInput | AgentCommissionScalarWhereInput[]
+    OR?: AgentCommissionScalarWhereInput[]
+    NOT?: AgentCommissionScalarWhereInput | AgentCommissionScalarWhereInput[]
+    id?: StringFilter<"AgentCommission"> | string
+    beneficiaryId?: StringFilter<"AgentCommission"> | string
+    fromGuestId?: StringFilter<"AgentCommission"> | string
+    guapiOrderId?: StringFilter<"AgentCommission"> | string
+    level?: EnumAgentCommissionLevelFilter<"AgentCommission"> | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFilter<"AgentCommission"> | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFilter<"AgentCommission"> | Date | string
+  }
+
+  export type AgentCommissionUpsertWithWhereUniqueWithoutFromGuestInput = {
+    where: AgentCommissionWhereUniqueInput
+    update: XOR<AgentCommissionUpdateWithoutFromGuestInput, AgentCommissionUncheckedUpdateWithoutFromGuestInput>
+    create: XOR<AgentCommissionCreateWithoutFromGuestInput, AgentCommissionUncheckedCreateWithoutFromGuestInput>
+  }
+
+  export type AgentCommissionUpdateWithWhereUniqueWithoutFromGuestInput = {
+    where: AgentCommissionWhereUniqueInput
+    data: XOR<AgentCommissionUpdateWithoutFromGuestInput, AgentCommissionUncheckedUpdateWithoutFromGuestInput>
+  }
+
+  export type AgentCommissionUpdateManyWithWhereWithoutFromGuestInput = {
+    where: AgentCommissionScalarWhereInput
+    data: XOR<AgentCommissionUpdateManyMutationInput, AgentCommissionUncheckedUpdateManyWithoutFromGuestInput>
+  }
+
+  export type AgentWithdrawalUpsertWithWhereUniqueWithoutGuestUserInput = {
+    where: AgentWithdrawalWhereUniqueInput
+    update: XOR<AgentWithdrawalUpdateWithoutGuestUserInput, AgentWithdrawalUncheckedUpdateWithoutGuestUserInput>
+    create: XOR<AgentWithdrawalCreateWithoutGuestUserInput, AgentWithdrawalUncheckedCreateWithoutGuestUserInput>
+  }
+
+  export type AgentWithdrawalUpdateWithWhereUniqueWithoutGuestUserInput = {
+    where: AgentWithdrawalWhereUniqueInput
+    data: XOR<AgentWithdrawalUpdateWithoutGuestUserInput, AgentWithdrawalUncheckedUpdateWithoutGuestUserInput>
+  }
+
+  export type AgentWithdrawalUpdateManyWithWhereWithoutGuestUserInput = {
+    where: AgentWithdrawalScalarWhereInput
+    data: XOR<AgentWithdrawalUpdateManyMutationInput, AgentWithdrawalUncheckedUpdateManyWithoutGuestUserInput>
+  }
+
+  export type AgentWithdrawalScalarWhereInput = {
+    AND?: AgentWithdrawalScalarWhereInput | AgentWithdrawalScalarWhereInput[]
+    OR?: AgentWithdrawalScalarWhereInput[]
+    NOT?: AgentWithdrawalScalarWhereInput | AgentWithdrawalScalarWhereInput[]
+    id?: StringFilter<"AgentWithdrawal"> | string
+    guestUserId?: StringFilter<"AgentWithdrawal"> | string
+    amount?: DecimalFilter<"AgentWithdrawal"> | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawChannel
+    account?: StringFilter<"AgentWithdrawal"> | string
+    accountName?: StringNullableFilter<"AgentWithdrawal"> | string | null
+    status?: EnumAgentWithdrawStatusFilter<"AgentWithdrawal"> | $Enums.AgentWithdrawStatus
+    adminNote?: StringNullableFilter<"AgentWithdrawal"> | string | null
+    reviewedAt?: DateTimeNullableFilter<"AgentWithdrawal"> | Date | string | null
+    createdAt?: DateTimeFilter<"AgentWithdrawal"> | Date | string
+    updatedAt?: DateTimeFilter<"AgentWithdrawal"> | Date | string
+  }
+
+  export type GuapiOrderCreateWithoutPackageInput = {
+    id?: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutGuapiOrdersInput
+  }
+
+  export type GuapiOrderUncheckedCreateWithoutPackageInput = {
+    id?: string
+    guestUserId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiOrderCreateOrConnectWithoutPackageInput = {
+    where: GuapiOrderWhereUniqueInput
+    create: XOR<GuapiOrderCreateWithoutPackageInput, GuapiOrderUncheckedCreateWithoutPackageInput>
+  }
+
+  export type GuapiOrderCreateManyPackageInputEnvelope = {
+    data: GuapiOrderCreateManyPackageInput | GuapiOrderCreateManyPackageInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GuapiOrderUpsertWithWhereUniqueWithoutPackageInput = {
+    where: GuapiOrderWhereUniqueInput
+    update: XOR<GuapiOrderUpdateWithoutPackageInput, GuapiOrderUncheckedUpdateWithoutPackageInput>
+    create: XOR<GuapiOrderCreateWithoutPackageInput, GuapiOrderUncheckedCreateWithoutPackageInput>
+  }
+
+  export type GuapiOrderUpdateWithWhereUniqueWithoutPackageInput = {
+    where: GuapiOrderWhereUniqueInput
+    data: XOR<GuapiOrderUpdateWithoutPackageInput, GuapiOrderUncheckedUpdateWithoutPackageInput>
+  }
+
+  export type GuapiOrderUpdateManyWithWhereWithoutPackageInput = {
+    where: GuapiOrderScalarWhereInput
+    data: XOR<GuapiOrderUpdateManyMutationInput, GuapiOrderUncheckedUpdateManyWithoutPackageInput>
+  }
+
+  export type GuestUserCreateWithoutGuapiOrdersInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutGuapiOrdersInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutGuapiOrdersInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutGuapiOrdersInput, GuestUserUncheckedCreateWithoutGuapiOrdersInput>
+  }
+
+  export type GuapiPackageCreateWithoutOrdersInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    guapiAmount: number
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiPackageUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    guapiAmount: number
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiPackageCreateOrConnectWithoutOrdersInput = {
+    where: GuapiPackageWhereUniqueInput
+    create: XOR<GuapiPackageCreateWithoutOrdersInput, GuapiPackageUncheckedCreateWithoutOrdersInput>
+  }
+
+  export type GuestUserUpsertWithoutGuapiOrdersInput = {
+    update: XOR<GuestUserUpdateWithoutGuapiOrdersInput, GuestUserUncheckedUpdateWithoutGuapiOrdersInput>
+    create: XOR<GuestUserCreateWithoutGuapiOrdersInput, GuestUserUncheckedCreateWithoutGuapiOrdersInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutGuapiOrdersInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutGuapiOrdersInput, GuestUserUncheckedUpdateWithoutGuapiOrdersInput>
+  }
+
+  export type GuestUserUpdateWithoutGuapiOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutGuapiOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuapiPackageUpsertWithoutOrdersInput = {
+    update: XOR<GuapiPackageUpdateWithoutOrdersInput, GuapiPackageUncheckedUpdateWithoutOrdersInput>
+    create: XOR<GuapiPackageCreateWithoutOrdersInput, GuapiPackageUncheckedCreateWithoutOrdersInput>
+    where?: GuapiPackageWhereInput
+  }
+
+  export type GuapiPackageUpdateToOneWithWhereWithoutOrdersInput = {
+    where?: GuapiPackageWhereInput
+    data: XOR<GuapiPackageUpdateWithoutOrdersInput, GuapiPackageUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type GuapiPackageUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiPackageUncheckedUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderCreateWithoutPackageInput = {
+    id?: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    guestUser: GuestUserCreateNestedOneWithoutAgentOrdersInput
+  }
+
+  export type AgentOrderUncheckedCreateWithoutPackageInput = {
+    id?: string
+    guestUserId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentOrderCreateOrConnectWithoutPackageInput = {
+    where: AgentOrderWhereUniqueInput
+    create: XOR<AgentOrderCreateWithoutPackageInput, AgentOrderUncheckedCreateWithoutPackageInput>
+  }
+
+  export type AgentOrderCreateManyPackageInputEnvelope = {
+    data: AgentOrderCreateManyPackageInput | AgentOrderCreateManyPackageInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgentOrderUpsertWithWhereUniqueWithoutPackageInput = {
+    where: AgentOrderWhereUniqueInput
+    update: XOR<AgentOrderUpdateWithoutPackageInput, AgentOrderUncheckedUpdateWithoutPackageInput>
+    create: XOR<AgentOrderCreateWithoutPackageInput, AgentOrderUncheckedCreateWithoutPackageInput>
+  }
+
+  export type AgentOrderUpdateWithWhereUniqueWithoutPackageInput = {
+    where: AgentOrderWhereUniqueInput
+    data: XOR<AgentOrderUpdateWithoutPackageInput, AgentOrderUncheckedUpdateWithoutPackageInput>
+  }
+
+  export type AgentOrderUpdateManyWithWhereWithoutPackageInput = {
+    where: AgentOrderScalarWhereInput
+    data: XOR<AgentOrderUpdateManyMutationInput, AgentOrderUncheckedUpdateManyWithoutPackageInput>
+  }
+
+  export type GuestUserCreateWithoutAgentOrdersInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutAgentOrdersInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutAgentOrdersInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutAgentOrdersInput, GuestUserUncheckedCreateWithoutAgentOrdersInput>
+  }
+
+  export type AgentPackageCreateWithoutOrdersInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentPackageUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    title: string
+    goodsKey: string
+    priceYuan: Decimal | DecimalJsLike | number | string
+    sortOrder?: number
+    enabled?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentPackageCreateOrConnectWithoutOrdersInput = {
+    where: AgentPackageWhereUniqueInput
+    create: XOR<AgentPackageCreateWithoutOrdersInput, AgentPackageUncheckedCreateWithoutOrdersInput>
+  }
+
+  export type GuestUserUpsertWithoutAgentOrdersInput = {
+    update: XOR<GuestUserUpdateWithoutAgentOrdersInput, GuestUserUncheckedUpdateWithoutAgentOrdersInput>
+    create: XOR<GuestUserCreateWithoutAgentOrdersInput, GuestUserUncheckedCreateWithoutAgentOrdersInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutAgentOrdersInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutAgentOrdersInput, GuestUserUncheckedUpdateWithoutAgentOrdersInput>
+  }
+
+  export type GuestUserUpdateWithoutAgentOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutAgentOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type AgentPackageUpsertWithoutOrdersInput = {
+    update: XOR<AgentPackageUpdateWithoutOrdersInput, AgentPackageUncheckedUpdateWithoutOrdersInput>
+    create: XOR<AgentPackageCreateWithoutOrdersInput, AgentPackageUncheckedCreateWithoutOrdersInput>
+    where?: AgentPackageWhereInput
+  }
+
+  export type AgentPackageUpdateToOneWithWhereWithoutOrdersInput = {
+    where?: AgentPackageWhereInput
+    data: XOR<AgentPackageUpdateWithoutOrdersInput, AgentPackageUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type AgentPackageUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentPackageUncheckedUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    goodsKey?: StringFieldUpdateOperationsInput | string
+    priceYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuestUserCreateWithoutCommissionsEarnedInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutCommissionsEarnedInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutCommissionsEarnedInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutCommissionsEarnedInput, GuestUserUncheckedCreateWithoutCommissionsEarnedInput>
+  }
+
+  export type GuestUserCreateWithoutCommissionsFromInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutCommissionsFromInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutCommissionsFromInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutCommissionsFromInput, GuestUserUncheckedCreateWithoutCommissionsFromInput>
+  }
+
+  export type GuestUserUpsertWithoutCommissionsEarnedInput = {
+    update: XOR<GuestUserUpdateWithoutCommissionsEarnedInput, GuestUserUncheckedUpdateWithoutCommissionsEarnedInput>
+    create: XOR<GuestUserCreateWithoutCommissionsEarnedInput, GuestUserUncheckedCreateWithoutCommissionsEarnedInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutCommissionsEarnedInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutCommissionsEarnedInput, GuestUserUncheckedUpdateWithoutCommissionsEarnedInput>
+  }
+
+  export type GuestUserUpdateWithoutCommissionsEarnedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutCommissionsEarnedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUpsertWithoutCommissionsFromInput = {
+    update: XOR<GuestUserUpdateWithoutCommissionsFromInput, GuestUserUncheckedUpdateWithoutCommissionsFromInput>
+    create: XOR<GuestUserCreateWithoutCommissionsFromInput, GuestUserUncheckedCreateWithoutCommissionsFromInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutCommissionsFromInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutCommissionsFromInput, GuestUserUncheckedUpdateWithoutCommissionsFromInput>
+  }
+
+  export type GuestUserUpdateWithoutCommissionsFromInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutCommissionsFromInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
+  }
+
+  export type GuestUserCreateWithoutAgentWithdrawalsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrer?: GuestUserCreateNestedOneWithoutReferralsInput
+    referrals?: GuestUserCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+  }
+
+  export type GuestUserUncheckedCreateWithoutAgentWithdrawalsInput = {
+    id?: string
+    publicId: string
+    secretKeyHash: string
+    referrerId?: string | null
+    searchBonus?: number
+    guapiBalance?: number
+    registerIp?: string | null
+    lastLoginIp?: string | null
+    lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
+    searchLogs?: SearchLogUncheckedCreateNestedManyWithoutGuestUserInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedCreateNestedManyWithoutGuestUserInput
+    contentViewLogs?: ContentViewLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
+    smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+  }
+
+  export type GuestUserCreateOrConnectWithoutAgentWithdrawalsInput = {
+    where: GuestUserWhereUniqueInput
+    create: XOR<GuestUserCreateWithoutAgentWithdrawalsInput, GuestUserUncheckedCreateWithoutAgentWithdrawalsInput>
+  }
+
+  export type GuestUserUpsertWithoutAgentWithdrawalsInput = {
+    update: XOR<GuestUserUpdateWithoutAgentWithdrawalsInput, GuestUserUncheckedUpdateWithoutAgentWithdrawalsInput>
+    create: XOR<GuestUserCreateWithoutAgentWithdrawalsInput, GuestUserUncheckedCreateWithoutAgentWithdrawalsInput>
+    where?: GuestUserWhereInput
+  }
+
+  export type GuestUserUpdateToOneWithWhereWithoutAgentWithdrawalsInput = {
+    where?: GuestUserWhereInput
+    data: XOR<GuestUserUpdateWithoutAgentWithdrawalsInput, GuestUserUncheckedUpdateWithoutAgentWithdrawalsInput>
+  }
+
+  export type GuestUserUpdateWithoutAgentWithdrawalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
+    referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+  }
+
+  export type GuestUserUncheckedUpdateWithoutAgentWithdrawalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    secretKeyHash?: StringFieldUpdateOperationsInput | string
+    referrerId?: NullableStringFieldUpdateOperationsInput | string | null
+    searchBonus?: IntFieldUpdateOperationsInput | number
+    guapiBalance?: IntFieldUpdateOperationsInput | number
+    registerIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
+    searchLogs?: SearchLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    globalSearchCaches?: GlobalSearchCacheUncheckedUpdateManyWithoutGuestUserNestedInput
+    contentViewLogs?: ContentViewLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+  }
+
   export type GuestUserCreateWithoutSmsGuapiLogsInput = {
     id?: string
     publicId: string
@@ -37631,6 +50901,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -37641,6 +50914,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSmsGuapiLogsInput = {
@@ -37653,6 +50931,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -37662,6 +50943,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSmsGuapiLogsInput = {
@@ -37689,6 +50975,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -37699,6 +50988,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSmsGuapiLogsInput = {
@@ -37711,6 +51005,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -37720,6 +51017,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateWithoutSmsLogsInput = {
@@ -37731,6 +51033,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -37741,6 +51046,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSmsLogsInput = {
@@ -37753,6 +51063,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -37762,6 +51075,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSmsLogsInput = {
@@ -37789,6 +51107,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -37799,6 +51120,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSmsLogsInput = {
@@ -37811,6 +51137,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -37820,6 +51149,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateWithoutSmsUserRecordsInput = {
@@ -37831,6 +51165,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -37841,6 +51178,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSmsUserRecordsInput = {
@@ -37853,6 +51195,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -37862,6 +51207,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSmsUserRecordsInput = {
@@ -37889,6 +51239,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -37899,6 +51252,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSmsUserRecordsInput = {
@@ -37911,6 +51269,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -37920,6 +51281,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateWithoutSmsNumberRecordsInput = {
@@ -37931,6 +51297,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -37941,6 +51310,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSmsNumberRecordsInput = {
@@ -37953,6 +51327,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -37962,6 +51339,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSmsNumberRecordsInput = {
@@ -37989,6 +51371,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -37999,6 +51384,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSmsNumberRecordsInput = {
@@ -38011,6 +51401,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -38020,6 +51413,11 @@ export namespace Prisma {
     smsGuapiLogs?: SmsGuapiLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type PostCreateWithoutCategoryInput = {
@@ -39182,6 +52580,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -39192,6 +52593,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutSearchLogsInput = {
@@ -39204,6 +52610,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -39213,6 +52622,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutSearchLogsInput = {
@@ -39281,6 +52695,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -39291,6 +52708,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutSearchLogsInput = {
@@ -39303,6 +52725,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -39312,6 +52737,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateWithoutContentViewLogsInput = {
@@ -39323,6 +52753,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -39333,6 +52766,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutContentViewLogsInput = {
@@ -39345,6 +52783,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -39354,6 +52795,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutContentViewLogsInput = {
@@ -39381,6 +52827,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -39391,6 +52840,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutContentViewLogsInput = {
@@ -39403,6 +52857,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -39412,6 +52869,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateWithoutGlobalSearchCachesInput = {
@@ -39423,6 +52885,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrer?: GuestUserCreateNestedOneWithoutReferralsInput
@@ -39433,6 +52898,11 @@ export namespace Prisma {
     smsLogs?: SmsLogCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserUncheckedCreateWithoutGlobalSearchCachesInput = {
@@ -39445,6 +52915,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
     referrals?: GuestUserUncheckedCreateNestedManyWithoutReferrerInput
@@ -39454,6 +52927,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedCreateNestedManyWithoutGuestUserInput
     smsUserRecords?: SmsUserRecordUncheckedCreateNestedManyWithoutGuestUserInput
     smsNumberRecords?: SmsNumberRecordUncheckedCreateNestedManyWithoutGuestUserInput
+    guapiOrders?: GuapiOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    agentOrders?: AgentOrderUncheckedCreateNestedManyWithoutGuestUserInput
+    commissionsEarned?: AgentCommissionUncheckedCreateNestedManyWithoutBeneficiaryInput
+    commissionsFrom?: AgentCommissionUncheckedCreateNestedManyWithoutFromGuestInput
+    agentWithdrawals?: AgentWithdrawalUncheckedCreateNestedManyWithoutGuestUserInput
   }
 
   export type GuestUserCreateOrConnectWithoutGlobalSearchCachesInput = {
@@ -39481,6 +52959,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrer?: GuestUserUpdateOneWithoutReferralsNestedInput
@@ -39491,6 +52972,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutGlobalSearchCachesInput = {
@@ -39503,6 +52989,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -39512,6 +53001,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserCreateManyReferrerInput = {
@@ -39523,6 +53017,9 @@ export namespace Prisma {
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
+    isAgent?: boolean
+    agentAt?: Date | string | null
+    agentWalletYuan?: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -39597,6 +53094,81 @@ export namespace Prisma {
     releasedAt?: Date | string | null
   }
 
+  export type GuapiOrderCreateManyGuestUserInput = {
+    id?: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentOrderCreateManyGuestUserInput = {
+    id?: string
+    packageId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentCommissionCreateManyBeneficiaryInput = {
+    id?: string
+    fromGuestId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type AgentCommissionCreateManyFromGuestInput = {
+    id?: string
+    beneficiaryId: string
+    guapiOrderId: string
+    level: $Enums.AgentCommissionLevel
+    orderAmount: Decimal | DecimalJsLike | number | string
+    rate: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type AgentWithdrawalCreateManyGuestUserInput = {
+    id?: string
+    amount: Decimal | DecimalJsLike | number | string
+    channel: $Enums.AgentWithdrawChannel
+    account: string
+    accountName?: string | null
+    status?: $Enums.AgentWithdrawStatus
+    adminNote?: string | null
+    reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type GuestUserUpdateWithoutReferrerInput = {
     id?: StringFieldUpdateOperationsInput | string
     publicId?: StringFieldUpdateOperationsInput | string
@@ -39606,6 +53178,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUpdateManyWithoutReferrerNestedInput
@@ -39616,6 +53191,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateWithoutReferrerInput = {
@@ -39627,6 +53207,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     referrals?: GuestUserUncheckedUpdateManyWithoutReferrerNestedInput
@@ -39637,6 +53220,11 @@ export namespace Prisma {
     smsLogs?: SmsLogUncheckedUpdateManyWithoutGuestUserNestedInput
     smsUserRecords?: SmsUserRecordUncheckedUpdateManyWithoutGuestUserNestedInput
     smsNumberRecords?: SmsNumberRecordUncheckedUpdateManyWithoutGuestUserNestedInput
+    guapiOrders?: GuapiOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    agentOrders?: AgentOrderUncheckedUpdateManyWithoutGuestUserNestedInput
+    commissionsEarned?: AgentCommissionUncheckedUpdateManyWithoutBeneficiaryNestedInput
+    commissionsFrom?: AgentCommissionUncheckedUpdateManyWithoutFromGuestNestedInput
+    agentWithdrawals?: AgentWithdrawalUncheckedUpdateManyWithoutGuestUserNestedInput
   }
 
   export type GuestUserUncheckedUpdateManyWithoutReferrerInput = {
@@ -39648,6 +53236,9 @@ export namespace Prisma {
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isAgent?: BoolFieldUpdateOperationsInput | boolean
+    agentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    agentWalletYuan?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -39860,6 +53451,391 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type GuapiOrderUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    package?: GuapiPackageUpdateOneRequiredWithoutOrdersNestedInput
+  }
+
+  export type GuapiOrderUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiOrderUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    package?: AgentPackageUpdateOneRequiredWithoutOrdersNestedInput
+  }
+
+  export type AgentOrderUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    packageId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionUpdateWithoutBeneficiaryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fromGuest?: GuestUserUpdateOneRequiredWithoutCommissionsFromNestedInput
+  }
+
+  export type AgentCommissionUncheckedUpdateWithoutBeneficiaryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromGuestId?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionUncheckedUpdateManyWithoutBeneficiaryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromGuestId?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionUpdateWithoutFromGuestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    beneficiary?: GuestUserUpdateOneRequiredWithoutCommissionsEarnedNestedInput
+  }
+
+  export type AgentCommissionUncheckedUpdateWithoutFromGuestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    beneficiaryId?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentCommissionUncheckedUpdateManyWithoutFromGuestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    beneficiaryId?: StringFieldUpdateOperationsInput | string
+    guapiOrderId?: StringFieldUpdateOperationsInput | string
+    level?: EnumAgentCommissionLevelFieldUpdateOperationsInput | $Enums.AgentCommissionLevel
+    orderAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentWithdrawalUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentWithdrawalUncheckedUpdateWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentWithdrawalUncheckedUpdateManyWithoutGuestUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    channel?: EnumAgentWithdrawChannelFieldUpdateOperationsInput | $Enums.AgentWithdrawChannel
+    account?: StringFieldUpdateOperationsInput | string
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentWithdrawStatusFieldUpdateOperationsInput | $Enums.AgentWithdrawStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiOrderCreateManyPackageInput = {
+    id?: string
+    guestUserId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    quantity?: number
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    guapiAmount: number
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.GuapiOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GuapiOrderUpdateWithoutPackageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutGuapiOrdersNestedInput
+  }
+
+  export type GuapiOrderUncheckedUpdateWithoutPackageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuapiOrderUncheckedUpdateManyWithoutPackageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    guapiAmount?: IntFieldUpdateOperationsInput | number
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumGuapiOrderStatusFieldUpdateOperationsInput | $Enums.GuapiOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderCreateManyPackageInput = {
+    id?: string
+    guestUserId: string
+    tradeNo?: string | null
+    channelId: number
+    channelName: string
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    payUrl?: string | null
+    shopSessionCookie?: string | null
+    status?: $Enums.AgentOrderStatus
+    paidAt?: Date | string | null
+    fulfilledAt?: Date | string | null
+    contact: string
+    rawCreateResp?: string | null
+    rawQueryResp?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgentOrderUpdateWithoutPackageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    guestUser?: GuestUserUpdateOneRequiredWithoutAgentOrdersNestedInput
+  }
+
+  export type AgentOrderUncheckedUpdateWithoutPackageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentOrderUncheckedUpdateManyWithoutPackageInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    guestUserId?: StringFieldUpdateOperationsInput | string
+    tradeNo?: NullableStringFieldUpdateOperationsInput | string | null
+    channelId?: IntFieldUpdateOperationsInput | number
+    channelName?: StringFieldUpdateOperationsInput | string
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    shopSessionCookie?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAgentOrderStatusFieldUpdateOperationsInput | $Enums.AgentOrderStatus
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contact?: StringFieldUpdateOperationsInput | string
+    rawCreateResp?: NullableStringFieldUpdateOperationsInput | string | null
+    rawQueryResp?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PostCreateManyCategoryInput = {

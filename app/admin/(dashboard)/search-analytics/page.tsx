@@ -157,7 +157,7 @@ export default async function AdminSearchAnalyticsPage() {
     <>
       <SearchSourcePanel
         title="全网搜索"
-        scopeNote="统计范围：`/global-search` 暗网索引搜索。极搜返回频道列表后扣 1 次额度并记一条明细；验证码阶段不扣次。"
+        scopeNote="统计范围：`/global-search` 暗网索引搜索。搜索免费，返回结果后记一条明细（含缓存命中）；观看资源才扣瓜皮。验证码阶段不记明细。"
         stats={globalStats}
         recentLogs={globalLogs}
         showGuest

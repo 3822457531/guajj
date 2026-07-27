@@ -32,7 +32,7 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
           <div className="my-guapi-modal-head-icon" aria-hidden>🍉</div>
           <div>
             <h3 id="guapi-modal-title" className="my-guapi-modal-title">瓜皮能做什么？</h3>
-            <p className="my-guapi-modal-sub">站内通用额度，邀请好友可永久增加</p>
+            <p className="my-guapi-modal-sub">站内通用额度，邀请或购买可永久增加</p>
           </div>
           <button type="button" className="my-guapi-modal-close" onClick={onClose} aria-label="关闭">
             ✕
@@ -57,8 +57,15 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
                 <p>点进搜索结果观看内容，每次新资源扣 1 瓜皮，重复观看不扣</p>
               </div>
             </li>
+            <li>
+              <span className="my-guapi-use-icon" aria-hidden>💳</span>
+              <div>
+                <strong>购买瓜皮</strong>
+                <p>支持微信/支付宝购买，到账后永久增加每日额度</p>
+              </div>
+            </li>
           </ul>
-          <p className="my-guapi-modal-foot">邀请好友扫码注册，你将获得额外瓜皮并永久累计。</p>
+          <p className="my-guapi-modal-foot">可在「我的」购买瓜皮，也可邀请好友扫码注册获得额外额度。</p>
         </div>
         <button type="button" className="my-guapi-modal-ok" onClick={onClose}>
           知道了

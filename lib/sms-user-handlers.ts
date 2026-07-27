@@ -24,7 +24,7 @@ function insufficientGuapi(remaining: number, required: number) {
   return {
     ok: false,
     code: 402,
-    message: "瓜皮不足，请联系管理员充值或邀请好友",
+    message: "瓜皮不足，请前往「我的」购买瓜皮或邀请好友",
     data: { code: INSUFFICIENT_GUAPI_CODE, balance: remaining, required }
   };
 }
@@ -235,7 +235,7 @@ export async function smsSendBulk(
     return {
       ok: false,
       code: 402,
-      message: "瓜皮不足，请联系管理员充值或邀请好友",
+      message: "瓜皮不足，请前往「我的」购买瓜皮或邀请好友",
       data: { code: INSUFFICIENT_GUAPI_CODE, balance: quota.remaining, required: totalPrice, count: telList.length }
     };
   }

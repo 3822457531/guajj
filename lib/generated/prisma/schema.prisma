@@ -113,16 +113,83 @@ model GuestUser {
   lastLoginAt        DateTime?
   searchLogs         SearchLog[]
   globalSearchCaches GlobalSearchCache[]
+  contentViewLogs    ContentViewLog[]
   smsGuapiLogs       SmsGuapiLog[]
   smsLogs            SmsLog[]
   smsUserRecords     SmsUserRecord[]
   smsNumberRecords   SmsNumberRecord[]
+  guapiOrders        GuapiOrder[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
   @@index([referrerId])
   @@index([createdAt])
   @@index([lastLoginAt])
+}
+
+/**
+ * 支付配置（key-value，如微信默认渠道）
+ */
+model PayConfig {
+  key   String @id @db.VarChar(64)
+  value String @db.Text
+}
+
+/**
+ * 瓜皮购买套餐（对接第三方店铺 goods_key）
+ */
+model GuapiPackage {
+  id          String       @id @default(cuid()) @db.VarChar(30)
+  title       String       @db.VarChar(128)
+  goodsKey    String       @db.VarChar(64)
+  guapiAmount Int
+  /**
+   * 展示标价（元）
+   */
+  priceYuan   Decimal      @db.Decimal(10, 2)
+  sortOrder   Int          @default(0)
+  enabled     Boolean      @default(true)
+  orders      GuapiOrder[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([enabled, sortOrder])
+}
+
+enum GuapiOrderStatus {
+  pending
+  paid
+  closed
+}
+
+/**
+ * 瓜皮购买订单
+ */
+model GuapiOrder {
+  id                String           @id @default(cuid()) @db.VarChar(30)
+  guestUserId       String           @db.VarChar(30)
+  guestUser         GuestUser        @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  packageId         String           @db.VarChar(30)
+  package           GuapiPackage     @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  tradeNo           String?          @unique @db.VarChar(64)
+  channelId         Int
+  channelName       String           @db.VarChar(32)
+  quantity          Int              @default(1)
+  totalAmount       Decimal?         @db.Decimal(10, 2)
+  guapiAmount       Int
+  payUrl            String?          @db.VarChar(512)
+  shopSessionCookie String?          @db.VarChar(512)
+  status            GuapiOrderStatus @default(pending)
+  paidAt            DateTime?
+  fulfilledAt       DateTime?
+  contact           String           @db.VarChar(64)
+  rawCreateResp     String?          @db.Text
+  rawQueryResp      String?          @db.Text
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([guestUserId, createdAt])
+  @@index([status, createdAt])
 }
 
 /**
@@ -484,6 +551,26 @@ model SearchLog {
   @@index([visitorId, createdAt])
   @@index([socialUserId, createdAt])
   @@index([guestUserId, createdAt])
+}
+
+/**
+ * 用户观看资源记录（全局搜点进频道消息）
+ */
+model ContentViewLog {
+  id           String    @id @default(cuid()) @db.VarChar(30)
+  guestUserId  String    @db.VarChar(30)
+  guestUser    GuestUser @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  username     String    @db.VarChar(64)
+  messageId    Int
+  title        String?   @db.VarChar(500)
+  label        String?   @db.VarChar(255)
+  searchQuery  String?   @db.VarChar(191)
+  userHiddenAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([guestUserId, username, messageId])
+  @@index([guestUserId, userHiddenAt, updatedAt])
 }
 
 /**

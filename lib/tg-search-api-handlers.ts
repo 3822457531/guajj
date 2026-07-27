@@ -18,6 +18,7 @@ import {
 } from "@/lib/search-quota";
 import { INSUFFICIENT_GUAPI_CODE } from "@/lib/sms-guapi";
 import { hasGuestViewedContent, recordContentView } from "@/lib/view-guapi";
+import { recordSearchLogFromRequest, SearchSource } from "@/lib/search-analytics";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const {
@@ -46,6 +47,15 @@ type CaptchaErr = Error & {
   };
   query?: string;
 };
+
+/** 仅写搜索统计，不扣瓜皮 */
+async function recordGlobalSearchLog(request: Request, keyword: string, resultCount: number) {
+  try {
+    await recordSearchLogFromRequest(request, SearchSource.GLOBAL, keyword, resultCount);
+  } catch {
+    /* analytics must not break search */
+  }
+}
 
 function captchaJsonPayload(apiBase: string, captcha: NonNullable<CaptchaErr["captcha"]>, extra?: Record<string, unknown>) {
   return {
@@ -156,6 +166,7 @@ export async function handleTgSearchPost(request: Request, apiBase: string) {
     const cached = await getCachedGlobalSearch(guestUserId, q);
     if (cached?.payload?.channels?.length) {
       void touchGlobalSearchCache(cached.id).catch(() => {});
+      void recordGlobalSearchLog(request, q, cached.channelCount);
       tgSearchLog("search-api", "极搜命中缓存", {
         q,
         channels: cached.channelCount,
@@ -185,6 +196,7 @@ export async function handleTgSearchPost(request: Request, apiBase: string) {
         });
       });
     }
+    void recordGlobalSearchLog(request, q, channelCount);
     tgSearchLog("search-api", "极搜成功", {
       q,
       channels: channelCount,
@@ -263,6 +275,9 @@ export async function handleTgCaptchaSolvePost(request: Request, apiBase: string
     const guestUserId = await readGuestUserIdFromRequest();
     if (channelCount > 0 && q && guestUserId) {
       void upsertGlobalSearchCache(guestUserId, q, result).catch(() => {});
+    }
+    if (q) {
+      void recordGlobalSearchLog(request, q, channelCount);
     }
     tgSearchLog("search-api", "验证码通过并完成极搜", {
       challengeId,

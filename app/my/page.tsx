@@ -8,8 +8,8 @@ import { getGuestGlobalSearchQuota } from "@/lib/search-quota";
 import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
-  title: "我的 · 吃瓜网",
-  description: "匿名身份、瓜皮额度与推广奖励"
+  title: "我的吃瓜 · 吃瓜网",
+  description: "瓜皮额度、推广赚钱与吃瓜足迹"
 };
 
 export const dynamic = "force-dynamic";
@@ -21,11 +21,11 @@ function MyPageHeader() {
         <div className="h5-brand-block">
           <div className="h5-brand-line">
             <span className="h5-brand-flame" aria-hidden>
-              👤
+              🍉
             </span>
-            <span className="h5-brand-title">我的</span>
+            <span className="h5-brand-title">我的吃瓜</span>
           </div>
-          <p className="h5-brand-sub">匿名身份 · 瓜皮额度 · 扫码推广</p>
+          <p className="h5-brand-sub">瓜皮额度 · 推广赚钱 · 足迹</p>
         </div>
       </div>
     </header>

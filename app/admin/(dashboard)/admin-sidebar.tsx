@@ -133,6 +133,26 @@ function IconGuestUser() {
   );
 }
 
+function IconShop() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M3 9l1-5h16l1 5" />
+      <path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9" />
+      <path d="M9 22V12h6v10" />
+    </svg>
+  );
+}
+
+function IconAgent() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      <path d="M16 11l2 2 4-4" />
+    </svg>
+  );
+}
+
 function isActive(pathname: string, item: NavItem) {
   if (item.end) return pathname === item.href;
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -152,6 +172,8 @@ export default function AdminSidebar({ username }: { username: string }) {
       { href: path("/comments"), label: "评论", icon: <IconChat /> },
       // { href: path("/social-users"), label: "登录用户", icon: <IconUsers /> },
       { href: path("/users"), label: "用户", icon: <IconGuestUser /> },
+      { href: path("/guapi-shop"), label: "瓜皮商城", icon: <IconShop /> },
+      { href: path("/agent"), label: "代理分销", icon: <IconAgent /> },
       { href: path("/sms"), label: "接码", icon: <IconSms /> },
       { href: path("/media"), label: "媒体", icon: <IconImage /> },
       { href: path("/storage"), label: "存储监控", icon: <IconStorage /> },

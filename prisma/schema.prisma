@@ -79,6 +79,11 @@ model GuestUser {
   lastLoginIp     String?     @db.VarChar(45)
   /** 最近一次登录/恢复会话时间 */
   lastLoginAt     DateTime?
+  /** 是否已开通代理 */
+  isAgent         Boolean     @default(false)
+  agentAt         DateTime?
+  /** 代理可提现余额（元） */
+  agentWalletYuan Decimal     @default(0) @db.Decimal(10, 2)
   searchLogs         SearchLog[]
   globalSearchCaches GlobalSearchCache[]
   contentViewLogs    ContentViewLog[]
@@ -86,12 +91,182 @@ model GuestUser {
   smsLogs            SmsLog[]
   smsUserRecords     SmsUserRecord[]
   smsNumberRecords   SmsNumberRecord[]
+  guapiOrders        GuapiOrder[]
+  agentOrders        AgentOrder[]
+  commissionsEarned  AgentCommission[] @relation("CommissionBeneficiary")
+  commissionsFrom    AgentCommission[] @relation("CommissionFrom")
+  agentWithdrawals   AgentWithdrawal[]
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 
   @@index([referrerId])
   @@index([createdAt])
   @@index([lastLoginAt])
+  @@index([isAgent])
+}
+
+/** 支付配置（key-value，如微信默认渠道） */
+model PayConfig {
+  key   String @id @db.VarChar(64)
+  value String @db.Text
+}
+
+/** 瓜皮购买套餐（对接第三方店铺 goods_key） */
+model GuapiPackage {
+  id          String       @id @default(cuid()) @db.VarChar(30)
+  title       String       @db.VarChar(128)
+  goodsKey    String       @db.VarChar(64)
+  guapiAmount Int
+  /** 展示标价（元） */
+  priceYuan   Decimal      @db.Decimal(10, 2)
+  sortOrder   Int          @default(0)
+  enabled     Boolean      @default(true)
+  orders      GuapiOrder[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([enabled, sortOrder])
+}
+
+enum GuapiOrderStatus {
+  pending
+  paid
+  closed
+}
+
+/** 瓜皮购买订单 */
+model GuapiOrder {
+  id                String           @id @default(cuid()) @db.VarChar(30)
+  guestUserId       String           @db.VarChar(30)
+  guestUser         GuestUser        @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  packageId         String           @db.VarChar(30)
+  package           GuapiPackage     @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  tradeNo           String?          @unique @db.VarChar(64)
+  channelId         Int
+  channelName       String           @db.VarChar(32)
+  quantity          Int              @default(1)
+  totalAmount       Decimal?         @db.Decimal(10, 2)
+  guapiAmount       Int
+  payUrl            String?          @db.VarChar(512)
+  shopSessionCookie String?          @db.VarChar(512)
+  status            GuapiOrderStatus @default(pending)
+  paidAt            DateTime?
+  fulfilledAt       DateTime?
+  contact           String           @db.VarChar(64)
+  rawCreateResp     String?          @db.Text
+  rawQueryResp      String?          @db.Text
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([guestUserId, createdAt])
+  @@index([status, createdAt])
+}
+
+/** 代理分销配置（key-value） */
+model AgentConfig {
+  key   String @id @db.VarChar(64)
+  value String @db.Text
+}
+
+/** 代理开通套餐 */
+model AgentPackage {
+  id        String       @id @default(cuid()) @db.VarChar(30)
+  title     String       @db.VarChar(128)
+  goodsKey  String       @db.VarChar(64)
+  priceYuan Decimal      @db.Decimal(10, 2)
+  sortOrder Int          @default(0)
+  enabled   Boolean      @default(true)
+  orders    AgentOrder[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([enabled, sortOrder])
+}
+
+enum AgentOrderStatus {
+  pending
+  paid
+  closed
+}
+
+/** 代理开通订单 */
+model AgentOrder {
+  id                String           @id @default(cuid()) @db.VarChar(30)
+  guestUserId       String           @db.VarChar(30)
+  guestUser         GuestUser        @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  packageId         String           @db.VarChar(30)
+  package           AgentPackage     @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  tradeNo           String?          @unique @db.VarChar(64)
+  channelId         Int
+  channelName       String           @db.VarChar(32)
+  totalAmount       Decimal?         @db.Decimal(10, 2)
+  payUrl            String?          @db.VarChar(512)
+  shopSessionCookie String?          @db.VarChar(512)
+  status            AgentOrderStatus @default(pending)
+  paidAt            DateTime?
+  fulfilledAt       DateTime?
+  contact           String           @db.VarChar(64)
+  rawCreateResp     String?          @db.Text
+  rawQueryResp      String?          @db.Text
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([guestUserId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum AgentCommissionLevel {
+  direct
+  indirect
+}
+
+/** 代理佣金流水 */
+model AgentCommission {
+  id            String                @id @default(cuid()) @db.VarChar(30)
+  beneficiaryId String                @db.VarChar(30)
+  beneficiary   GuestUser             @relation("CommissionBeneficiary", fields: [beneficiaryId], references: [id], onDelete: Cascade)
+  fromGuestId   String                @db.VarChar(30)
+  fromGuest     GuestUser             @relation("CommissionFrom", fields: [fromGuestId], references: [id], onDelete: Cascade)
+  guapiOrderId  String                @db.VarChar(30)
+  level         AgentCommissionLevel
+  orderAmount   Decimal               @db.Decimal(10, 2)
+  rate          Decimal               @db.Decimal(6, 4)
+  amount        Decimal               @db.Decimal(10, 2)
+  createdAt     DateTime              @default(now())
+
+  @@unique([guapiOrderId, level])
+  @@index([beneficiaryId, createdAt])
+  @@index([fromGuestId, createdAt])
+}
+
+enum AgentWithdrawChannel {
+  alipay
+  wechat
+}
+
+enum AgentWithdrawStatus {
+  pending
+  approved
+  rejected
+}
+
+/** 代理提现申请 */
+model AgentWithdrawal {
+  id          String               @id @default(cuid()) @db.VarChar(30)
+  guestUserId String               @db.VarChar(30)
+  guestUser   GuestUser            @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  amount      Decimal              @db.Decimal(10, 2)
+  channel     AgentWithdrawChannel
+  account     String               @db.VarChar(128)
+  accountName String?              @db.VarChar(64)
+  status      AgentWithdrawStatus  @default(pending)
+  adminNote   String?              @db.VarChar(255)
+  reviewedAt  DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([guestUserId, createdAt])
+  @@index([status, createdAt])
 }
 
 /** 接码平台配置（key-value） */
