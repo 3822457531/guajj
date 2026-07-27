@@ -245,3 +245,64 @@ export async function queryAndFulfillAgentOrder(input: {
     message: "支付成功，代理已开通"
   };
 }
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * 宝塔定时任务：批量查待支付代理订单并自动开通。
+ */
+export async function reconcilePendingAgentOrders(options?: {
+  limit?: number;
+  maxAgeHours?: number;
+  delayMs?: number;
+}) {
+  const limit = Math.min(80, Math.max(1, Math.floor(Number(options?.limit) || 40)));
+  const maxAgeHours = Math.min(168, Math.max(1, Math.floor(Number(options?.maxAgeHours) || 48)));
+  const delayMs = Math.min(2000, Math.max(0, Math.floor(Number(options?.delayMs) || 250)));
+  const since = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
+
+  const pending = await prisma.agentOrder.findMany({
+    where: {
+      status: AgentOrderStatus.pending,
+      tradeNo: { not: null },
+      createdAt: { gte: since }
+    },
+    orderBy: { createdAt: "asc" },
+    take: limit,
+    select: { tradeNo: true }
+  });
+
+  let checked = 0;
+  let paid = 0;
+  let failed = 0;
+  const paidTradeNos: string[] = [];
+
+  for (const row of pending) {
+    const tradeNo = String(row.tradeNo || "").trim();
+    if (!tradeNo) continue;
+    checked++;
+    try {
+      const result = await queryAndFulfillAgentOrder({ tradeNo, asAdmin: true });
+      if (result.ok && result.paid) {
+        paid++;
+        paidTradeNos.push(tradeNo);
+      } else if (!result.ok) {
+        failed++;
+      }
+    } catch {
+      failed++;
+    }
+    if (delayMs > 0) await sleep(delayMs);
+  }
+
+  return {
+    kind: "agent" as const,
+    scanned: pending.length,
+    checked,
+    paid,
+    failed,
+    paidTradeNos
+  };
+}
