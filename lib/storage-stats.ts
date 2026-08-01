@@ -4,16 +4,32 @@ import { readdir, stat } from "fs/promises";
 import path from "path";
 import { createR2Client, isR2Ready } from "@/lib/media-storage";
 import { getSiteSettings } from "@/lib/site-settings";
-import type { MediaKind, StorageObjectRow, StorageScanResult, StorageStats, StorageMonitorReport } from "@/lib/storage-stats-shared";
+import {
+  classifyStorageCategory,
+  sortStorageObjects,
+  type MediaKind,
+  type StorageObjectRow,
+  type StorageScanResult,
+  type StorageSort,
+  type StorageStats,
+  type StorageMonitorReport
+} from "@/lib/storage-stats-shared";
 
 export type {
   MediaKind,
+  StorageCategory,
   StorageObjectRow,
+  StorageSort,
   StorageStats,
   StorageScanResult,
   StorageMonitorReport
 } from "@/lib/storage-stats-shared";
-export { formatBytes } from "@/lib/storage-stats-shared";
+export {
+  formatBytes,
+  STORAGE_CATEGORY_LABEL,
+  classifyStorageCategory,
+  sortStorageObjects
+} from "@/lib/storage-stats-shared";
 
 const IMAGE_EXT = new Set(["jpg", "jpeg", "png", "gif", "webp", "avif", "bmp", "svg", "heic", "heif"]);
 const VIDEO_EXT = new Set(["mp4", "webm", "mov", "mkv", "avi", "m4v", "mpeg", "mpg", "3gp"]);
@@ -90,9 +106,26 @@ function objectRow(obj: _Object): StorageObjectRow | null {
     key,
     size,
     lastModified: obj.LastModified,
-    kind: classifyMediaKind(key)
+    kind: classifyMediaKind(key),
+    category: classifyStorageCategory(key)
   };
 }
+
+export type ListStorageObjectsOptions = {
+  prefix?: string;
+  /** 单次最多返回条数，默认 1000，上限 5000 */
+  limit?: number;
+  /** R2 分页 continuation token；本地模式忽略 */
+  continuationToken?: string;
+  sort?: StorageSort;
+};
+
+export type ListStorageObjectsResult = {
+  rows: StorageObjectRow[];
+  nextToken: string | null;
+  truncated: boolean;
+  listedCount: number;
+};
 
 export async function scanR2Bucket(prefix = "uploads/"): Promise<StorageScanResult> {
   const scannedAt = new Date();
@@ -109,8 +142,8 @@ export async function scanR2Bucket(prefix = "uploads/"): Promise<StorageScanResu
   }
 
   try {
-    const rows = await listR2ObjectRows(client, bucket, prefix);
-    return { ok: true, stats: aggregateObjects(rows), scannedAt };
+    const listed = await listR2ObjectRows(client, bucket, prefix);
+    return { ok: true, stats: aggregateObjects(listed.rows), scannedAt };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     return { ok: false, error: message, stats: null, scannedAt };
@@ -121,42 +154,67 @@ async function listR2ObjectRows(
   client: ReturnType<typeof createR2Client>,
   bucket: string,
   prefix: string,
-  limit?: number
-): Promise<StorageObjectRow[]> {
-  if (!client) return [];
+  options?: { limit?: number; continuationToken?: string }
+): Promise<{ rows: StorageObjectRow[]; nextToken: string | null; truncated: boolean }> {
+  if (!client) return { rows: [], nextToken: null, truncated: false };
+  const limit = options?.limit;
   const rows: StorageObjectRow[] = [];
-  let continuationToken: string | undefined;
+  let continuationToken: string | undefined = options?.continuationToken;
+  let truncated = false;
 
   do {
     const out = await client.send(
       new ListObjectsV2Command({
         Bucket: bucket,
         Prefix: prefix || undefined,
-        ContinuationToken: continuationToken
+        ContinuationToken: continuationToken,
+        MaxKeys: limit ? Math.min(1000, Math.max(1, limit - rows.length)) : 1000
       })
     );
     for (const obj of out.Contents ?? []) {
       const row = objectRow(obj);
       if (row) rows.push(row);
-      if (limit && rows.length >= limit) return rows.slice(0, limit);
+      if (limit && rows.length >= limit) {
+        truncated = Boolean(out.IsTruncated) || rows.length >= limit;
+        return {
+          rows: rows.slice(0, limit),
+          nextToken: out.IsTruncated ? out.NextContinuationToken ?? null : null,
+          truncated: true
+        };
+      }
     }
     continuationToken = out.IsTruncated ? out.NextContinuationToken : undefined;
+    truncated = Boolean(continuationToken);
   } while (continuationToken && (!limit || rows.length < limit));
 
-  return limit ? rows.slice(0, limit) : rows;
+  return { rows: limit ? rows.slice(0, limit) : rows, nextToken: continuationToken ?? null, truncated };
 }
 
-/** 按前缀列出 R2 或本地文件（后台删除用） */
-export async function listStorageObjects(prefix = "uploads/", limit = 200): Promise<StorageObjectRow[]> {
+/** 按前缀列出 R2 或本地文件（后台删除用），支持排序与续页 */
+export async function listStorageObjectsDetailed(
+  options: ListStorageObjectsOptions = {}
+): Promise<ListStorageObjectsResult> {
   const settings = await getSiteSettings();
-  const safePrefix = prefix.startsWith("uploads/") ? prefix : `uploads/${prefix.replace(/^\/+/, "")}`;
+  const rawPrefix = options.prefix?.trim() || "uploads/";
+  const safePrefix = rawPrefix.startsWith("uploads/") ? rawPrefix : `uploads/${rawPrefix.replace(/^\/+/, "")}`;
+  const limit = Math.min(5000, Math.max(1, options.limit ?? 1000));
+  const sort = options.sort ?? "date_desc";
 
   if (isR2Ready(settings)) {
     const client = createR2Client(settings);
     const bucket = settings.r2BucketName!.trim();
     if (client && bucket) {
       try {
-        return await listR2ObjectRows(client, bucket, safePrefix, limit);
+        const listed = await listR2ObjectRows(client, bucket, safePrefix, {
+          limit,
+          continuationToken: options.continuationToken
+        });
+        return {
+          rows: sortStorageObjects(listed.rows, sort),
+          nextToken: listed.nextToken,
+          truncated: listed.truncated,
+          listedCount: listed.rows.length
+        };
       } catch {
         /* fall through to local */
       }
@@ -164,7 +222,21 @@ export async function listStorageObjects(prefix = "uploads/", limit = 200): Prom
   }
 
   const allLocal = await walkLocalUploads(path.join(process.cwd(), "public", "uploads"));
-  return allLocal.filter((row) => row.key.startsWith(safePrefix)).slice(0, limit);
+  const filtered = allLocal.filter((row) => row.key.startsWith(safePrefix));
+  const sorted = sortStorageObjects(filtered, sort);
+  const rows = sorted.slice(0, limit);
+  return {
+    rows,
+    nextToken: null,
+    truncated: filtered.length > rows.length,
+    listedCount: rows.length
+  };
+}
+
+/** @deprecated 使用 listStorageObjectsDetailed；保留兼容旧调用 */
+export async function listStorageObjects(prefix = "uploads/", limit = 1000): Promise<StorageObjectRow[]> {
+  const result = await listStorageObjectsDetailed({ prefix, limit, sort: "size_desc" });
+  return result.rows;
 }
 
 async function walkLocalUploads(dir: string, baseKey = "uploads"): Promise<StorageObjectRow[]> {
@@ -191,7 +263,8 @@ async function walkLocalUploads(dir: string, baseKey = "uploads"): Promise<Stora
       key,
       size: st.size,
       lastModified: st.mtime,
-      kind: classifyMediaKind(key)
+      kind: classifyMediaKind(key),
+      category: classifyStorageCategory(key)
     });
   }
   return rows;

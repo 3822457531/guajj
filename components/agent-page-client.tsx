@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PayChannelIcon } from "@/components/pay-channel-icons";
 import { ReferralQrShare } from "@/components/referral-qr-share";
 import {
   buildAbsoluteReferralLink,
@@ -306,7 +307,10 @@ export function AgentPageClient() {
                     onClick={() => setChannelId(ch.id)}
                     disabled={polling || ordering}
                   >
-                    {ch.name}
+                    <PayChannelIcon kind={ch.kind} className="guapi-buy-channel-icon" />
+                    <span className="guapi-buy-channel-name">
+                      {ch.kind === "alipay" ? "支付宝" : "微信支付"}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -428,7 +432,8 @@ export function AgentPageClient() {
               }`}
               onClick={() => setWithdrawChannel("alipay")}
             >
-              支付宝
+              <PayChannelIcon kind="alipay" className="guapi-buy-channel-icon" />
+              <span className="guapi-buy-channel-name">支付宝</span>
             </button>
             <button
               type="button"
@@ -437,7 +442,8 @@ export function AgentPageClient() {
               }`}
               onClick={() => setWithdrawChannel("wechat")}
             >
-              微信
+              <PayChannelIcon kind="wechat" className="guapi-buy-channel-icon" />
+              <span className="guapi-buy-channel-name">微信</span>
             </button>
           </div>
           <label>

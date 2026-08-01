@@ -33,6 +33,11 @@ import {
   type JisouButtonItem,
   type JisouSearchButtons
 } from "@/lib/jisou-search-buttons";
+import {
+  GUEST_IDENTITY_READY_EVENT,
+  requestGuestIdentityModal
+} from "@/lib/guest-identity-events";
+import { readGuestIdentityBackup } from "@/lib/guest-identity-storage";
 
 const API = TG_SEARCH_API.prod;
 
@@ -316,7 +321,7 @@ function ResourceDetailModal({
       ) : null}
       <div className="gs-channel-sheet-panel">
         <div className="gs-channel-sheet-head">
-          <h3 className="gs-channel-sheet-title">
+          <h3 className="gs-channel-sheet-title" title={headerTitle || channel.title}>
             {headerIcon ? (
               <span className="gs-result-type-icon" aria-hidden>
                 {headerIcon}
@@ -680,8 +685,14 @@ export function GlobalSearchClient({
   const channelAbortRef = useRef<AbortController | null>(null);
   const channelLoadKeyRef = useRef("");
   const channelVideoPlayingRef = useRef(false);
+  const pendingResourceRef = useRef<JisouChannel | null>(null);
+  const activeChannelRef = useRef<JisouChannel | null>(null);
   const [channelMinimized, setChannelMinimized] = useState(false);
   const searchAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    activeChannelRef.current = activeChannel;
+  }, [activeChannel]);
 
   function abortChannelWork() {
     channelAbortRef.current?.abort();
@@ -898,7 +909,8 @@ export function GlobalSearchClient({
   function handleSearchError(res: Response, data: { message?: string; error?: string; quota?: QuotaState }) {
     applyQuotaFromResponse(data);
     if (data.error === "GUEST_IDENTITY_REQUIRED") {
-      setError(data.message || "请先获取匿名身份");
+      requestGuestIdentityModal();
+      setError(null);
       return true;
     }
     if (!res.ok || !data) {
@@ -909,7 +921,12 @@ export function GlobalSearchClient({
 
   function handleViewError(data: { message?: string; error?: string; quota?: QuotaState }) {
     applyQuotaFromResponse(data);
-    if (data.error === "SEARCH_QUOTA_EXCEEDED" || data.error === "GUEST_IDENTITY_REQUIRED") {
+    if (data.error === "GUEST_IDENTITY_REQUIRED") {
+      requestGuestIdentityModal();
+      // 不展示「去我的」文案，改走全局注册弹窗
+      return null;
+    }
+    if (data.error === "SEARCH_QUOTA_EXCEEDED") {
       return data.message || "无法观看资源";
     }
     return null;
@@ -1146,6 +1163,11 @@ export function GlobalSearchClient({
 
       const viewErr = handleViewError(data);
       if (!res.ok || !data.ok) {
+        if (data.error === "GUEST_IDENTITY_REQUIRED") {
+          pendingResourceRef.current = channel;
+          setChannelLoadError(null);
+          return;
+        }
         if (viewErr) {
           setChannelLoadError(viewErr);
           return;
@@ -1382,13 +1404,67 @@ export function GlobalSearchClient({
 
   const initialSearchDone = useRef(false);
   const initialResourceDone = useRef(false);
+  const loadResourceRef = useRef(loadResource);
+  loadResourceRef.current = loadResource;
+
+  async function hasGuestIdentitySession() {
+    try {
+      const res = await fetch("/api/guest/me", { cache: "no-store" });
+      const data = (await res.json()) as { user?: { publicId?: string } };
+      return Boolean(data?.user?.publicId);
+    } catch {
+      return false;
+    }
+  }
+
+  async function tryRestoreGuestIdentity() {
+    const backup = readGuestIdentityBackup();
+    if (!backup) return false;
+    try {
+      const res = await fetch("/api/guest/me", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(backup)
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
 
   useEffect(() => {
     if (!initialResource || initialResourceDone.current) return;
     initialResourceDone.current = true;
-    void loadResource(buildChannelFromResource(initialResource));
+    const channel = buildChannelFromResource(initialResource);
+    pendingResourceRef.current = channel;
+
+    void (async () => {
+      if (await hasGuestIdentitySession()) {
+        void loadResourceRef.current(channel);
+        return;
+      }
+      if (await tryRestoreGuestIdentity()) {
+        void loadResourceRef.current(channel);
+        return;
+      }
+      // 新用户打开分享链接：先占位详情壳，并弹出注册身份
+      setActiveChannel(channel);
+      setChannelLoading(false);
+      setChannelLoadError(null);
+      requestGuestIdentityModal();
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 分享深链接首进
   }, [initialResource]);
+
+  useEffect(() => {
+    const onIdentityReady = () => {
+      const channel = pendingResourceRef.current || activeChannelRef.current;
+      if (!channel?.username || !channel.postId) return;
+      void loadResourceRef.current(channel);
+    };
+    window.addEventListener(GUEST_IDENTITY_READY_EVENT, onIdentityReady);
+    return () => window.removeEventListener(GUEST_IDENTITY_READY_EVENT, onIdentityReady);
+  }, []);
 
   useEffect(() => {
     const q = initialQuery.trim();

@@ -222,7 +222,7 @@ export function MyPageClient(props: MyPageClientProps) {
             <em>直推间推提成</em>
           </span>
         </Link>
-        <Link href="/global-search" prefetch={false} className="my-action-tile">
+        {/* <Link href="/global-search" prefetch={false} className="my-action-tile">
           <span className="my-action-ico" aria-hidden>
             🔍
           </span>
@@ -230,7 +230,7 @@ export function MyPageClient(props: MyPageClientProps) {
             <strong>全网搜索</strong>
             <em>暗网极搜</em>
           </span>
-        </Link>
+        </Link> */}
       </nav>
 
       <section className="my-panel my-panel--history" aria-label="观看历史">
@@ -262,22 +262,19 @@ export function MyPageClient(props: MyPageClientProps) {
         ) : (
           <ul className="my-view-history-list">
             {viewHistory.map((item) => {
-              const displayTitle = item.title?.trim() || `@${item.username} #${item.messageId}`;
-              const href = buildResourceSharePath(item.username, item.messageId, {
-                title: item.title,
-                label: item.label
-              });
+              const displayTitle =
+                item.title?.trim() || item.label?.trim() || `@${item.username} #${item.messageId}`;
+              const href = buildResourceSharePath(item.username, item.messageId);
               const viewedAt = item.viewedAt ? new Date(item.viewedAt).toLocaleString("zh-CN") : "";
               return (
                 <li key={item.id} className="my-view-history-item">
                   <Link href={href} prefetch={false} className="my-view-history-link">
-                    <span className="my-view-history-title">{displayTitle}</span>
-                    <span className="my-view-history-foot">
-                      {item.label ? <span className="my-view-history-label">{item.label}</span> : null}
-                      <time className="my-view-history-time" dateTime={item.viewedAt}>
-                        {viewedAt}
-                      </time>
+                    <span className="my-view-history-title" title={displayTitle}>
+                      {displayTitle}
                     </span>
+                    <time className="my-view-history-time" dateTime={item.viewedAt}>
+                      {viewedAt}
+                    </time>
                   </Link>
                 </li>
               );

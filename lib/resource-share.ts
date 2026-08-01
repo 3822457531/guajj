@@ -1,30 +1,26 @@
-export type ResourceShareMeta = {
-  title?: string | null;
-  label?: string | null;
-};
+/** 分享文案标题最大字符数 */
+export const SHARE_DISPLAY_TITLE_MAX = 40;
 
-export function buildResourceSharePath(
-  username: string,
-  messageId: number,
-  meta?: ResourceShareMeta
+export function truncateShareDisplayTitle(
+  title: string,
+  max = SHARE_DISPLAY_TITLE_MAX
 ): string {
+  const text = title.trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max)}…`;
+}
+
+/** 短链仅含 u + mid，足以定位资源 */
+export function buildResourceSharePath(username: string, messageId: number): string {
   const params = new URLSearchParams({
     u: username,
     mid: String(messageId)
   });
-  const title = meta?.title?.trim();
-  const label = meta?.label?.trim();
-  if (title) params.set("t", title);
-  if (label) params.set("l", label);
   return `/global-search?${params.toString()}`;
 }
 
-export function buildAbsoluteResourceShareUrl(
-  username: string,
-  messageId: number,
-  meta?: ResourceShareMeta
-): string {
-  const path = buildResourceSharePath(username, messageId, meta);
+export function buildAbsoluteResourceShareUrl(username: string, messageId: number): string {
+  const path = buildResourceSharePath(username, messageId);
   if (typeof window !== "undefined" && window.location?.origin) {
     return `${window.location.origin}${path}`;
   }

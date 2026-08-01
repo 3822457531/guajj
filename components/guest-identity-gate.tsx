@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { GuestIdentityModal } from "@/components/guest-identity-modal";
+import {
+  GUEST_IDENTITY_REQUIRED_EVENT,
+  notifyGuestIdentityReady
+} from "@/lib/guest-identity-events";
 import { readGuestIdentityBackup } from "@/lib/guest-identity-storage";
 
 function isAdminPath(pathname: string) {
@@ -78,6 +82,8 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
         if (!cancelled) {
           setNeedsModal(false);
           setChecking(false);
+          // 刚从本地备份恢复会话，通知业务页（如分享深链）继续加载
+          notifyGuestIdentityReady();
         }
         return;
       }
@@ -93,6 +99,18 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, [pathname, tryRestore, verifySession]);
+
+  useEffect(() => {
+    if (isAdminPath(pathname) || isMyPagePath(pathname)) return;
+    const onRequired = () => setNeedsModal(true);
+    window.addEventListener(GUEST_IDENTITY_REQUIRED_EVENT, onRequired);
+    return () => window.removeEventListener(GUEST_IDENTITY_REQUIRED_EVENT, onRequired);
+  }, [pathname]);
+
+  const handleComplete = useCallback(() => {
+    setNeedsModal(false);
+    notifyGuestIdentityReady();
+  }, []);
 
   const handleLeave = useCallback(() => {
     setNeedsModal(false);
@@ -113,7 +131,7 @@ export function GuestIdentityGate({ children }: { children: React.ReactNode }) {
     <>
       {children}
       {!checking && needsModal ? (
-        <GuestIdentityModal initialRef={capturedRef} onComplete={() => setNeedsModal(false)} onLeave={handleLeave} />
+        <GuestIdentityModal initialRef={capturedRef} onComplete={handleComplete} onLeave={handleLeave} />
       ) : null}
     </>
   );

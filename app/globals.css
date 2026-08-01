@@ -4505,7 +4505,7 @@ button.h5-detail-img-cell:active {
 .guest-id-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 25000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5522,16 +5522,17 @@ button.h5-detail-img-cell:active {
 }
 
 .guapi-buy-label {
-  margin: 0 0 8px;
-  font-size: 12px;
+  margin: 0 0 10px;
+  font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.42);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .guapi-buy-packages {
   list-style: none;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -5541,10 +5542,10 @@ button.h5-detail-img-cell:active {
 .guapi-buy-pkg {
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 12px;
+  padding: 13px 14px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
@@ -5552,50 +5553,136 @@ button.h5-detail-img-cell:active {
   text-align: left;
   cursor: pointer;
   font-family: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .guapi-buy-pkg.is-active {
-  border-color: rgba(255, 152, 0, 0.65);
-  background: rgba(255, 87, 34, 0.12);
+  border-color: rgba(255, 152, 0, 0.7);
+  background: linear-gradient(90deg, rgba(255, 87, 34, 0.14), rgba(255, 152, 0, 0.06));
 }
 
 .guapi-buy-pkg-title {
   font-size: 14px;
   font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.guapi-buy-pkg-meta {
-  font-size: 12px;
-  color: #ffb74d;
+.guapi-buy-pkg.is-active .guapi-buy-pkg-title {
+  color: #fff;
 }
 
-.guapi-buy-pkg-meta strong {
-  font-size: 16px;
+.guapi-buy-pkg-metrics {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 .guapi-buy-pkg-price {
-  font-size: 15px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  color: #ff8a50;
+  line-height: 1;
+}
+
+.guapi-buy-pkg-currency {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-right: 1px;
+  font-family: "DIN Alternate", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.guapi-buy-pkg-amount {
+  font-size: 20px;
   font-weight: 800;
+  letter-spacing: -0.02em;
+  font-family: "DIN Alternate", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.guapi-buy-pkg.is-active .guapi-buy-pkg-price {
   color: #ff7043;
+}
+
+.guapi-buy-pkg-divider {
+  width: 1px;
+  height: 14px;
+  align-self: center;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.guapi-buy-pkg-meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  color: rgba(255, 214, 160, 0.88);
+  line-height: 1;
+}
+
+.guapi-buy-pkg-qty {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffd59a;
+  font-family: "DIN Alternate", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.guapi-buy-pkg-unit {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 213, 154, 0.72);
 }
 
 .guapi-buy-channels {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
 .guapi-buy-channel {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.03);
-  color: #ddd;
-  font-size: 13px;
+  color: #e8e8e8;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+
+.guapi-buy-channel:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.guapi-buy-channel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.guapi-buy-channel-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.guapi-buy-channel-name {
+  line-height: 1.2;
+  letter-spacing: 0.02em;
 }
 
 .guapi-buy-channel.is-active {
@@ -5605,15 +5692,17 @@ button.h5-detail-img-cell:active {
 }
 
 .guapi-buy-channel--alipay.is-active {
-  border-color: rgba(22, 119, 255, 0.55);
-  background: rgba(22, 119, 255, 0.12);
-  color: #69b1ff;
+  border-color: rgba(22, 119, 255, 0.7);
+  background: linear-gradient(180deg, rgba(22, 119, 255, 0.18), rgba(22, 119, 255, 0.08));
+  color: #8fc4ff;
+  box-shadow: inset 0 0 0 1px rgba(22, 119, 255, 0.15);
 }
 
 .guapi-buy-channel--wechat.is-active {
-  border-color: rgba(7, 193, 96, 0.55);
-  background: rgba(7, 193, 96, 0.12);
-  color: #5ee19b;
+  border-color: rgba(7, 193, 96, 0.7);
+  background: linear-gradient(180deg, rgba(7, 193, 96, 0.18), rgba(7, 193, 96, 0.08));
+  color: #7cebb0;
+  box-shadow: inset 0 0 0 1px rgba(7, 193, 96, 0.15);
 }
 
 .guapi-buy-trade {
@@ -5765,13 +5854,6 @@ button.h5-detail-img-cell:active {
   text-decoration: none;
 }
 
-.my-view-history-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
 .my-panel--vault {
   background: rgba(255, 255, 255, 0.03);
 }
@@ -5911,18 +5993,16 @@ button.h5-detail-img-cell:active {
   color: #fff;
   line-height: 1.4;
   word-break: break-word;
-}
-
-.my-view-history-label {
-  font-size: 11px;
-  color: #ffb74d;
-  font-weight: 700;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .my-view-history-time {
   font-size: 10px;
   color: #616161;
-  margin-left: auto;
+  align-self: flex-end;
 }
 
 .my-field + .my-field {
@@ -7552,6 +7632,10 @@ button.h5-detail-img-cell:active {
   line-height: 1.45;
   color: #fff;
   word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .gs-channel-sheet-close {
@@ -7702,6 +7786,9 @@ button.h5-detail-img-cell:active {
 
 .gs-channel-sheet.is-minimized .gs-channel-sheet-title {
   font-size: 13px;
+  display: block;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

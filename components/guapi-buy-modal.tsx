@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PayChannelIcon } from "@/components/pay-channel-icons";
 
 type PackageItem = {
   id: string;
@@ -236,10 +237,17 @@ export function GuapiBuyModal({ open, onClose, onPaid }: GuapiBuyModalProps) {
                       disabled={polling || ordering}
                     >
                       <span className="guapi-buy-pkg-title">{pkg.title}</span>
-                      <span className="guapi-buy-pkg-meta">
-                        <strong>{pkg.guapiAmount}</strong> 瓜皮
+                      <span className="guapi-buy-pkg-metrics">
+                        <span className="guapi-buy-pkg-price">
+                          <span className="guapi-buy-pkg-currency">¥</span>
+                          <span className="guapi-buy-pkg-amount">{pkg.priceYuan}</span>
+                        </span>
+                        <span className="guapi-buy-pkg-divider" aria-hidden />
+                        <span className="guapi-buy-pkg-meta">
+                          <strong className="guapi-buy-pkg-qty">{pkg.guapiAmount}</strong>
+                          <span className="guapi-buy-pkg-unit">瓜皮</span>
+                        </span>
                       </span>
-                      <span className="guapi-buy-pkg-price">¥{pkg.priceYuan}</span>
                     </button>
                   </li>
                 ))}
@@ -257,7 +265,10 @@ export function GuapiBuyModal({ open, onClose, onPaid }: GuapiBuyModalProps) {
                     onClick={() => setChannelId(ch.id)}
                     disabled={polling || ordering}
                   >
-                    {ch.name}
+                    <PayChannelIcon kind={ch.kind} className="guapi-buy-channel-icon" />
+                    <span className="guapi-buy-channel-name">
+                      {ch.kind === "alipay" ? "支付宝" : "微信支付"}
+                    </span>
                   </button>
                 ))}
               </div>

@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { buildAbsoluteResourceShareUrl } from "@/lib/resource-share";
+import {
+  buildAbsoluteResourceShareUrl,
+  truncateShareDisplayTitle
+} from "@/lib/resource-share";
 
 type ResourceShareButtonProps = {
   username: string;
@@ -36,7 +39,7 @@ async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
-export function ResourceShareButton({ username, messageId, title, label }: ResourceShareButtonProps) {
+export function ResourceShareButton({ username, messageId, title }: ResourceShareButtonProps) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
   const busyRef = useRef(false);
@@ -49,8 +52,8 @@ export function ResourceShareButton({ username, messageId, title, label }: Resou
       if (busyRef.current) return;
       busyRef.current = true;
 
-      const url = buildAbsoluteResourceShareUrl(username, messageId, { title, label });
-      const displayTitle = title?.trim() || `@${username}`;
+      const url = buildAbsoluteResourceShareUrl(username, messageId);
+      const displayTitle = truncateShareDisplayTitle(title?.trim() || `@${username}`);
       const shareText = `吃瓜网 · ${displayTitle}\n${url}`;
 
       const ok = await copyToClipboard(shareText);
@@ -68,7 +71,7 @@ export function ResourceShareButton({ username, messageId, title, label }: Resou
 
       busyRef.current = false;
     },
-    [username, messageId, title, label]
+    [username, messageId, title]
   );
 
   return (

@@ -1,11 +1,20 @@
 import { adminPath } from "@/lib/admin-path";
 import AdminLink from "@/components/admin-link";
-import { formatBytes, getStorageMonitorReport, listStorageObjects, type StorageScanResult, type StorageStats } from "@/lib/storage-stats";
+import {
+  formatBytes,
+  getStorageMonitorReport,
+  listStorageObjectsDetailed,
+  type StorageScanResult,
+  type StorageSort,
+  type StorageStats
+} from "@/lib/storage-stats";
 import StorageRefreshButton from "./refresh-button";
 import { StorageObjectTable } from "./storage-object-table";
-import { StoragePrefixPicker } from "./storage-prefix-picker";
+import { StorageBrowseControls } from "./storage-prefix-picker";
 
 export const dynamic = "force-dynamic";
+
+const SORT_VALUES: StorageSort[] = ["date_desc", "date_asc", "size_desc", "size_asc", "key_asc"];
 
 function formatDateTime(value: Date) {
   return new Intl.DateTimeFormat("zh-CN", {
@@ -16,6 +25,11 @@ function formatDateTime(value: Date) {
     minute: "2-digit",
     second: "2-digit"
   }).format(value);
+}
+
+function parseSort(value?: string): StorageSort {
+  if (value && SORT_VALUES.includes(value as StorageSort)) return value as StorageSort;
+  return "date_desc";
 }
 
 function StatCards({ stats, label }: { stats: StorageStats; label: string }) {
@@ -72,22 +86,36 @@ function ScanPanel({
               <thead>
                 <tr>
                   <th>前缀</th>
+                  <th>含义</th>
                   <th>文件数</th>
                   <th>占用</th>
                 </tr>
               </thead>
               <tbody>
-                {result.stats.prefixBreakdown.map((row) => (
-                  <tr key={row.prefix}>
-                    <td>
-                      <AdminLink href={`${adminPath("/storage")}?prefix=${encodeURIComponent(row.prefix)}`}>
-                        <code style={{ fontSize: 13 }}>{row.prefix}</code>
-                      </AdminLink>
-                    </td>
-                    <td>{row.count}</td>
-                    <td>{formatBytes(row.bytes)}</td>
-                  </tr>
-                ))}
+                {result.stats.prefixBreakdown.map((row) => {
+                  const meaning =
+                    row.prefix === "uploads/tg-index/"
+                      ? "首页索引"
+                      : row.prefix === "uploads/tg-search/"
+                        ? "用户搜索"
+                        : row.prefix === "uploads/telegram/"
+                          ? "Telegram"
+                          : "—";
+                  return (
+                    <tr key={row.prefix}>
+                      <td>
+                        <AdminLink
+                          href={`${adminPath("/storage")}?prefix=${encodeURIComponent(row.prefix)}&sort=size_desc&limit=1000`}
+                        >
+                          <code style={{ fontSize: 13 }}>{row.prefix}</code>
+                        </AdminLink>
+                      </td>
+                      <td>{meaning}</td>
+                      <td>{row.count}</td>
+                      <td>{formatBytes(row.bytes)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -105,18 +133,47 @@ function ScanPanel({
 export default async function AdminStoragePage({
   searchParams
 }: {
-  searchParams: Promise<{ prefix?: string; deleted?: string; error?: string; key?: string }>;
+  searchParams: Promise<{
+    prefix?: string;
+    sort?: string;
+    limit?: string;
+    token?: string;
+    deleted?: string;
+    indexDeleted?: string;
+    homeKeys?: string;
+    searchKeys?: string;
+    mediaFailed?: string;
+    error?: string;
+    key?: string;
+  }>;
 }) {
   const params = await searchParams;
   const report = await getStorageMonitorReport();
-  const browsePrefix = params.prefix?.trim() || "uploads/tg-index/";
-  const browseFiles = await listStorageObjects(browsePrefix, 200);
+  const browsePrefix = params.prefix?.trim() || "uploads/";
+  const browseSort = parseSort(params.sort);
+  const browseLimit = Math.min(5000, Math.max(50, Number(params.limit) || 1000));
+  const browseToken = params.token?.trim() || undefined;
+  const browse = await listStorageObjectsDetailed({
+    prefix: browsePrefix,
+    sort: browseSort,
+    limit: browseLimit,
+    continuationToken: browseToken
+  });
 
   const activeLabel = report.activeStorage === "r2" ? "Cloudflare R2" : "本地 public/uploads";
   const r2Note =
     report.activeStorage === "r2"
       ? "当前站点写入目标。对象 Key 统一为 uploads/…，可直接删除 R2 对象。"
       : "已在设置中启用 R2 配置，但当前写入仍为本地；以下为桶内已有对象统计。";
+
+  const nextHref = browse.nextToken
+    ? `${adminPath("/storage")}?${new URLSearchParams({
+        prefix: browsePrefix,
+        sort: browseSort,
+        limit: String(browseLimit),
+        token: browse.nextToken
+      }).toString()}`
+    : null;
 
   return (
     <>
@@ -126,7 +183,11 @@ export default async function AdminStoragePage({
 
       {params.deleted ? (
         <p className="admin-flash success">
-          已删除 {params.deleted} 个存储对象
+          已删除存储对象 {params.deleted} 个
+          {params.indexDeleted ? <>；同步硬删首页索引 {params.indexDeleted} 条</> : null}
+          {params.homeKeys ? <>（含首页资源 {params.homeKeys}）</> : null}
+          {params.searchKeys ? <>（含搜索资源 {params.searchKeys}）</> : null}
+          {params.mediaFailed ? <>；失败 {params.mediaFailed}</> : null}
           {params.key ? (
             <>
               ：<code style={{ fontSize: 12 }}>{params.key}</code>
@@ -135,7 +196,11 @@ export default async function AdminStoragePage({
           。
         </p>
       ) : null}
-      {params.error ? <p className="admin-flash" style={{ color: "var(--danger, #c0392b)" }}>删除失败：{params.error}</p> : null}
+      {params.error ? (
+        <p className="admin-flash" style={{ color: "var(--danger, #c0392b)" }}>
+          删除失败：{params.error}
+        </p>
+      ) : null}
 
       <p className="admin-page-note" style={{ marginTop: 0 }}>
         当前媒体存储：<strong>{activeLabel}</strong>
@@ -154,7 +219,8 @@ export default async function AdminStoragePage({
             </a>
           </>
         ) : null}
-        。删除索引内容时会同步清理关联 R2/本地媒体文件。
+        。删除 <strong>首页索引</strong>（<code>uploads/tg-index/</code>）时会硬删除关联首页 index 记录；
+        <strong>用户搜索</strong>（<code>uploads/tg-search/</code>）仅删对象文件。
         {!report.r2Ready ? (
           <>
             {" "}
@@ -177,12 +243,25 @@ export default async function AdminStoragePage({
       />
 
       <div className="admin-panel">
-        <h2 className="admin-panel-title">文件管理（按前缀浏览并删除）</h2>
+        <h2 className="admin-panel-title">文件管理（全量浏览 / 排序 / 批量删除）</h2>
         <p className="admin-page-note" style={{ marginTop: 0 }}>
-          选择或输入前缀后浏览文件，可单个删除或勾选批量删除。仅允许 <code>uploads/</code> 下的 Key。
+          可按分类前缀浏览，按时间或大小排序，支持全选与批量删除。默认列出最多 {browseLimit}{" "}
+          条；若仍有后续对象可点「加载更多」。
         </p>
-        <StoragePrefixPicker currentPrefix={browsePrefix} />
-        <StorageObjectTable rows={browseFiles} selectable />
+        <StorageBrowseControls currentPrefix={browsePrefix} currentSort={browseSort} currentLimit={browseLimit} />
+        <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 10px" }}>
+          本页 {browse.listedCount} 个文件
+          {browse.truncated ? "（还有更多，可加载下一页）" : ""}
+          {browseToken ? " · 续页中" : ""}
+        </p>
+        <StorageObjectTable rows={browse.rows} selectable />
+        {nextHref ? (
+          <div style={{ marginTop: 14 }}>
+            <AdminLink href={nextHref} className="btn secondary">
+              加载更多（下一页）
+            </AdminLink>
+          </div>
+        ) : null}
       </div>
     </>
   );

@@ -74,7 +74,7 @@ export function HotSearchBoard({
         </div>
       </div>
 
-      <p className="hot-board-foot">点击词条跳转全网搜索 · 前三名热度最高</p>
+      <p className="hot-board-foot">点击词条跳转全网搜索</p>
     </section>
   );
 }
