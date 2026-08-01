@@ -1,16 +1,16 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import {
-  buildAbsoluteResourceShareUrl,
-  truncateShareDisplayTitle
-} from "@/lib/resource-share";
+import { buildResourceShareText } from "@/lib/resource-share";
+import { readCurrentShareReferrerId } from "@/lib/resource-share-client";
 
 type ResourceShareButtonProps = {
   username: string;
   messageId: number;
   title?: string | null;
   label?: string | null;
+  /** 可选；不传则自动读本地 GUA 身份 */
+  referrerPublicId?: string | null;
 };
 
 async function copyToClipboard(text: string): Promise<boolean> {
@@ -39,7 +39,12 @@ async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
-export function ResourceShareButton({ username, messageId, title }: ResourceShareButtonProps) {
+export function ResourceShareButton({
+  username,
+  messageId,
+  title,
+  referrerPublicId
+}: ResourceShareButtonProps) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
   const busyRef = useRef(false);
@@ -52,9 +57,8 @@ export function ResourceShareButton({ username, messageId, title }: ResourceShar
       if (busyRef.current) return;
       busyRef.current = true;
 
-      const url = buildAbsoluteResourceShareUrl(username, messageId);
-      const displayTitle = truncateShareDisplayTitle(title?.trim() || `@${username}`);
-      const shareText = `吃瓜网 · ${displayTitle}\n${url}`;
+      const ref = readCurrentShareReferrerId(referrerPublicId);
+      const shareText = buildResourceShareText(username, messageId, title, { ref });
 
       const ok = await copyToClipboard(shareText);
       if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
@@ -71,7 +75,7 @@ export function ResourceShareButton({ username, messageId, title }: ResourceShar
 
       busyRef.current = false;
     },
-    [username, messageId, title]
+    [username, messageId, title, referrerPublicId]
   );
 
   return (

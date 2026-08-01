@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { GuapiBuyModal } from "@/components/guapi-buy-modal";
+import { GuapiQuotaBlockedModal } from "@/components/guapi-quota-blocked-modal";
 import { MessageMediaGallery, stopVideosInRoot } from "@/components/tg-search-media";
 import { ResourceShareButton } from "@/components/resource-share-button";
 import { VipHighlightText } from "@/components/vip-highlight-text";
@@ -258,7 +260,8 @@ function ResourceDetailModal({
   onRestore,
   onOpenArticle,
   anchorRef,
-  onChannelPlaybackActive
+  onChannelPlaybackActive,
+  referrerPublicId = null
 }: {
   channel: JisouChannel;
   activeFilterType: string | null;
@@ -280,6 +283,7 @@ function ResourceDetailModal({
   onOpenArticle: (payload: { title: string; text: string }) => void;
   anchorRef: React.RefObject<HTMLLIElement | null>;
   onChannelPlaybackActive?: (active: boolean) => void;
+  referrerPublicId?: string | null;
 }) {
   const { icon: headerIcon, title: searchResultTitle } = formatJisouChannelRow(channel, activeFilterType);
   const messageIcon = formatJisouChannelRow(channel, activeFilterType).icon;
@@ -336,6 +340,7 @@ function ResourceDetailModal({
                 messageId={channel.postId}
                 title={headerTitle || channel.title}
                 label={channel.label}
+                referrerPublicId={referrerPublicId}
               />
             ) : null}
             {minimized ? (
@@ -676,6 +681,9 @@ export function GlobalSearchClient({
   const [historyClearConfirmOpen, setHistoryClearConfirmOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [landingWarnOpen, setLandingWarnOpen] = useState(false);
+  const [quotaBlockedOpen, setQuotaBlockedOpen] = useState(false);
+  const [quotaBlockedMsg, setQuotaBlockedMsg] = useState<string | null>(null);
+  const [guapiBuyOpen, setGuapiBuyOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [replyMessageId, setReplyMessageId] = useState<number | null>(null);
   const [searchButtons, setSearchButtons] = useState<JisouSearchButtons>({ filters: [], actions: [] });
@@ -927,7 +935,8 @@ export function GlobalSearchClient({
       return null;
     }
     if (data.error === "SEARCH_QUOTA_EXCEEDED") {
-      return data.message || "无法观看资源";
+      // 改走瓜皮不足弹窗（分享 / 购买）
+      return null;
     }
     return null;
   }
@@ -1166,6 +1175,13 @@ export function GlobalSearchClient({
         if (data.error === "GUEST_IDENTITY_REQUIRED") {
           pendingResourceRef.current = channel;
           setChannelLoadError(null);
+          return;
+        }
+        if (data.error === "SEARCH_QUOTA_EXCEEDED") {
+          pendingResourceRef.current = channel;
+          setChannelLoadError(null);
+          setQuotaBlockedMsg(data.message || "今日瓜皮已用完，无法观看资源");
+          setQuotaBlockedOpen(true);
           return;
         }
         if (viewErr) {
@@ -1720,12 +1736,49 @@ export function GlobalSearchClient({
           onChannelPlaybackActive={(active) => {
             channelVideoPlayingRef.current = active;
           }}
+          referrerPublicId={quota?.publicId}
         />
       ) : null}
 
       {article ? <ArticleModal title={article.title} text={article.text} onClose={() => setArticle(null)} /> : null}
       {adBlockedOpen ? <AdBlockedModal onClose={() => setAdBlockedOpen(false)} /> : null}
       {landingWarnOpen ? <LandingWarnModal onClose={() => setLandingWarnOpen(false)} /> : null}
+
+      <GuapiQuotaBlockedModal
+        open={quotaBlockedOpen && !guapiBuyOpen}
+        onClose={() => setQuotaBlockedOpen(false)}
+        message={quotaBlockedMsg}
+        used={quota?.used}
+        limit={quota?.limit}
+        username={activeChannel?.username || pendingResourceRef.current?.username}
+        messageId={activeChannel?.postId || pendingResourceRef.current?.postId}
+        title={activeChannel?.title || pendingResourceRef.current?.title}
+        referrerPublicId={quota?.publicId}
+        onBuy={() => {
+          setQuotaBlockedOpen(false);
+          setGuapiBuyOpen(true);
+        }}
+      />
+      <GuapiBuyModal
+        open={guapiBuyOpen}
+        onClose={() => setGuapiBuyOpen(false)}
+        onPaid={(nextQuota) => {
+          setQuota({
+            used: nextQuota.used,
+            limit: nextQuota.limit,
+            remaining: nextQuota.remaining,
+            searchBonus: nextQuota.searchBonus,
+            hasIdentity: true,
+            publicId: quota?.publicId ?? null,
+            dailyBaseLimit: quota?.dailyBaseLimit ?? nextQuota.limit
+          });
+          window.setTimeout(() => {
+            setGuapiBuyOpen(false);
+            const channel = pendingResourceRef.current || activeChannelRef.current;
+            if (channel) void loadResourceRef.current(channel);
+          }, 900);
+        }}
+      />
       {historyClearConfirmOpen ? (
         <ConfirmModal
           title="清空历史搜索"

@@ -5349,7 +5349,7 @@ button.h5-detail-img-cell:active {
 .my-guapi-modal {
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  z-index: 1400;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5735,6 +5735,150 @@ button.h5-detail-img-cell:active {
 
 .guapi-buy-actions .my-guapi-modal-ok {
   border-radius: 0;
+}
+
+.guapi-quota-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+
+.guapi-quota-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.72);
+  cursor: pointer;
+}
+
+.guapi-quota-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #1f1610 0%, #141414 100%);
+  border: 1px solid rgba(255, 152, 0, 0.35);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.guapi-quota-modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.guapi-quota-modal-icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 87, 34, 0.15);
+  font-size: 22px;
+}
+
+.guapi-quota-modal-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.guapi-quota-modal-title {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.guapi-quota-modal-sub {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffb74d;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.guapi-quota-modal-close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #bdbdbd;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.guapi-quota-modal-body {
+  padding: 14px 16px 18px;
+}
+
+.guapi-quota-modal-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.guapi-quota-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.guapi-quota-btn {
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.guapi-quota-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.guapi-quota-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.guapi-quota-btn--share {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.guapi-quota-btn--share.is-copied {
+  border-color: rgba(129, 199, 132, 0.55);
+  background: rgba(129, 199, 132, 0.14);
+  color: #a5d6a7;
+}
+
+.guapi-quota-btn--share.is-failed {
+  border-color: rgba(239, 154, 154, 0.55);
+  color: #ef9a9a;
+}
+
+.guapi-quota-btn--buy {
+  border: 0;
+  background: linear-gradient(135deg, #ff5722, #ff9800);
+  color: #fff;
 }
 
 .agent-page-body {
