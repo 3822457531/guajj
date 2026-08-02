@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { buildResourceShareText } from "@/lib/resource-share";
-import { readCurrentShareReferrerId } from "@/lib/resource-share-client";
+import { readCurrentShareReferrerId, shareResourceNative } from "@/lib/resource-share-client";
 
 type ResourceShareButtonProps = {
   username: string;
@@ -13,40 +12,13 @@ type ResourceShareButtonProps = {
   referrerPublicId?: string | null;
 };
 
-async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch {
-    /* fallback */
-  }
-
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
-  } catch {
-    return false;
-  }
-}
-
 export function ResourceShareButton({
   username,
   messageId,
   title,
   referrerPublicId
 }: ResourceShareButtonProps) {
-  const [copied, setCopied] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [status, setStatus] = useState<"idle" | "shared" | "copied" | "failed">("idle");
   const busyRef = useRef(false);
   const resetTimerRef = useRef<number | null>(null);
 
@@ -58,19 +30,27 @@ export function ResourceShareButton({
       busyRef.current = true;
 
       const ref = readCurrentShareReferrerId(referrerPublicId);
-      const shareText = buildResourceShareText(username, messageId, title, { ref });
+      const result = await shareResourceNative({
+        username,
+        messageId,
+        title,
+        options: { ref }
+      });
 
-      const ok = await copyToClipboard(shareText);
       if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
 
-      if (ok) {
-        setFailed(false);
-        setCopied(true);
-        resetTimerRef.current = window.setTimeout(() => setCopied(false), 2200);
+      if (result === "shared") {
+        setStatus("shared");
+        resetTimerRef.current = window.setTimeout(() => setStatus("idle"), 2200);
+      } else if (result === "copied") {
+        setStatus("copied");
+        resetTimerRef.current = window.setTimeout(() => setStatus("idle"), 2200);
+      } else if (result === "failed") {
+        setStatus("failed");
+        resetTimerRef.current = window.setTimeout(() => setStatus("idle"), 2200);
       } else {
-        setCopied(false);
-        setFailed(true);
-        resetTimerRef.current = window.setTimeout(() => setFailed(false), 2200);
+        // cancelled：保持 idle
+        setStatus("idle");
       }
 
       busyRef.current = false;
@@ -78,19 +58,24 @@ export function ResourceShareButton({
     [username, messageId, title, referrerPublicId]
   );
 
+  const labelText =
+    status === "shared" ? "已分享" : status === "copied" ? "已复制" : status === "failed" ? "分享失败" : "分享";
+
   return (
     <button
       type="button"
-      className={`gs-resource-share-btn${copied ? " is-copied" : ""}${failed ? " is-failed" : ""}`}
-      aria-label={copied ? "已复制分享链接" : failed ? "复制失败" : "复制分享链接"}
-      title="复制分享链接"
+      className={`gs-resource-share-btn${status === "shared" || status === "copied" ? " is-copied" : ""}${
+        status === "failed" ? " is-failed" : ""
+      }`}
+      aria-label={labelText}
+      title="分享到微信 / QQ 等（系统面板）"
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => void handleShare(e)}
     >
       <span className="gs-resource-share-icon" aria-hidden>
-        {copied ? "✓" : failed ? "!" : "⎘"}
+        {status === "shared" || status === "copied" ? "✓" : status === "failed" ? "!" : "⎘"}
       </span>
-      <span className="gs-resource-share-label">{copied ? "已复制" : failed ? "复制失败" : "分享"}</span>
+      <span className="gs-resource-share-label">{labelText}</span>
     </button>
   );
 }

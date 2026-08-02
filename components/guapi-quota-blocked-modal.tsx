@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { buildResourceShareText } from "@/lib/resource-share";
-import { readCurrentShareReferrerId } from "@/lib/resource-share-client";
+import { readCurrentShareReferrerId, shareResourceNative } from "@/lib/resource-share-client";
 
 type GuapiQuotaBlockedModalProps = {
   open: boolean;
@@ -18,31 +17,6 @@ type GuapiQuotaBlockedModalProps = {
   onBuy: () => void;
 };
 
-async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch {
-    /* fallback */
-  }
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
-  } catch {
-    return false;
-  }
-}
-
 export function GuapiQuotaBlockedModal({
   open,
   onClose,
@@ -56,7 +30,7 @@ export function GuapiQuotaBlockedModal({
   onShareCopied,
   onBuy
 }: GuapiQuotaBlockedModalProps) {
-  const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
+  const [shareState, setShareState] = useState<"idle" | "shared" | "copied" | "failed">("idle");
   const busyRef = useRef(false);
   const timerRef = useRef<number | null>(null);
 
@@ -68,16 +42,22 @@ export function GuapiQuotaBlockedModal({
     }
     busyRef.current = true;
     const ref = readCurrentShareReferrerId(referrerPublicId);
-    const shareText = buildResourceShareText(username, messageId, title, { ref });
-    const ok = await copyToClipboard(shareText);
+    const result = await shareResourceNative({
+      username,
+      messageId,
+      title,
+      options: { ref }
+    });
     if (timerRef.current) window.clearTimeout(timerRef.current);
-    if (ok) {
-      setShareState("copied");
+    if (result === "shared" || result === "copied") {
+      setShareState(result);
       onShareCopied?.();
       timerRef.current = window.setTimeout(() => setShareState("idle"), 2200);
-    } else {
+    } else if (result === "failed") {
       setShareState("failed");
       timerRef.current = window.setTimeout(() => setShareState("idle"), 2200);
+    } else {
+      setShareState("idle");
     }
     busyRef.current = false;
   }, [username, messageId, title, referrerPublicId, onShareCopied]);
@@ -116,12 +96,22 @@ export function GuapiQuotaBlockedModal({
             <button
               type="button"
               className={`guapi-quota-btn guapi-quota-btn--share${
-                shareState === "copied" ? " is-copied" : shareState === "failed" ? " is-failed" : ""
+                shareState === "shared" || shareState === "copied"
+                  ? " is-copied"
+                  : shareState === "failed"
+                    ? " is-failed"
+                    : ""
               }`}
               onClick={() => void handleShare()}
               disabled={!username || !messageId}
             >
-              {shareState === "copied" ? "已复制链接" : shareState === "failed" ? "复制失败" : "去分享"}
+              {shareState === "shared"
+                ? "已分享"
+                : shareState === "copied"
+                  ? "已复制链接"
+                  : shareState === "failed"
+                    ? "分享失败"
+                    : "去分享"}
             </button>
             <button type="button" className="guapi-quota-btn guapi-quota-btn--buy" onClick={onBuy}>
               去购买
