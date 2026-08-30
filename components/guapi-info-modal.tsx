@@ -32,7 +32,7 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
           <div className="my-guapi-modal-head-icon" aria-hidden>🍉</div>
           <div>
             <h3 id="guapi-modal-title" className="my-guapi-modal-title">瓜皮能做什么？</h3>
-            <p className="my-guapi-modal-sub">站内通用额度，邀请或购买可永久增加</p>
+            <p className="my-guapi-modal-sub">永久额度：注册 + 签到 + 推广 + 购买</p>
           </div>
           <button type="button" className="my-guapi-modal-close" onClick={onClose} aria-label="关闭">
             ✕
@@ -40,7 +40,7 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
         </div>
         <div className="my-guapi-modal-body">
           <p className="my-guapi-modal-lead">
-            <strong>瓜皮</strong> 就是你的站内通用额度（原「搜索次数」）。搜索不消耗瓜皮，点进观看资源时扣除：
+            <strong>瓜皮</strong> 是永久站内额度。搜索不消耗；新资源可先预览约 10 秒，之后扣 1 瓜皮（短视频可看完）。
           </p>
           <ul className="my-guapi-use-list">
             <li>
@@ -54,18 +54,18 @@ export function GuapiInfoModal({ open, onClose }: GuapiInfoModalProps) {
               <span className="my-guapi-use-icon" aria-hidden>🍉</span>
               <div>
                 <strong>观看资源</strong>
-                <p>点进搜索结果观看内容，每次新资源扣 1 瓜皮，重复观看不扣</p>
+                <p>新资源预览约 10 秒后扣 1；不足 10 秒的视频可看完；重复观看不扣</p>
               </div>
             </li>
             <li>
-              <span className="my-guapi-use-icon" aria-hidden>💳</span>
+              <span className="my-guapi-use-icon" aria-hidden>📅</span>
               <div>
-                <strong>购买瓜皮</strong>
-                <p>支持微信/支付宝购买，到账后永久增加每日额度</p>
+                <strong>签到 / 推广 / 购买</strong>
+                <p>每日签到、邀请好友、购买均可永久增加瓜皮</p>
               </div>
             </li>
           </ul>
-          <p className="my-guapi-modal-foot">可在「我的」购买瓜皮，也可邀请好友扫码注册获得额外额度。</p>
+          <p className="my-guapi-modal-foot">总瓜皮 = 注册赠送 + 签到 + 推广 + 购买。</p>
         </div>
         <button type="button" className="my-guapi-modal-ok" onClick={onClose}>
           知道了

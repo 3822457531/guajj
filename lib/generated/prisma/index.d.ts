@@ -5014,12 +5014,16 @@ export namespace Prisma {
   export type SiteSettingsAvgAggregateOutputType = {
     dailySearchLimit: number | null
     globalDailySearchLimit: number | null
+    registerGuapiGift: number | null
+    checkInGuapiGift: number | null
     referralSearchBonus: number | null
   }
 
   export type SiteSettingsSumAggregateOutputType = {
     dailySearchLimit: number | null
     globalDailySearchLimit: number | null
+    registerGuapiGift: number | null
+    checkInGuapiGift: number | null
     referralSearchBonus: number | null
   }
 
@@ -5036,6 +5040,8 @@ export namespace Prisma {
     blockedKeywords: string | null
     dailySearchLimit: number | null
     globalDailySearchLimit: number | null
+    registerGuapiGift: number | null
+    checkInGuapiGift: number | null
     referralSearchBonus: number | null
     updatedAt: Date | null
   }
@@ -5053,6 +5059,8 @@ export namespace Prisma {
     blockedKeywords: string | null
     dailySearchLimit: number | null
     globalDailySearchLimit: number | null
+    registerGuapiGift: number | null
+    checkInGuapiGift: number | null
     referralSearchBonus: number | null
     updatedAt: Date | null
   }
@@ -5070,6 +5078,8 @@ export namespace Prisma {
     blockedKeywords: number
     dailySearchLimit: number
     globalDailySearchLimit: number
+    registerGuapiGift: number
+    checkInGuapiGift: number
     referralSearchBonus: number
     updatedAt: number
     _all: number
@@ -5079,12 +5089,16 @@ export namespace Prisma {
   export type SiteSettingsAvgAggregateInputType = {
     dailySearchLimit?: true
     globalDailySearchLimit?: true
+    registerGuapiGift?: true
+    checkInGuapiGift?: true
     referralSearchBonus?: true
   }
 
   export type SiteSettingsSumAggregateInputType = {
     dailySearchLimit?: true
     globalDailySearchLimit?: true
+    registerGuapiGift?: true
+    checkInGuapiGift?: true
     referralSearchBonus?: true
   }
 
@@ -5101,6 +5115,8 @@ export namespace Prisma {
     blockedKeywords?: true
     dailySearchLimit?: true
     globalDailySearchLimit?: true
+    registerGuapiGift?: true
+    checkInGuapiGift?: true
     referralSearchBonus?: true
     updatedAt?: true
   }
@@ -5118,6 +5134,8 @@ export namespace Prisma {
     blockedKeywords?: true
     dailySearchLimit?: true
     globalDailySearchLimit?: true
+    registerGuapiGift?: true
+    checkInGuapiGift?: true
     referralSearchBonus?: true
     updatedAt?: true
   }
@@ -5135,6 +5153,8 @@ export namespace Prisma {
     blockedKeywords?: true
     dailySearchLimit?: true
     globalDailySearchLimit?: true
+    registerGuapiGift?: true
+    checkInGuapiGift?: true
     referralSearchBonus?: true
     updatedAt?: true
     _all?: true
@@ -5239,6 +5259,8 @@ export namespace Prisma {
     blockedKeywords: string | null
     dailySearchLimit: number
     globalDailySearchLimit: number
+    registerGuapiGift: number
+    checkInGuapiGift: number
     referralSearchBonus: number
     updatedAt: Date
     _count: SiteSettingsCountAggregateOutputType | null
@@ -5275,6 +5297,8 @@ export namespace Prisma {
     blockedKeywords?: boolean
     dailySearchLimit?: boolean
     globalDailySearchLimit?: boolean
+    registerGuapiGift?: boolean
+    checkInGuapiGift?: boolean
     referralSearchBonus?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["siteSettings"]>
@@ -5294,11 +5318,13 @@ export namespace Prisma {
     blockedKeywords?: boolean
     dailySearchLimit?: boolean
     globalDailySearchLimit?: boolean
+    registerGuapiGift?: boolean
+    checkInGuapiGift?: boolean
     referralSearchBonus?: boolean
     updatedAt?: boolean
   }
 
-  export type SiteSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "allowAnonymousComments" | "mediaStorage" | "r2AccountId" | "r2BucketName" | "r2PublicBaseUrl" | "r2AccessKeyId" | "r2SecretAccessKey" | "homeFeedMode" | "blockedKeywords" | "dailySearchLimit" | "globalDailySearchLimit" | "referralSearchBonus" | "updatedAt", ExtArgs["result"]["siteSettings"]>
+  export type SiteSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "allowAnonymousComments" | "mediaStorage" | "r2AccountId" | "r2BucketName" | "r2PublicBaseUrl" | "r2AccessKeyId" | "r2SecretAccessKey" | "homeFeedMode" | "blockedKeywords" | "dailySearchLimit" | "globalDailySearchLimit" | "registerGuapiGift" | "checkInGuapiGift" | "referralSearchBonus" | "updatedAt", ExtArgs["result"]["siteSettings"]>
 
   export type $SiteSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SiteSettings"
@@ -5333,15 +5359,23 @@ export namespace Prisma {
        */
       blockedKeywords: string | null
       /**
-       * * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已用于全网搜索配额
+       * * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已废弃
        */
       dailySearchLimit: number
       /**
-       * * 全网搜索（暗网索引）每日基础次数，不含邀请奖励
+       * * @deprecated 已改为永久瓜皮；保留字段兼容旧后台，新逻辑用 registerGuapiGift
        */
       globalDailySearchLimit: number
       /**
-       * * 每成功邀请一位新用户，邀请人额外获得的搜索次数
+       * * 注册赠送永久瓜皮次数
+       */
+      registerGuapiGift: number
+      /**
+       * * 每日签到赠送永久瓜皮次数
+       */
+      checkInGuapiGift: number
+      /**
+       * * 每成功邀请一位新用户，邀请人额外获得的永久瓜皮
        */
       referralSearchBonus: number
       updatedAt: Date
@@ -5726,6 +5760,8 @@ export namespace Prisma {
     readonly blockedKeywords: FieldRef<"SiteSettings", 'String'>
     readonly dailySearchLimit: FieldRef<"SiteSettings", 'Int'>
     readonly globalDailySearchLimit: FieldRef<"SiteSettings", 'Int'>
+    readonly registerGuapiGift: FieldRef<"SiteSettings", 'Int'>
+    readonly checkInGuapiGift: FieldRef<"SiteSettings", 'Int'>
     readonly referralSearchBonus: FieldRef<"SiteSettings", 'Int'>
     readonly updatedAt: FieldRef<"SiteSettings", 'DateTime'>
   }
@@ -6080,6 +6116,7 @@ export namespace Prisma {
     referrerId: string | null
     searchBonus: number | null
     guapiBalance: number | null
+    lastCheckInAt: Date | null
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
@@ -6097,6 +6134,7 @@ export namespace Prisma {
     referrerId: string | null
     searchBonus: number | null
     guapiBalance: number | null
+    lastCheckInAt: Date | null
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
@@ -6114,6 +6152,7 @@ export namespace Prisma {
     referrerId: number
     searchBonus: number
     guapiBalance: number
+    lastCheckInAt: number
     registerIp: number
     lastLoginIp: number
     lastLoginAt: number
@@ -6145,6 +6184,7 @@ export namespace Prisma {
     referrerId?: true
     searchBonus?: true
     guapiBalance?: true
+    lastCheckInAt?: true
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
@@ -6162,6 +6202,7 @@ export namespace Prisma {
     referrerId?: true
     searchBonus?: true
     guapiBalance?: true
+    lastCheckInAt?: true
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
@@ -6179,6 +6220,7 @@ export namespace Prisma {
     referrerId?: true
     searchBonus?: true
     guapiBalance?: true
+    lastCheckInAt?: true
     registerIp?: true
     lastLoginIp?: true
     lastLoginAt?: true
@@ -6283,6 +6325,7 @@ export namespace Prisma {
     referrerId: string | null
     searchBonus: number
     guapiBalance: number
+    lastCheckInAt: Date | null
     registerIp: string | null
     lastLoginIp: string | null
     lastLoginAt: Date | null
@@ -6319,6 +6362,7 @@ export namespace Prisma {
     referrerId?: boolean
     searchBonus?: boolean
     guapiBalance?: boolean
+    lastCheckInAt?: boolean
     registerIp?: boolean
     lastLoginIp?: boolean
     lastLoginAt?: boolean
@@ -6353,6 +6397,7 @@ export namespace Prisma {
     referrerId?: boolean
     searchBonus?: boolean
     guapiBalance?: boolean
+    lastCheckInAt?: boolean
     registerIp?: boolean
     lastLoginIp?: boolean
     lastLoginAt?: boolean
@@ -6363,7 +6408,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type GuestUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicId" | "secretKeyHash" | "referrerId" | "searchBonus" | "guapiBalance" | "registerIp" | "lastLoginIp" | "lastLoginAt" | "isAgent" | "agentAt" | "agentWalletYuan" | "createdAt" | "updatedAt", ExtArgs["result"]["guestUser"]>
+  export type GuestUserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "publicId" | "secretKeyHash" | "referrerId" | "searchBonus" | "guapiBalance" | "lastCheckInAt" | "registerIp" | "lastLoginIp" | "lastLoginAt" | "isAgent" | "agentAt" | "agentWalletYuan" | "createdAt" | "updatedAt", ExtArgs["result"]["guestUser"]>
   export type GuestUserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referrer?: boolean | GuestUser$referrerArgs<ExtArgs>
     referrals?: boolean | GuestUser$referralsArgs<ExtArgs>
@@ -6406,13 +6451,17 @@ export namespace Prisma {
       secretKeyHash: string
       referrerId: string | null
       /**
-       * * 邀请奖励累计获得的额外搜索次数
+       * * 累计获得的永久瓜皮（注册+签到+推广+购买），只增不减
        */
       searchBonus: number
       /**
-       * * 接码消费用瓜皮余额（整数）
+       * * 当前可用瓜皮余额（永久钱包，消费扣减）
        */
       guapiBalance: number
+      /**
+       * * 最近一次签到时间（按 UTC 自然日去重）
+       */
+      lastCheckInAt: Date | null
       /**
        * * 注册时的客户端 IP
        */
@@ -6825,6 +6874,7 @@ export namespace Prisma {
     readonly referrerId: FieldRef<"GuestUser", 'String'>
     readonly searchBonus: FieldRef<"GuestUser", 'Int'>
     readonly guapiBalance: FieldRef<"GuestUser", 'Int'>
+    readonly lastCheckInAt: FieldRef<"GuestUser", 'DateTime'>
     readonly registerIp: FieldRef<"GuestUser", 'String'>
     readonly lastLoginIp: FieldRef<"GuestUser", 'String'>
     readonly lastLoginAt: FieldRef<"GuestUser", 'DateTime'>
@@ -38234,6 +38284,8 @@ export namespace Prisma {
     blockedKeywords: 'blockedKeywords',
     dailySearchLimit: 'dailySearchLimit',
     globalDailySearchLimit: 'globalDailySearchLimit',
+    registerGuapiGift: 'registerGuapiGift',
+    checkInGuapiGift: 'checkInGuapiGift',
     referralSearchBonus: 'referralSearchBonus',
     updatedAt: 'updatedAt'
   };
@@ -38248,6 +38300,7 @@ export namespace Prisma {
     referrerId: 'referrerId',
     searchBonus: 'searchBonus',
     guapiBalance: 'guapiBalance',
+    lastCheckInAt: 'lastCheckInAt',
     registerIp: 'registerIp',
     lastLoginIp: 'lastLoginIp',
     lastLoginAt: 'lastLoginAt',
@@ -39329,6 +39382,8 @@ export namespace Prisma {
     blockedKeywords?: StringNullableFilter<"SiteSettings"> | string | null
     dailySearchLimit?: IntFilter<"SiteSettings"> | number
     globalDailySearchLimit?: IntFilter<"SiteSettings"> | number
+    registerGuapiGift?: IntFilter<"SiteSettings"> | number
+    checkInGuapiGift?: IntFilter<"SiteSettings"> | number
     referralSearchBonus?: IntFilter<"SiteSettings"> | number
     updatedAt?: DateTimeFilter<"SiteSettings"> | Date | string
   }
@@ -39346,6 +39401,8 @@ export namespace Prisma {
     blockedKeywords?: SortOrderInput | SortOrder
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
     _relevance?: SiteSettingsOrderByRelevanceInput
@@ -39367,6 +39424,8 @@ export namespace Prisma {
     blockedKeywords?: StringNullableFilter<"SiteSettings"> | string | null
     dailySearchLimit?: IntFilter<"SiteSettings"> | number
     globalDailySearchLimit?: IntFilter<"SiteSettings"> | number
+    registerGuapiGift?: IntFilter<"SiteSettings"> | number
+    checkInGuapiGift?: IntFilter<"SiteSettings"> | number
     referralSearchBonus?: IntFilter<"SiteSettings"> | number
     updatedAt?: DateTimeFilter<"SiteSettings"> | Date | string
   }, "id">
@@ -39384,6 +39443,8 @@ export namespace Prisma {
     blockedKeywords?: SortOrderInput | SortOrder
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
     _count?: SiteSettingsCountOrderByAggregateInput
@@ -39409,6 +39470,8 @@ export namespace Prisma {
     blockedKeywords?: StringNullableWithAggregatesFilter<"SiteSettings"> | string | null
     dailySearchLimit?: IntWithAggregatesFilter<"SiteSettings"> | number
     globalDailySearchLimit?: IntWithAggregatesFilter<"SiteSettings"> | number
+    registerGuapiGift?: IntWithAggregatesFilter<"SiteSettings"> | number
+    checkInGuapiGift?: IntWithAggregatesFilter<"SiteSettings"> | number
     referralSearchBonus?: IntWithAggregatesFilter<"SiteSettings"> | number
     updatedAt?: DateTimeWithAggregatesFilter<"SiteSettings"> | Date | string
   }
@@ -39423,6 +39486,7 @@ export namespace Prisma {
     referrerId?: StringNullableFilter<"GuestUser"> | string | null
     searchBonus?: IntFilter<"GuestUser"> | number
     guapiBalance?: IntFilter<"GuestUser"> | number
+    lastCheckInAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
@@ -39454,6 +39518,7 @@ export namespace Prisma {
     referrerId?: SortOrderInput | SortOrder
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    lastCheckInAt?: SortOrderInput | SortOrder
     registerIp?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
@@ -39489,6 +39554,7 @@ export namespace Prisma {
     referrerId?: StringNullableFilter<"GuestUser"> | string | null
     searchBonus?: IntFilter<"GuestUser"> | number
     guapiBalance?: IntFilter<"GuestUser"> | number
+    lastCheckInAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
@@ -39520,6 +39586,7 @@ export namespace Prisma {
     referrerId?: SortOrderInput | SortOrder
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    lastCheckInAt?: SortOrderInput | SortOrder
     registerIp?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
@@ -39545,6 +39612,7 @@ export namespace Prisma {
     referrerId?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     searchBonus?: IntWithAggregatesFilter<"GuestUser"> | number
     guapiBalance?: IntWithAggregatesFilter<"GuestUser"> | number
+    lastCheckInAt?: DateTimeNullableWithAggregatesFilter<"GuestUser"> | Date | string | null
     registerIp?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableWithAggregatesFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"GuestUser"> | Date | string | null
@@ -41952,6 +42020,8 @@ export namespace Prisma {
     blockedKeywords?: string | null
     dailySearchLimit?: number
     globalDailySearchLimit?: number
+    registerGuapiGift?: number
+    checkInGuapiGift?: number
     referralSearchBonus?: number
     updatedAt?: Date | string
   }
@@ -41969,6 +42039,8 @@ export namespace Prisma {
     blockedKeywords?: string | null
     dailySearchLimit?: number
     globalDailySearchLimit?: number
+    registerGuapiGift?: number
+    checkInGuapiGift?: number
     referralSearchBonus?: number
     updatedAt?: Date | string
   }
@@ -41986,6 +42058,8 @@ export namespace Prisma {
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
     globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
+    registerGuapiGift?: IntFieldUpdateOperationsInput | number
+    checkInGuapiGift?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42003,6 +42077,8 @@ export namespace Prisma {
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
     globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
+    registerGuapiGift?: IntFieldUpdateOperationsInput | number
+    checkInGuapiGift?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42020,6 +42096,8 @@ export namespace Prisma {
     blockedKeywords?: string | null
     dailySearchLimit?: number
     globalDailySearchLimit?: number
+    registerGuapiGift?: number
+    checkInGuapiGift?: number
     referralSearchBonus?: number
     updatedAt?: Date | string
   }
@@ -42037,6 +42115,8 @@ export namespace Prisma {
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
     globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
+    registerGuapiGift?: IntFieldUpdateOperationsInput | number
+    checkInGuapiGift?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42054,6 +42134,8 @@ export namespace Prisma {
     blockedKeywords?: NullableStringFieldUpdateOperationsInput | string | null
     dailySearchLimit?: IntFieldUpdateOperationsInput | number
     globalDailySearchLimit?: IntFieldUpdateOperationsInput | number
+    registerGuapiGift?: IntFieldUpdateOperationsInput | number
+    checkInGuapiGift?: IntFieldUpdateOperationsInput | number
     referralSearchBonus?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42064,6 +42146,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -42095,6 +42178,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -42124,6 +42208,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -42155,6 +42240,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -42185,6 +42271,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -42201,6 +42288,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -42218,6 +42306,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -44885,6 +44974,8 @@ export namespace Prisma {
     blockedKeywords?: SortOrder
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44892,6 +44983,8 @@ export namespace Prisma {
   export type SiteSettingsAvgOrderByAggregateInput = {
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
   }
 
@@ -44908,6 +45001,8 @@ export namespace Prisma {
     blockedKeywords?: SortOrder
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44925,6 +45020,8 @@ export namespace Prisma {
     blockedKeywords?: SortOrder
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44932,6 +45029,8 @@ export namespace Prisma {
   export type SiteSettingsSumOrderByAggregateInput = {
     dailySearchLimit?: SortOrder
     globalDailySearchLimit?: SortOrder
+    registerGuapiGift?: SortOrder
+    checkInGuapiGift?: SortOrder
     referralSearchBonus?: SortOrder
   }
 
@@ -45137,6 +45236,7 @@ export namespace Prisma {
     referrerId?: SortOrder
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    lastCheckInAt?: SortOrder
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
@@ -45160,6 +45260,7 @@ export namespace Prisma {
     referrerId?: SortOrder
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    lastCheckInAt?: SortOrder
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
@@ -45177,6 +45278,7 @@ export namespace Prisma {
     referrerId?: SortOrder
     searchBonus?: SortOrder
     guapiBalance?: SortOrder
+    lastCheckInAt?: SortOrder
     registerIp?: SortOrder
     lastLoginIp?: SortOrder
     lastLoginAt?: SortOrder
@@ -48966,6 +49068,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -48996,6 +49099,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -49029,6 +49133,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -49058,6 +49163,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -49518,6 +49624,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49548,6 +49655,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49596,6 +49704,7 @@ export namespace Prisma {
     referrerId?: StringNullableFilter<"GuestUser"> | string | null
     searchBonus?: IntFilter<"GuestUser"> | number
     guapiBalance?: IntFilter<"GuestUser"> | number
+    lastCheckInAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
     registerIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginIp?: StringNullableFilter<"GuestUser"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"GuestUser"> | Date | string | null
@@ -50050,6 +50159,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50080,6 +50190,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50153,6 +50264,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50183,6 +50295,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50310,6 +50423,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50340,6 +50454,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50411,6 +50526,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50441,6 +50557,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50502,6 +50619,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50532,6 +50650,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50565,6 +50684,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50595,6 +50715,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50639,6 +50760,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50669,6 +50791,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50708,6 +50831,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50738,6 +50862,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50766,6 +50891,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50796,6 +50922,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50840,6 +50967,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50870,6 +50998,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50898,6 +51027,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50928,6 +51058,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -50972,6 +51103,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51002,6 +51134,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51030,6 +51163,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -51060,6 +51194,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -51104,6 +51239,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51134,6 +51270,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51162,6 +51299,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -51192,6 +51330,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -51236,6 +51375,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51266,6 +51406,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51294,6 +51435,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -51324,6 +51466,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -51368,6 +51511,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -51398,6 +51542,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52577,6 +52722,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -52607,6 +52753,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -52692,6 +52839,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52722,6 +52870,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52750,6 +52899,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -52780,6 +52930,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -52824,6 +52975,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52854,6 +53006,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52882,6 +53035,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -52912,6 +53066,7 @@ export namespace Prisma {
     referrerId?: string | null
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -52956,6 +53111,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52986,6 +53142,7 @@ export namespace Prisma {
     referrerId?: NullableStringFieldUpdateOperationsInput | string | null
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -53014,6 +53171,7 @@ export namespace Prisma {
     secretKeyHash: string
     searchBonus?: number
     guapiBalance?: number
+    lastCheckInAt?: Date | string | null
     registerIp?: string | null
     lastLoginIp?: string | null
     lastLoginAt?: Date | string | null
@@ -53175,6 +53333,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -53204,6 +53363,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -53233,6 +53393,7 @@ export namespace Prisma {
     secretKeyHash?: StringFieldUpdateOperationsInput | string
     searchBonus?: IntFieldUpdateOperationsInput | number
     guapiBalance?: IntFieldUpdateOperationsInput | number
+    lastCheckInAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registerIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

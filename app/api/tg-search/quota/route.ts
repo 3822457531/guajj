@@ -15,7 +15,11 @@ export async function GET() {
       searchBonus: quota.searchBonus,
       hasIdentity: quota.hasIdentity,
       publicId: quota.publicId,
-      dailyBaseLimit: settings.globalDailySearchLimit ?? 5
+      checkedInToday: Boolean(quota.checkedInToday),
+      registerGuapiGift: settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5,
+      checkInGuapiGift: settings.checkInGuapiGift ?? 1,
+      /** @deprecated 兼容旧前端字段，等同 registerGuapiGift */
+      dailyBaseLimit: settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5
     }
   });
 }

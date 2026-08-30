@@ -12,7 +12,6 @@ import { tgSearchLog } from "@/lib/tg-search-log";
 import { tgSearchCaptchaImageUrl } from "@/lib/tg-search-api-paths";
 import {
   assertAdvancedSearchIdentity,
-  assertGlobalSearchAllowed,
   getGuestGlobalSearchQuota,
   type SearchQuotaStatus
 } from "@/lib/search-quota";
@@ -89,8 +88,8 @@ function quotaBlockedResponse(quota: SearchQuotaStatus, context: "search" | "vie
       error: quota.hasIdentity ? "SEARCH_QUOTA_EXCEEDED" : "GUEST_IDENTITY_REQUIRED",
       message: quota.hasIdentity
         ? context === "view"
-          ? `今日瓜皮已用完（${quota.used}/${quota.limit}），无法观看资源。邀请好友可增加额度`
-          : `今日瓜皮已用完（${quota.used}/${quota.limit}），邀请好友可增加额度`
+          ? `瓜皮不足（剩余 ${quota.remaining}），无法继续观看。签到、邀请好友或购买可增加额度`
+          : `瓜皮不足（剩余 ${quota.remaining}），签到、邀请好友或购买可增加额度`
         : context === "view"
           ? "请先在「我的」获取 GUA 身份后再观看资源"
           : "请先在「我的」获取 GUA 身份后再使用全网搜索",
@@ -427,8 +426,6 @@ export async function handleTgChannelGet(request: Request) {
   const search = messageId > 0 ? "" : rawSearch;
   const includeContext =
     searchParams.get("includeContext") === "1" || searchParams.get("includeContext") === "true";
-  const viewTitle = String(searchParams.get("title") ?? searchParams.get("t") ?? "").trim();
-  const viewLabel = String(searchParams.get("label") ?? searchParams.get("l") ?? "").trim();
 
   tgSearchLog("channel-api", "GET channel 收到请求", {
     username,
@@ -444,20 +441,17 @@ export async function handleTgChannelGet(request: Request) {
 
   const guestUserId = await readGuestUserIdFromRequest();
   const isResourceView = messageId > 0;
+  let alreadyViewed = false;
+  let needsViewBill = false;
 
   if (isResourceView) {
     if (!guestUserId) {
       const quota = await getGuestGlobalSearchQuota(null);
       return quotaBlockedResponse(quota, "view");
     }
-
-    const alreadyViewed = await hasGuestViewedContent(guestUserId, username, messageId);
-    if (!alreadyViewed) {
-      const quotaCheck = await assertGlobalSearchAllowed();
-      if (!quotaCheck.allowed) {
-        return quotaBlockedResponse(quotaCheck.quota, "view");
-      }
-    }
+    // 预览放行：进入资源不校验/不扣费；满 10 秒后再由 view-bill 扣费
+    alreadyViewed = await hasGuestViewedContent(guestUserId, username, messageId);
+    needsViewBill = !alreadyViewed;
   }
 
   const svc = loadJisouSearchService<JisouSearchService>();
@@ -473,24 +467,6 @@ export async function handleTgChannelGet(request: Request) {
     const keywords = await getBlockedKeywords();
     const messages = markChannelMessagesSensitive(result.messages ?? [], keywords);
 
-    if (isResourceView && guestUserId && messages.length > 0) {
-      try {
-        await recordContentView(guestUserId, {
-          username,
-          messageId,
-          title: viewTitle || messages.find((m) => m.isAnchor)?.textPreview || null,
-          label: viewLabel || null,
-          searchQuery: rawSearch || null
-        });
-      } catch (err) {
-        if ((err as Error & { code?: string }).code === INSUFFICIENT_GUAPI_CODE) {
-          const quota = await getGuestGlobalSearchQuota(guestUserId);
-          return quotaBlockedResponse(quota, "view");
-        }
-        throw err;
-      }
-    }
-
     const quota = await getGuestGlobalSearchQuota(guestUserId);
     tgSearchLog("channel-api", "频道消息拉取成功", {
       username,
@@ -503,7 +479,9 @@ export async function handleTgChannelGet(request: Request) {
       ...result,
       messages,
       quota: quotaJson(quota),
-      viewBilled: isResourceView && guestUserId && messages.length > 0
+      alreadyViewed,
+      needsViewBill: needsViewBill && messages.length > 0,
+      viewBilled: false
     });
   } catch (err: unknown) {
     const mapped = svc.mapGramError(err);
@@ -523,6 +501,55 @@ export async function handleTgChannelGet(request: Request) {
     return NextResponse.json({ ok: false, error: code, message }, { status });
   }
   });
+}
+
+/** 观看满预览时长后扣费；短视频看完也可调用（无额度时由前端决定是否弹窗） */
+export async function handleTgViewBillPost(request: Request) {
+  let body: {
+    username?: string;
+    messageId?: number;
+    title?: string | null;
+    label?: string | null;
+    searchQuery?: string | null;
+  };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 400 });
+  }
+
+  const username = String(body.username ?? "").trim();
+  const messageId = Math.floor(Number(body.messageId) || 0);
+  if (!username || messageId <= 0) {
+    return NextResponse.json({ ok: false, error: "missing_params" }, { status: 400 });
+  }
+
+  const guestUserId = await readGuestUserIdFromRequest();
+  if (!guestUserId) {
+    return quotaBlockedResponse(await getGuestGlobalSearchQuota(null), "view");
+  }
+
+  try {
+    const result = await recordContentView(guestUserId, {
+      username,
+      messageId,
+      title: body.title ?? null,
+      label: body.label ?? null,
+      searchQuery: body.searchQuery ?? null
+    });
+    const quota = await getGuestGlobalSearchQuota(guestUserId);
+    return NextResponse.json({
+      ok: true,
+      billed: result.billed,
+      alreadyViewed: result.alreadyViewed,
+      quota: quotaJson(quota)
+    });
+  } catch (err) {
+    if ((err as Error & { code?: string }).code === INSUFFICIENT_GUAPI_CODE) {
+      return quotaBlockedResponse(await getGuestGlobalSearchQuota(guestUserId), "view");
+    }
+    throw err;
+  }
 }
 
 export async function handleTgMediaGet(request: Request) {

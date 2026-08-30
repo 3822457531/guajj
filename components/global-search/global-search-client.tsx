@@ -15,7 +15,7 @@ import {
   runAsyncPool,
   type ChannelThumbMap
 } from "@/lib/channel-media-batch";
-import { TG_SEARCH_API, TG_SEARCH_HISTORY_API, TG_SEARCH_QUOTA_API } from "@/lib/tg-search-api-paths";
+import { TG_SEARCH_API, TG_SEARCH_HISTORY_API, TG_SEARCH_QUOTA_API, TG_SEARCH_VIEW_BILL_API, VIEW_PREVIEW_SECONDS } from "@/lib/tg-search-api-paths";
 import {
   isJisouPromotedChannel,
   type ChannelMessageItem,
@@ -72,6 +72,9 @@ type QuotaState = {
   hasIdentity: boolean;
   publicId: string | null;
   dailyBaseLimit: number;
+  checkedInToday?: boolean;
+  registerGuapiGift?: number;
+  checkInGuapiGift?: number;
 };
 
 type HistoryKeyword = {
@@ -218,31 +221,47 @@ function SensitiveContentMosaic({ text }: { text?: string | null }) {
   );
 }
 
-/** 优先用内联 data URL，避免首张验证码图二次请求冷启动/超时裂图 */
+/** 优先用内联 data URL；失败则延迟重试远程图（规避首张冷启动 404） */
 function CaptchaChallengeImage({ captcha }: { captcha: JisouCaptchaChallenge }) {
   const remoteSrc = `${captcha.imageUrl}?v=${encodeURIComponent(captcha.challengeId)}`;
-  const [src, setSrc] = useState(captcha.imageDataUrl || remoteSrc);
+  const inlineSrc =
+    typeof captcha.imageDataUrl === "string" && captcha.imageDataUrl.startsWith("data:image/")
+      ? captcha.imageDataUrl
+      : "";
+  const [src, setSrc] = useState(inlineSrc || remoteSrc);
   const [retry, setRetry] = useState(0);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    setSrc(captcha.imageDataUrl || remoteSrc);
+    setSrc(inlineSrc || remoteSrc);
     setRetry(0);
-  }, [captcha.challengeId, captcha.imageDataUrl, remoteSrc]);
+    setFailed(false);
+  }, [captcha.challengeId, inlineSrc, remoteSrc]);
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      key={`${captcha.challengeId}-${retry}`}
-      src={src}
-      alt="验证码算式"
-      className="gs-captcha-img"
-      onError={() => {
-        if (retry >= 2) return;
-        // 内联失败或裂图时回退/重试远程接口
-        setRetry((n) => n + 1);
-        setSrc(`${remoteSrc}&r=${Date.now()}`);
-      }}
-    />
+    <div className="gs-captcha-img-wrap">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        key={`${captcha.challengeId}-${retry}`}
+        src={src}
+        alt="验证码算式"
+        className="gs-captcha-img"
+        onLoad={() => setFailed(false)}
+        onError={() => {
+          if (retry >= 4) {
+            setFailed(true);
+            return;
+          }
+          const next = retry + 1;
+          setRetry(next);
+          // 先丢掉可能坏掉的 data URL，再指数退避拉远程
+          window.setTimeout(() => {
+            setSrc(`${remoteSrc}&r=${Date.now()}&n=${next}`);
+          }, Math.min(1200, 200 * next));
+        }}
+      />
+      {failed ? <p className="gs-captcha-img-fallback">验证码图片加载失败，请重新搜索</p> : null}
+    </div>
   );
 }
 
@@ -261,6 +280,9 @@ function ResourceDetailModal({
   onOpenArticle,
   anchorRef,
   onChannelPlaybackActive,
+  onWatchProgress,
+  previewLimitSec = null,
+  onPreviewLimitReached,
   referrerPublicId = null
 }: {
   channel: JisouChannel;
@@ -283,6 +305,9 @@ function ResourceDetailModal({
   onOpenArticle: (payload: { title: string; text: string }) => void;
   anchorRef: React.RefObject<HTMLLIElement | null>;
   onChannelPlaybackActive?: (active: boolean) => void;
+  onWatchProgress?: (info: { currentTime: number; duration: number; ended?: boolean }) => void;
+  previewLimitSec?: number | null;
+  onPreviewLimitReached?: () => void;
   referrerPublicId?: string | null;
 }) {
   const { icon: headerIcon, title: searchResultTitle } = formatJisouChannelRow(channel, activeFilterType);
@@ -428,6 +453,9 @@ function ResourceDetailModal({
                             msg={msg}
                             eagerPrefetch
                             onChannelPlaybackActive={onChannelPlaybackActive}
+                            onWatchProgress={onWatchProgress}
+                            previewLimitSec={previewLimitSec}
+                            onPreviewLimitReached={onPreviewLimitReached}
                           />
                         ) : null}
 
@@ -695,6 +723,13 @@ export function GlobalSearchClient({
   const channelVideoPlayingRef = useRef(false);
   const pendingResourceRef = useRef<JisouChannel | null>(null);
   const activeChannelRef = useRef<JisouChannel | null>(null);
+  const needsViewBillRef = useRef(false);
+  const viewBillDoneRef = useRef(false);
+  const viewPreviewLockedRef = useRef(false);
+  const viewBillInFlightRef = useRef(false);
+  const hasVideoInResourceRef = useRef(false);
+  const nonVideoPreviewTimerRef = useRef<number | null>(null);
+  const [enforcePreviewLimit, setEnforcePreviewLimit] = useState(false);
   const [channelMinimized, setChannelMinimized] = useState(false);
   const searchAbortRef = useRef<AbortController | null>(null);
 
@@ -713,6 +748,16 @@ export function GlobalSearchClient({
     setChannelLoading(false);
     setChannelMinimized(false);
     channelVideoPlayingRef.current = false;
+    needsViewBillRef.current = false;
+    viewBillDoneRef.current = false;
+    viewPreviewLockedRef.current = false;
+    viewBillInFlightRef.current = false;
+    hasVideoInResourceRef.current = false;
+    setEnforcePreviewLimit(false);
+    if (nonVideoPreviewTimerRef.current) {
+      window.clearTimeout(nonVideoPreviewTimerRef.current);
+      nonVideoPreviewTimerRef.current = null;
+    }
   }
 
   function forceCloseChannelModal() {
@@ -734,7 +779,8 @@ export function GlobalSearchClient({
     searchAbortRef.current?.abort();
     const controller = new AbortController();
     searchAbortRef.current = controller;
-    const timeout = window.setTimeout(() => controller.abort(), 55000);
+    // 验证码打包含 TG 下图，首次更慢；超时过短会导致「第一次出不来、第二次才弹」
+    const timeout = window.setTimeout(() => controller.abort(), 90000);
     return { controller, clearTimeout: () => window.clearTimeout(timeout) };
   }
 
@@ -797,6 +843,113 @@ export function GlobalSearchClient({
   function applyQuotaFromResponse(data: { quota?: QuotaState }) {
     if (data.quota) setQuota(data.quota);
   }
+
+  const quotaBlockedMsgRef = useRef<string | null>(null);
+
+  const showQuotaBlockedModal = useCallback((message?: string | null) => {
+    const channel = activeChannelRef.current || pendingResourceRef.current;
+    if (channel) pendingResourceRef.current = channel;
+    const msg = message || quotaBlockedMsgRef.current || "瓜皮不足，无法继续观看";
+    quotaBlockedMsgRef.current = msg;
+    setQuotaBlockedMsg(msg);
+    setQuotaBlockedOpen(true);
+    stopVideosInRoot(document.querySelector(".gs-channel-sheet"));
+    channelVideoPlayingRef.current = false;
+  }, []);
+
+  const settleViewBill = useCallback(
+    async (opts?: { freeIfNoQuota?: boolean }) => {
+      if (!needsViewBillRef.current || viewBillDoneRef.current || viewBillInFlightRef.current) return;
+      const channel = activeChannelRef.current || pendingResourceRef.current;
+      if (!channel?.username || !channel.postId) return;
+
+      if (viewPreviewLockedRef.current) {
+        if (opts?.freeIfNoQuota) return;
+        showQuotaBlockedModal();
+        return;
+      }
+
+      viewBillInFlightRef.current = true;
+      try {
+        const res = await fetch(TG_SEARCH_VIEW_BILL_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: channel.username,
+            messageId: channel.postId,
+            title: channel.title || null,
+            label: channel.label || null
+          })
+        });
+        const data = (await res.json()) as {
+          ok?: boolean;
+          error?: string;
+          message?: string;
+          quota?: QuotaState;
+        };
+        applyQuotaFromResponse(data);
+
+        if (data.error === "GUEST_IDENTITY_REQUIRED") {
+          requestGuestIdentityModal();
+          return;
+        }
+
+        if (data.error === "SEARCH_QUOTA_EXCEEDED" || (!res.ok && data.error === "SEARCH_QUOTA_EXCEEDED")) {
+          if (opts?.freeIfNoQuota) {
+            viewBillDoneRef.current = true;
+            needsViewBillRef.current = false;
+            setEnforcePreviewLimit(false);
+            return;
+          }
+          viewPreviewLockedRef.current = true;
+          setEnforcePreviewLimit(true);
+          showQuotaBlockedModal(data.message);
+          return;
+        }
+
+        if (!res.ok || !data.ok) {
+          return;
+        }
+
+        viewBillDoneRef.current = true;
+        needsViewBillRef.current = false;
+        viewPreviewLockedRef.current = false;
+        setEnforcePreviewLimit(false);
+      } catch {
+        /* ignore transient network errors; next progress tick can retry */
+      } finally {
+        viewBillInFlightRef.current = false;
+      }
+    },
+    [showQuotaBlockedModal]
+  );
+
+  const handlePreviewLimitReached = useCallback(() => {
+    if (!needsViewBillRef.current || viewBillDoneRef.current) return;
+    if (viewPreviewLockedRef.current) {
+      showQuotaBlockedModal();
+      return;
+    }
+    void settleViewBill();
+  }, [settleViewBill, showQuotaBlockedModal]);
+
+  const handleWatchProgress = useCallback(
+    (info: { currentTime: number; duration: number; ended?: boolean }) => {
+      if (!needsViewBillRef.current || viewBillDoneRef.current) return;
+      const duration = info.duration;
+      const isShort = duration > 0 && duration < VIEW_PREVIEW_SECONDS;
+
+      if (info.ended && isShort) {
+        void settleViewBill({ freeIfNoQuota: true });
+        return;
+      }
+
+      if (!isShort && info.currentTime >= VIEW_PREVIEW_SECONDS) {
+        void settleViewBill();
+      }
+    },
+    [settleViewBill]
+  );
 
   function applySearchSuccess(data: SearchSuccessPayload, opts?: { freshKeyword?: boolean }) {
     setCaptcha(null);
@@ -1167,6 +1320,8 @@ export function GlobalSearchClient({
         rawCount?: number;
         anchorMessageId?: number | null;
         resourceOnly?: boolean;
+        alreadyViewed?: boolean;
+        needsViewBill?: boolean;
         messages?: ChannelMessageItem[];
       };
 
@@ -1175,13 +1330,6 @@ export function GlobalSearchClient({
         if (data.error === "GUEST_IDENTITY_REQUIRED") {
           pendingResourceRef.current = channel;
           setChannelLoadError(null);
-          return;
-        }
-        if (data.error === "SEARCH_QUOTA_EXCEEDED") {
-          pendingResourceRef.current = channel;
-          setChannelLoadError(null);
-          setQuotaBlockedMsg(data.message || "今日瓜皮已用完，无法观看资源");
-          setQuotaBlockedOpen(true);
           return;
         }
         if (viewErr) {
@@ -1207,6 +1355,26 @@ export function GlobalSearchClient({
       const initialMessages = (data.messages || []).filter((m) => m.isAnchor);
       const resolvedMessages = initialMessages.length > 0 ? initialMessages : data.messages || [];
       setMessages(resolvedMessages);
+
+      needsViewBillRef.current = Boolean(data.needsViewBill);
+      viewBillDoneRef.current = !data.needsViewBill;
+      viewPreviewLockedRef.current = false;
+      viewBillInFlightRef.current = false;
+      setEnforcePreviewLimit(Boolean(data.needsViewBill));
+      const hasVideo = resolvedMessages.some((m) =>
+        m.mediaItems?.some((item) => item.contentType === "VIDEO")
+      );
+      hasVideoInResourceRef.current = hasVideo;
+      if (nonVideoPreviewTimerRef.current) {
+        window.clearTimeout(nonVideoPreviewTimerRef.current);
+        nonVideoPreviewTimerRef.current = null;
+      }
+      if (data.needsViewBill && !hasVideo) {
+        nonVideoPreviewTimerRef.current = window.setTimeout(() => {
+          void settleViewBill();
+        }, VIEW_PREVIEW_SECONDS * 1000);
+      }
+
       if (!resolvedMessages.length) {
         setChannelLoadError("资源不存在或无法读取");
       } else {
@@ -1493,14 +1661,14 @@ export function GlobalSearchClient({
   return (
     <div className={`global-search-body${isLanding ? " is-landing" : ""}`}>
       {/* {quota ? (
-        <section className="gs-quota-bar" aria-label="今日瓜皮余额">
+        <section className="gs-quota-bar" aria-label="瓜皮余额">
           <div className="gs-quota-main">
-            <p className="gs-quota-title">今日瓜皮余额</p>
+            <p className="gs-quota-title">瓜皮余额</p>
             <p className="gs-quota-numbers">
               {quota.hasIdentity ? (
                 <>
                   <strong>{quota.remaining}</strong>
-                  <span> / {quota.limit}</span>
+                  <span> 可用</span>
                 </>
               ) : (
                 <span className="gs-quota-muted">需先获取身份</span>
@@ -1508,7 +1676,7 @@ export function GlobalSearchClient({
             </p>
             {quota.hasIdentity ? (
               <p className="gs-quota-tip">
-                基础每日 {quota.dailyBaseLimit} 瓜皮 + 邀请奖励 {quota.searchBonus} 瓜皮 · 新关键词扣 1 瓜皮 · 已搜关键词走缓存不扣
+                永久额度 · 累计获得 {quota.limit} · 观看满 {VIEW_PREVIEW_SECONDS} 秒扣 1 · 短视频可看完
               </p>
             ) : (
               <p className="gs-quota-tip">
@@ -1736,6 +1904,9 @@ export function GlobalSearchClient({
           onChannelPlaybackActive={(active) => {
             channelVideoPlayingRef.current = active;
           }}
+          onWatchProgress={handleWatchProgress}
+          previewLimitSec={enforcePreviewLimit ? VIEW_PREVIEW_SECONDS : null}
+          onPreviewLimitReached={handlePreviewLimitReached}
           referrerPublicId={quota?.publicId}
         />
       ) : null}
@@ -1772,8 +1943,15 @@ export function GlobalSearchClient({
             publicId: quota?.publicId ?? null,
             dailyBaseLimit: quota?.dailyBaseLimit ?? nextQuota.limit
           });
+          setQuotaBlockedOpen(false);
+          viewPreviewLockedRef.current = false;
+          viewBillDoneRef.current = false;
           window.setTimeout(() => {
             setGuapiBuyOpen(false);
+            if (needsViewBillRef.current) {
+              void settleViewBill();
+              return;
+            }
             const channel = pendingResourceRef.current || activeChannelRef.current;
             if (channel) void loadResourceRef.current(channel);
           }, 900);

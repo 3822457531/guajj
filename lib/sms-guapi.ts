@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { SearchSource } from "@/lib/generated/prisma";
-import { getGuestGlobalSearchQuota } from "@/lib/search-quota";
+import { getGuestGlobalSearchQuota, isSameUtcDay } from "@/lib/search-quota";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const INSUFFICIENT_GUAPI_CODE = "INSUFFICIENT_GUAPI";
 
@@ -21,7 +22,7 @@ export async function countTodaySmsGuapiUsed(guestUserId: string): Promise<numbe
   return Math.abs(agg._sum.amount ?? 0);
 }
 
-/** 与搜索共用「今日瓜皮」剩余额度 */
+/** 永久瓜皮剩余额度 */
 export async function getGuestGuapiRemaining(guestUserId: string) {
   const quota = await getGuestGlobalSearchQuota(guestUserId);
   return {
@@ -55,27 +56,44 @@ export async function deductGuestGuapi(
   const cost = Math.max(0, Math.round(amount));
   if (cost <= 0) return;
 
-  const check = await assertGuestGuapiAvailable(guestUserId, cost);
-  if (!check.ok) {
+  const result = await prisma.$transaction(async (tx) => {
+    const guest = await tx.guestUser.findUnique({
+      where: { id: guestUserId },
+      select: { guapiBalance: true }
+    });
+    if (!guest || guest.guapiBalance < cost) {
+      return { ok: false as const, balance: guest?.guapiBalance ?? 0 };
+    }
+
+    await tx.guestUser.update({
+      where: { id: guestUserId },
+      data: { guapiBalance: { decrement: cost } }
+    });
+    await tx.smsGuapiLog.create({
+      data: {
+        guestUserId,
+        amount: -cost,
+        type,
+        description: description ?? null
+      }
+    });
+    return { ok: true as const };
+  });
+
+  if (!result.ok) {
     const err = new Error("瓜皮不足");
     (err as Error & { code?: string; balance?: number; required?: number }).code =
       INSUFFICIENT_GUAPI_CODE;
-    (err as Error & { balance?: number }).balance = check.balance;
-    (err as Error & { required?: number }).required = check.required;
+    (err as Error & { balance?: number }).balance = result.balance;
+    (err as Error & { required?: number }).required = cost;
     throw err;
   }
-
-  await prisma.smsGuapiLog.create({
-    data: {
-      guestUserId,
-      amount: -cost,
-      type,
-      description: description ?? null
-    }
-  });
 }
 
-/** 管理员充值：增加永久瓜皮（与邀请奖励同一字段） */
+/**
+ * 增加永久瓜皮：同时累加「累计获得 searchBonus」与「可用余额 guapiBalance」
+ * type: register | check_in | referral | purchase | recharge | ...
+ */
 export async function addGuestGuapi(
   guestUserId: string,
   amount: number,
@@ -88,7 +106,10 @@ export async function addGuestGuapi(
   await prisma.$transaction([
     prisma.guestUser.update({
       where: { id: guestUserId },
-      data: { searchBonus: { increment: delta } }
+      data: {
+        searchBonus: { increment: delta },
+        guapiBalance: { increment: delta }
+      }
     }),
     prisma.smsGuapiLog.create({
       data: {
@@ -99,6 +120,72 @@ export async function addGuestGuapi(
       }
     })
   ]);
+}
+
+export type CheckInResult =
+  | {
+      ok: true;
+      granted: number;
+      alreadyCheckedIn: false;
+      quota: Awaited<ReturnType<typeof getGuestGlobalSearchQuota>>;
+    }
+  | {
+      ok: true;
+      granted: 0;
+      alreadyCheckedIn: true;
+      quota: Awaited<ReturnType<typeof getGuestGlobalSearchQuota>>;
+    };
+
+/** 每日签到：按 UTC 自然日仅一次，增加 checkInGuapiGift 永久瓜皮 */
+export async function checkInGuestGuapi(guestUserId: string): Promise<CheckInResult> {
+  const settings = await getSiteSettings();
+  const gift = Math.max(0, settings.checkInGuapiGift ?? 1);
+  const now = new Date();
+
+  const result = await prisma.$transaction(async (tx) => {
+    const guest = await tx.guestUser.findUnique({
+      where: { id: guestUserId },
+      select: { lastCheckInAt: true }
+    });
+    if (!guest) {
+      throw new Error("guest_not_found");
+    }
+    if (isSameUtcDay(guest.lastCheckInAt, now)) {
+      return { already: true as const };
+    }
+
+    if (gift > 0) {
+      await tx.guestUser.update({
+        where: { id: guestUserId },
+        data: {
+          lastCheckInAt: now,
+          searchBonus: { increment: gift },
+          guapiBalance: { increment: gift }
+        }
+      });
+      await tx.smsGuapiLog.create({
+        data: {
+          guestUserId,
+          amount: gift,
+          type: "check_in",
+          description: `每日签到 +${gift}`
+        }
+      });
+    } else {
+      await tx.guestUser.update({
+        where: { id: guestUserId },
+        data: { lastCheckInAt: now }
+      });
+    }
+
+    return { already: false as const, granted: gift };
+  });
+
+  const quota = await getGuestGlobalSearchQuota(guestUserId);
+  if (result.already) {
+    return { ok: true, granted: 0, alreadyCheckedIn: true, quota };
+  }
+  return { ok: true, granted: result.granted, alreadyCheckedIn: false, quota };
 }
 
 export async function logSmsAction(input: {

@@ -175,7 +175,10 @@ async function fulfillPaidOrder(orderId: string): Promise<boolean> {
 
     await tx.guestUser.update({
       where: { id: order.guestUserId },
-      data: { searchBonus: { increment: order.guapiAmount } }
+      data: {
+        searchBonus: { increment: order.guapiAmount },
+        guapiBalance: { increment: order.guapiAmount }
+      }
     });
     await tx.smsGuapiLog.create({
       data: {

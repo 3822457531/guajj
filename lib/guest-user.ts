@@ -75,7 +75,8 @@ export async function createGuestUser(
   }
 
   const settings = await getSiteSettings();
-  const bonus = Math.max(0, settings.referralSearchBonus);
+  const referralBonus = Math.max(0, settings.referralSearchBonus);
+  const registerGift = Math.max(0, settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5);
 
   const user = await prisma.$transaction(async (tx) => {
     const created = await tx.guestUser.create({
@@ -85,14 +86,38 @@ export async function createGuestUser(
         registerIp: ip,
         lastLoginIp: ip,
         lastLoginAt: now,
+        searchBonus: registerGift,
+        guapiBalance: registerGift,
         ...(referrerId ? { referrer: { connect: { id: referrerId } } } : {})
       }
     });
 
-    if (referrerId && bonus > 0) {
+    if (registerGift > 0) {
+      await tx.smsGuapiLog.create({
+        data: {
+          guestUserId: created.id,
+          amount: registerGift,
+          type: "register",
+          description: `注册赠送 +${registerGift}`
+        }
+      });
+    }
+
+    if (referrerId && referralBonus > 0) {
       await tx.guestUser.update({
         where: { id: referrerId },
-        data: { searchBonus: { increment: bonus } }
+        data: {
+          searchBonus: { increment: referralBonus },
+          guapiBalance: { increment: referralBonus }
+        }
+      });
+      await tx.smsGuapiLog.create({
+        data: {
+          guestUserId: referrerId,
+          amount: referralBonus,
+          type: "referral",
+          description: `邀请 ${publicId} 注册 +${referralBonus}`
+        }
       });
     }
 

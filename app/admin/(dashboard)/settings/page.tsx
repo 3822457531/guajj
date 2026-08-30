@@ -81,19 +81,30 @@ export default async function AdminSettingsPage({
             />
           </div>
 
-          <h2 style={{ margin: "22px 0 12px" }}>匿名身份与搜索配额</h2>
+          <h2 style={{ margin: "22px 0 12px" }}>永久瓜皮额度</h2>
           <p style={{ margin: "0 0 12px", color: "var(--muted)", fontSize: 13, lineHeight: 1.55 }}>
-            热搜榜由定时任务同步极搜热词；全网搜索每日次数 = 基础配额 + 邀请奖励累计次数。
+            总瓜皮 = 注册赠送 + 每日签到 + 推广奖励 + 购买。均为永久余额，观看满约 10 秒后扣 1。
           </p>
           <div className="field">
-            <label htmlFor="globalDailySearchLimit">全网搜索每日基础次数</label>
+            <label htmlFor="registerGuapiGift">注册赠送次数</label>
             <input
-              id="globalDailySearchLimit"
-              name="globalDailySearchLimit"
+              id="registerGuapiGift"
+              name="registerGuapiGift"
               type="number"
               min={0}
               max={999}
-              defaultValue={settings.globalDailySearchLimit ?? 5}
+              defaultValue={settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="checkInGuapiGift">每日签到赠送次数</label>
+            <input
+              id="checkInGuapiGift"
+              name="checkInGuapiGift"
+              type="number"
+              min={0}
+              max={99}
+              defaultValue={settings.checkInGuapiGift ?? 1}
             />
           </div>
           <div className="field" style={{ marginBottom: 8 }}>

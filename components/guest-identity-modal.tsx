@@ -172,7 +172,7 @@ export function GuestIdentityModal({ onComplete, onLeave, initialRef }: GuestIde
         ? "请稍候，系统正在为您自动生成加密身份与账户信息。"
         : step === "error"
           ? "身份创建未完成，请重试或稍后再试。"
-          : "由于内容特殊，本站不记录任何个人信息。系统已为你生成专属加密身份。";
+          : "";
 
   return (
     <div className="guest-id-overlay" role="dialog" aria-modal="true" aria-labelledby="guest-id-title">
@@ -190,11 +190,11 @@ export function GuestIdentityModal({ onComplete, onLeave, initialRef }: GuestIde
 
         {step === "confirm" ? (
           <div className="guest-id-confirm">
-            <ul className="guest-id-confirm-list">
+            {/* <ul className="guest-id-confirm-list">
               <li>本站内容仅限成年人浏览</li>
               <li>确认后将自动生成本地加密身份（GUA）</li>
               <li>选择离开将不会创建账户，并返回上一页</li>
-            </ul>
+            </ul> */}
             <div className="guest-id-confirm-actions">
               <button type="button" className="guest-id-btn guest-id-btn--outline" onClick={onLeave}>
                 离开

@@ -66,8 +66,8 @@ export function GuapiQuotaBlockedModal({
 
   const quotaText =
     typeof used === "number" && typeof limit === "number"
-      ? `今日已用 ${used} / ${limit} 瓜皮`
-      : "今日瓜皮已用完";
+      ? `已用 ${used} / 累计 ${limit} 瓜皮`
+      : "瓜皮不足";
 
   return (
     <div className="guapi-quota-modal" role="dialog" aria-modal="true" aria-labelledby="guapi-quota-title">
@@ -90,7 +90,8 @@ export function GuapiQuotaBlockedModal({
 
         <div className="guapi-quota-modal-body">
           <p className="guapi-quota-modal-desc">
-            {message?.trim() || "无法继续观看资源。可分享当前链接邀请好友增加额度，或购买瓜皮立即恢复。"}
+            {message?.trim() ||
+              "预览结束，瓜皮不足无法继续。可签到领取、分享邀请好友，或购买瓜皮。"}
           </p>
           <div className="guapi-quota-modal-actions">
             <button

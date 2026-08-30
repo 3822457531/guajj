@@ -42,7 +42,10 @@ export async function GET(request: Request) {
       usedToday: quota.used,
       limit: quota.limit,
       remaining: quota.remaining,
-      dailyBaseLimit: settings.globalDailySearchLimit ?? 5,
+      registerGuapiGift: settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5,
+      checkInGuapiGift: settings.checkInGuapiGift ?? 1,
+      checkedInToday: Boolean(quota.checkedInToday),
+      dailyBaseLimit: settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5,
       createdAt: user.createdAt.toISOString()
     }
   });

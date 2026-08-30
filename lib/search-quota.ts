@@ -7,18 +7,29 @@ import { getSiteSettings } from "@/lib/site-settings";
 export type SearchQuotaStatus = {
   guestUserId: string | null;
   publicId: string | null;
+  /** 已消耗 = 累计获得 − 当前余额 */
   used: number;
+  /** 累计获得的永久瓜皮 */
   limit: number;
+  /** 当前可用余额 */
   remaining: number;
+  /** 同 limit：累计获得 */
   searchBonus: number;
   hasIdentity: boolean;
   exceeded: boolean;
+  /** 今日是否已签到 */
+  checkedInToday?: boolean;
   /** 高级搜索 / 首页索引搜索为 true */
   unlimited?: boolean;
 };
 
 function startOfDayUtc(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+export function isSameUtcDay(a: Date | null | undefined, b: Date = new Date()): boolean {
+  if (!a) return false;
+  return startOfDayUtc(a).getTime() === startOfDayUtc(b).getTime();
 }
 
 export async function countTodaySearchesForGuest(guestUserId: string, source?: SearchSource) {
@@ -31,76 +42,65 @@ export async function countTodaySearchesForGuest(guestUserId: string, source?: S
   });
 }
 
-async function loadGuestQuotaBase(guestUserId: string | null) {
-  if (!guestUserId) {
-    return { guest: null, usedGuapi: 0 };
-  }
-
-  const [guest, usedGuapi] = await Promise.all([
-    findGuestById(guestUserId),
-    countTodayGuapiUsedForGuest(guestUserId)
-  ]);
-
-  return { guest, usedGuapi };
-}
-
-/** 今日已消耗瓜皮 = 观看资源次数 + 接码消费 */
+/** @deprecated 永久瓜皮不再按日统计消耗；保留兼容旧调用 */
 export async function countTodayGuapiUsedForGuest(guestUserId: string) {
   const todayStart = startOfDayUtc(new Date());
-  const [viewAgg, smsAgg] = await Promise.all([
-    prisma.smsGuapiLog.aggregate({
-      where: {
-        guestUserId,
-        type: "consume_view",
-        createdAt: { gte: todayStart },
-        amount: { lt: 0 }
-      },
-      _sum: { amount: true }
-    }),
-    prisma.smsGuapiLog.aggregate({
-      where: {
-        guestUserId,
-        createdAt: { gte: todayStart },
-        amount: { lt: 0 },
-        type: { not: "consume_view" }
-      },
-      _sum: { amount: true }
-    })
-  ]);
-  return Math.abs(viewAgg._sum.amount ?? 0) + Math.abs(smsAgg._sum.amount ?? 0);
+  const agg = await prisma.smsGuapiLog.aggregate({
+    where: {
+      guestUserId,
+      createdAt: { gte: todayStart },
+      amount: { lt: 0 }
+    },
+    _sum: { amount: true }
+  });
+  return Math.abs(agg._sum.amount ?? 0);
 }
 
-/** 全网搜索 + 接码共用每日瓜皮配额 */
+/** 永久瓜皮：剩余 = guapiBalance，累计获得 = searchBonus */
 export async function getGuestGlobalSearchQuota(guestUserId: string | null): Promise<SearchQuotaStatus> {
-  const settings = await getSiteSettings();
-  const baseLimit = Math.max(0, settings.globalDailySearchLimit ?? 5);
-  const { guest, usedGuapi } = await loadGuestQuotaBase(guestUserId);
+  if (!guestUserId) {
+    return {
+      guestUserId: null,
+      publicId: null,
+      used: 0,
+      limit: 0,
+      remaining: 0,
+      searchBonus: 0,
+      hasIdentity: false,
+      exceeded: true,
+      checkedInToday: false
+    };
+  }
 
+  const guest = await findGuestById(guestUserId);
   if (!guest) {
     return {
       guestUserId: null,
       publicId: null,
       used: 0,
-      limit: baseLimit,
+      limit: 0,
       remaining: 0,
       searchBonus: 0,
       hasIdentity: false,
-      exceeded: true
+      exceeded: true,
+      checkedInToday: false
     };
   }
 
-  const limit = baseLimit + Math.max(0, guest.searchBonus);
-  const remaining = Math.max(0, limit - usedGuapi);
+  const earned = Math.max(0, guest.searchBonus);
+  const remaining = Math.max(0, guest.guapiBalance);
+  const used = Math.max(0, earned - remaining);
 
   return {
     guestUserId: guest.id,
     publicId: guest.publicId,
-    used: usedGuapi,
-    limit,
+    used,
+    limit: earned,
     remaining,
-    searchBonus: guest.searchBonus,
+    searchBonus: earned,
     hasIdentity: true,
-    exceeded: usedGuapi >= limit
+    exceeded: remaining <= 0,
+    checkedInToday: isSameUtcDay(guest.lastCheckInAt)
   };
 }
 

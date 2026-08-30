@@ -51,9 +51,10 @@ export default async function AdminGuestUsersPage({
     <>
       {params.deleted ? <p className="admin-flash success">用户已删除。</p> : null}
       <p className="admin-page-note" style={{ marginTop: 0 }}>
-        前台通过「匿名加密身份」自动注册的用户（GUA 编号）。密钥仅以哈希存储于服务端，不在后台展示。热搜榜免费浏览；全网搜索每日基础{" "}
-        <strong>{settings.globalDailySearchLimit ?? 5}</strong> 次，每成功邀请额外{" "}
-        <strong>{settings.referralSearchBonus}</strong> 次。
+        前台通过「匿名加密身份」自动注册的用户（GUA 编号）。密钥仅以哈希存储于服务端，不在后台展示。永久瓜皮：注册赠送{" "}
+        <strong>{settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5}</strong>，每日签到{" "}
+        <strong>{settings.checkInGuapiGift ?? 1}</strong>，每成功邀请额外{" "}
+        <strong>{settings.referralSearchBonus}</strong>。
       </p>
       {tableRows.length === 0 ? (
         <p style={{ color: "var(--muted)" }}>暂无匿名注册用户。</p>

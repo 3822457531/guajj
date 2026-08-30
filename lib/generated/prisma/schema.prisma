@@ -67,15 +67,23 @@ model SiteSettings {
    */
   blockedKeywords        String?  @db.LongText
   /**
-   * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已用于全网搜索配额
+   * 匿名用户每日搜索次数上限（基础值，不含邀请奖励）— 已废弃
    */
   dailySearchLimit       Int      @default(3)
   /**
-   * 全网搜索（暗网索引）每日基础次数，不含邀请奖励
+   * @deprecated 已改为永久瓜皮；保留字段兼容旧后台，新逻辑用 registerGuapiGift
    */
   globalDailySearchLimit Int      @default(5)
   /**
-   * 每成功邀请一位新用户，邀请人额外获得的搜索次数
+   * 注册赠送永久瓜皮次数
+   */
+  registerGuapiGift      Int      @default(5)
+  /**
+   * 每日签到赠送永久瓜皮次数
+   */
+  checkInGuapiGift       Int      @default(1)
+  /**
+   * 每成功邀请一位新用户，邀请人额外获得的永久瓜皮
    */
   referralSearchBonus    Int      @default(1)
   updatedAt              DateTime @updatedAt
@@ -92,13 +100,17 @@ model GuestUser {
   referrer           GuestUser?          @relation("GuestReferral", fields: [referrerId], references: [id], onDelete: SetNull)
   referrals          GuestUser[]         @relation("GuestReferral")
   /**
-   * 邀请奖励累计获得的额外搜索次数
+   * 累计获得的永久瓜皮（注册+签到+推广+购买），只增不减
    */
   searchBonus        Int                 @default(0)
   /**
-   * 接码消费用瓜皮余额（整数）
+   * 当前可用瓜皮余额（永久钱包，消费扣减）
    */
   guapiBalance       Int                 @default(0)
+  /**
+   * 最近一次签到时间（按 UTC 自然日去重）
+   */
+  lastCheckInAt      DateTime?
   /**
    * 注册时的客户端 IP
    */
@@ -111,6 +123,15 @@ model GuestUser {
    * 最近一次登录/恢复会话时间
    */
   lastLoginAt        DateTime?
+  /**
+   * 是否已开通代理
+   */
+  isAgent            Boolean             @default(false)
+  agentAt            DateTime?
+  /**
+   * 代理可提现余额（元）
+   */
+  agentWalletYuan    Decimal             @default(0) @db.Decimal(10, 2)
   searchLogs         SearchLog[]
   globalSearchCaches GlobalSearchCache[]
   contentViewLogs    ContentViewLog[]
@@ -119,12 +140,17 @@ model GuestUser {
   smsUserRecords     SmsUserRecord[]
   smsNumberRecords   SmsNumberRecord[]
   guapiOrders        GuapiOrder[]
+  agentOrders        AgentOrder[]
+  commissionsEarned  AgentCommission[]   @relation("CommissionBeneficiary")
+  commissionsFrom    AgentCommission[]   @relation("CommissionFrom")
+  agentWithdrawals   AgentWithdrawal[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
   @@index([referrerId])
   @@index([createdAt])
   @@index([lastLoginAt])
+  @@index([isAgent])
 }
 
 /**
@@ -187,6 +213,123 @@ model GuapiOrder {
   rawQueryResp      String?          @db.Text
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+
+  @@index([guestUserId, createdAt])
+  @@index([status, createdAt])
+}
+
+/**
+ * 代理分销配置（key-value）
+ */
+model AgentConfig {
+  key   String @id @db.VarChar(64)
+  value String @db.Text
+}
+
+/**
+ * 代理开通套餐
+ */
+model AgentPackage {
+  id        String       @id @default(cuid()) @db.VarChar(30)
+  title     String       @db.VarChar(128)
+  goodsKey  String       @db.VarChar(64)
+  priceYuan Decimal      @db.Decimal(10, 2)
+  sortOrder Int          @default(0)
+  enabled   Boolean      @default(true)
+  orders    AgentOrder[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([enabled, sortOrder])
+}
+
+enum AgentOrderStatus {
+  pending
+  paid
+  closed
+}
+
+/**
+ * 代理开通订单
+ */
+model AgentOrder {
+  id                String           @id @default(cuid()) @db.VarChar(30)
+  guestUserId       String           @db.VarChar(30)
+  guestUser         GuestUser        @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  packageId         String           @db.VarChar(30)
+  package           AgentPackage     @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  tradeNo           String?          @unique @db.VarChar(64)
+  channelId         Int
+  channelName       String           @db.VarChar(32)
+  totalAmount       Decimal?         @db.Decimal(10, 2)
+  payUrl            String?          @db.VarChar(512)
+  shopSessionCookie String?          @db.VarChar(512)
+  status            AgentOrderStatus @default(pending)
+  paidAt            DateTime?
+  fulfilledAt       DateTime?
+  contact           String           @db.VarChar(64)
+  rawCreateResp     String?          @db.Text
+  rawQueryResp      String?          @db.Text
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([guestUserId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum AgentCommissionLevel {
+  direct
+  indirect
+}
+
+/**
+ * 代理佣金流水
+ */
+model AgentCommission {
+  id            String               @id @default(cuid()) @db.VarChar(30)
+  beneficiaryId String               @db.VarChar(30)
+  beneficiary   GuestUser            @relation("CommissionBeneficiary", fields: [beneficiaryId], references: [id], onDelete: Cascade)
+  fromGuestId   String               @db.VarChar(30)
+  fromGuest     GuestUser            @relation("CommissionFrom", fields: [fromGuestId], references: [id], onDelete: Cascade)
+  guapiOrderId  String               @db.VarChar(30)
+  level         AgentCommissionLevel
+  orderAmount   Decimal              @db.Decimal(10, 2)
+  rate          Decimal              @db.Decimal(6, 4)
+  amount        Decimal              @db.Decimal(10, 2)
+  createdAt     DateTime             @default(now())
+
+  @@unique([guapiOrderId, level])
+  @@index([beneficiaryId, createdAt])
+  @@index([fromGuestId, createdAt])
+}
+
+enum AgentWithdrawChannel {
+  alipay
+  wechat
+}
+
+enum AgentWithdrawStatus {
+  pending
+  approved
+  rejected
+}
+
+/**
+ * 代理提现申请
+ */
+model AgentWithdrawal {
+  id          String               @id @default(cuid()) @db.VarChar(30)
+  guestUserId String               @db.VarChar(30)
+  guestUser   GuestUser            @relation(fields: [guestUserId], references: [id], onDelete: Cascade)
+  amount      Decimal              @db.Decimal(10, 2)
+  channel     AgentWithdrawChannel
+  account     String               @db.VarChar(128)
+  accountName String?              @db.VarChar(64)
+  status      AgentWithdrawStatus  @default(pending)
+  adminNote   String?              @db.VarChar(255)
+  reviewedAt  DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   @@index([guestUserId, createdAt])
   @@index([status, createdAt])

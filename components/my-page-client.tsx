@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { GuapiBuyModal } from "@/components/guapi-buy-modal";
 import { GuapiHelpButton, GuapiInfoModal } from "@/components/guapi-info-modal";
 import { ReferralQrShare } from "@/components/referral-qr-share";
-import { VIEW_HISTORY_API } from "@/lib/tg-search-api-paths";
+import { GUEST_CHECK_IN_API, VIEW_HISTORY_API } from "@/lib/tg-search-api-paths";
 import { buildResourceSharePath } from "@/lib/resource-share";
 import {
   buildAbsoluteReferralLink,
@@ -22,7 +22,9 @@ type MyPageClientProps = {
   remaining: number;
   searchBonus: number;
   referralCount: number;
-  dailyBaseLimit: number;
+  registerGuapiGift: number;
+  checkInGuapiGift: number;
+  checkedInToday: boolean;
   referralBonusPerInvite: number;
 };
 
@@ -68,6 +70,9 @@ export function MyPageClient(props: MyPageClientProps) {
   const [remaining, setRemaining] = useState(props.remaining);
   const [limit, setLimit] = useState(props.limit);
   const [searchBonus, setSearchBonus] = useState(props.searchBonus);
+  const [checkedInToday, setCheckedInToday] = useState(props.checkedInToday);
+  const [checkInPending, setCheckInPending] = useState(false);
+  const [checkInMsg, setCheckInMsg] = useState<string | null>(null);
   const [viewHistory, setViewHistory] = useState<ViewHistoryItem[]>([]);
   const [viewHistoryLoading, setViewHistoryLoading] = useState(true);
   const [viewHistoryClearing, setViewHistoryClearing] = useState(false);
@@ -111,7 +116,42 @@ export function MyPageClient(props: MyPageClientProps) {
 
   const referralLink = buildReferralLink(props.publicId);
   const quotaPercent = limit > 0 ? Math.min(100, Math.round((remaining / limit) * 100)) : 0;
-  const usedToday = Math.max(0, limit - remaining);
+  const usedTotal = Math.max(0, limit - remaining);
+
+  const handleCheckIn = useCallback(async () => {
+    if (checkInPending || checkedInToday) return;
+    setCheckInPending(true);
+    setCheckInMsg(null);
+    try {
+      const res = await fetch(GUEST_CHECK_IN_API, { method: "POST" });
+      const data = (await res.json()) as {
+        ok?: boolean;
+        message?: string;
+        granted?: number;
+        alreadyCheckedIn?: boolean;
+        quota?: { remaining: number; limit: number; searchBonus: number; checkedInToday?: boolean };
+      };
+      if (!res.ok || !data.ok) {
+        setCheckInMsg(data.message || "签到失败");
+        return;
+      }
+      if (data.quota) {
+        setRemaining(data.quota.remaining);
+        setLimit(data.quota.limit);
+        setSearchBonus(data.quota.searchBonus);
+      }
+      setCheckedInToday(true);
+      setCheckInMsg(
+        data.alreadyCheckedIn
+          ? "今日已签到"
+          : `签到成功，+${data.granted ?? props.checkInGuapiGift} 瓜皮`
+      );
+    } catch {
+      setCheckInMsg("签到失败，请稍后重试");
+    } finally {
+      setCheckInPending(false);
+    }
+  }, [checkInPending, checkedInToday, props.checkInGuapiGift]);
 
   const copyText = useCallback(async (field: string, text: string) => {
     try {
@@ -158,7 +198,7 @@ export function MyPageClient(props: MyPageClientProps) {
             <span>🍉</span>
           </div>
           <div className="my-hero-id">
-            <p className="my-hero-kicker">吃瓜网 · 匿名身份</p>
+            {/* <p className="my-hero-kicker">吃瓜网 · 匿名身份</p> */}
             <div className="my-profile-id-row">
               <code className="my-profile-id">{props.publicId}</code>
               <CopyIconButton
@@ -174,16 +214,16 @@ export function MyPageClient(props: MyPageClientProps) {
 
         <div className="my-hero-quota">
           <div className="my-hero-quota-main">
-            <div className="my-hero-quota-label">
-              <span>今日瓜皮</span>
+            {/* <div className="my-hero-quota-label">
+              <span>瓜皮余额</span>
               <GuapiHelpButton onClick={() => setGuapiInfoOpen(true)} />
-            </div>
+            </div> */}
             <p className="my-hero-quota-num">
               <strong>{remaining}</strong>
-              <span className="my-hero-quota-den">/ {limit}</span>
+              <span className="my-hero-quota-den">可用</span>
             </p>
             <p className="my-hero-quota-meta">
-              已用 {usedToday} · 基础 {props.dailyBaseLimit}/日 · 额外 +{searchBonus}
+              已用 {usedTotal} · 累计获得 {limit} · 注册赠送 {props.registerGuapiGift}
             </p>
           </div>
           <div
@@ -198,12 +238,32 @@ export function MyPageClient(props: MyPageClientProps) {
         </div>
         <p className="my-hero-tip">
           {remaining <= 0
-            ? `额度已用完。购买瓜皮或邀请好友（每位 +${props.referralBonusPerInvite}），搜索免费、观看才扣。`
-            : "搜索免费 · 新资源观看扣 1 瓜皮 · 重复观看不扣"}
+            ? `额度已用完。每日签到 +${props.checkInGuapiGift}，邀请好友每位 +${props.referralBonusPerInvite}，或购买瓜皮。`
+            : "永久瓜皮 · 新资源预览约 10 秒后扣 1 · 短视频可看完 · 重复不扣"}
         </p>
       </section>
 
       <nav className="my-action-grid" aria-label="快捷入口">
+        <button
+          type="button"
+          className="my-action-tile my-action-tile--checkin"
+          disabled={checkInPending || checkedInToday}
+          onClick={() => void handleCheckIn()}
+        >
+          <span className="my-action-ico" aria-hidden>
+            📅
+          </span>
+          <span className="my-action-txt">
+            <strong>{checkedInToday ? "今日已签到" : "每日签到"}</strong>
+            <em>
+              {checkedInToday
+                ? checkInMsg || "明天再来"
+                : checkInPending
+                  ? "签到中…"
+                  : `+${props.checkInGuapiGift} 永久瓜皮`}
+            </em>
+          </span>
+        </button>
         <button type="button" className="my-action-tile my-action-tile--primary" onClick={() => setGuapiBuyOpen(true)}>
           <span className="my-action-ico" aria-hidden>
             🍉
@@ -222,16 +282,8 @@ export function MyPageClient(props: MyPageClientProps) {
             <em>直推间推提成</em>
           </span>
         </Link>
-        {/* <Link href="/global-search" prefetch={false} className="my-action-tile">
-          <span className="my-action-ico" aria-hidden>
-            🔍
-          </span>
-          <span className="my-action-txt">
-            <strong>全网搜索</strong>
-            <em>暗网极搜</em>
-          </span>
-        </Link> */}
       </nav>
+      {checkInMsg && !checkedInToday ? <p className="my-field-hint">{checkInMsg}</p> : null}
 
       <section className="my-panel my-panel--history" aria-label="观看历史">
         <div className="my-panel-title-row">
@@ -291,7 +343,7 @@ export function MyPageClient(props: MyPageClientProps) {
         <div className="my-stats-grid">
           <div className="my-stat">
             <span className="my-stat-value">+{searchBonus}</span>
-            <span className="my-stat-label">额外瓜皮</span>
+            <span className="my-stat-label">累计获得</span>
           </div>
           <div className="my-stat">
             <span className="my-stat-value">{props.referralCount}</span>

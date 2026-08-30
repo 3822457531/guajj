@@ -79,7 +79,9 @@ export default async function MyPage() {
           remaining={quota.remaining}
           searchBonus={user.searchBonus}
           referralCount={referralCount}
-          dailyBaseLimit={settings.globalDailySearchLimit ?? 5}
+          registerGuapiGift={settings.registerGuapiGift ?? settings.globalDailySearchLimit ?? 5}
+          checkInGuapiGift={settings.checkInGuapiGift ?? 1}
+          checkedInToday={Boolean(quota.checkedInToday)}
           referralBonusPerInvite={settings.referralSearchBonus}
         />
       </div>

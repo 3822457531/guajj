@@ -75,7 +75,7 @@ export function SmsPurposeModal({ open, onClose }: SmsPurposeModalProps) {
               <span>回到这里输入关键词，拉取短信里的验证码</span>
             </li>
           </ol>
-          <p className="my-guapi-modal-foot">与吃瓜搜索共用今日瓜皮，获取到短信验证码后扣费。</p>
+          <p className="my-guapi-modal-foot">与吃瓜搜索共用永久瓜皮，获取到短信验证码后扣费。</p>
           <div className="sms-platform-notice sms-platform-notice--modal">
             <p className="sms-platform-notice-title">特别注意</p>
             <p className="sms-platform-notice-text">

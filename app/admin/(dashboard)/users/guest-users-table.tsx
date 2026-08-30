@@ -27,7 +27,7 @@ export default function GuestUsersTable({ rows }: { rows: AdminGuestUserRow[] })
             <th>用户 ID</th>
             <th>推广码</th>
             <th>推广人</th>
-            <th>邀请奖励</th>
+            <th>累计瓜皮</th>
             <th>邀请人数</th>
             <th>今日搜索</th>
             <th>累计搜索</th>

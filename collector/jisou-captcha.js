@@ -184,12 +184,66 @@ async function ocrCaptchaImage(buffer) {
   return String(data?.text || "").trim();
 }
 
-async function downloadCaptchaImage(client, msg) {
-  const buffer = await client.downloadMedia(msg, {});
-  if (!buffer || !Buffer.isBuffer(buffer) || buffer.length === 0) {
-    throw new Error("验证码图片下载失败");
+function toNodeBuffer(raw) {
+  if (!raw) return null;
+  if (Buffer.isBuffer(raw)) return raw;
+  if (raw instanceof Uint8Array) return Buffer.from(raw);
+  if (ArrayBuffer.isView(raw)) return Buffer.from(raw.buffer, raw.byteOffset, raw.byteLength);
+  if (raw instanceof ArrayBuffer) return Buffer.from(raw);
+  if (typeof raw === "string" && raw.length > 0) return Buffer.from(raw, "binary");
+  return null;
+}
+
+function sniffImageMime(buf) {
+  if (!buf || buf.length < 3) return "image/jpeg";
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+  if (buf.length >= 8 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+    return "image/png";
   }
-  return buffer;
+  if (buf.length >= 6 && buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return "image/gif";
+  if (
+    buf.length >= 12 &&
+    buf[0] === 0x52 &&
+    buf[1] === 0x49 &&
+    buf[2] === 0x46 &&
+    buf[3] === 0x46 &&
+    buf[8] === 0x57 &&
+    buf[9] === 0x45 &&
+    buf[10] === 0x42 &&
+    buf[11] === 0x50
+  ) {
+    return "image/webp";
+  }
+  return "image/jpeg";
+}
+
+/**
+ * 验证码图首次常因媒体未就绪 / GramJS 返回 Uint8Array 而失败，导致整次 428 无图或搜索报错。
+ * 这里兼容多种二进制类型，并短重试。
+ */
+async function downloadCaptchaImage(client, msg, retries = 3) {
+  let lastErr = null;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const raw = await client.downloadMedia(msg, {});
+      const buffer = toNodeBuffer(raw);
+      if (buffer && buffer.length > 0) {
+        if (attempt > 1) {
+          console.log(`[极搜验证] 验证码图片第 ${attempt} 次下载成功 size=${buffer.length}`);
+        }
+        return buffer;
+      }
+      lastErr = new Error("验证码图片下载为空");
+    } catch (err) {
+      lastErr = err instanceof Error ? err : new Error(String(err));
+      console.warn(
+        `[极搜验证] 验证码图片下载失败 attempt=${attempt}/${retries}:`,
+        lastErr.message || lastErr
+      );
+    }
+    if (attempt < retries) await sleep(350 * attempt);
+  }
+  throw lastErr || new Error("验证码图片下载失败");
 }
 
 function findAnswerButton(msg, answer) {
@@ -240,6 +294,7 @@ async function clickCallbackButton(client, botEntity, msg, button) {
  */
 async function packCaptchaForWeb(client, botEntity, captchaMsg, query, sentMessageId) {
   const imageBuffer = await downloadCaptchaImage(client, captchaMsg);
+  const imageMime = sniffImageMime(imageBuffer);
   const buttons = flattenCallbackButtons(captchaMsg);
   const buttonByAnswer = {};
 
@@ -271,11 +326,14 @@ async function packCaptchaForWeb(client, botEntity, captchaMsg, query, sentMessa
     prompt,
     options,
     imageBuffer,
+    imageMime,
     buttonByAnswer,
     captchaMediaSig: captchaMediaSignature(captchaMsg)
   });
 
-  console.log(`[极搜验证] web 模式：已打包 challenge=${challengeId} options=${options.join(",")}`);
+  console.log(
+    `[极搜验证] web 模式：已打包 challenge=${challengeId} options=${options.join(",")} mime=${imageMime} size=${imageBuffer.length}`
+  );
 
   return {
     challengeId,
@@ -283,7 +341,7 @@ async function packCaptchaForWeb(client, botEntity, captchaMsg, query, sentMessa
     options,
     expiresInSec: Math.round(DEFAULT_TTL_MS / 1000),
     // 随 428 响应内联，避免前端再请求 /captcha/.../image 时冷启动/超时导致首张裂图
-    imageDataUrl: `data:image/jpeg;base64,${imageBuffer.toString("base64")}`
+    imageDataUrl: `data:${imageMime};base64,${imageBuffer.toString("base64")}`
   };
 }
 

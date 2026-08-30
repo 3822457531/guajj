@@ -32,9 +32,9 @@ export function SearchQuotaBlocked({ quota, variant = "home" }: SearchQuotaBlock
             </>
           ) : (
             <>
-              <h2 className="search-quota-blocked-title">今日瓜皮已用完</h2>
+              <h2 className="search-quota-blocked-title">瓜皮不足</h2>
               <p className="search-quota-blocked-desc">
-                已使用 {quota.used} / {quota.limit} 瓜皮。搜索不消耗瓜皮，观看资源需要瓜皮。可购买瓜皮，或分享推广链接邀请好友增加额度。
+                已用 {quota.used} / 累计 {quota.limit}。搜索不消耗瓜皮，观看资源需要瓜皮。可签到、购买，或分享推广链接增加额度。
               </p>
               <Link href="/my" className="search-quota-blocked-link">
                 前往「我的」购买瓜皮 →

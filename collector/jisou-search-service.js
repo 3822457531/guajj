@@ -710,7 +710,7 @@ async function solveJisouCaptchaAndSearch(challengeId, answer) {
 function getJisouCaptchaImage(challengeId) {
   const row = getChallenge(challengeId);
   if (!row?.imageBuffer) return null;
-  return { buffer: row.imageBuffer, mime: "image/jpeg" };
+  return { buffer: row.imageBuffer, mime: row.imageMime || "image/jpeg" };
 }
 
 /**

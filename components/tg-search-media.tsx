@@ -240,6 +240,10 @@ type VideoPlaybackScope = {
   activeVideoId: number | null;
   requestPlay: (videoId: number) => void;
   setChannelPlaybackActive?: (active: boolean) => void;
+  onWatchProgress?: (info: { currentTime: number; duration: number; ended?: boolean }) => void;
+  /** 未扣费预览上限（秒）；超出后暂停并回调 */
+  previewLimitSec?: number | null;
+  onPreviewLimitReached?: () => void;
 };
 
 const VideoPlaybackContext = createContext<VideoPlaybackScope | null>(null);
@@ -366,6 +370,7 @@ export function LazyVideoPlayer({
   const streamPlayStartedRef = useRef(0);
   const playbackScope = useVideoPlaybackScope();
   const isActivePlayback = !playbackScope || playbackScope.activeVideoId === item.id;
+  const previewLimitHitRef = useRef(false);
 
   const poster = item.thumbUrl ? resolveMediaPlayUrl(item.thumbUrl) : coverUrl ? resolveMediaPlayUrl(coverUrl) : null;
   const videoSrc = streamVideoUrl(apiBase, username, item.id);
@@ -394,6 +399,46 @@ export function LazyVideoPlayer({
     const active = playing && isActivePlayback && tgStreamPlayback;
     playbackScope.setChannelPlaybackActive(active);
   }, [playbackScope, playing, isActivePlayback, tgStreamPlayback]);
+
+  useEffect(() => {
+    previewLimitHitRef.current = false;
+  }, [playing, activeVideoSrc, playbackScope?.previewLimitSec, item.id]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !playing || !isActivePlayback) return;
+    const limit = playbackScope?.previewLimitSec;
+    const report = (ended = false) => {
+      playbackScope?.onWatchProgress?.({
+        currentTime: Number.isFinite(video.currentTime) ? video.currentTime : 0,
+        duration: Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 0,
+        ended
+      });
+    };
+    const onTimeUpdate = () => {
+      if (limit && limit > 0) {
+        const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 0;
+        const isShort = duration > 0 && duration < limit;
+        if (!isShort && video.currentTime >= limit - 0.08) {
+          if (video.currentTime > limit) video.currentTime = limit;
+          if (!video.paused) video.pause();
+          if (!previewLimitHitRef.current) {
+            previewLimitHitRef.current = true;
+            playbackScope?.onPreviewLimitReached?.();
+          }
+        }
+      }
+      report(false);
+    };
+    const onEnded = () => report(true);
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("ended", onEnded);
+    report(false);
+    return () => {
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("ended", onEnded);
+    };
+  }, [playbackScope, playing, isActivePlayback, activeVideoSrc, item.id]);
 
   const startPrefetch = useCallback(
     async (opts?: { force?: boolean }): Promise<VideoPlayMeta | null> => {
@@ -838,7 +883,10 @@ export function MessageMediaGallery({
   username,
   msg,
   eagerPrefetch = false,
-  onChannelPlaybackActive
+  onChannelPlaybackActive,
+  onWatchProgress,
+  previewLimitSec = null,
+  onPreviewLimitReached
 }: {
   apiBase?: string;
   username: string;
@@ -852,6 +900,9 @@ export function MessageMediaGallery({
   };
   eagerPrefetch?: boolean;
   onChannelPlaybackActive?: (active: boolean) => void;
+  onWatchProgress?: (info: { currentTime: number; duration: number; ended?: boolean }) => void;
+  previewLimitSec?: number | null;
+  onPreviewLimitReached?: () => void;
 }) {
   const [viewer, setViewer] = useState<{ urls: MediaViewerSource[]; index: number } | null>(null);
   const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
@@ -865,8 +916,15 @@ export function MessageMediaGallery({
     [onChannelPlaybackActive]
   );
   const playbackScope = useMemo(
-    () => ({ activeVideoId, requestPlay, setChannelPlaybackActive }),
-    [activeVideoId, requestPlay, setChannelPlaybackActive]
+    () => ({
+      activeVideoId,
+      requestPlay,
+      setChannelPlaybackActive,
+      onWatchProgress,
+      previewLimitSec,
+      onPreviewLimitReached
+    }),
+    [activeVideoId, requestPlay, setChannelPlaybackActive, onWatchProgress, previewLimitSec, onPreviewLimitReached]
   );
 
   const visualItems = msg.mediaItems.filter((m) => m.contentType === "PHOTO" || m.contentType === "VIDEO");
